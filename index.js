@@ -1,6 +1,6 @@
 const args = process.argv.slice(2);
 
-console.log(process.env);
+// console.log(process.env);
 
 args.forEach(arg => {
  console.log(arg);
@@ -8,7 +8,7 @@ args.forEach(arg => {
 
 
 let islandSize = Number.parseInt(args[0],10);
-if (! islandSize) islandSize = 20;
+if (! islandSize) islandSize = 60;
 
 console.log("Building an island of size " + islandSize);
 
@@ -18,7 +18,7 @@ constructor(size) {
   this.size = size;
   this.territory = [];
 
-  // first line
+  // creating a matrix of land objects with a value of 0
   for (let i = 0; i<size;i++){
     let line = [];
     for (let j=0 ;j< size;j++){
@@ -27,8 +27,10 @@ constructor(size) {
     this.territory.push(line);
   }
 
-  let start = 3, start2= 3;
-  for (let j =0; j < size; j++ ) {
+  // first lines of land from line 1 to line size -1   
+  let variation = islandSize / 5;
+  let start = variation , start2= variation;
+  for (let j =1; j < size - 1; j++ ) {
     let rnd = Math.floor((Math.random() * 3) - 1 + start);
     start = rnd;
 
@@ -36,10 +38,29 @@ constructor(size) {
     rnd2 = rnd2 < 0 ? 0 : rnd2;
     start2 = rnd2;
 
-    // console.log(rnd + " " + rnd2);
-
     for (let i = rnd; i < size - rnd2; i++){
       this.territory[j][i].setLand(1);
+    }
+
+  }
+
+  // sea borders on the upper and lower side
+  start = variation; 
+  start2= variation;
+  for (let j =1; j < size - 1; j++ ) {
+    let rnd = Math.floor((Math.random() * 3) - 1 + start);
+    start = rnd;
+
+    let rnd2 = Math.floor((Math.random() * 3) - 1 + start2);
+    rnd2 = rnd2 < 0 ? 0 : rnd2;
+    start2 = rnd2;
+
+    for (let i = 0; i< rnd; i++){
+      this.territory[i][j].setLand(0);
+    }
+
+    for (let i = size - rnd2; i < size; i++){
+      this.territory[i][j].setLand(0);
     }
 
   }
@@ -90,8 +111,8 @@ constructor(x,y){
 
 }
 
-setLand() {
-  this.type = 1;
+setLand(num) {
+  this.type = num;
 }
 
 
