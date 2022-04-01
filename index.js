@@ -7,7 +7,8 @@ args.forEach(arg => {
 });
 
 
-const islandSize = Number.parseInt(args[0],10) ?? 10;
+let islandSize = Number.parseInt(args[0],10);
+if (! islandSize) islandSize = 20;
 
 console.log("Building an island of size " + islandSize);
 
