@@ -104,11 +104,9 @@ class Land {
 
   elev(up,ref,isLand) {
     
-    
-    
     console.log(this.xcoord + " " + this.ycoord + " " + up.type + " " + ref.type);
 
-    if (this.xcoord === 0 || this.ycoord === 0 || this.xcoord === islandSize -1 || this.ycoord === islandSize -1) {
+      if (this.xcoord === 0 || this.ycoord === 0 || this.xcoord === islandSize -1 || this.ycoord === islandSize -1) {
       this.type = 0
     } else {
       let elev = Math.floor((Math.random() * 3) - 1 + ref.type);
