@@ -71,7 +71,7 @@ class Island {
       if (land) {
         console.log("const: " + xpos + " " + ypos + " " + land.getType());
       } else {
-        console.log("const: " + xpos + " " + ypos + " ---");
+        console.log("const: " + xpos + " " + ypos + " -- no land");
       }
 
       if (land && land.getType() !== 0) {
@@ -92,7 +92,7 @@ class Island {
     for (let x = xcoord - 1; x <= xcoord + 1; x++) {
       for (let y = ycoord - 1; y <= ycoord + 1; y++) {
         if (x >= 0 && y >= 0) {
-          console.log("elev: analyzing " + x + " " + y);
+          console.log("elev: analyzing " + x + " " + y + " " + this.territory[x][y].getType());
         }
       }
     }
