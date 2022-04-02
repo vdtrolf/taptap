@@ -8,7 +8,7 @@ args.forEach(arg => {
 
 
 let islandSize = Number.parseInt(args[0],10);
-if (! islandSize) islandSize = 60;
+if (! islandSize) islandSize = 40;
 
 console.log("Building an island of size " + islandSize);
 
@@ -65,34 +65,20 @@ constructor(size) {
 
   }
 
-
-  // for(let i=1; i< size -1  ; i++) {
-  //   let line1 = [];
-  //   let line2 = [];
-  //   let isLand1 = false;
-  //   let isLand2 = false;
-  //   for (let j=0 ; j < (size / 2) ; j++){
-  //     if (j === 0) {
-  //       line1.push(new Land(i,j));
-  //       line2.push(new Land(i,size -j));
-  //     } else  {
-  //       let land1 = new Land(i,j);
-  //       let land2 = new Land(i,size -j);
-  //
-  //       isLand1 = land1.elev(this.territory[i-1][j],line1[j-1],isLand1);
-  //       isLand2 = land2.elev(this.territory[i-1][size -j],line2[j-1],isLand2);
-  //
-  //       line1.push(land1);
-  //       line2.unshift(land2);
-  //
-  //     }
-  //   }
-  //   let line3 = [...line1,...line2]
-  //   this.territory.push(line3);
-  // }
-
-  // last line1
-
+  for(let i=0;i<size*2;i++) {
+    let xpos = Math.floor((Math.random() * size ));
+    let ypos = Math.floor((Math.random() * size ));
+    let land = this.territory[xpos][ypos];
+    
+    //if (land) {
+    //      console.log(xpos + " " + ypos + " " + land.getType());
+    //} else {
+    //  console.log(xpos + " " + ypos + " ---");
+    //}
+    if (land && land.getType() !== 0) {
+      land.setLand(land.getType() + 1);      
+    }
+  }
 }
 
 getLandType(x,y){
@@ -103,38 +89,40 @@ getLandType(x,y){
 }
 
 class Land {
-constructor(x,y){
-  // console.log(x + " " + y);
-  this.xcoord = x;
-  this.ycoord = y;
-  this.type = 0;
+  constructor(x,y){
+    // console.log(x + " " + y);
+    this.xcoord = x;
+    this.ycoord = y;
+    this.type = 0;
 
-}
-
-setLand(num) {
-  this.type = num;
-}
-
-
-elev(up,ref,isLand) {
-  console.log(this.xcoord + " " + this.ycoord + " " + up.type + " " + ref.type);
-
-
-  if (this.xcoord === 0 || this.ycoord === 0 || this.xcoord === islandSize -1 || this.ycoord === islandSize -1) {
-    this.type = 0
-  } else {
-    let elev = Math.floor((Math.random() * 3) - 1 + ref.type);
-    elev = elev > 0 ? elev : 0;
-    elev = Math.abs(elev - up.type) > 1 ? up.type : elev;
-    elev = isLand && elev < 1 ? 1 : elev;
-    this.type = elev;
-    return elev > 0;
   }
-}
 
-getType() {
-  return this.type;
-}
+  setLand(num) {
+    this.type = num;
+  }
+
+
+  elev(up,ref,isLand) {
+    
+    
+    
+    console.log(this.xcoord + " " + this.ycoord + " " + up.type + " " + ref.type);
+
+    if (this.xcoord === 0 || this.ycoord === 0 || this.xcoord === islandSize -1 || this.ycoord === islandSize -1) {
+      this.type = 0
+    } else {
+      let elev = Math.floor((Math.random() * 3) - 1 + ref.type);
+      elev = elev > 0 ? elev : 0;
+      elev = Math.abs(elev - up.type) > 1 ? up.type : elev;
+      elev = isLand && elev < 1 ? 1 : elev;
+      this.type = elev;
+      return elev > 0;
+    }
+  }
+
+  getType() {
+    return this.type;
+  }
 }
 
 const island = new Island(islandSize);
