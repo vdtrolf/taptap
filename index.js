@@ -47,8 +47,8 @@ class Island {
     }
 
     // sea borders on the upper and lower side
-    start = variation;
-    start2 = variation;
+    start = variation /2;
+    start2 = variation / 2;
     for (let j = 1; j < size - 1; j++) {
       let rnd = Math.floor(Math.random() * 3 - 1 + start);
       start = rnd;
@@ -90,11 +90,11 @@ class Island {
     return land.getType();
   }
 
-  elev(land, xcoord, ycoord) {
+  elev(land, xpos, ypos) {
     const height = land.getType() + 1;
     // console.log("elev: " + xcoord + " " + ycoord + " -> " + height);
-    for (let x = xcoord - 1; x <= xcoord + 1; x++) {
-      for (let y = ycoord - 1; y <= ycoord + 1; y++) {
+    for (let x = xpos - 1; x <= xpos + 1; x++) {
+      for (let y = ypos - 1; y <= ypos + 1; y++) {
         if (x >= 0 && y >= 0) {
           let lheight = this.territory[x][y].getType();
           if (lheight > 0 && height - lheight > 1) {
@@ -104,7 +104,7 @@ class Island {
         }
       }
     }
-    this.territory[xcoord][ycoord].setLand(height);
+    this.territory[xpos][ypos].setLand(height);
   }
 }
 
@@ -149,10 +149,24 @@ class Land {
 
 const island = new Island(islandSize);
 
+let linetop = "+";
+for (let j = 0; j < islandSize; j++) linetop += "-";
+console.log( linetop + "+");
+
 for (let i = 0; i < islandSize; i++) {
-  let line = "";
+  let line = "|";
   for (let j = 0; j < islandSize; j++) {
-    line += island.getLandType(i, j);
+    switch(island.getLandType(i, j)){
+      case 0: line += " "; break;
+      case 1: line += "."; break;
+      case 2: line += "^"; break;
+      case 3: line += "*"; break;
+      case 4: line += "#"; break;
+    }
+    
   }
-  console.log(line);
+  console.log(line +"|");
 }
+
+console.log( linetop + "+");
+
