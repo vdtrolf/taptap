@@ -38,7 +38,11 @@ class Island {
       start2 = rnd2;
 
       for (let i = rnd; i < size - rnd2; i++) {
-        this.territory[j][i].setLand(1);
+        if (this.territory[j][i]) {
+          this.territory[j][i].setLand(1);
+        } else {
+          console.log("const: cant set land for " + j + " " + i);
+        }
       }
     }
 
@@ -62,17 +66,17 @@ class Island {
       }
     }
 
-    // for (let i = 0; i < size * 2; i++) {
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < size * 5; i++) {
+      // for (let i = 0; i < 2; i++) {
       let xpos = Math.floor(Math.random() * size);
       let ypos = Math.floor(Math.random() * size);
       let land = this.territory[xpos][ypos];
 
-      if (land) {
-        console.log("const: " + xpos + " " + ypos + " " + land.getType());
-      } else {
-        console.log("const: " + xpos + " " + ypos + " -- no land");
-      }
+      // if (land) {
+      //   console.log("const: " + xpos + " " + ypos + " " + land.getType());
+      // } else {
+      //   console.log("const: " + xpos + " " + ypos + " -- no land");
+      // }
 
       if (land && land.getType() !== 0) {
         this.elev(land, xpos, ypos);
@@ -88,14 +92,19 @@ class Island {
 
   elev(land, xcoord, ycoord) {
     const height = land.getType() + 1;
-    console.log("elev: " + xcoord + " " + ycoord + " -> " + height);
+    // console.log("elev: " + xcoord + " " + ycoord + " -> " + height);
     for (let x = xcoord - 1; x <= xcoord + 1; x++) {
       for (let y = ycoord - 1; y <= ycoord + 1; y++) {
         if (x >= 0 && y >= 0) {
-          console.log("elev: analyzing " + x + " " + y + " " + this.territory[x][y].getType());
+          let lheight = this.territory[x][y].getType();
+          if (lheight > 0 && height - lheight > 1) {
+            // console.log("elev: upscaling " + x + " " + y + " " + lheight);
+            this.territory[x][y].setLand(lheight + 1);
+          }
         }
       }
     }
+    this.territory[xcoord][ycoord].setLand(height);
   }
 }
 
