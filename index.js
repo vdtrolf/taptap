@@ -120,32 +120,20 @@ class Land {
     this.type = num;
   }
 
-  elev(up, ref, isLand) {
-    console.log(
-      this.xcoord + " " + this.ycoord + " " + up.type + " " + ref.type
-    );
-
-    if (
-      this.xcoord === 0 ||
-      this.ycoord === 0 ||
-      this.xcoord === islandSize - 1 ||
-      this.ycoord === islandSize - 1
-    ) {
-      this.type = 0;
-    } else {
-      let elev = Math.floor(Math.random() * 3 - 1 + ref.type);
-      elev = elev > 0 ? elev : 0;
-      elev = Math.abs(elev - up.type) > 1 ? up.type : elev;
-      elev = isLand && elev < 1 ? 1 : elev;
-      this.type = elev;
-      return elev > 0;
-    }
-  }
+  
 
   getType() {
     return this.type;
   }
 }
+
+
+const getWeather = () => {
+  fetch("http://api.weatherapi.com/v1/current.json?key=c28ff46234e64f52abe171323220204&q=London&aqi=no")
+  .then(response => response.json())
+  .then(data => console.log(data));
+}
+
 
 const island = new Island(islandSize);
 
@@ -170,3 +158,4 @@ for (let i = 0; i < islandSize; i++) {
 
 console.log( linetop + "+");
 
+getWeather();
