@@ -1,3 +1,5 @@
+// const fetch = require('node-fetch');
+
 const args = process.argv.slice(2);
 
 // console.log(process.env);
