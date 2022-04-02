@@ -62,18 +62,20 @@ class Island {
       }
     }
 
-    for (let i = 0; i < size * 2; i++) {
+    // for (let i = 0; i < size * 2; i++) {
+    for (let i = 0; i < 2; i++) {
       let xpos = Math.floor(Math.random() * size);
       let ypos = Math.floor(Math.random() * size);
       let land = this.territory[xpos][ypos];
 
-      //if (land) {
-      //      console.log(xpos + " " + ypos + " " + land.getType());
-      //} else {
-      //  console.log(xpos + " " + ypos + " ---");
-      //}
+      if (land) {
+        console.log("const: " + xpos + " " + ypos + " " + land.getType());
+      } else {
+        console.log("const: " + xpos + " " + ypos + " ---");
+      }
+
       if (land && land.getType() !== 0) {
-        land.setLand(land.getType() + 1);
+        this.elev(land, xpos, ypos);
       }
     }
   }
@@ -82,6 +84,18 @@ class Island {
     // console.log("-->" + x + " " + y);
     const land = this.territory[x][y];
     return land.getType();
+  }
+
+  elev(land, xcoord, ycoord) {
+    const height = land.getType() + 1;
+    console.log("elev: " + xcoord + " " + ycoord + " -> " + height);
+    for (let x = xcoord - 1; x <= xcoord + 1; x++) {
+      for (let y = ycoord - 1; y <= ycoord + 1; y++) {
+        if (x >= 0 && y >= 0) {
+          console.log("elev: analyzing " + x + " " + y);
+        }
+      }
+    }
   }
 }
 
