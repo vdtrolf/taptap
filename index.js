@@ -1,4 +1,6 @@
-// const fetch = require('node-fetch');
+//const fetch = require('node-fetch');
+
+//import {fetch} from 'node-fetch';
 
 const args = process.argv.slice(2);
 
