@@ -133,7 +133,9 @@ class Land {
 
 
 const getWeather = () => {
-  axios.get("http://api.weatherapi.com/v1/current.json?key=c28ff46234e64f52abe171323220204&q=London&aqi=no")
+  
+  //axios.get("http://api.weatherapi.com/v1/current.json?key=c28ff46234e64f52abe171323220204&q=London&aqi=no")
+  axios.get('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY')
   .then(response => {
     console.log(response.data.url);
     console.log(response.data.explanation);
