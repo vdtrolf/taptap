@@ -1,4 +1,4 @@
-const axios = require('axios');
+const axios = require("axios");
 
 //import {fetch} from 'node-fetch';
 
@@ -51,7 +51,7 @@ class Island {
     }
 
     // sea borders on the upper and lower side
-    start = variation /2;
+    start = variation / 2;
     start2 = variation / 2;
     for (let j = 1; j < size - 1; j++) {
       let rnd = Math.floor(Math.random() * 3 - 1 + start);
@@ -124,52 +124,54 @@ class Land {
     this.type = num;
   }
 
-  
-
   getType() {
     return this.type;
   }
 }
 
-
 const getWeather = () => {
-  
-  //axios.get("http://api.weatherapi.com/v1/current.json?key=c28ff46234e64f52abe171323220204&q=London&aqi=no")
-  axios.get('https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY')
-  .then(response => {
-    console.log(response.data.url);
-    console.log(response.data.explanation);
-  })
-  .catch(error => {
-    console.log(error);
-  });
-  
-  //then(response => response.json())
-  //then(data => console.log(data));
-}
-
+  axios
+    .get(
+      "http://api.weatherapi.com/v1/current.json?key=c28ff46234e64f52abe171323220204&q=London&aqi=no"
+    )
+    .then((response) => {
+      console.log(response.data.current);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+};
 
 const island = new Island(islandSize);
 
 let linetop = "+";
 for (let j = 0; j < islandSize; j++) linetop += "-";
-console.log( linetop + "+");
+console.log(linetop + "+");
 
 for (let i = 0; i < islandSize; i++) {
   let line = "|";
   for (let j = 0; j < islandSize; j++) {
-    switch(island.getLandType(i, j)){
-      case 0: line += " "; break;
-      case 1: line += "."; break;
-      case 2: line += "^"; break;
-      case 3: line += "*"; break;
-      case 4: line += "#"; break;
+    switch (island.getLandType(i, j)) {
+      case 0:
+        line += " ";
+        break;
+      case 1:
+        line += ".";
+        break;
+      case 2:
+        line += "^";
+        break;
+      case 3:
+        line += "*";
+        break;
+      case 4:
+        line += "#";
+        break;
     }
-    
   }
-  console.log(line +"|");
+  console.log(line + "|");
 }
 
-console.log( linetop + "+");
+console.log(linetop + "+");
 
 getWeather();
