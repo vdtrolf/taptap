@@ -135,7 +135,7 @@ const getWeather = () => {
       "http://api.weatherapi.com/v1/current.json?key=c28ff46234e64f52abe171323220204&q=London&aqi=no"
     )
     .then((response) => {
-      console.log(response.data.current);
+      console.log(response.data.current.condition.text);
     })
     .catch((error) => {
       console.log(error);
