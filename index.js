@@ -1,4 +1,4 @@
-//const fetch = require('node-fetch');
+const axios = require('axios');
 
 //import {fetch} from 'node-fetch';
 
@@ -133,9 +133,17 @@ class Land {
 
 
 const getWeather = () => {
-  fetch("http://api.weatherapi.com/v1/current.json?key=c28ff46234e64f52abe171323220204&q=London&aqi=no")
-  .then(response => response.json())
-  .then(data => console.log(data));
+  axios.get("http://api.weatherapi.com/v1/current.json?key=c28ff46234e64f52abe171323220204&q=London&aqi=no")
+  .then(response => {
+    console.log(response.data.url);
+    console.log(response.data.explanation);
+  })
+  .catch(error => {
+    console.log(error);
+  });
+  
+  //then(response => response.json())
+  //then(data => console.log(data));
 }
 
 
