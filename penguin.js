@@ -1,4 +1,4 @@
-testFunction = function(name) {
+const testFunction = (name) => {
   console.log("Hello " + name);
 }
 

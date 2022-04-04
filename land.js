@@ -1,9 +1,7 @@
 const penguinReq = require("./penguin.js");
-const islandReq = require("./island.js");
 const axios = require("axios");
 
 let Penguin = penguinReq.Penguin;
-let Island = islandReq.Island;
 
 class Land {
   constructor(l, h) {
