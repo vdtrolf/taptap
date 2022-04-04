@@ -7,8 +7,12 @@ let Penguin = penguinReq.Penguin;
 let Island = islandReq.Island;
 let Land = landReq.Land;
 
-const args = process.argv.slice(2);
+const deco1 = [" ",".","^","%","#","#","#","#"];
+const deco2 = [" ","░","▒","▓","█","█","█","█"];
 
+let deco = deco1;
+
+const args = process.argv.slice(2);
 // console.log(process.env);
 
 args.forEach((arg) => {
@@ -16,7 +20,7 @@ args.forEach((arg) => {
 });
 
 let islandL = Number.parseInt(args[0], 10);
-if (!islandL) islandL = 120;
+if (!islandL) islandL = 60;
 let islandH = islandL / 3;
 
 console.log("Building an island of size " + islandH + " * " + islandL);
@@ -47,24 +51,8 @@ for (let i = 0; i < islandH; i++) {
     if (island.hasPenguin(i,j)) {
       line += "o";
     } else {
-    switch (island.getLandType(i, j)) {
-      case 0:
-        line += " ";
-        break;
-      case 1:
-        line += "."; // """░";
-        break;
-      case 2:
-        line += "^"; // "▒";
-        break;
-      case 3:
-        line += "*"; //"▓";
-        break;
-      case 4:
-        line += "@"; // "█";
-        break;
+      line += deco[island.getLandType(i,j)];
     }
-  }
   }
   console.log(line + "|");
 }
