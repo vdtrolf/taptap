@@ -80,7 +80,7 @@ class Island {
 
 
       if (land && land.getType() !== 0) {
-        let penguin = new Penguin(hpos,lpos,"toto","M",10);
+        let penguin = new Penguin(hpos,lpos);
         land.addPenguin(penguin);
         this.penguins.push(penguin);
       }

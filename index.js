@@ -13,14 +13,87 @@ const deco2 = [" ","░","▒","▓","█","█","█","█"];
 let deco = deco1;
 
 const args = process.argv.slice(2);
-// console.log(process.env);
+// 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+console.log(process.env);
 
 args.forEach((arg) => {
   console.log(arg);
 });
 
 let islandL = Number.parseInt(args[0], 10);
-if (!islandL) islandL = 60;
+if (!islandL) islandL = 90;
 let islandH = islandL / 3;
 
 console.log("Building an island of size " + islandH + " * " + islandL);
@@ -61,4 +134,3 @@ console.log(linetop + "+");
 
 // getWeather();
 
-penguinReq.testFunction("tati");

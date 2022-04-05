@@ -17,7 +17,7 @@ class Land {
   }
 
   addPenguin(penguin) {
-    console.log("New penguin at " + this.lpos + " " + this.hpos);
+    // console.log("New penguin at " + this.lpos + " " + this.hpos);
     this.penguin = penguin;
   }
 
