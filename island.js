@@ -5,6 +5,10 @@ const axios = require("axios");
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
 
+const deco1 = ["&nbsp;",".","^","%","#","#","#","#"];
+const deco2 = ["&nbsp;","░","▒","▓","█","█","█","█"];
+
+
 class Island {
   constructor(sizeH,sizeL) {
     this.sizeH = sizeH;
@@ -102,7 +106,47 @@ class Island {
     }
     return false;
   }
-
+  
+  getPenguins() {
+    return this.penguins;
+  }
+  
+  getAscii(mode,islandH,islandL) {
+ 
+    let deco = mode === 1 ? deco1 : deco2;
+  
+    let result = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
+<html xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title>Little Island</title>
+    </head>
+    <body>
+        <pre>`;
+    let linetop = `+`;
+    for (let j = 0; j < islandL; j++) linetop += `-`;
+    result += linetop + `+\n`;
+    for (let i = 0; i < islandH; i++) {
+      let line = "|";
+      for (let j = 0; j < islandL; j++) {
+        const land = this.territory[i][j];
+        if (land.checkPenguin()){
+            line += "O";
+        } else {
+          line += deco[this.territory[i][j].getType()];
+        }  
+      }
+      result += line + `|\n`;
+    }
+    result += linetop + `+\n`;
+    result += `</pre>
+    </body>
+</html>`;
+      
+    return result;      
+  
+  }
+  
 
   elev(land, hpos, lpos) {
     const height = land.getType() + 1;
