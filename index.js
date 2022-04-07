@@ -13,77 +13,6 @@ const deco2 = [" ","░","▒","▓","█","█","█","█"];
 let deco = deco1;
 
 const args = process.argv.slice(2);
-// 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 console.log(process.env);
@@ -122,7 +51,7 @@ for (let i = 0; i < islandH; i++) {
   let line = "|";
   for (let j = 0; j < islandL; j++) {
     if (island.hasPenguin(i,j)) {
-      line += "o";
+      line += "O";
     } else {
       line += deco[island.getLandType(i,j)];
     }
