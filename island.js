@@ -115,13 +115,7 @@ class Island {
  
     let deco = mode === 1 ? deco1 : deco2;
   
-    let result = `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> 
-<html xmlns="http://www.w3.org/1999/xhtml">
-    <head>
-        <title>Little Island</title>
-    </head>
-    <body>
+    let result = `
         <pre>`;
     let linetop = `+`;
     for (let j = 0; j < islandL; j++) linetop += `-`;
@@ -139,9 +133,7 @@ class Island {
       result += line + `|\n`;
     }
     result += linetop + `+\n`;
-    result += `</pre>
-    </body>
-</html>`;
+    result += `</pre>`;
       
     return result;      
   

@@ -13,6 +13,17 @@ const port = 3005;
 
 const args = process.argv.slice(2);
 
+let users = {
+  1: {
+    id: '1',
+    username: 'Robin Wieruch',
+  },
+  2: {
+    id: '2',
+    username: 'Dave Davids',
+  },
+};
+
 // console.log(process.env);
 
 args.forEach((arg) => {
@@ -36,17 +47,19 @@ if (debug) {
   console.log(island.getAscii(mode));
 }
 
-app.get('/penguins', (req, res) => {
-    res.send(island.getPenguins());
-}).listen(port, () => console.log(`Little island app listening on port ${port}!`))
+// app.get('/penguins', (req, res) => {
+//     res.send(island.getPenguins());
+// }).listen(port, () => console.log(`Little island app listening on port ${port}!`))
 
 app.get('/island-ascii', (req, res) => {
+    console.log("Hiiiii");
+    // res.send(Object.values(users));
     res.send(island.getAscii(mode,islandH,islandL));
 }).listen(port, () => console.log(`Little island app listening on port ${port}!`))
 
-app.get('/', (req, res) => {
-    res.send('Penguin island');
-}).listen(port, () => console.log(`Little island app listening on port ${port}!`))
+// app.get('/', (req, res) => {
+//     res.send('Penguin island');
+// }).listen(port, () => console.log(`Little island app listening on port ${port}!`))
 
 
 // getWeather();
