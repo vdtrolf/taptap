@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const penguinReq = require("./penguin.js");
 const islandReq = require("./island.js");
 const landReq = require("./land.js");
@@ -10,19 +11,15 @@ let Land = landReq.Land;
 
 const app = express();
 const port = 3001;
+app.use(cors())
+app.use(express.json());
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
 
 const args = process.argv.slice(2);
-
-let users = {
-  1: {
-    id: '1',
-    username: 'Robin Wieruch',
-  },
-  2: {
-    id: '2',
-    username: 'Dave Davids',
-  },
-};
 
 // console.log(process.env);
 
@@ -41,27 +38,33 @@ let debug = Number.parseInt(args[2], 10);
 
 console.log("Building an island of size " + islandH + " * " + islandL);
 
-const island = new Island(islandH,islandL);
+let island = new Island(islandH,islandL);
 
 if (debug) {
   console.log(island.getAscii(mode));
 }
 
-// app.get('/penguins', (req, res) => {
-//     res.send(island.getPenguins());
-// }).listen(port, () => console.log(`Little island app listening on port ${port}!`))
+app.get('/penguins', (req, res) => {
+  console.log(req);
+  res.json(island.getPenguins());
+});
 
-app.get('/island-ascii', (req, res) => {
-    console.log("Hiiiii");
-    res.status(200).send(users);
-    console.log("Hiiiii 2");
-    // res.send(island.getAscii(mode,islandH,islandL));
-}).listen(port, () => console.log(`Little island app listening on port ${port}!`))
+app.get("/new-island", (req, res) => {
+  let island = new Island(islandH,islandL);
+  res.json( {island : island.getAscii(mode,islandH,islandL)});
+});
 
-// app.get('/', (req, res) => {
-//     res.send('Penguin island');
-// }).listen(port, () => console.log(`Little island app listening on port ${port}!`))
+app.get("/island-ascii", (req, res) => {
+  res.json( {island : island.getAscii(mode,islandH,islandL)});
+});
 
+app.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}`);
+});
+
+
+
+
+    // res.send(`{island : "${island.getAscii(mode,islandH,islandL)}"}`);
 
 // getWeather();
-

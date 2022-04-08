@@ -106,17 +106,16 @@ class Island {
     }
     return false;
   }
-  
+
   getPenguins() {
     return this.penguins;
   }
-  
+
   getAscii(mode,islandH,islandL) {
- 
+
     let deco = mode === 1 ? deco1 : deco2;
-  
-    let result = `
-        <pre>`;
+
+    let result = ``;
     let linetop = `+`;
     for (let j = 0; j < islandL; j++) linetop += `-`;
     result += linetop + `+\n`;
@@ -128,17 +127,16 @@ class Island {
             line += "O";
         } else {
           line += deco[this.territory[i][j].getType()];
-        }  
+        }
       }
       result += line + `|\n`;
     }
     result += linetop + `+\n`;
-    result += `</pre>`;
-      
-    return result;      
-  
+
+    return result;
+
   }
-  
+
 
   elev(land, hpos, lpos) {
     const height = land.getType() + 1;
