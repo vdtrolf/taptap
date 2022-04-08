@@ -9,7 +9,7 @@ let Island = islandReq.Island;
 let Land = landReq.Land;
 
 const app = express();
-const port = 3005;
+const port = 3001;
 
 const args = process.argv.slice(2);
 
@@ -53,8 +53,9 @@ if (debug) {
 
 app.get('/island-ascii', (req, res) => {
     console.log("Hiiiii");
-    // res.send(Object.values(users));
-    res.send(island.getAscii(mode,islandH,islandL));
+    res.status(200).send(users);
+    console.log("Hiiiii 2");
+    // res.send(island.getAscii(mode,islandH,islandL));
 }).listen(port, () => console.log(`Little island app listening on port ${port}!`))
 
 // app.get('/', (req, res) => {
