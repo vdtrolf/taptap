@@ -55,6 +55,7 @@ app.get("/new-island", (req, res) => {
 });
 
 app.get("/island-ascii", (req, res) => {
+  console.log("get");
   res.json( {island : island.getAscii(mode,islandH,islandL)});
 });
 
