@@ -44,28 +44,26 @@ if (debug) {
   console.log(island.getAscii(mode));
 }
 
-app.get('/penguins', (req, res) => {
-  console.log(req);
-  res.json(island.getPenguins());
-});
-
-app.get("/new-island", (req, res) => {
-  let island = new Island(islandH,islandL);
-  res.json( {island : island.getAscii(mode,islandH,islandL)});
-});
-
-app.get("/island-ascii", (req, res) => {
-  console.log("get");
-  res.json( {island : island.getAscii(mode,islandH,islandL)});
+app.get('/*', (req, res) => {
+  console.log(req.url);
+  switch(req.url) {
+    case "/island-ascii" : {
+      return res.json( {island : island.getAscii(mode,islandH,islandL),penguins : island.getPenguins()});
+    }
+    case "/new-island" : {
+      island = new Island(islandH,islandL);
+      return res.json( {island : island.getAscii(mode,islandH,islandL),penguins : island.getPenguins()});
+    }
+    case "/penguins" : {
+      return res.json({penguins : island.getPenguins()}); 
+    } 
+  }
+   
+  // res.json({penguins : island.getPenguins()});
 });
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`Little island listening at port: ${port}`);
 });
-
-
-
-
-    // res.send(`{island : "${island.getAscii(mode,islandH,islandL)}"}`);
 
 // getWeather();

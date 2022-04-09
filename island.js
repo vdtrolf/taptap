@@ -77,14 +77,15 @@ class Island {
       }
     }
     // randomly add some penguins
+    let numPeng = 0;
     for (let i = 0; i < 10; i++) {
       let hpos = Math.floor(Math.random() * sizeH);
       let lpos = Math.floor(Math.random() * sizeL);
       let land = this.territory[hpos][lpos];
 
-
+      
       if (land && land.getType() !== 0) {
-        let penguin = new Penguin(hpos,lpos);
+        let penguin = new Penguin(numPeng++,hpos,lpos);
         land.addPenguin(penguin);
         this.penguins.push(penguin);
       }
@@ -124,7 +125,7 @@ class Island {
       for (let j = 0; j < islandL; j++) {
         const land = this.territory[i][j];
         if (land.checkPenguin()){
-            line += "O";
+            line += this.territory[i][j].checkPenguin().getNum();
         } else {
           line += deco[this.territory[i][j].getType()];
         }
