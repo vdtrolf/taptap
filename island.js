@@ -22,7 +22,7 @@ class Island {
     this.sizeL = sizeL;
     this.territory = [];
     this.penguins = [];
-    
+
     let matrix = [];
 
     // creating a matrix of land objects with a value of 0
@@ -39,136 +39,141 @@ class Island {
 
 
     // Randomly elevate some terrain parts
-    for (let i = 0; i < 20; i++) {
-      let hpos = Math.floor(Math.random() * sizeH / 1.5) + Math.floor(sizeH/6);
-      let lpos = Math.floor(Math.random() * sizeL / 1.5) + Math.floor(sizeL/6);
-     
-      matrix[hpos][lpos] = 1;
-      
-      // console.log("==>" + hpos + " " + lpos + " " + matrix[hpos][lpos]);
-     
-      let land = this.territory[hpos][lpos];
+    let cnt = 0, max = sizeH * sizeL;
+    for (let i = 0; i < sizeH * sizeL * 10 && cnt < max / 3 ; i++) {
+      let hpos = Math.floor(Math.random() * sizeH / 1.2) + Math.floor(sizeH/8);
+      let lpos = Math.floor(Math.random() * sizeL / 1.2) + Math.floor(sizeL/8);
 
-      if (land && land.getType() === 0) {
-        this.elev(land, hpos, lpos);
+      if (hpos > 2 && hpos < sizeH -2 && lpos > 2 && lpos < sizeL -2  ) {
+      if (i < 10) {
+        matrix[hpos][lpos] = 1;
+        cnt++
+      } else if (matrix[hpos][lpos] === 0 &&
+          (matrix[hpos-1][lpos] === 1 ||
+          matrix[hpos][lpos-1] === 1 ||
+          matrix[hpos+1][lpos] === 1 ||
+          matrix[hpos][lpos+1] === 1 )) {
+          matrix[hpos][lpos] = 1;
+          cnt++;
+        }
+      }
+    }
+
+    // Make land based on the matrix
+    for (let h = 0; h < sizeH; h++) {
+      for (let l = 0; l < sizeL; l++) {
+        let land = this.territory[h][l];
+        if (land && land.getType() === 0 && matrix[h][l]) {
+          this.elev(land, h, l);
+        }
       }
     }
 
 
-    for ( let h=0;h<sizeH;h++) {
-      let maxleft = 0, maxright =sizeL, hasdot = false; 
-      
-      for (let l=0; l<sizeL;l++) {
-         if(matrix[h][l] === 1) {
-           maxleft = l > maxleft ? l : maxleft;
-           maxright = l < maxright ? l : maxright;
-           hasdot = true;
-         }
-      }
-      if (hasdot) {
-        console.log("--> " + h + " " + maxright + " " + maxleft);
-      }
-    }
-    
+
 
 
     if (false) {
-    
-    // first lines of land from line 1 to line size -1
-    let variation = this.sizeL / 5;
-    let start = variation,
-      start2 = variation;
-    for (let h = 1; h < sizeH - 1; h++) {
-      let rnd = Math.floor(Math.random() * 3 - 1 + start);
-      start = rnd;
 
-      let rnd2 = Math.floor(Math.random() * 3 - 1 + start2);
-      rnd2 = rnd2 < 0 ? 0 : rnd2;
-      start2 = rnd2;
+      // first lines of land from line 1 to line size -1
+      let variation = this.sizeL / 5;
+      let start = variation,
+        start2 = variation;
+      for (let h = 1; h < sizeH - 1; h++) {
+        let rnd = Math.floor(Math.random() * 3 - 1 + start);
+        start = rnd;
 
-      for (let l = rnd; l < sizeL - rnd2; l++) {
-        if (this.territory[h][l]) {
-          this.territory[h][l].setLand(1);
-        } else {
-          console.log("const: cant set land for " + j + " " + i);
-        }
-      }
-    }
+        let rnd2 = Math.floor(Math.random() * 3 - 1 + start2);
+        rnd2 = rnd2 < 0 ? 0 : rnd2;
+        start2 = rnd2;
 
-    // sea borders on the upper and lower side
-    start = variation / 5;
-    start2 = variation / 4;
-    for (let l = 1; l < sizeL - 1; l++) {
-      let rnd = Math.floor(Math.random() * 3 - 1 + start);
-      start = rnd;
-
-      let rnd2 = Math.floor(Math.random() * 3 - 1 + start2);
-      rnd2 = rnd2 < 0 ? 0 : rnd2;
-      start2 = rnd2;
-
-      for (let h = 0; h < rnd; h++) {
-        this.territory[h][l].setLand(0);
-      }
-
-      for (let h = sizeH - rnd2; h < sizeH; h++) {
-        this.territory[h][l].setLand(0);
-      }
-    }
-
-    // Randomly elevate some terrain parts
-    for (let i = 0; i < sizeH * 20; i++) {
-      let hpos = Math.floor(Math.random() * sizeH);
-      let lpos = Math.floor(Math.random() * sizeL);
-      let land = this.territory[hpos][lpos];
-
-      if (land && land.getType() !== 0) {
-        this.elev(land, hpos, lpos);
-      }
-    }
-    
-    // Remove lonely hills for levels 1 to 3
-    for (let x = 3; x > 0; x-- ){
-      for (let l = 1; l < sizeL - 1; l++) {
-        for (let h = 1; h < sizeH - 1; h++) {
-          if (this.territory[h][l].getType() === x) {
-            this.territory[h][l].removeHill(this.territory[h][l-1].getType(),
-                                         this.territory[h][l+1].getType(),
-                                         this.territory[h-1][l].getType(),
-                                         this.territory[h+1][l].getType());
+        for (let l = rnd; l < sizeL - rnd2; l++) {
+          if (this.territory[h][l]) {
+            this.territory[h][l].setLand(1);
+          } else {
+            console.log("const: cant set land for " + j + " " + i);
           }
         }
       }
-    }
-    
-    // Calculate terrain configuration
-    for (let l = 1; l < sizeL - 1; l++) {
-      for (let h = 1; h < sizeH - 1; h++) {
-        this.territory[h][l].setConf(this.territory[h][l-1].getType(),
-                                     this.territory[h][l+1].getType(),
-                                     this.territory[h-1][l].getType(),
-                                     this.territory[h+1][l].getType());
-      }
-    }
-    
-    // randomly add some penguins
-    
-    
-    let numPeng = 0;
-    for (let i = 0; i < 10; i++) {
-      let hpos = Math.floor(Math.random() * sizeH);
-      let lpos = Math.floor(Math.random() * sizeL);
-      let land = this.territory[hpos][lpos];
 
-      
-      if (land && land.getType() !== 0) {
-        let penguin = new Penguin(numPeng++,hpos,lpos);
-        land.addPenguin(penguin);
-        this.penguins.push(penguin);
+      // sea borders on the upper and lower side
+      start = variation / 5;
+      start2 = variation / 4;
+      for (let l = 1; l < sizeL - 1; l++) {
+        let rnd = Math.floor(Math.random() * 3 - 1 + start);
+        start = rnd;
+
+        let rnd2 = Math.floor(Math.random() * 3 - 1 + start2);
+        rnd2 = rnd2 < 0 ? 0 : rnd2;
+        start2 = rnd2;
+
+        for (let h = 0; h < rnd; h++) {
+          this.territory[h][l].setLand(0);
+        }
+
+        for (let h = sizeH - rnd2; h < sizeH; h++) {
+          this.territory[h][l].setLand(0);
+        }
       }
-    }
+
     }
 
-  }
+      // Randomly elevate some terrain parts
+      for (let i = 0; i < sizeH * 20; i++) {
+        let hpos = Math.floor(Math.random() * sizeH);
+        let lpos = Math.floor(Math.random() * sizeL);
+        let land = this.territory[hpos][lpos];
+
+        if (land && land.getType() !== 0) {
+          this.elev(land, hpos, lpos);
+        }
+      }
+
+      // Remove lonely hills for levels 1 to 3
+      for (let x = 3; x > 0; x-- ){
+        for (let l = 1; l < sizeL - 1; l++) {
+          for (let h = 1; h < sizeH - 1; h++) {
+            if (this.territory[h][l].getType() === x) {
+              this.territory[h][l].removeHill(this.territory[h][l-1].getType(),
+                                           this.territory[h][l+1].getType(),
+                                           this.territory[h-1][l].getType(),
+                                           this.territory[h+1][l].getType());
+            }
+          }
+        }
+      }
+
+      // Calculate terrain configuration
+      for (let l = 1; l < sizeL - 1; l++) {
+        for (let h = 1; h < sizeH - 1; h++) {
+          this.territory[h][l].setConf(this.territory[h][l-1].getType(),
+                                       this.territory[h][l+1].getType(),
+                                       this.territory[h-1][l].getType(),
+                                       this.territory[h+1][l].getType());
+        }
+      }
+
+      // randomly add some penguins
+
+
+      let numPeng = 0;
+      for (let i = 0; i < 10; i++) {
+        let hpos = Math.floor(Math.random() * sizeH);
+        let lpos = Math.floor(Math.random() * sizeL);
+        let land = this.territory[hpos][lpos];
+
+
+        if (land && land.getType() !== 0) {
+          let penguin = new Penguin(numPeng++,hpos,lpos);
+          land.addPenguin(penguin);
+          this.penguins.push(penguin);
+        }
+      }
+    }
+
+
+  
+
 
   getLandType(x, y) {
     // console.log("-->" + x + " " + y);
@@ -194,7 +199,7 @@ class Island {
     console.log("getAscii : " + mode + " " + islandH + " " + islandL)
 
     let deco = mode === 1 ? deco1 : deco2;
-    
+
     let result = ``;
     let linetop = `+`;
     for (let j = 0; j < islandL; j++) linetop += `-`;
@@ -216,13 +221,13 @@ class Island {
     return result;
 
   }
-  
+
   getImg(mode,islandH,islandL) {
 
     let deco = deco3;
 
     let result = ``;
-    
+
     for (let i = 0; i < islandH; i++) {
       let line = `<div>`;
       for (let j = 0; j < islandL; j++) {
@@ -235,7 +240,7 @@ class Island {
       }
       result += line + `</div>`;
     }
-    
+
     return result;
 
   }
