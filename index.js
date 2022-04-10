@@ -28,31 +28,32 @@ args.forEach((arg) => {
 });
 
 let islandL = Number.parseInt(args[0], 10);
-if (!islandL) islandL = 90;
-let islandH = islandL / 3;
+if (!islandL) islandL = 40;
+let islandH = islandL / 2;
 
 let mode = Number.parseInt(args[1], 10);
-if (!mode) mode = 2;
+if (!mode) mode = 1;
 
 let debug = Number.parseInt(args[2], 10);
+debug = true;
 
 console.log("Building an island of size " + islandH + " * " + islandL);
 
 let island = new Island(islandH,islandL);
 
 if (debug) {
-  console.log(island.getAscii(mode));
+  console.log(island.getAscii(mode,islandH,islandL));
 }
 
 app.get('/*', (req, res) => {
-  console.log(req.url);
+  console.log("Receiving a request at " + req.url);
   switch(req.url) {
     case "/island-ascii" : {
-      return res.json( {island : island.getAscii(mode,islandH,islandL),penguins : island.getPenguins()});
+      return res.json( {island : island.getImg(mode,islandH,islandL),penguins : island.getPenguins()});
     }
     case "/new-island" : {
       island = new Island(islandH,islandL);
-      return res.json( {island : island.getAscii(mode,islandH,islandL),penguins : island.getPenguins()});
+      return res.json( {island : island.getImg(mode,islandH,islandL),penguins : island.getPenguins()});
     }
     case "/penguins" : {
       return res.json({penguins : island.getPenguins()}); 

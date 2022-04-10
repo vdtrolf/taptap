@@ -9,6 +9,7 @@ class Land {
     this.lpos = l;
     this.hpos = h;
     this.type = 0;
+    this.conf = 0;
     this.penguin = null;
   }
 
@@ -17,18 +18,43 @@ class Land {
   }
 
   addPenguin(penguin) {
-    // console.log("New penguin at " + this.lpos + " " + this.hpos);
     this.penguin = penguin;
   }
 
   checkPenguin(){
-    // console.log("Checking penguin at " + this.lpos + " " + this.hpos + " -> " + this.penguin);
     return this.penguin;
   }
 
   getType() {
     return this.type;
   }
+  
+  removeHill(left,right,up,down) {
+    let cnf = 0;
+    cnf += left < this.type ? 1 : 0;
+    cnf += up < this.type ? 2 : 0;
+    cnf += right < this.type ? 4 : 0;
+    cnf += down < this.type ? 8 : 0;
+      
+    if (cnf === 7 || cnf == 11 || cnf == 13 || cnf == 14 || cnf == 15) {
+      this.type -= 1;
+    } 
+  }
+  
+  setConf(left,right,up,down) {
+    if (this.type === 1 || this.type === 2) {
+      let cnf = 0;
+      cnf += left < this.type ? 1 : 0;
+      cnf += up < this.type ? 2 : 0;
+      cnf += right < this.type ? 4 : 0;
+      cnf += down < this.type ? 8 : 0;
+      this.conf = cnf;
+    }
+  }
+  
+  getConf() {
+    return this.conf;
+  }  
 }
 
 // now we export the class, so other modules can create Penguin objects

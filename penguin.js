@@ -28,7 +28,6 @@ class Penguin {
     console.log("New penguin " + this.num + " - " + this.name + " (" + this.gender + "," + this.age + ")");
   }
   
-  
 }
 
 const getFakeName = async (aPenguin) => {
