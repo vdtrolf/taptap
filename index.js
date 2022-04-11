@@ -37,7 +37,7 @@ if (!mode) mode = 1;
 let debug = Number.parseInt(args[2], 10);
 debug = true;
 
-listen = false;
+listen = true;
 
 console.log("Building an island of size " + islandH + " * " + islandL);
 
@@ -63,12 +63,9 @@ if (listen) {
       }
     }
 
-    // res.json({penguins : island.getPenguins()});
   });
-
 
   app.listen(port, () => {
     console.log(`Little island listening at port: ${port}`);
   });
 }
-// getWeather();

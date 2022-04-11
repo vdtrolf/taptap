@@ -37,10 +37,9 @@ class Island {
       matrix.push(lineNum);
     }
 
-
-    // Randomly elevate some terrain parts
+    // Randomly ceate lands
     let cnt = 0, max = sizeH * sizeL;
-    for (let i = 0; i < sizeH * sizeL * 10 && cnt < max / 3 ; i++) {
+    for (let i = 0; i < sizeH * sizeL * 30 && cnt < max / 3 ; i++) {
       let hpos = Math.floor(Math.random() * sizeH / 1.2) + Math.floor(sizeH/8);
       let lpos = Math.floor(Math.random() * sizeL / 1.2) + Math.floor(sizeL/8);
 
@@ -48,13 +47,44 @@ class Island {
       if (i < 10) {
         matrix[hpos][lpos] = 1;
         cnt++
-      } else if (matrix[hpos][lpos] === 0 &&
+      } else if (matrix[hpos][lpos] === 0 && // only elevate is neighbour = 1
           (matrix[hpos-1][lpos] === 1 ||
           matrix[hpos][lpos-1] === 1 ||
           matrix[hpos+1][lpos] === 1 ||
           matrix[hpos][lpos+1] === 1 )) {
           matrix[hpos][lpos] = 1;
           cnt++;
+        }
+      }
+    }
+
+    // remove lonely land dots (surrended with 3 seas)
+    for (let x=0; x<2; x++) {
+      for (let h = 1; h < sizeH - 1 ; h++) {
+        for (let l = 1; l < sizeL -1 ; l++) {
+          if (matrix[h][l] ===1) {
+            let cnf = 0;
+            cnf += matrix[h-1][l] === 0 ? 1 : 0;
+            cnf += matrix[h+1][l] === 0 ? 2 : 0;
+            cnf += matrix[h][l-1] === 0 ? 4 : 0;
+            cnf += matrix[h][l+1] === 0 ? 8 : 0;
+            if (cnf === 7 || cnf == 11 || cnf == 13 || cnf == 14 || cnf == 15) {
+              matrix[h][l] = 0;
+            }
+          }
+        }
+      }
+    }
+
+    // remove lonely lakes dots (surrended with 4 lands)
+    for (let h = 1; h < sizeH - 1 ; h++) {
+      for (let l = 1; l < sizeL -1 ; l++) {
+        if (matrix[h][l] === 0 &&
+          matrix[h-1][l] === 1 &&
+          matrix[h+1][l] === 1 &&
+          matrix[h][l-1] === 1 &&
+          matrix[h][l+1] === 1) {
+            matrix[h][l] = 1;
         }
       }
     }
@@ -69,120 +99,49 @@ class Island {
       }
     }
 
+    // Randomly elevate some terrain parts
+    for (let i = 0; i < sizeH * 2; i++) {
+      let hpos = Math.floor(Math.random() * sizeH);
+      let lpos = Math.floor(Math.random() * sizeL);
+      let land = this.territory[hpos][lpos];
 
+      if (land && land.getType() !== 0) {
+        this.elev(land, hpos, lpos);
+      }
+    }
 
-
-
-    if (false) {
-
-      // first lines of land from line 1 to line size -1
-      let variation = this.sizeL / 5;
-      let start = variation,
-        start2 = variation;
+    // Calculate terrain configuration
+    for (let l = 1; l < sizeL - 1; l++) {
       for (let h = 1; h < sizeH - 1; h++) {
-        let rnd = Math.floor(Math.random() * 3 - 1 + start);
-        start = rnd;
-
-        let rnd2 = Math.floor(Math.random() * 3 - 1 + start2);
-        rnd2 = rnd2 < 0 ? 0 : rnd2;
-        start2 = rnd2;
-
-        for (let l = rnd; l < sizeL - rnd2; l++) {
-          if (this.territory[h][l]) {
-            this.territory[h][l].setLand(1);
-          } else {
-            console.log("const: cant set land for " + j + " " + i);
-          }
-        }
-      }
-
-      // sea borders on the upper and lower side
-      start = variation / 5;
-      start2 = variation / 4;
-      for (let l = 1; l < sizeL - 1; l++) {
-        let rnd = Math.floor(Math.random() * 3 - 1 + start);
-        start = rnd;
-
-        let rnd2 = Math.floor(Math.random() * 3 - 1 + start2);
-        rnd2 = rnd2 < 0 ? 0 : rnd2;
-        start2 = rnd2;
-
-        for (let h = 0; h < rnd; h++) {
-          this.territory[h][l].setLand(0);
-        }
-
-        for (let h = sizeH - rnd2; h < sizeH; h++) {
-          this.territory[h][l].setLand(0);
-        }
-      }
-
-    }
-
-      // Randomly elevate some terrain parts
-      for (let i = 0; i < sizeH * 20; i++) {
-        let hpos = Math.floor(Math.random() * sizeH);
-        let lpos = Math.floor(Math.random() * sizeL);
-        let land = this.territory[hpos][lpos];
-
-        if (land && land.getType() !== 0) {
-          this.elev(land, hpos, lpos);
-        }
-      }
-
-      // Remove lonely hills for levels 1 to 3
-      for (let x = 3; x > 0; x-- ){
-        for (let l = 1; l < sizeL - 1; l++) {
-          for (let h = 1; h < sizeH - 1; h++) {
-            if (this.territory[h][l].getType() === x) {
-              this.territory[h][l].removeHill(this.territory[h][l-1].getType(),
-                                           this.territory[h][l+1].getType(),
-                                           this.territory[h-1][l].getType(),
-                                           this.territory[h+1][l].getType());
-            }
-          }
-        }
-      }
-
-      // Calculate terrain configuration
-      for (let l = 1; l < sizeL - 1; l++) {
-        for (let h = 1; h < sizeH - 1; h++) {
-          this.territory[h][l].setConf(this.territory[h][l-1].getType(),
-                                       this.territory[h][l+1].getType(),
-                                       this.territory[h-1][l].getType(),
-                                       this.territory[h+1][l].getType());
-        }
-      }
-
-      // randomly add some penguins
-
-
-      let numPeng = 0;
-      for (let i = 0; i < 10; i++) {
-        let hpos = Math.floor(Math.random() * sizeH);
-        let lpos = Math.floor(Math.random() * sizeL);
-        let land = this.territory[hpos][lpos];
-
-
-        if (land && land.getType() !== 0) {
-          let penguin = new Penguin(numPeng++,hpos,lpos);
-          land.addPenguin(penguin);
-          this.penguins.push(penguin);
-        }
+        this.territory[h][l].setConf(this.territory[h][l-1].getType(),
+                                     this.territory[h][l+1].getType(),
+                                     this.territory[h-1][l].getType(),
+                                     this.territory[h+1][l].getType());
       }
     }
 
+    // randomly add some penguins
+    let numPeng = 0;
+    for (let i = 0; i < 10; i++) {
+      let hpos = Math.floor(Math.random() * sizeH);
+      let lpos = Math.floor(Math.random() * sizeL);
+      let land = this.territory[hpos][lpos];
 
-  
 
+      if (land && land.getType() !== 0) {
+        let penguin = new Penguin(numPeng++,hpos,lpos);
+        land.addPenguin(penguin);
+        this.penguins.push(penguin);
+      }
+    }
+  } // constructor ()
 
   getLandType(x, y) {
-    // console.log("-->" + x + " " + y);
     const land = this.territory[x][y];
     return land.getType();
   }
 
   hasPenguin(x, y) {
-    // console.log("-->" + x + " " + y);
     const land = this.territory[x][y];
     if (land.checkPenguin()) {
       return true;
@@ -194,10 +153,8 @@ class Island {
     return this.penguins;
   }
 
+  // returns an ascii image of the island
   getAscii(mode,islandH,islandL) {
-
-    console.log("getAscii : " + mode + " " + islandH + " " + islandL)
-
     let deco = mode === 1 ? deco1 : deco2;
 
     let result = ``;
@@ -217,17 +174,12 @@ class Island {
       result += line + `|\n`;
     }
     result += linetop + `+\n`;
-
     return result;
-
   }
 
+  // returns a list of images
   getImg(mode,islandH,islandL) {
-
-    let deco = deco3;
-
     let result = ``;
-
     for (let i = 0; i < islandH; i++) {
       let line = `<div>`;
       for (let j = 0; j < islandL; j++) {
@@ -240,24 +192,19 @@ class Island {
       }
       result += line + `</div>`;
     }
-
     return result;
-
   }
 
-
+  // elevate a plot os land - can be called recusrsively to elevate adjacent plots of land
   elev(land, hpos, lpos) {
     const height = land.getType() + 1;
-    // console.log("elev: " + xcoord + " " + ycoord + " -> " + height);
     for (let h = hpos - 1; h <= hpos + 1; h++) {
       for (let l = lpos - 1; l <= lpos + 1; l++) {
         if (h >= 0 && l >= 0 && h < this.sizeH && l < this.sizeL) {
           try {
             let lheight = this.territory[h][l].getType();
             if (lheight > 0 && height - lheight > 1) {
-              // console.log("elev: upscaling " + x + " " + y + " " + lheight);
               this.elev(this.territory[h][l],h,l);
-              //this.territory[h][l].setLand(lheight + 1);
             }
 
           } catch (error) {
