@@ -183,12 +183,7 @@ class Island {
     for (let i = 0; i < islandH; i++) {
       let line = `<div>`;
       for (let j = 0; j < islandL; j++) {
-        //const land = this.territory[i][j];
-        //if (land.checkPenguin()){
-        //    line += this.territory[i][j].checkPenguin().getNum();
-        //} else {
-          line += `<img src="./tiles/PX-${this.territory[i][j].getType()}-${this.territory[i][j].getConf()}.png" width="16" height="24">`;
-        //}
+        line += `<img src="./tiles/PX-${this.territory[i][j].getType()}-${this.territory[i][j].getConf()}.png" width="16" height="24">`;
       }
       result += line + `</div>`;
     }
@@ -214,6 +209,24 @@ class Island {
       }
     }
     this.territory[hpos][lpos].setLand(height);
+  }
+
+  movePenguins() {
+    this.penguins.forEach(penguin => {
+      let lmoves = [1,-1,0, 0,1,1,-1,-1];
+      let hmoves = [0, 0,1,-1,1,-1,1,-1];
+      let move = Math.floor(Math.random() * 8);
+      let l=penguin.getLPos() + lmoves[move];
+      let h=penguin.getHPos() + hmoves[move];
+      // console.log("moving penguin " + penguin.getNum() + " = " + move + " " + lmoves[move] + " " + hmoves[move] + " => " +  h + "/" + l);
+
+      // const land = this.territory[h][l];
+      // console.log( " " + this.territory[h] + " " );
+      if (this.territory[h][l].getType() > 0) {
+        penguin.setPos(h,l);
+        // console.log("moving penguin " + penguin.getNum() +  " to " +  h + "/" + l);
+      }
+    });
   }
 }
 

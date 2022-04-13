@@ -49,7 +49,7 @@ if (debug) {
 if (listen) {
 
   app.get('/*', (req, res) => {
-    console.log("Receiving a request at " + req.url);
+    // console.log("Receiving a request at " + req.url);
     switch(req.url) {
       case "/island-ascii" : {
         return res.json( {island : island.getImg(mode,islandH,islandL),penguins : island.getPenguins()});
@@ -69,3 +69,7 @@ if (listen) {
     console.log(`Little island listening at port: ${port}`);
   });
 }
+
+setInterval(() => {
+    island.movePenguins();
+}, 1000);
