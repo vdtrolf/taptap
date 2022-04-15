@@ -186,12 +186,19 @@ class Island {
       let line = `<div>`;
       for (let j = 0; j < islandL; j++) {
         //line += `<img src="./tiles/PX-${this.territory[i][j].getType()}-${this.territory[i][j].getConf()}.png" width="16" height="24">`;
-        line += `<img src="./tiles/PF-${this.territory[i][j].getType()}-${this.territory[i][j].getConf()}.png" width="64" height="64">`;
+        line += `<img class="tile" id="img-${i}-${j}"src="./tiles/PF-${this.territory[i][j].getType()}-${this.territory[i][j].getConf()}.png" width="64" height="64">`;
       }
       result += line + `</div>`;
     }
     return result;
   }
+  
+  getChangedImg() {
+      
+      
+      
+  }
+  
 
   // elevate a plot os land - can be called recusrsively to elevate adjacent plots of land
   elev(land, hpos, lpos) {
