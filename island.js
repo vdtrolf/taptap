@@ -186,7 +186,7 @@ class Island {
       let line = `<div>`;
       for (let j = 0; j < islandL; j++) {
         //line += `<img src="./tiles/PX-${this.territory[i][j].getType()}-${this.territory[i][j].getConf()}.png" width="16" height="24">`;
-        line += `<img src="./tiles/PD-${this.territory[i][j].getType()}-${this.territory[i][j].getConf()}.png" width="64" height="64">`;
+        line += `<img src="./tiles/PF-${this.territory[i][j].getType()}-${this.territory[i][j].getConf()}.png" width="64" height="64">`;
       }
       result += line + `</div>`;
     }
