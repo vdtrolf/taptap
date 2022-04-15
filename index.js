@@ -33,8 +33,8 @@ args.forEach((arg) => {
 });
 
 let islandL = Number.parseInt(args[0], 10);
-if (!islandL) islandL = 40;
-let islandH = islandL / 2;
+if (!islandL) islandL = 12;
+let islandH = 12; // islandL / 2 ;
 
 let mode = Number.parseInt(args[1], 10);
 if (!mode) mode = 1;
@@ -48,30 +48,43 @@ console.log("Building an island of size " + islandH + " * " + islandL);
 
 let island = new Island(islandH,islandL);
 if (debug) {
-  console.log(island.getAscii(mode,islandH,islandL));
+  console.log(island.getAscii(mode,islandH,islandL)); 
 }
 
-const print = (msg) => {
-  console.log(msg)
-}
+//console.log(` - - - - - - - - - - - - - - - - - `);
+//console.log(`- - - - - -/\\ - - - - - - - - - - -`);
+//console.log(` - - -/          |=- - - - - - - -`);
+//console.log(`- - - \\_          \\-=- - - - - - - `);
+//console.log(` - - - -|           |=- - - - - - -`);
+//console.log(`- - - - |        ___|= - - - - - - `);
+//console.log(` - - -/         |-=- - - - - - - - `);
+//console.log(`- - - \\_        \\=-=- - - - - - - -`);
+//console.log(` - - - -|____         \\-=- - - - - `);
+//console.log(`- - - - - - |___  ____/=- - - - - -`);
+//console.log(` - - - - - - - -\\/=- - - - - - - - `);
+//console.log(`- - - - - - - - - - - - - - - - - -`);
 
-let rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-  terminal: false
-})
-
-rl.on('line', (line) => {
-  print('-----------')
-  var input = line.replace(/\0/g, '')
-  console.log(island.getAscii(mode,islandH,islandL));
-  
-  console.log("tata");
-})
-
-print(strings.hello)
-print('')
-process.stdout.write(strings.prompt)
+//const print = (msg) => {
+//  console.log(msg)
+//}
+//
+//let rl = readline.createInterface({
+//  input: process.stdin,
+//  output: process.stdout,
+//  terminal: true
+//})
+//
+//rl.on('line', (line) => {
+//  print('-----------')
+//  var input = line.replace(/\0/g, '')
+//  console.log(island.getAscii(mode,islandH,islandL));
+//  
+//  console.log("tata");
+//})
+//
+//print(strings.hello)
+//print('')
+//process.stdout.write(strings.prompt)
 
 if (listen) {
 
@@ -93,7 +106,8 @@ if (listen) {
   });
 
   app.listen(port, () => {
-    // print(`Little island listening at port: ${port}`);
+    
+    console.log(`Little island listening at port: ${port}`);
   });
 }
 
@@ -101,6 +115,7 @@ if (listen) {
 
 setInterval(() => {
     island.movePenguins();
+    island.smelt();
 }, 1000);
 
 

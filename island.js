@@ -39,11 +39,11 @@ class Island {
 
     // Randomly ceate lands
     let cnt = 0, max = sizeH * sizeL;
-    for (let i = 0; i < sizeH * sizeL * 30 && cnt < max / 3 ; i++) {
-      let hpos = Math.floor(Math.random() * sizeH / 1.2) + Math.floor(sizeH/8);
-      let lpos = Math.floor(Math.random() * sizeL / 1.2) + Math.floor(sizeL/8);
+    for (let i = 0; i < sizeH * sizeL * 40 && cnt < max / 3 ; i++) {
+      let hpos = Math.floor(Math.random() * sizeH) + Math.floor(sizeH/10);
+      let lpos = Math.floor(Math.random() * sizeL) + Math.floor(sizeL/10);
 
-      if (hpos > 2 && hpos < sizeH -2 && lpos > 2 && lpos < sizeL -2  ) {
+      if (hpos > 0 && hpos < sizeH - 1 && lpos > 0 && lpos < sizeL - 1  ) {
       if (i < 10) {
         matrix[hpos][lpos] = 1;
         cnt++
@@ -113,10 +113,12 @@ class Island {
     // Calculate terrain configuration
     for (let l = 1; l < sizeL - 1; l++) {
       for (let h = 1; h < sizeH - 1; h++) {
-        this.territory[h][l].setConf(this.territory[h][l-1].getType(),
-                                     this.territory[h][l+1].getType(),
-                                     this.territory[h-1][l].getType(),
-                                     this.territory[h+1][l].getType());
+        this.territory[h][l].setConf()
+       }
+    }
+    for (let l = 0; l < sizeL ; l++) {
+      for (let h = 0; h < sizeH ; h++) {       
+         this.territory[h][l].setBorder(h,l,sizeH,sizeL);      
       }
     }
 
@@ -183,7 +185,8 @@ class Island {
     for (let i = 0; i < islandH; i++) {
       let line = `<div>`;
       for (let j = 0; j < islandL; j++) {
-        line += `<img src="./tiles/PX-${this.territory[i][j].getType()}-${this.territory[i][j].getConf()}.png" width="16" height="24">`;
+        //line += `<img src="./tiles/PX-${this.territory[i][j].getType()}-${this.territory[i][j].getConf()}.png" width="16" height="24">`;
+        line += `<img src="./tiles/PD-${this.territory[i][j].getType()}-${this.territory[i][j].getConf()}.png" width="64" height="64">`;
       }
       result += line + `</div>`;
     }
@@ -209,6 +212,28 @@ class Island {
       }
     }
     this.territory[hpos][lpos].setLand(height);
+  }
+
+
+  smelt() {
+    // Randomly decrease some terrain parts
+    for (let i = 0; i < this.sizeH ; i++) {
+      let hpos = Math.floor(Math.random() * this.sizeH);
+      let lpos = Math.floor(Math.random() * this.sizeL);
+      let land = this.territory[hpos][lpos];
+
+      if (land && land.getType() == 1) {
+        if (land.getConf() < 15 ) {
+          land.increaseConf();
+        } else {
+          land.setType(0);
+          land.resetConf();
+        }
+      }
+    }
+
+    
+    
   }
 
   movePenguins() {
