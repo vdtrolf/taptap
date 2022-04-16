@@ -56,6 +56,10 @@ if (listen) {
       });
     }
 
+    if (session) {
+      session.isAlive();
+    }
+
     console.log("Receiving a request at " + req.path + " for session " + sessionId);
 
     switch(req.path) {
@@ -92,7 +96,6 @@ if (listen) {
       case "/penguins" : {
         if (session) {
           let island = session.getIsland();
-          // console.log("Session found with island " + island);
           return res.json({penguins : island.getPenguins()});
         }
       }
@@ -108,6 +111,7 @@ if (listen) {
 setInterval(() => {
     sessions.forEach(session=> {
       let island = session.getIsland();
+      island.makePenguinsOlder();
       island.movePenguins();
       island.smelt();
     });

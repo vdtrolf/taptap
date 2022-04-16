@@ -184,7 +184,7 @@ class Island {
     }
     return result;
   }
-  
+
   getChangedImg() {
 
 
@@ -249,6 +249,18 @@ class Island {
       if (this.territory[h][l].getType() > 0) {
         penguin.setPos(h,l);
         // console.log("moving penguin " + penguin.getNum() +  " to " +  h + "/" + l);
+      }
+    });
+  }
+
+  makePenguinsOlder() {
+    this.penguins.forEach(penguin => {
+      if (! penguin.makeOlder()) {
+        console.log("Death");
+        let l=penguin.getLPos();
+        let h=penguin.getHPos();
+        this.territory[l][h].setCross();
+        this.penguins.filter(penguin => penguin.isAlive());
       }
     });
   }

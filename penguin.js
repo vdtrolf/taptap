@@ -2,13 +2,19 @@ const axios = require("axios");
 
 class Penguin {
   constructor(num, h, l) {
+    this.id = Math.floor(Math.random() * 999999);
     this.num = num;
     this.hpos = h;
     this.lpos = l;
-    this.age = Math.floor(Math.random() * 15);
+    this.age = Math.floor(Math.random() * 5);
+    this.alive = true;
 
     getFakeName(this);
 
+  }
+
+  getId() {
+    return this.id;
   }
 
   getName() {
@@ -36,9 +42,22 @@ class Penguin {
     this.lpos = lpos;
   }
 
+  makeOlder() {
+    this.age += 1;
+    if (this.age > 20) {
+      this.alive = false;
+      return false;
+    }
+    return true;
+  }
+
   setGender(gender) {
     this.gender = gender;
     console.log("New penguin " + this.num + " - " + this.name + " (" + this.gender + "," + this.age + ")");
+  }
+
+  isAlive() {
+    return this.alive;
   }
 
 }

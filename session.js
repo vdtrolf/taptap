@@ -38,6 +38,10 @@ class Session {
     return this.id;
   }
 
+  isAlive() {
+    return true;
+  }
+
 }
 
 // now we export the class, so other modules can create Penguin objects
