@@ -14,6 +14,7 @@ class Island {
     this.sizeL = sizeL;
     this.territory = [];
     this.penguins = [];
+    this.deadPenguins = [];
 
     let matrix = [];
 
@@ -147,6 +148,11 @@ class Island {
     return this.penguins;
   }
 
+  getDeadPenguins() {
+    return this.deadPenguins;
+  }
+
+
   // returns an ascii image of the island
   getAscii(mode,islandH,islandL) {
     let deco = mode === 1 ? deco1 : deco2;
@@ -177,7 +183,6 @@ class Island {
     for (let i = 0; i < islandH; i++) {
       let line = `<div>`;
       for (let j = 0; j < islandL; j++) {
-        //line += `<img src="./tiles/PX-${this.territory[i][j].getType()}-${this.territory[i][j].getConf()}.png" width="16" height="24">`;
         line += `<img class="tile" id="img-${i}-${j}"src="./tiles/PF-${this.territory[i][j].getType()}-${this.territory[i][j].getConf()}.png" width="48" height="48">`;
       }
       result += line + `</div>`;
@@ -260,7 +265,8 @@ class Island {
         let l=penguin.getLPos();
         let h=penguin.getHPos();
         this.territory[l][h].setCross();
-        this.penguins.filter(penguin => penguin.isAlive());
+        // this.penguins = this.penguins.filter(penguin => penguin.isAlive());
+        // this.deadPenguins.push(penguin);
       }
     });
   }

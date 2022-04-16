@@ -43,8 +43,8 @@ class Penguin {
   }
 
   makeOlder() {
-    this.age += 1;
-    if (this.age > 20) {
+    this.age += this.alive ? 1 : 0;
+    if (this.age > 8) {
       this.alive = false;
       return false;
     }
