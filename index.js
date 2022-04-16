@@ -48,39 +48,52 @@ listen = true;
 if (listen) {
 
   app.get('/*', (req, res) => {
-    console.log("Receiving a request at " + req.url);
-    switch(req.url) {
-      case "/island-ascii" : { 
-        console.log("Building an island of size " + islandH + " * " + islandL);
-        let island = new Island(islandH,islandL);
-        if (debug) {
-            console.log(island.getAscii(mode,islandH,islandL)); 
+    let sessionId = Number.parseInt(req.query.sessionId,10);
+    let session = null, island = null;
+    if (sessionId) {
+      session = sessions.find(session => {
+        return session.getId() === sessionId
+      });
+    }
+
+    console.log("Receiving a request at " + req.path + " for session " + sessionId);
+
+    switch(req.path) {
+
+      case "/island-ascii" : {
+        if (! session) {
+          island = new Island(islandH,islandL);
+          session = new Session(island);
+          sessions.push(session);
+          if (debug) {
+            console.log("Building an island of size " + islandH + " * " + islandL);
+            console.log(island.getAscii(mode,islandH,islandL));
+          }
+        } else {
+          island = session.getIsland();
         }
-        island = new Island(islandH,islandL);
-        let session = new Session(island);
-        sessions.push(session);
         return res.json( {island : island.getImg(mode,islandH,islandL),penguins : island.getPenguins(), session : session.getId()});
       }
+
       case "/new-island" : {
-        console.log("Building an island of size " + islandH + " * " + islandL);
-        let island = new Island(islandH,islandL);
-        if (debug) {
-            console.log(island.getAscii(mode,islandH,islandL)); 
-        }
-        island = new Island(islandH,islandL);
-        let session = new Session(island);
-        sessions.push(session);
-        return res.json( {island : island.getImg(mode,islandH,islandL),penguins : island.getPenguins(),session : session.getId()});
-      }
-      case "/penguins" : {
-        let sessionId = req.query.sessionId; ;
-        
-        console.log("Looking for " + sessionId)
-        
-        let session = sessions.find(session => session.getId() === sessionId);
         if (session) {
-          console.log("Session found");
-          return res.json({penguins : session.getIsland().getPenguins()});
+          island = new Island(islandH,islandL);
+          session.setIsland(island);
+          if (debug) {
+            console.log("Renewing an island of size " + islandH + " * " + islandL);
+            console.log(island.getAscii(mode,islandH,islandL));
+          }
+          return res.json( {island : island.getImg(mode,islandH,islandL),penguins : island.getPenguins(),session : session.getId()});
+        } else {
+          console.log("No island found");
+        }
+      }
+
+      case "/penguins" : {
+        if (session) {
+          let island = session.getIsland();
+          // console.log("Session found with island " + island);
+          return res.json({penguins : island.getPenguins()});
         }
       }
     }
@@ -92,13 +105,10 @@ if (listen) {
   });
 }
 
-setInterval(() => { 
+setInterval(() => {
     sessions.forEach(session=> {
       let island = session.getIsland();
       island.movePenguins();
       island.smelt();
     });
-}, 1000);
-
-
-
+}, 2000);

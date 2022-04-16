@@ -7,14 +7,6 @@ let Land = landReq.Land;
 
 const deco1 = [" ",".","^","%","#","#","#","#"];
 const deco2 = ["&nbsp;","░","▒","▓","█","█","█","█"];
-const deco3 = [`<img src="./tiles/LI-0.png">`,
-               `<img src="./tiles/LI-16.png">`,
-               `<img src="./tiles/LI-32.png">`,
-               `<img src="./tiles/LI-64.png">`,
-               `<img src="./tiles/LI-128.png">`,
-               `<img src="./tiles/LI-128.png">`,
-               `<img src="./tiles/LI-128.png">`];
-
 
 class Island {
   constructor(sizeH,sizeL) {
@@ -117,8 +109,8 @@ class Island {
        }
     }
     for (let l = 0; l < sizeL ; l++) {
-      for (let h = 0; h < sizeH ; h++) {       
-         this.territory[h][l].setBorder(h,l,sizeH,sizeL);      
+      for (let h = 0; h < sizeH ; h++) {
+         this.territory[h][l].setBorder(h,l,sizeH,sizeL);
       }
     }
 
@@ -186,7 +178,7 @@ class Island {
       let line = `<div>`;
       for (let j = 0; j < islandL; j++) {
         //line += `<img src="./tiles/PX-${this.territory[i][j].getType()}-${this.territory[i][j].getConf()}.png" width="16" height="24">`;
-        line += `<img class="tile" id="img-${i}-${j}"src="./tiles/PF-${this.territory[i][j].getType()}-${this.territory[i][j].getConf()}.png" width="64" height="64">`;
+        line += `<img class="tile" id="img-${i}-${j}"src="./tiles/PF-${this.territory[i][j].getType()}-${this.territory[i][j].getConf()}.png" width="48" height="48">`;
       }
       result += line + `</div>`;
     }
@@ -194,11 +186,11 @@ class Island {
   }
   
   getChangedImg() {
-      
-      
-      
+
+
+
   }
-  
+
 
   // elevate a plot os land - can be called recusrsively to elevate adjacent plots of land
   elev(land, hpos, lpos) {
@@ -239,8 +231,8 @@ class Island {
       }
     }
 
-    
-    
+
+
   }
 
   movePenguins() {

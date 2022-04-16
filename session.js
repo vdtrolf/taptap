@@ -9,9 +9,9 @@ class Session {
     this.tiles = 3;
     this.changedLands = [];
     this.island = island;
-    
+
     console.log("New session with id " + this.id);
-    
+
   }
 
   resetChangedLands() {
@@ -25,15 +25,19 @@ class Session {
   addChangedLand(land){
     changedLands.push(land);
   }
-  
+
   getIsland() {
     return this.island;
   }
-  
+
+  setIsland(island) {
+    this.island = island;
+  }
+
   getId() {
     return this.id;
   }
- 
+
 }
 
 // now we export the class, so other modules can create Penguin objects
