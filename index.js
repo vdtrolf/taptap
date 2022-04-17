@@ -30,7 +30,7 @@ args.forEach((arg) => {
 
 let islandL = Number.parseInt(args[0], 10);
 if (!islandL) islandL = 12;
-let islandH = 12; // islandL / 2 ;
+let islandH = 12; 
 
 let mode = Number.parseInt(args[1], 10);
 if (!mode) mode = 1;
@@ -115,17 +115,25 @@ if (listen) {
       console.log(`Little island listening at port: ${port}`);
     });
     
-    // if (!debug) {
-      setInterval(() => {
-          console.log("Interval still here : " + Date.now());
-          sessions.forEach(session=> {
-            let island = session.getIsland();
-            island.makePenguinsOlder();
-            island.movePenguins();
-            island.smelt();
-          });
-      }, 2000);
-    // }
+    app.on('error', (e) => {
+      console.log(e.code);
+    });
+    
+    
+    setInterval(() => {
+      //console.log(process.memoryUsage());
+      //console.log("Interval still here : " + Date.now());
+      sessions.forEach(session=> {
+        let island = session.getIsland();
+        island.makePenguinsOlder();
+        island.movePenguins();
+        island.smelt();
+      });
+      //app.close(port);
+      //app.listen(port);
+      
+    }, 2000);
+   
   
   } catch(error) {
      console.error("problem " + error);
