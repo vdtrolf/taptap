@@ -11,6 +11,7 @@ class Land {
     this.type = 0;
     this.conf = 0;
     this.hasCross = false;
+    this.hasFish = false;
     this.penguin = null;
   }
 
@@ -59,6 +60,10 @@ class Land {
 
   setCross() {
     this.hasCross = true;
+  }
+
+  setFish() {
+    this.hasFish = true;
   }
 
   setConf(newValue) {

@@ -64,7 +64,7 @@ if (listen) {
         session.isAlive();
       }
 
-      console.log("Receiving a request at " + req.path + " for session " + sessionId);
+      // console.log("Receiving a request at " + req.path + " for session " + sessionId);
       switch(req.path) {
 
         case "/island-ascii" : {
@@ -91,6 +91,7 @@ if (listen) {
         case "/new-island" : {
           if (session) {
             island = new Island(islandH,islandL);
+            session.reset();
             session.setIsland(island);
             if (debug) {
               console.log("Renewing an island of size " + islandH + " * " + islandL);
@@ -115,7 +116,7 @@ if (listen) {
             let hpos = Number.parseInt(req.query.hpos,10);
             let lpos = Number.parseInt(req.query.lpos,10);
             
-            console.log("setIce hpos=" + hpos + " lpos=" + lpos);
+            // console.log("setTile hpos=" + hpos + " lpos=" + lpos);
             
             if (island.setTile(lpos,hpos,session)) {
               return res.json({result : "true",island : island.getImg(mode,islandH,islandL),penguins : island.getPenguins(), session : session.getId(),tiles: session.getTiles(), fishes: session.getFishes()});
@@ -139,19 +140,13 @@ if (listen) {
       console.log("process" + e.code);
     });
     
-    
-    
     setInterval(() => {
-      //console.log(process.memoryUsage());
-      //console.log("Interval still here : " + Date.now());
       sessions.forEach(session=> {
         let island = session.getIsland();
         island.makePenguinsOlder();
         island.movePenguins();
         island.smelt();
       });
-      //app.close(port);
-      //app.listen(port);
       
     }, 1000);
    

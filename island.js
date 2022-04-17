@@ -216,10 +216,16 @@ class Island {
 
   setTile(hpos,lpos,session) {
     let land = this.territory[hpos][lpos];
-    if (land && land.getType() == 0 && hpos > 0 && lpos > 0 && session.getTiles() > 0) {
-      land.setIce();
-      session.decreaseTiles();
-      return true;
+    if (land ) {
+      if (land.getType() == 0 && hpos > 0 && lpos > 0 && hpos < this.sizeH -1 && lpos < this.sizeL -1 && session.getTiles() > 0) {
+        land.setIce();
+        session.decreaseTiles();
+        return true;
+      } else if (land.getType() > 0 && session.getFishes() > 0) {
+        land.setFish();
+        session.decreaseFishes();
+        return true;
+      }
     }
     return false;
   }

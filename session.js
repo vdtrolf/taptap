@@ -15,16 +15,9 @@ class Session {
 
   }
 
-  resetChangedLands() {
-    this.changedLands = [];
-  }
-
-  getChangedLands() {
-    return changedLands;
-  }
-
-  addChangedLand(land){
-    changedLands.push(land);
+  reset() {
+    this.tiles = 5;
+    this.fishes = 5;
   }
 
   getIsland() {
