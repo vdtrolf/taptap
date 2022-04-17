@@ -14,7 +14,6 @@ class Island {
     this.sizeL = sizeL;
     this.territory = [];
     this.penguins = [];
-    this.deadPenguins = [];
 
     let matrix = [];
 
@@ -148,11 +147,7 @@ class Island {
     return this.penguins;
   }
 
-  getDeadPenguins() {
-    return this.deadPenguins;
-  }
-
-
+  
   // returns an ascii image of the island
   getAscii(mode,islandH,islandL) {
     let deco = mode === 1 ? deco1 : deco2;
@@ -219,10 +214,11 @@ class Island {
   }
 
 
-  setIce(hpos,lpos) {
+  setTile(hpos,lpos,session) {
     let land = this.territory[hpos][lpos];
-    if (land && land.getType() == 0 && hpos > 0 && lpos > 0) {
+    if (land && land.getType() == 0 && hpos > 0 && lpos > 0 && session.getTiles() > 0) {
       land.setIce();
+      session.decreaseTiles();
       return true;
     }
     return false;

@@ -85,7 +85,7 @@ if (listen) {
           }   else {
             island = session.getIsland();
           }
-          return res.json( {island : island.getImg(mode,islandH,islandL),penguins : island.getPenguins(), session : session.getId()});
+          return res.json( {island : island.getImg(mode,islandH,islandL),penguins : island.getPenguins(), session : session.getId(),tiles: session.getTiles(), fishes: session.getFishes()});
         }
 
         case "/new-island" : {
@@ -96,7 +96,7 @@ if (listen) {
               console.log("Renewing an island of size " + islandH + " * " + islandL);
               console.log(island.getAscii(mode,islandH,islandL));
             }
-            return res.json( {island : island.getImg(mode,islandH,islandL),penguins : island.getPenguins(),session : session.getId()});
+            return res.json( {island : island.getImg(mode,islandH,islandL),penguins : island.getPenguins(),session : session.getId(),tiles: session.getTiles(), fishes: session.getFishes()});
           } else {
             console.log("No island found");
           }
@@ -117,8 +117,8 @@ if (listen) {
             
             console.log("setIce hpos=" + hpos + " lpos=" + lpos);
             
-            if (island.setIce(lpos,hpos)) {
-              return res.json({result : "true",island : island.getImg(mode,islandH,islandL),penguins : island.getPenguins(), session : session.getId()});
+            if (island.setTile(lpos,hpos,session)) {
+              return res.json({result : "true",island : island.getImg(mode,islandH,islandL),penguins : island.getPenguins(), session : session.getId(),tiles: session.getTiles(), fishes: session.getFishes()});
             } else {
               return res.json({result : "false"});
             }
