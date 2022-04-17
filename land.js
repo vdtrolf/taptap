@@ -74,6 +74,11 @@ class Land {
       this.conf = Math.floor(Math.random() * 15);
     }
   }
+  
+  setIce() {
+    this.type = 1;
+    this.conf = 0;
+  }
 
   resetConf() {
     this.conf = 0;

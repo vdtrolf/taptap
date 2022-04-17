@@ -219,6 +219,15 @@ class Island {
   }
 
 
+  setIce(hpos,lpos) {
+    let land = this.territory[hpos][lpos];
+    if (land && land.getType() == 0 && hpos > 0 && lpos > 0) {
+      land.setIce();
+      return true;
+    }
+    return false;
+  }
+
   smelt() {
     // Randomly decrease some terrain parts
     for (let i = 0; i < this.sizeH ; i++) {
@@ -235,9 +244,6 @@ class Island {
         }
       }
     }
-
-
-
   }
 
   movePenguins() {
@@ -248,9 +254,6 @@ class Island {
       let l=penguin.getLPos() + lmoves[move];
       let h=penguin.getHPos() + hmoves[move];
       // console.log("moving penguin " + penguin.getNum() + " = " + move + " " + lmoves[move] + " " + hmoves[move] + " => " +  h + "/" + l);
-
-      // const land = this.territory[h][l];
-      // console.log( " " + this.territory[h] + " " );
       if (this.territory[h][l].getType() > 0) {
         penguin.setPos(h,l);
         // console.log("moving penguin " + penguin.getNum() +  " to " +  h + "/" + l);
@@ -261,7 +264,6 @@ class Island {
   makePenguinsOlder() {
     this.penguins.forEach(penguin => {
       if (! penguin.makeOlder()) {
-        console.log("Death");
         let l=penguin.getLPos();
         let h=penguin.getHPos();
         this.territory[l][h].setCross();

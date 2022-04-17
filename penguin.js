@@ -8,6 +8,7 @@ class Penguin {
     this.lpos = l;
     this.age = Math.floor(Math.random() * 5);
     this.alive = true;
+    this.name = "Lonely penguin";
 
     getFakeName(this);
 
@@ -43,9 +44,13 @@ class Penguin {
   }
 
   makeOlder() {
-    this.age += this.alive ? 1 : 0;
-    if (this.age > 8) {
+    this.age += this.alive ? 0.5 : 0;
+    if (this.age > 20) {
+      if (this.alive) {
+        console.log(this.name + " just died !")
+      }
       this.alive = false;
+      
       return false;
     }
     return true;

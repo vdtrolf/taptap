@@ -108,6 +108,22 @@ if (listen) {
             return res.json({penguins : island.getPenguins()});
           }
         }
+        
+        case "/setTile" : {
+          if (session) {
+            let island = session.getIsland();
+            let hpos = Number.parseInt(req.query.hpos,10);
+            let lpos = Number.parseInt(req.query.lpos,10);
+            
+            console.log("setIce hpos=" + hpos + " lpos=" + lpos);
+            
+            if (island.setIce(lpos,hpos)) {
+              return res.json({result : "true",island : island.getImg(mode,islandH,islandL),penguins : island.getPenguins(), session : session.getId()});
+            } else {
+              return res.json({result : "false"});
+            }
+          }
+        }
       }
     });
 
@@ -116,8 +132,13 @@ if (listen) {
     });
     
     app.on('error', (e) => {
-      console.log(e.code);
+      console.log("app " + e.code);
     });
+    
+    process.on('error', (e) => {
+      console.log("process" + e.code);
+    });
+    
     
     
     setInterval(() => {
@@ -132,7 +153,7 @@ if (listen) {
       //app.close(port);
       //app.listen(port);
       
-    }, 2000);
+    }, 1000);
    
   
   } catch(error) {
