@@ -44,7 +44,7 @@ class Penguin {
   }
 
   makeOlder() {
-    this.age += this.alive ? 1 : 0;
+    this.age += this.alive ? 0.5 : 0;
     if (this.age > 20) {
       if (this.alive) {
         console.log(this.name + " just died !")
@@ -58,7 +58,7 @@ class Penguin {
 
   setGender(gender) {
     this.gender = gender;
-    console.log("New penguin " + this.num + " - " + this.name + " (" + this.gender + "," + this.age + ")");
+    // console.log("New penguin " + this.num + " - " + this.name + " (" + this.gender + "," + this.age + ")");
   }
 
   isAlive() {
