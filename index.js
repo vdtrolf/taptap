@@ -131,8 +131,6 @@ if (listen) {
             
             if (island.setTile(lpos,hpos,session)) {
               return res.json({result : "true",
-              island : island.getImg(mode,islandH,islandL),
-              penguins : island.getPenguins(), 
               artifacts: island.getArtifacts(), 
               session : session.getId(),
               tiles: session.getTiles(), 
