@@ -36,7 +36,7 @@ let mode = Number.parseInt(args[1], 10);
 if (!mode) mode = 1;
 
 let debug = Number.parseInt(args[2], 10);
-debug = true;
+debug = false;
 
 
 if (listen) {
