@@ -184,11 +184,22 @@ class Island {
     }
     return result;
   }
-
-  getChangedImg() {
-
-
-
+  
+  getArtifacts() {
+    let result = ``;
+    for (let i = 0; i < this.sizeH; i++) {
+      let h = (i * 48); //  + 126 ;     
+      for (let j = 0; j < this.sizeL; j++) {
+        let l = (j * 48); // + 16 ; 
+        let land = this.territory[i][j] ;
+        if (land && land.cross()) {
+          result += `<img class="cross" src="./tiles/cross.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
+        } else if (land && land.fish()) {
+          result += `<img class="fish" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
+        }
+      }
+    }
+    return result + ``;
   }
 
 
@@ -250,27 +261,27 @@ class Island {
 
   movePenguins() {
     this.penguins.forEach(penguin => {
-      let lmoves = [1,-1,0, 0,1,1,-1,-1];
-      let hmoves = [0, 0,1,-1,1,-1,1,-1];
-      let move = Math.floor(Math.random() * 8);
-      let l=penguin.getLPos() + lmoves[move];
-      let h=penguin.getHPos() + hmoves[move];
-      // console.log("moving penguin " + penguin.getNum() + " = " + move + " " + lmoves[move] + " " + hmoves[move] + " => " +  h + "/" + l);
-      if (this.territory[h][l].getType() > 0) {
-        penguin.setPos(h,l);
-        // console.log("moving penguin " + penguin.getNum() +  " to " +  h + "/" + l);
+      if (penguin.isAlive()) {
+        let lmoves = [1,-1,0, 0,1,1,-1,-1];
+        let hmoves = [0, 0,1,-1,1,-1,1,-1];
+        let move = Math.floor(Math.random() * 8);
+        let l=penguin.getLPos() + lmoves[move];
+        let h=penguin.getHPos() + hmoves[move];
+        if (this.territory[h][l].getType() > 0) {
+          penguin.setPos(h,l);
+        } 
       }
     });
   }
 
   makePenguinsOlder() {
     this.penguins.forEach(penguin => {
-      if (! penguin.makeOlder()) {
-        let l=penguin.getLPos();
-        let h=penguin.getHPos();
-        this.territory[l][h].setCross();
-        // this.penguins = this.penguins.filter(penguin => penguin.isAlive());
-        // this.deadPenguins.push(penguin);
+      if (penguin.isAlive()) {
+        if (! penguin.makeOlder()) {
+          let l=penguin.getLPos();
+          let h=penguin.getHPos();
+          this.territory[h][l].setCross();
+        }
       }
     });
   }

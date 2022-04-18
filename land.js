@@ -65,6 +65,14 @@ class Land {
   setFish() {
     this.hasFish = true;
   }
+  
+  cross() {
+    return this.hasCross;
+  }
+
+  fish() {
+    return this.hasFish;
+  }
 
   setConf(newValue) {
     if (newValue) {

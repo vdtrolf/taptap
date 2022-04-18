@@ -45,7 +45,7 @@ class Penguin {
 
   makeOlder() {
     this.age += this.alive ? 0.5 : 0;
-    if (this.age > 20) {
+    if (this.age > 12) {
       if (this.alive) {
         console.log(this.name + " just died !")
       }

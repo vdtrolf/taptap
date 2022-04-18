@@ -35,6 +35,8 @@ class Session {
   getTiles() {
     return this.tiles;
   }
+  
+  
 
   decreaseTiles() {
     this.tiles -= this.tiles > 0 ? 1 : 0; 
