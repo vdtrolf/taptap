@@ -65,7 +65,7 @@ class Land {
   setFish() {
     this.hasFish = true;
   }
-  
+
   cross() {
     return this.hasCross;
   }
@@ -87,7 +87,7 @@ class Land {
       this.conf = Math.floor(Math.random() * 15);
     }
   }
-  
+
   setIce() {
     this.type = 1;
     this.conf = 0;
@@ -99,6 +99,10 @@ class Land {
 
   increaseConf() {
     this.conf = this.conf + 1;
+  }
+
+  decreaseConf() {
+    this.conf = this.conf -1;
   }
 
   getConf() {

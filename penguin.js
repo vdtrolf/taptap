@@ -8,6 +8,7 @@ class Penguin {
     this.lpos = l;
     this.age = Math.floor(Math.random() * 5);
     this.alive = true;
+    this.gender = "male";
     this.name = "Lonely penguin";
 
     getFakeName(this);
@@ -50,7 +51,7 @@ class Penguin {
         console.log(this.name + " just died !")
       }
       this.alive = false;
-      
+
       return false;
     }
     return true;

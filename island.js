@@ -7,6 +7,7 @@ let Land = landReq.Land;
 
 const deco1 = [" ",".","^","%","#","#","#","#"];
 const deco2 = ["&nbsp;","░","▒","▓","█","█","█","█"];
+const weathers = ["sun","rain","snow","cold"];
 
 class Island {
   constructor(sizeH,sizeL) {
@@ -14,6 +15,8 @@ class Island {
     this.sizeL = sizeL;
     this.territory = [];
     this.penguins = [];
+    this.weather = "sun";
+    this.weatherCount = 0;
 
     let matrix = [];
 
@@ -147,7 +150,7 @@ class Island {
     return this.penguins;
   }
 
-  
+
   // returns an ascii image of the island
   getAscii(mode,islandH,islandL) {
     let deco = mode === 1 ? deco1 : deco2;
@@ -184,13 +187,13 @@ class Island {
     }
     return result;
   }
-  
+
   getArtifacts() {
     let result = ``;
     for (let i = 0; i < this.sizeH; i++) {
-      let h = (i * 48); //  + 126 ;     
+      let h = (i * 48); //  + 126 ;
       for (let j = 0; j < this.sizeL; j++) {
-        let l = (j * 48); // + 16 ; 
+        let l = (j * 48); // + 16 ;
         let land = this.territory[i][j] ;
         if (land && land.cross()) {
           result += `<img class="cross" src="./tiles/cross.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
@@ -248,12 +251,21 @@ class Island {
       let lpos = Math.floor(Math.random() * this.sizeL);
       let land = this.territory[hpos][lpos];
 
-      if (land && land.getType() == 1) {
-        if (land.getConf() < 15 ) {
-          land.increaseConf();
-        } else {
-          land.setType(0);
-          land.resetConf();
+      if (this.weather === "sun" || this.weather === "rain") {
+
+        if (land && land.getType() == 1) {
+          if (land.getConf() < 15 ) {
+            land.increaseConf();
+          } else {
+            land.setType(0);
+            land.resetConf();
+          }
+        }
+      } else {
+        if (land && land.getType() == 1) {
+          if (land.getConf() > 0 ) {
+            land.decreaseConf();
+          }
         }
       }
     }
@@ -269,7 +281,7 @@ class Island {
         let h=penguin.getHPos() + hmoves[move];
         if (this.territory[h][l].getType() > 0) {
           penguin.setPos(h,l);
-        } 
+        }
       }
     });
   }
@@ -285,7 +297,21 @@ class Island {
       }
     });
   }
+
+  setWeather() {
+    this.weatherCount += 1;
+    if (this.weatherCount  >  Math.floor(Math.random() * 8) + 5) {
+      this.weather = weathers[Math.floor(Math.random() * 4)];
+      console.log("changing weather to " + this.weather);
+      this.weatherCount = 0;
+    }
+  }
+
+  getWeather() {
+    return this.weather;
+  }
 }
+
 
 
 // now we export the class, so other modules can create Penguin objects

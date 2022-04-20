@@ -30,7 +30,7 @@ args.forEach((arg) => {
 
 let islandL = Number.parseInt(args[0], 10);
 if (!islandL) islandL = 12;
-let islandH = 12; 
+let islandH = 12;
 
 let mode = Number.parseInt(args[1], 10);
 if (!mode) mode = 1;
@@ -40,7 +40,7 @@ debug = false;
 
 
 if (listen) {
-  
+
   app = express();
   app.use(cors())
   app.use(express.json());
@@ -49,7 +49,7 @@ if (listen) {
       extended: true,
     })
   );
- 
+
   try {
     app.get('/*', (req, res) => {
       let sessionId = Number.parseInt(req.query.sessionId,10);
@@ -59,20 +59,20 @@ if (listen) {
           return session.getId() === sessionId
         });
       }
-    
+
       if (session) {
         session.isAlive();
       }
 
-      // console.log("Receiving a request at " + req.path + " for session " + sessionId);
+      console.log("Receiving a request at " + req.path + " for session " + sessionId);
       switch(req.path) {
 
-        case "/island-ascii" : {
+        case "/island" : {
           if (! session) {
             island = null;
             island = new Island(islandH,islandL);
             session = new Session(island);
-            
+
             if (debug) {
               sessions[0] = null;
               sessions[0] = session;
@@ -81,15 +81,16 @@ if (listen) {
             } else {
               sessions.push(session);
             }
-    
+
           }   else {
             island = session.getIsland();
           }
           return res.json( {island : island.getImg(mode,islandH,islandL),
-            penguins : island.getPenguins(), 
+            weather : island.getWeather(),
+            penguins : island.getPenguins(),
             session : session.getId(),
-            artifacts: island.getArtifacts(), 
-            tiles: session.getTiles(), 
+            artifacts: island.getArtifacts(),
+            tiles: session.getTiles(),
             fishes: session.getFishes()});
         }
 
@@ -103,10 +104,11 @@ if (listen) {
               console.log(island.getAscii(mode,islandH,islandL));
             }
             return res.json( {island : island.getImg(mode,islandH,islandL),
+              weather : island.getWeather(),
               penguins : island.getPenguins(),
               session : session.getId(),
-              artifacts: island.getArtifacts(), 
-              tiles: session.getTiles(), 
+              artifacts: island.getArtifacts(),
+              tiles: session.getTiles(),
               fishes: session.getFishes()});
           } else {
             console.log("No island found");
@@ -116,24 +118,32 @@ if (listen) {
         case "/penguins" : {
           if (session) {
             let island = session.getIsland();
-            return res.json({penguins : island.getPenguins(), 
+            return res.json({penguins : island.getPenguins(),
               artifacts : island.getArtifacts()});
           }
         }
-        
+
+        case "/sessions" : {
+          if (session) {
+            return res.json({sessions : sessions, session : session.getId()});
+          } else {
+            return res.json({sessions : sessions});
+          }
+        }
+
         case "/setTile" : {
           if (session) {
             let island = session.getIsland();
             let hpos = Number.parseInt(req.query.hpos,10);
             let lpos = Number.parseInt(req.query.lpos,10);
-            
-            // console.log("setTile hpos=" + hpos + " lpos=" + lpos);
-            
+
             if (island.setTile(lpos,hpos,session)) {
               return res.json({result : "true",
-              artifacts: island.getArtifacts(), 
+              island : island.getImg(mode,islandH,islandL),
+              weather : island.getWeather(),
+              artifacts: island.getArtifacts(),
               session : session.getId(),
-              tiles: session.getTiles(), 
+              tiles: session.getTiles(),
               fishes: session.getFishes()});
             } else {
               return res.json({result : "false"});
@@ -146,26 +156,27 @@ if (listen) {
     app.listen(port, () => {
       console.log(`Little island listening at port: ${port}`);
     });
-    
+
     app.on('error', (e) => {
       console.log("app " + e.code);
     });
-    
+
     process.on('error', (e) => {
       console.log("process" + e.code);
     });
-    
+
     setInterval(() => {
       sessions.forEach(session=> {
         let island = session.getIsland();
         island.makePenguinsOlder();
         island.movePenguins();
+        island.setWeather();
         island.smelt();
       });
-      
+
     }, 1000);
-   
-  
+
+
   } catch(error) {
      console.error("problem " + error);
   }
