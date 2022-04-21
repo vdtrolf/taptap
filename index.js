@@ -200,6 +200,8 @@ if (useexpress) {
 
 } else {
 
+  
+  try {
   const http = require('http');
 
   // const requestListener = function (req, res) {
@@ -245,5 +247,22 @@ if (useexpress) {
     res.writeHead(405, headers);
     res.end(`${req.method} is not allowed for the request.`);
   }).listen(port);
+  
+  setInterval(() => {
+      sessions.forEach(session=> {
+        let island = session.getIsland();
+        island.makePenguinsOlder();
+        island.movePenguins();
+        island.setWeather();
+        island.smelt();
+      });
+
+    }, 1000);
+
+
+  } catch(error) {
+     console.error("problem " + error);
+  }
+  
 
 }
