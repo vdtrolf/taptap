@@ -3,6 +3,7 @@
     "axios": "^0.26.1",
     "cors": "^2.8.5",
     "express": "^4.17.3",
-    "fastify": "^3.28.0"
+    "fastify": "^3.28.0",
+    "http": "0.0.1-security"
   }
 }

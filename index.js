@@ -11,7 +11,8 @@ let Session = sessionReq.Session;
 
 const port = 3001;
 const sessions = [];
-const useexpress = false;
+const useexpress = true;
+let sessionId = null;
 
 let session = null, island = null;
 
@@ -107,9 +108,19 @@ const createResponse = (url,params) => {
     case "/penguins" : {
       if (session) {
         let island = session.getIsland();
-        return {penguins : island.getPenguins(),
-          artifacts : island.getArtifacts()};
-      }
+        
+        return { island : island.getImg(mode,islandH,islandL),
+        weather : island.getWeather(),
+        penguins : island.getPenguins(),
+        session : session.getId(),
+        artifacts: island.getArtifacts(),
+        tiles: session.getTiles(),
+        fishes: session.getFishes()};
+        
+        
+//        return {penguins : island.getPenguins(),
+//          artifacts : island.getArtifacts()};
+      []}
     }
 
     case "/sessions" : {
@@ -146,9 +157,6 @@ const createResponse = (url,params) => {
 
   }
 };
-
-
-
 
 
 if (useexpress) {
@@ -192,86 +200,68 @@ if (useexpress) {
       console.log("process" + e.code);
     });
 
-
-
-
   } catch(error) {
      console.error("problem " + error);
   }
 
 } else {
-
   
   try {
-  const http = require('http');
+    
+    console.log("starting server");
+    
+    const http = require('http');
 
-    http.createServer((req, res) => {
-    const headers = {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'OPTIONS, POST, GET',
-      'Access-Control-Max-Age': 2592000, // 30 days
+    return http.createServer((req, res) => {
+      const headers = {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'OPTIONS, POST, GET',
+        'Access-Control-Max-Age': 2592000, // 30 days
       /** add other headers as per requirement */
-    };
+      };
 
-    if (req.method === 'OPTIONS') {
-      res.writeHead(204, headers);
-      res.end();
-      return;
-    }
-
-    if (['GET', 'POST'].indexOf(req.method) > -1) {
-
-      const urlsplit = req.url.split("?");
-
-      console.log("===> receiving a request for " + req.url);
-
-      let params = [];
-
-      if (urlsplit[1]) {
-        params = urlsplit[1].split("&").reduce((acc,elem)  => {
-          let parts = elem.split("=");
-          acc[parts[0]] = parts[1];
-          return acc;
-        },{} );
+      if (req.method === 'OPTIONS') {
+        res.writeHead(204, headers);
+        res.end();
+        return;
       }
 
-      // let sessionId = params.find(param => { return param.name === "sessionId"})?.value;
-      let sessionId = params.sessionId;
+      if (['GET', 'POST'].indexOf(req.method) > -1) {
 
-      // console.log("== sessionId ==> " + sessionId);
+        const urlsplit = req.url.split("?");
 
-      if (sessionId) {
-        getSession(sessionId);
+        console.log("===> receiving a request for " + req.url);
+
+        let params = [];
+
+        if (urlsplit[1]) {
+          params = urlsplit[1].split("&").reduce((acc,elem)  => {
+            let parts = elem.split("=");
+            acc[parts[0]] = parts[1];
+            return acc;
+          },{} );
+        }
+
+        if (sessionId) {
+          getSession(params.sessionId);
+        }
+
+        let response = JSON.stringify(createResponse(urlsplit[0],params));
+
+        res.setHeader("Content-Type", "application/json");
+        res.writeHead(200, headers);
+        res.end(response);
+        return;
       }
 
-      let response = JSON.stringify(createResponse(urlsplit[0],params));
-
-      res.setHeader("Content-Type", "application/json");
-      res.writeHead(200, headers);
-      res.end(response);
-      return;
-    }
-
-    res.writeHead(405, headers);
-    res.end(`${req.method} is not allowed for the request.`);
-  }).listen(port);
-  
-  setInterval(() => {
-      sessions.forEach(session=> {
-        let island = session.getIsland();
-        island.makePenguinsOlder();
-        island.movePenguins();
-        island.setWeather();
-        island.smelt();
-      });
-
-    }, 1000);
-
+      res.writeHead(405, headers);
+      res.end(`${req.method} is not allowed for the request.`);
+    
+    }).listen(port);
 
   } catch(error) {
      console.error("problem " + error);
   }
-  
 
 }
 
@@ -285,4 +275,4 @@ setInterval(() => {
     island.smelt();
   });
 
-}, 1000);
+}, 2000);
