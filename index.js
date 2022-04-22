@@ -35,20 +35,23 @@ debug = false;
 
 const getSession = (sessionId) => {
 
-  console.log("looking for sessionId " + sessionId);
+  // console.log("looking for sessionId ==>" + sessionId + "<==");
+
+  let sId = Number.parseInt(sessionId,10);
 
   if (sessionId) {
     session = sessions.find(session => {
-      return session.getId() === sessionId
+      return session.getId() === sId;
     });
   }
 
   if (session) {
+    // console.log("Found session =>" + session.getId() + "<=");
     session.isAlive();
   }
 };
 
-const createResponse = (url) => {
+const createResponse = (url,params) => {
 
   switch(url) {
 
@@ -64,6 +67,7 @@ const createResponse = (url) => {
           console.log("Building an island of size " + islandH + " * " + islandL);
           console.log(island.getAscii(mode,islandH,islandL));
         } else {
+          console.log("Pushing session =>" + session.getId() + "<==");
           sessions.push(session);
         }
 
@@ -119,8 +123,8 @@ const createResponse = (url) => {
     case "/setTile" : {
       if (session) {
         let island = session.getIsland();
-        let hpos = Number.parseInt(req.query.hpos,10);
-        let lpos = Number.parseInt(req.query.lpos,10);
+        let hpos = Number.parseInt(params.hpos,10);
+        let lpos = Number.parseInt(params.lpos,10);
 
         if (island.setTile(lpos,hpos,session)) {
           return {result : "true",
@@ -142,6 +146,9 @@ const createResponse = (url) => {
 
   }
 };
+
+
+
 
 
 if (useexpress) {
@@ -167,7 +174,10 @@ if (useexpress) {
 
       console.log("Receiving a request at " + req.path + " for session " + sessionId);
 
-      return res.json(createResponse(req.path));
+      // req.params.forEach(param => {console.log("== param ==>" + param.name  + " = " + param.value)});
+
+
+      return res.json(createResponse(req.path,req.query));
     });
 
     app.listen(port, () => {
@@ -182,16 +192,7 @@ if (useexpress) {
       console.log("process" + e.code);
     });
 
-    setInterval(() => {
-      sessions.forEach(session=> {
-        let island = session.getIsland();
-        island.makePenguinsOlder();
-        island.movePenguins();
-        island.setWeather();
-        island.smelt();
-      });
 
-    }, 1000);
 
 
   } catch(error) {
@@ -202,15 +203,7 @@ if (useexpress) {
 
   const http = require('http');
 
-  // const requestListener = function (req, res) {
-  //   res.writeHead(200);
-  //   res.end('Hello, World!');
-  // }
-  //
-  // const server = http.createServer(requestListener);
-  // server.listen(3001);
-
-  http.createServer((req, res) => {
+    http.createServer((req, res) => {
     const headers = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'OPTIONS, POST, GET',
@@ -228,13 +221,28 @@ if (useexpress) {
 
       const urlsplit = req.url.split("?");
 
-      console.log("===>" + urlsplit[0] + "<===>" + urlsplit[1]);
+      console.log("===> receiving a request for " + req.url);
 
-      if (urlsplit[1] && urlsplit[1].startsWith("sessionId")) {
-        getSession(urlsplit[1].substring(10));
+      let params = [];
+
+      if (urlsplit[1]) {
+        params = urlsplit[1].split("&").reduce((acc,elem)  => {
+          let parts = elem.split("=");
+          acc[parts[0]] = parts[1];
+          return acc;
+        },{} );
       }
 
-      let response = JSON.stringify(createResponse(urlsplit[0]));
+      // let sessionId = params.find(param => { return param.name === "sessionId"})?.value;
+      let sessionId = params.sessionId;
+
+      // console.log("== sessionId ==> " + sessionId);
+
+      if (sessionId) {
+        getSession(sessionId);
+      }
+
+      let response = JSON.stringify(createResponse(urlsplit[0],params));
 
       res.setHeader("Content-Type", "application/json");
       res.writeHead(200, headers);
@@ -247,3 +255,15 @@ if (useexpress) {
   }).listen(port);
 
 }
+
+
+setInterval(() => {
+  sessions.forEach(session=> {
+    let island = session.getIsland();
+    island.makePenguinsOlder();
+    island.movePenguins();
+    island.setWeather();
+    island.smelt();
+  });
+
+}, 1000);
