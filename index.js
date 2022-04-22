@@ -42,9 +42,11 @@ const getSession = (sessionId) => {
     session = sessions.find(session => {
       return session.getId() === sId;
     });
+  } else {
+    session = null;
   }
 
-  if (session) {
+  if (session !== null) {
     console.log("Found session =>" + session.getId() + "<=");
     session.isAlive();
   }
