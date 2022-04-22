@@ -2,7 +2,6 @@ const penguinReq = require("./penguin.js");
 const islandReq = require("./island.js");
 const landReq = require("./land.js");
 const sessionReq = require("./session.js");
-// const axios = require("axios");
 
 let Penguin = penguinReq.Penguin;
 let Island = islandReq.Island;
@@ -12,7 +11,6 @@ let Session = sessionReq.Session;
 const port = 3001;
 const sessions = [];
 const useexpress = true;
-let sessionId = null;
 
 let session = null, island = null;
 
@@ -36,7 +34,7 @@ debug = false;
 
 const getSession = (sessionId) => {
 
-  // console.log("looking for sessionId ==>" + sessionId + "<==");
+  console.log("looking for sessionId ==>" + sessionId + "<==");
 
   let sId = Number.parseInt(sessionId,10);
 
@@ -47,7 +45,7 @@ const getSession = (sessionId) => {
   }
 
   if (session) {
-    // console.log("Found session =>" + session.getId() + "<=");
+    console.log("Found session =>" + session.getId() + "<=");
     session.isAlive();
   }
 };
