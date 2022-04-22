@@ -34,7 +34,7 @@ debug = false;
 
 const getSession = (sessionId) => {
 
-  console.log("looking for sessionId ==>" + sessionId + "<==");
+  //console.log("looking for sessionId ==>" + sessionId + "<==");
 
   let sId = Number.parseInt(sessionId,10);
 
@@ -47,7 +47,7 @@ const getSession = (sessionId) => {
   }
 
   if (session !== null) {
-    console.log("Found session =>" + session.getId() + "<=");
+    //console.log("Found session =>" + session.getId() + "<=");
     session.isAlive();
   }
 };

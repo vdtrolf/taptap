@@ -191,9 +191,9 @@ class Island {
   getArtifacts() {
     let result = ``;
     for (let i = 0; i < this.sizeH; i++) {
-      let h = (i * 48); //  + 126 ;
+      let h = (i * 48) + 16; //  + 16;
       for (let j = 0; j < this.sizeL; j++) {
-        let l = (j * 48); // + 16 ;
+        let l = (j * 48) + 16; // + 16 ;
         let land = this.territory[i][j] ;
         if (land && land.cross()) {
           result += `<img class="cross" src="./tiles/cross.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
@@ -273,12 +273,54 @@ class Island {
 
   movePenguins() {
     this.penguins.forEach(penguin => {
+      
       if (penguin.isAlive()) {
-        let lmoves = [1,-1,0, 0,1,1,-1,-1];
-        let hmoves = [0, 0,1,-1,1,-1,1,-1];
-        let move = Math.floor(Math.random() * 8);
-        let l=penguin.getLPos() + lmoves[move];
-        let h=penguin.getHPos() + hmoves[move];
+        
+        let startL = penguin.getLPos() -2;
+        let stopL = startL + 4 < this.sizeL ? startL +4 : this.sizeL;
+        startL = startL > 0 ? startL : 1;
+        let startH = penguin.getHPos() -2;
+        let stopH = startH + 4 < this.sizeL ? startH +4 : this.sizeH;
+        startH = startH > 0 ? startH : 1;
+        
+        let targetL = 0, targetH = 0;
+        
+        for (let i =startL; i< stopL; i++) {
+          for (let j =startH; j < stopH; j++) {j
+            if(this.territory[j][i].fish()) {
+              targetL = i;
+              targetH = j;
+            }
+          }
+        }
+        
+        let l=0,h=0,move=0;
+        let lmoves = [0,1,-1,0, 0,1,1,-1,-1];
+        let hmoves = [0,0, 0,1,-1,1,-1,1,-1];
+        
+        if (targetL) {
+          if (targetL < penguin.getLPos()) {
+            if (targetH === penguin.getHPos()) {
+              move = 2;
+            } else {
+              move = targetH < penguin.getHPos() ? 7:8;
+            }
+          } else if (targetL > penguin.getLPos()) {
+            if (targetH === penguin.getHPos()) {
+              move = 1;
+            } else {
+              move = targetH < penguin.getHPos() ? 6:5;
+            }
+          } else {
+            move = targetH < penguin.getHPos() ? 4:3;
+          }
+        } else {
+          move = Math.floor(Math.random() * 8) +1;
+        }
+        
+        l=penguin.getLPos() + lmoves[move];
+        h=penguin.getHPos() + hmoves[move];
+        
         if (this.territory[h][l].getType() > 0) {
           penguin.setPos(h,l);
         }
