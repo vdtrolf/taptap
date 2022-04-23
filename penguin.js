@@ -43,6 +43,11 @@ class Penguin {
     this.hpos = hpos;
     this.lpos = lpos;
   }
+  
+  eat() {
+    this.age = this.age > 3 ? this.age -3 : 0;
+  }
+  
 
   makeOlder() {
     this.age += this.alive ? 0.3 : 0;

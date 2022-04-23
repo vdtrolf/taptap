@@ -120,7 +120,7 @@ const createResponse = (url,params) => {
         
 //        return {penguins : island.getPenguins(),
 //          artifacts : island.getArtifacts()};
-      []}
+      }
     }
 
     case "/sessions" : {

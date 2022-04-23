@@ -61,6 +61,10 @@ class Land {
   setCross() {
     this.hasCross = true;
   }
+  
+  removeFish() {
+    this.hasFish = false;
+  }
 
   setFish() {
     this.hasFish = true;

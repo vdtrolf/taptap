@@ -276,20 +276,22 @@ class Island {
       
       if (penguin.isAlive()) {
         
-        let startL = penguin.getLPos() -2;
-        let stopL = startL + 4 < this.sizeL ? startL +4 : this.sizeL;
-        startL = startL > 0 ? startL : 1;
+       
         let startH = penguin.getHPos() -2;
         let stopH = startH + 4 < this.sizeL ? startH +4 : this.sizeH;
         startH = startH > 0 ? startH : 1;
         
-        let targetL = 0, targetH = 0;
+        let startL = penguin.getLPos() -2;
+        let stopL = startL + 4 < this.sizeL ? startL +4 : this.sizeL;
+        startL = startL > 0 ? startL : 1;
         
-        for (let i =startL; i< stopL; i++) {
-          for (let j =startH; j < stopH; j++) {j
-            if(this.territory[j][i].fish()) {
-              targetL = i;
-              targetH = j;
+        let targetL = 0, targetH = 0;
+       
+        for (let h= startH; h < stopH ; h++) {
+          for (let l =startL; l < stopL ; l++) {
+            if(this.territory[h][l].fish()) {
+              targetL = l;
+              targetH = h;
             }
           }
         }
@@ -298,7 +300,9 @@ class Island {
         let lmoves = [0,1,-1,0, 0,1,1,-1,-1];
         let hmoves = [0,0, 0,1,-1,1,-1,1,-1];
         
-        if (targetL) {
+        if (targetL > 0){
+          
+         
           if (targetL < penguin.getLPos()) {
             if (targetH === penguin.getHPos()) {
               move = 2;
@@ -312,8 +316,26 @@ class Island {
               move = targetH < penguin.getHPos() ? 6:5;
             }
           } else {
-            move = targetH < penguin.getHPos() ? 4:3;
+            if (targetH === penguin.getHPos()) {
+              
+              //if (this.territory[h][l].getType() > 0) {
+              this.territory[targetH][targetL].removeFish();
+              penguin.eat();
+              //}
+              
+              move = 0;
+            } else {
+              move = targetH < penguin.getHPos() ? 4:3;
+            }
           }
+          
+          console.log("Searching a fish at " + startL + "->" + stopL + " / " + startH  + "->" + stopH + "  - at " + penguin.getLPos() + "/" + penguin.getHPos());
+          
+          console.log("Found a fish at " + targetL + "/" + targetH + "  - at " + penguin.getLPos() + "/" + penguin.getHPos() + " move " + move);
+          
+          console.log("Result is " + (penguin.getLPos() + lmoves[move]) +"/"+ (penguin.getHPos() + hmoves[move]));
+          
+          
         } else {
           move = Math.floor(Math.random() * 8) +1;
         }
