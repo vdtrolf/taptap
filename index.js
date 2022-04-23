@@ -275,4 +275,4 @@ setInterval(() => {
     island.smelt();
   });
 
-}, 2000);
+}, 1000);
