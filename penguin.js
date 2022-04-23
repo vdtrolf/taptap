@@ -10,6 +10,8 @@ class Penguin {
     this.alive = true;
     this.gender = "male";
     this.name = "Lonely penguin";
+    this.eating = 0;
+    this.loving = 0;
 
     getFakeName(this);
 
@@ -46,20 +48,30 @@ class Penguin {
   
   eat() {
     this.age = this.age > 3 ? this.age -3 : 0;
+    this.eating = 3;
   }
   
-
+  isEating () {
+    return this.eating > 0;
+  }
+  
   makeOlder() {
-    this.age += this.alive ? 0.3 : 0;
-    if (this.age > 20) {
-      if (this.alive) {
-        console.log(this.name + " just died !")
-      }
-      this.alive = false;
+    
+    if (this.eating > 0) {
+      this.eating -= 1;
+      return true;
+    } else {
+      this.age += this.alive ? 0.3 : 0;
+      if (this.age > 20) {
+        if (this.alive) {
+          console.log(this.name + " just died !")
+        }
+        this.alive = false;
 
-      return false;
+        return false;
+      }
+      return true;
     }
-    return true;
   }
 
   setGender(gender) {

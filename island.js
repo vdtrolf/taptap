@@ -274,7 +274,7 @@ class Island {
   movePenguins() {
     this.penguins.forEach(penguin => {
       
-      if (penguin.isAlive()) {
+      if (penguin.isAlive() && ! penguin.isEating() ) {
         
        
         let startH = penguin.getHPos() -2;
