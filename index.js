@@ -38,6 +38,9 @@ const getSession = (sessionId) => {
 
   let sId = Number.parseInt(sessionId,10);
 
+  console.log("looking for sessionId ==>" + sessionId + "<== is ==>" + sId + "<==");
+
+
   if (sessionId) {
     session = sessions.find(session => {
       return session.getId() === sId;
@@ -109,17 +112,27 @@ const createResponse = (url,params) => {
       if (session) {
         let island = session.getIsland();
         
-        return { island : island.getImg(mode,islandH,islandL),
-        weather : island.getWeather(),
-        penguins : island.getPenguins(),
-        session : session.getId(),
-        artifacts: island.getArtifacts(),
-        tiles: session.getTiles(),
-        fishes: session.getFishes()};
-        
-        
-//        return {penguins : island.getPenguins(),
-//          artifacts : island.getArtifacts()};
+        return {session : session.getId(),
+                weather : island.getWeather(),
+                penguins : island.getPenguins(),
+                artifacts: island.getArtifacts(),
+                tiles: session.getTiles(),
+                fishes: session.getFishes()};
+      }
+       // island : island.getImg(mode,islandH,islandL),
+    }
+
+    case "/moves" : {
+      if (session) {
+        let island = session.getIsland();
+       
+        return {session : session.getId(), 
+                moves : session.getMoveLog(),
+                penguins : island.getPenguins(),
+                weather : island.getWeather(),
+                artifacts: island.getArtifacts(),
+                tiles: session.getTiles(),
+                fishes: session.getFishes()};
       }
     }
 
@@ -269,10 +282,10 @@ if (useexpress) {
 setInterval(() => {
   sessions.forEach(session=> {
     let island = session.getIsland();
-    island.makePenguinsOlder();
-    island.movePenguins();
-    island.setWeather();
+    island.makePenguinsOlder(session);
+    island.movePenguins(session);
+    island.setWeather(session);
     island.smelt();
   });
 
-}, 1000);
+}, 1500);
