@@ -10,6 +10,8 @@ class Session {
     this.fishes = 5;
     this.moveLog = [];
     this.island = island;
+    this.moveCounter = 0; 
+    this.turn = 0;
 
     console.log("New session with id " + this.id);
 
@@ -19,6 +21,14 @@ class Session {
     this.tiles = 5;
     this.fishes = 5;
   }
+
+  getTurn() {
+    return this.turn++;
+  }
+  
+  getTurnNoUpd() {
+    return this.turn;
+ }
 
   getIsland() {
     return this.island;
@@ -60,10 +70,14 @@ class Session {
     return true;
   }
   
-  addMoveLog(id, num, moveType, moveDir, origH, origL, newH, newL, cat, state) {
+  addMoveLog(turn, id, num, moveType, moveDir, origH, origL, newH, newL, cat, state) {
     
+    let moveid = this.moveCounter++;
+    console.log(turn + " " + moveid + " : Penguin " + id + " move (" +  moveType +":" + moveDir +") " + origH + "/" + origL + " -> " + newH + "/" + newL);
+  
     if (moveType !== 1) {
-      this.moveLog.push({
+     this.moveLog.push({
+        moveid : moveid,
         id : id, 
         num : num,
         moveType : moveType, // 1 = move
@@ -72,17 +86,18 @@ class Session {
         state : state
       });
     } else {
-      let amove = this.moveLog.find(move => move.id === id && moveType === 1 );
+      let amove = this.moveLog.find(move => { return (move.id === id && move.moveType === 1)} );
       if (amove) {
-        console.log("amove exist " + amove.movements.length);
-        let newMove = {moveDir : moveDir, origH : origH, origL : origL, newH : newH, newL : newL };
+       let newMove = {movmtid : moveid, moveDir : moveDir, origH : origH, origL : origL, newH : newH, newL : newL };
         amove.movements.push(newMove);
       } else {
-        this.moveLog.push({
+
+       this.moveLog.push({
+          moveid : moveid,
           id : id, 
           num : num,
           moveType : moveType, // 1 = move
-          movements : [{moveDir : moveDir, origH : origH, origL : origL, newH : newH, newL : newL }],
+          movements : [{movmtid : moveid, moveDir : moveDir, origH : origH, origL : origL, newH : newH, newL : newL }],
           cat : cat,  
           state : state
         });
@@ -106,9 +121,20 @@ class Session {
     });
   }
   
+  getLover(gender, hpos, lpos) {
+   
+    let lover = this.island.penguins.find(penguin => {
+      return penguin.hpos === hpos && penguin.lpos === lpos && penguin.gender !== gender
+    });
+   return lover;
+ }
+  
+  
 }
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
     Session : Session
 }
+
+

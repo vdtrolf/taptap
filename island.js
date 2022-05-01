@@ -10,13 +10,14 @@ const deco2 = ["&nbsp;","░","▒","▓","█","█","█","█"];
 const weathers = ["sun","rain","snow","cold"];
 
 class Island {
-  constructor(sizeH,sizeL) {
+  constructor(sizeH,sizeL,session) {
     this.sizeH = sizeH;
     this.sizeL = sizeL;
     this.territory = [];
     this.penguins = [];
     this.weather = "sun";
     this.weatherCount = 0;
+    this.numPeng = 0;
 
     let matrix = [];
 
@@ -117,21 +118,25 @@ class Island {
       }
     }
 
-    // randomly add some penguins
-    let numPeng = 0;
-    for (let i = 0; i < 10; i++) {
-      let hpos = Math.floor(Math.random() * sizeH);
-      let lpos = Math.floor(Math.random() * sizeL);
+ } // constructor ()
+
+ addPenguins(session) {
+   
+   turn = 0;
+   
+   // randomly add some penguins
+   for (let i = 0; i < 10; i++) {
+      let hpos = Math.floor(Math.random() * this.sizeH);
+      let lpos = Math.floor(Math.random() * this.sizeL);
       let land = this.territory[hpos][lpos];
 
-
-      if (land && land.getType() !== 0) { //  && this.penguins.length < 1) {
-        let penguin = new Penguin(numPeng++,hpos,lpos);
+      if (land && land.getType() !== 0 ) { // && this.penguins.length < 1) {
+        let penguin = new Penguin(this.numPeng++,hpos,lpos,session, turn);
         land.addPenguin(penguin);
         this.penguins.push(penguin);
       }
     }
-  } // constructor ()
+  }
 
   getLandType(x, y) {
     const land = this.territory[x][y];
@@ -272,10 +277,24 @@ class Island {
   }
 
   movePenguins(session) {
+    
+    let turn = session.getTurn();
+    
     this.penguins.forEach(penguin => {
       
-      if (penguin.isAlive() && ! penguin.isEating() ) {
+      if (penguin.isAlive() && ! penguin.isEating() && ! penguin.isLoving()) {
+        let lover= session.getLover(penguin.gender, penguin.hpos, penguin.lpos);
         
+        if (this.territory[penguin.hpos][penguin.lpos].fish()) {
+          this.territory[penguin.hpos][penguin.lpos].removeFish();
+          penguin.eat(session, turn);
+        } else if ( penguin.canLove() && lover) {
+          if (! penguin.isLoving()) {
+            penguin.love(session, turn);
+            lover.love(session, turn);
+          }
+       } else {
+
         let posmoves = [];
         if (this.territory[penguin.getHPos()][penguin.getLPos()-1].getType()>0) posmoves.push(1);
         if (this.territory[penguin.getHPos()][penguin.getLPos()+1].getType()>0) posmoves.push(2);
@@ -325,8 +344,8 @@ class Island {
             }
           } else {
             if (targetH === penguin.getHPos()) {
-              this.territory[targetH][targetL].removeFish();
-              penguin.eat(session);
+//               this.territory[targetH][targetL].removeFish();
+//               penguin.eat(session);
               move = 0;
             } else {
               move = targetH < penguin.getHPos() ? 3:4;
@@ -345,7 +364,7 @@ class Island {
           h=penguin.getHPos() + hmoves[move];
         
           if (this.territory[h][l].getType() > 0) {
-            penguin.setPos(session, move, h,l);
+            penguin.setPos(session, turn, move, h,l);
           }
           
         } else if (move > 0){
@@ -356,39 +375,56 @@ class Island {
           if (this.territory[h][l].getType() > 0) {
             switch (move) {
               case 5:
-                penguin.setPos(session, 2, penguin.getHPos(), penguin.getLPos() + 1);     
-                penguin.setPos(session, 4, penguin.getHPos() + 1, penguin.getLPos() + 1);     
+                penguin.setPos(session, turn, 2, penguin.getHPos(), penguin.getLPos() + 1);     
+                penguin.setPos(session, turn, 4, penguin.getHPos() + 1, penguin.getLPos() + 1);     
                 break;               
               case 6:
-                penguin.setPos(session, 2, penguin.getHPos(), penguin.getLPos() + 1);     
-                penguin.setPos(session, 3, penguin.getHPos() - 1, penguin.getLPos() + 1);     
+                penguin.setPos(session, turn, 2, penguin.getHPos(), penguin.getLPos() + 1);     
+                penguin.setPos(session, turn, 3, penguin.getHPos() - 1, penguin.getLPos() + 1);     
                 break;               
               case 7:
-                penguin.setPos(session, 1, penguin.getHPos(), penguin.getLPos() - 1);     
-                penguin.setPos(session, 4, penguin.getHPos() + 1, penguin.getLPos() + 1);     
+                penguin.setPos(session, turn, 1, penguin.getHPos(), penguin.getLPos() - 1);     
+                penguin.setPos(session, turn, 4, penguin.getHPos() + 1, penguin.getLPos() + 1);     
                 break;               
               case 8:
-                penguin.setPos(session, 1, penguin.getHPos(), penguin.getLPos() -1);     
-                penguin.setPos(session, 3, penguin.getHPos() - 1, penguin.getLPos() - 1);     
+                penguin.setPos(session, turn, 1, penguin.getHPos(), penguin.getLPos() -1);     
+                penguin.setPos(session, turn, 3, penguin.getHPos() - 1, penguin.getLPos() - 1);     
                 break;               
             } // switch
           } // is territory > 0
         } // if move
       } // isPenguins
+    }
     });
+    
   }
-
+ 
   makePenguinsOlder(session) {
+    let l=0,h=0
+    let turn = session.getTurnNoUpd();
+    
     this.penguins.forEach(penguin => {
       if (penguin.isAlive()) {
-        if (! penguin.makeOlder(session)) {
-          let l=penguin.getLPos();
-          let h=penguin.getHPos();
-          this.territory[h][l].setCross();
+        switch (penguin.makeOlder(session,turn)) {
+          case 1: // died 
+            l=penguin.getLPos();
+            h=penguin.getHPos();
+            this.territory[h][l].setCross();
+            break;
+          case 2: // born
+            l=penguin.getLPos();
+            h=penguin.getHPos();
+            let child = new Penguin(this.numPeng++,h,l,session);
+            this.territory[h][l].addPenguin(child);
+            this.penguins.push(penguin);
+            break;          
         }
       }
     });
   }
+  
+
+  
 
   setWeather(session) {
     this.weatherCount += 1;

@@ -38,7 +38,7 @@ const getSession = (sessionId) => {
 
   let sId = Number.parseInt(sessionId,10);
 
-  console.log("looking for sessionId ==>" + sessionId + "<== is ==>" + sId + "<==");
+  // console.log("looking for sessionId ==>" + sessionId + "<== is ==>" + sId + "<==");
 
 
   if (sessionId) {
@@ -64,18 +64,19 @@ const createResponse = (url,params) => {
         island = null;
         island = new Island(islandH,islandL);
         session = new Session(island);
-
+        island.addPenguins(session);
+        
         if (debug) {
           sessions[0] = null;
           sessions[0] = session;
           console.log("Building an island of size " + islandH + " * " + islandL);
           console.log(island.getAscii(mode,islandH,islandL));
         } else {
-          console.log("Pushing session =>" + session.getId() + "<==");
+          // console.log("Pushing session =>" + session.getId() + "<==");
           sessions.push(session);
         }
 
-      }   else {
+      } else {
         island = session.getIsland();
       }
       return {island : island.getImg(mode,islandH,islandL),
@@ -92,6 +93,7 @@ const createResponse = (url,params) => {
         island = new Island(islandH,islandL);
         session.reset();
         session.setIsland(island);
+        island.addPenguins(session);
         if (debug) {
           console.log("Renewing an island of size " + islandH + " * " + islandL);
           console.log(island.getAscii(mode,islandH,islandL));
@@ -193,7 +195,7 @@ if (useexpress) {
       let sessionId = Number.parseInt(req.query.sessionId,10);
       getSession(sessionId);
 
-      console.log("Receiving a request at " + req.path + " for session " + sessionId);
+      // console.log("Receiving a request at " + req.path + " for session " + sessionId);
 
       // req.params.forEach(param => {console.log("== param ==>" + param.name  + " = " + param.value)});
 
@@ -288,4 +290,4 @@ setInterval(() => {
     island.smelt();
   });
 
-}, 1500);
+}, 750);

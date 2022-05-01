@@ -1,20 +1,27 @@
 const axios = require("axios");
+const genders = ["male","female"];
+const names = ["Billy Boy", "Glossy Rose"];
 
 class Penguin {
-  constructor(num, h, l) {
+  constructor(num, h, l, session, turn) {
+    
+    let gdname = Math.floor(Math.random() * 2);
+    
     this.id = Math.floor(Math.random() * 999999);
     this.num = num;
     this.hpos = h;
     this.lpos = l;
     this.age = Math.floor(Math.random() * 5);
     this.alive = true;
-    this.gender = "male";
+    this.gender = genders[gdname];
     this.cat = "-y-";
-    this.name = "Lonely penguin";
+    this.name = names[gdname];
     this.eating = 0;
     this.loving = 0;
+    this.hasLoved = 0;
 
     getFakeName(this);
+    session.addMoveLog(turn, this.id,this.num,1,0,0,0,this.hpos,this.lpos,this.cat,"move");
 
   }
 
@@ -42,56 +49,82 @@ class Penguin {
     this.name = name;
   }
 
+  canLove() {
+    return this.age > 4 && this.hasLoved === 0;
+  }
+  
   // let moveType = moves[i].moveType, // 1=move,2=age,3=eat,4=love,5=die
   // let moveDir = moves[i].moveDir, // 1=left,2=right,3=up,4=down
 
-  setPos(session,moveDir,hpos,lpos) {
+  setPos(session, turn,moveDir,hpos,lpos) {
+   
     if (this.hpos !== hpos || this.lpos !== lpos) {
       let cat = this.gender === "male" ? "-m-" : "-f-";
-      cat = this.age < 8 ?"-y-":cat;
-      session.addMoveLog(this.id,this.num,1,moveDir,this.hpos,this.lpos,hpos,lpos,cat,"move");
+      cat = this.age < 4 ?"-y-":cat;
+      session.addMoveLog(turn,this.id,this.num,1,moveDir,this.hpos,this.lpos,hpos,lpos,cat,"move");
     }
     this.hpos = hpos;
     this.lpos = lpos;
   }
   
-  eat(session) {
+  love(session, turn) {
+    this.loving = 3;
+    this.hasLoved = 7;
+    let cat = this.gender === "male" ? "-m-" : "-f-";
+    cat = this.age < 4 ?"-y-":cat;
+    session.addMoveLog(turn, this.id,this.num,4,0,0,0,0,0,cat,"love");
+  }
+
+  isLoving () {
+    return this.loving > 0;
+  }
+
+  eat(session, turn) {
     this.age = this.age > 3 ? this.age -3 : 0;
     this.eating = 3;
     let cat = this.gender === "male" ? "-m-" : "-f-";
-    cat = this.age < 8 ?"-y-":cat;
-    session.addMoveLog(this.id,this.num,3,0,0,0,0,0,cat,"eat");
+    cat = this.age < 4 ?"-y-":cat;
+    session.addMoveLog(turn, this.id,this.num,3,0,0,0,0,0,cat,"eat");
   }
-  
+
   isEating () {
     return this.eating > 0;
   }
   
-  makeOlder(session) {
+  makeOlder(session, turn) {
+    
+    if (this.hasLoved > 0) {
+      this.hasLoved -= 1;     
+    }
     
     if (this.eating > 0) {
       this.eating -= 1;
-      return true;
-    } else {
-      this.age += this.alive ? 0.3 : 0;
-      if (this.age > 7) {
-        let cat = this.gender === "male" ? "-m-" : "-f-";
-        session.addMoveLog(this.id,this.num,2,0,0,0,0,0,"","age");
-     } if (this.age > 20) {
-        if (this.alive) {
-          console.log(this.name + " just died !")
-        }
-        this.alive = false;
-        session.addMoveLog(this.id,this.num,5,0,0,0,0,0,"","dead");
-        return false;
-      }
-      return true;
+      return 0;  
+    }  
+    
+    if (this.loving > 0) {
+      this.loving -= 1; 
+      return 2;
+    } 
+    
+    this.age += this.alive ? 0.5 : 0;
+    if (this.age === 4) {
+      let cat = this.gender === "male" ? "-m-" : "-f-";
+      session.addMoveLog(turn, this.id,this.num,2,0,0,0,0,0,"","age");
     }
-  }
+    if (this.age > 20) {
+      if (this.alive) {
+        console.log(this.name + " just died !")
+      }
+      this.alive = false;
+      session.addMoveLog(turn, this.id,this.num,5,0,0,0,0,0,"","dead");
+      return 1;
+    }
+    return 0;
+}
 
   setGender(gender) {
     this.gender = gender;
-    // console.log("New penguin " + this.num + " - " + this.name + " (" + this.gender + "," + this.age + ")");
   }
 
   isAlive() {

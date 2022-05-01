@@ -65,7 +65,7 @@ class Land {
   removeFish() {
     this.hasFish = false;
   }
-
+  
   setFish() {
     this.hasFish = true;
   }
