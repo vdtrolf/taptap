@@ -49,7 +49,7 @@ const getSession = (sessionId) => {
     session = null;
   }
 
-  if (session !== null) {
+  if (session) {
     //console.log("Found session =>" + session.getId() + "<=");
     session.isAlive();
   }
@@ -65,7 +65,7 @@ const createResponse = (url,params) => {
         island = new Island(islandH,islandL);
         session = new Session(island);
         island.addPenguins(session);
-        
+
         if (debug) {
           sessions[0] = null;
           sessions[0] = session;
@@ -113,7 +113,7 @@ const createResponse = (url,params) => {
     case "/penguins" : {
       if (session) {
         let island = session.getIsland();
-        
+
         return {session : session.getId(),
                 weather : island.getWeather(),
                 penguins : island.getPenguins(),
@@ -127,8 +127,8 @@ const createResponse = (url,params) => {
     case "/moves" : {
       if (session) {
         let island = session.getIsland();
-       
-        return {session : session.getId(), 
+
+        return {session : session.getId(),
                 moves : session.getMoveLog(),
                 penguins : island.getPenguins(),
                 weather : island.getWeather(),
@@ -220,11 +220,11 @@ if (useexpress) {
   }
 
 } else {
-  
+
   try {
-    
+
     console.log("starting server");
-    
+
     const http = require('http');
 
     return http.createServer((req, res) => {
@@ -271,7 +271,7 @@ if (useexpress) {
 
       res.writeHead(405, headers);
       res.end(`${req.method} is not allowed for the request.`);
-    
+
     }).listen(port);
 
   } catch(error) {
@@ -290,4 +290,4 @@ setInterval(() => {
     island.smelt();
   });
 
-}, 750);
+}, 1500);
