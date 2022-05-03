@@ -85,7 +85,8 @@ const createResponse = (url,params) => {
         session : session.getId(),
         artifacts: island.getArtifacts(),
         tiles: session.getTiles(),
-        fishes: session.getFishes()};
+        fishes: session.getFishes(),
+        points: session.getPoints()};
     }
 
     case "/new-island" : {
@@ -104,7 +105,8 @@ const createResponse = (url,params) => {
           session : session.getId(),
           artifacts: island.getArtifacts(),
           tiles: session.getTiles(),
-          fishes: session.getFishes()};
+          fishes: session.getFishes(),
+          points: session.getPoints()};
       } else {
         console.log("No island found");
       }
@@ -119,7 +121,8 @@ const createResponse = (url,params) => {
                 penguins : island.getPenguins(),
                 artifacts: island.getArtifacts(),
                 tiles: session.getTiles(),
-                fishes: session.getFishes()};
+                fishes: session.getFishes(),
+                points: session.getPoints()};
       }
        // island : island.getImg(mode,islandH,islandL),
     }
@@ -134,7 +137,8 @@ const createResponse = (url,params) => {
                 weather : island.getWeather(),
                 artifacts: island.getArtifacts(),
                 tiles: session.getTiles(),
-                fishes: session.getFishes()};
+                fishes: session.getFishes(),
+                points: session.getPoints()};
       }
     }
 
@@ -159,7 +163,8 @@ const createResponse = (url,params) => {
           artifacts: island.getArtifacts(),
           session : session.getId(),
           tiles: session.getTiles(),
-          fishes: session.getFishes()};
+          fishes: session.getFishes(),
+          points: session.getPoints()};
         } else {
           return {result : "false"};
         }
@@ -290,4 +295,4 @@ setInterval(() => {
     island.smelt();
   });
 
-}, 1500);
+}, 1000);

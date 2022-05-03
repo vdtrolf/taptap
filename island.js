@@ -15,7 +15,7 @@ class Island {
     this.sizeL = sizeL;
     this.territory = [];
     this.penguins = [];
-    this.weather = "sun";
+    this.weather = 0; // "sun";
     this.weatherCount = 0;
     this.numPeng = 0;
 
@@ -120,6 +120,9 @@ class Island {
 
  } // constructor ()
 
+
+ // Add some penguins to the island
+
  addPenguins(session) {
 
    let turn = 0;
@@ -154,7 +157,6 @@ class Island {
   getPenguins() {
     return this.penguins;
   }
-
 
   // returns an ascii image of the island
   getAscii(mode,islandH,islandL) {
@@ -193,6 +195,7 @@ class Island {
     return result;
   }
 
+  // returns the list of artifacts
   getArtifacts() {
     let result = ``;
     for (let i = 0; i < this.sizeH; i++) {
@@ -282,127 +285,136 @@ class Island {
 
     this.penguins.forEach(penguin => {
 
-      if (penguin.isAlive() && ! penguin.isEating() && ! penguin.isLoving()) {
+      // First check if the penguin is alive
+      if (penguin.isAlive()) {
+
+        // Gonna Eat or Love ?
         let lover= session.getLover(penguin.gender, penguin.hpos, penguin.lpos);
 
         if (this.territory[penguin.hpos][penguin.lpos].fish()) {
           this.territory[penguin.hpos][penguin.lpos].removeFish();
           penguin.eat(session, turn);
+          session.addPoints(100);
         } else if ( penguin.canLove() && lover) {
           if (! penguin.isLoving()) {
             penguin.love(session, turn);
             lover.love(session, turn);
-          }
-       } else {
-
-        let posmoves = [];
-        if (this.territory[penguin.getHPos()][penguin.getLPos()-1].getType()>0) posmoves.push(1);
-        if (this.territory[penguin.getHPos()][penguin.getLPos()+1].getType()>0) posmoves.push(2);
-        if (this.territory[penguin.getHPos()-1][penguin.getLPos()].getType()>0) posmoves.push(3);
-        if (this.territory[penguin.getHPos()+1][penguin.getLPos()].getType()>0) posmoves.push(4);
-
-        let startH = penguin.getHPos() -2;
-        let stopH = startH + 4 < this.sizeL ? startH +4 : this.sizeH;
-        startH = startH > 0 ? startH : 1;
-
-        let startL = penguin.getLPos() -2;
-        let stopL = startL + 4 < this.sizeL ? startL +4 : this.sizeL;
-        startL = startL > 0 ? startL : 1;
-
-        let targetL = 0, targetH = 0;
-
-        for (let h= startH; h < stopH ; h++) {
-          for (let l =startL; l < stopL ; l++) {
-            if(this.territory[h][l].fish()) {
-              targetL = l;
-              targetH = h;
-            }
+            session.addPoints(200);
           }
         }
 
-        let l=0,h=0,move=0;
-        //               l  r  u  d rd ru ld lu
-        let lmoves = [0,-1, 1, 0, 0, 1, 1,-1,-1];
-        let hmoves = [0, 0, 0,-1, 1, 1,-1, 1,-1];
+        // Not eating or loving => then it can move
+        if (! penguin.isEating() && ! penguin.isLoving()){
 
-        // move: 1=right,2=left,3=down,4=up
+          let posmoves = [];
+          if (this.territory[penguin.getHPos()][penguin.getLPos()-1].getType()>0) posmoves.push(1);
+          if (this.territory[penguin.getHPos()][penguin.getLPos()+1].getType()>0) posmoves.push(2);
+          if (this.territory[penguin.getHPos()-1][penguin.getLPos()].getType()>0) posmoves.push(3);
+          if (this.territory[penguin.getHPos()+1][penguin.getLPos()].getType()>0) posmoves.push(4);
 
+          let startH = penguin.getHPos() -2;
+          let stopH = startH + 4 < this.sizeL ? startH +4 : this.sizeH;
+          startH = startH > 0 ? startH : 1;
 
-        if (targetL > 0){
+          let startL = penguin.getLPos() -2;
+          let stopL = startL + 4 < this.sizeL ? startL +4 : this.sizeL;
+          startL = startL > 0 ? startL : 1;
 
-          if (targetL < penguin.getLPos()) {
-            if (targetH === penguin.getHPos()) {
-              move = 1;
-            } else {
-              move = targetH < penguin.getHPos() ? 7:8;
+          let targetL = 0, targetH = 0;
+
+          for (let h= startH; h < stopH ; h++) {
+            for (let l =startL; l < stopL ; l++) {
+              if(this.territory[h][l].fish()) {
+                targetL = l;
+                targetH = h;
+              }
             }
-          } else if (targetL > penguin.getLPos()) {
-            if (targetH === penguin.getHPos()) {
-              move = 2;
+          }
+
+          let l=0,h=0,move=0;
+
+          // move: 1=right,2=left,3=down,4=up
+          //
+          //            0  1  2  3  4  5  6  7  8
+          //               l  r  u  d rd ru ld lu
+          let lmoves = [0,-1, 1, 0, 0, 1, 1,-1,-1];
+          let hmoves = [0, 0, 0,-1, 1, 1,-1, 1,-1];
+          let movestxt = ["-","l","r","u","d","rd","ru","ld","lu"];
+
+          if (targetL > 0){
+
+            console.log(turn + " -  : penguin " + penguin.getId()  + " at  " + penguin.getHPos() + "/" + penguin.getLPos() + " found target : " + targetH + "/" + targetL);
+
+            if (targetL < penguin.getLPos()) {
+              if (targetH === penguin.getHPos()) {
+                move = 1;
+              } else {
+                move = targetH < penguin.getHPos() ? 8:7;
+              }
+            } else if (targetL > penguin.getLPos()) {
+              if (targetH === penguin.getHPos()) {
+                move = 2;
+              } else {
+                move = targetH < penguin.getHPos() ? 6:5;
+              }
             } else {
-              move = targetH < penguin.getHPos() ? 6:5;
+              if (targetH === penguin.getHPos()) {
+                move = 0;
+              } else {
+                move = targetH < penguin.getHPos() ? 3:4;
+              }
             }
+
+            console.log(turn + " -  : penguin " + penguin.getId() + " going to move "  + move + " (" + movestxt[move] + ")");
+
           } else {
-            if (targetH === penguin.getHPos()) {
-//               this.territory[targetH][targetL].removeFish();
-//               penguin.eat(session);
-              move = 0;
-            } else {
-              move = targetH < penguin.getHPos() ? 3:4;
+            let aPosMove = Math.floor(Math.random() * posmoves.length);
+            move = posmoves[aPosMove];
+          }
+
+          if (move > 0 && move < 5 ) {
+
+            l=penguin.getLPos() + lmoves[move];
+            h=penguin.getHPos() + hmoves[move];
+
+            if (this.territory[h][l].getType() > 0) {
+              penguin.setPos(session, turn, move, h,l);
             }
-          }
 
+          } else if (move > 0){
 
-        } else {
-          let aPosMove = Math.floor(Math.random() * posmoves.length);
-          move = posmoves[aPosMove];
-        }
+            l=penguin.getLPos() + lmoves[move];
+            h=penguin.getHPos() + hmoves[move];
 
-        if (move > 0 && move < 5 ) {
-
-          l=penguin.getLPos() + lmoves[move];
-          h=penguin.getHPos() + hmoves[move];
-
-          if (this.territory[h][l].getType() > 0) {
-            penguin.setPos(session, turn, move, h,l);
-          }
-
-        } else if (move > 0){
-
-          l=penguin.getLPos() + lmoves[move];
-          h=penguin.getHPos() + hmoves[move];
-
-          if (this.territory[h][l].getType() > 0) {
-            switch (move) {
-              case 5:
-                penguin.setPos(session, turn, 2, penguin.getHPos(), penguin.getLPos() + 1);
-                penguin.setPos(session, turn, 4, penguin.getHPos() + 1, penguin.getLPos() + 1);
-                break;
-              case 6:
-                penguin.setPos(session, turn, 2, penguin.getHPos(), penguin.getLPos() + 1);
-                penguin.setPos(session, turn, 3, penguin.getHPos() - 1, penguin.getLPos() + 1);
-                break;
-              case 7:
-                penguin.setPos(session, turn, 1, penguin.getHPos(), penguin.getLPos() - 1);
-                penguin.setPos(session, turn, 4, penguin.getHPos() + 1, penguin.getLPos() + 1);
-                break;
-              case 8:
-                penguin.setPos(session, turn, 1, penguin.getHPos(), penguin.getLPos() -1);
-                penguin.setPos(session, turn, 3, penguin.getHPos() - 1, penguin.getLPos() - 1);
-                break;
-            } // switch
-          } // is territory > 0
-        } // if move
+            if (this.territory[h][l].getType() > 0) {
+              switch (move) {
+                case 5:
+                  penguin.setPos(session, turn, 2, penguin.getHPos(), penguin.getLPos() + 1);
+                  penguin.setPos(session, turn, 4, penguin.getHPos() + 1, penguin.getLPos());
+                  break;
+                case 6:
+                  penguin.setPos(session, turn, 2, penguin.getHPos(), penguin.getLPos() + 1);
+                  penguin.setPos(session, turn, 3, penguin.getHPos() - 1, penguin.getLPos());
+                  break;
+                case 7:
+                  penguin.setPos(session, turn, 1, penguin.getHPos(), penguin.getLPos() - 1);
+                  penguin.setPos(session, turn, 4, penguin.getHPos() + 1, penguin.getLPos());
+                  break;
+                case 8:
+                  penguin.setPos(session, turn, 1, penguin.getHPos(), penguin.getLPos() -1);
+                  penguin.setPos(session, turn, 3, penguin.getHPos() - 1, penguin.getLPos());
+                  break;
+              } // switch
+            } // is territory > 0
+          } // if move
+        } // not eating or loving
       } // isPenguins
-    }
-    });
-
+    }); // ForEach
   }
 
-  // Makes all the penguins older and resct in status
+  // Makes all the penguins older and react on status returned by penguin
   // if status is 1, then the penguin is dead and a cross is placed
   // if status is 2 and the penguin gender is female, then there is a baby
-
 
   makePenguinsOlder(session) {
     let l=0,h=0
@@ -430,27 +442,34 @@ class Island {
     });
   }
 
-
-
+  // Changing the weather - this will happen any time between 4 and 12 cycles
 
   setWeather(session) {
+
     this.weatherCount += 1;
-    // if (this.weatherCount  >  Math.floor(Math.random() * 8) + 5) {
-    if (this.weatherCount  >  2) {
-      let newWeather = Math.floor(Math.random() * 4);
+    if (this.weatherCount  >  Math.floor(Math.random() * 8) + 4) {
+      let newWeather = this.weather;
+
+      while (newWeather === this.weather) {
+        newWeather = Math.floor(Math.random() * 4);
+      }
+
       if (newWeather === 0) {
         session.addFish();
       } else if (newWeather === 1) {
         session.addTile();
       }
-      this.weather = weathers[newWeather];
-      console.log("changing weather to " + this.weather);
+      this.weather = newWeather;
+
+      console.log("Changing weather to " + this.weather + " (" + weathers[this.weather] + ")");
       this.weatherCount = 0;
     }
   }
 
+  // Returns the weather as a String
+
   getWeather() {
-    return this.weather;
+    return weathers[this.weather];
   }
 }
 

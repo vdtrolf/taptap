@@ -136,7 +136,7 @@ class Penguin {
     } else {
       return 0;
     }
-}
+  }
 
   setGender(gender) {
     this.gender = gender;
