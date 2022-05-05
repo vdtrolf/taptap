@@ -171,7 +171,7 @@ class Island {
       for (let j = 0; j < islandL; j++) {
         const land = this.territory[i][j];
         if (land.checkPenguin()){
-            line += this.territory[i][j].checkPenguin().getNum();
+          line += this.territory[i][j].checkPenguin().getNum();
         } else {
           line += deco[this.territory[i][j].getType()];
         }
@@ -235,6 +235,7 @@ class Island {
     this.territory[hpos][lpos].setLand(height);
   }
 
+  // Set a tile at a given position
 
   setTile(hpos,lpos,session) {
     let land = this.territory[hpos][lpos];
@@ -252,9 +253,11 @@ class Island {
     return false;
   }
 
+  // Decrease or increase the amount of ice
+
   smelt() {
     // Randomly decrease some terrain parts
-    for (let i = 0; i < this.sizeH ; i++) {
+    for (let i = 0; i < this.sizeH * 2 ; i++) {
       let hpos = Math.floor(Math.random() * this.sizeH);
       let lpos = Math.floor(Math.random() * this.sizeL);
       let land = this.territory[hpos][lpos];
@@ -278,6 +281,8 @@ class Island {
       }
     }
   }
+
+  // Move all the penguins of this island
 
   movePenguins(session) {
 

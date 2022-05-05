@@ -10,7 +10,6 @@ let Session = sessionReq.Session;
 
 const port = 3001;
 const sessions = [];
-const useexpress = true;
 
 let session = null, island = null;
 
@@ -30,7 +29,7 @@ let mode = Number.parseInt(args[1], 10);
 if (!mode) mode = 1;
 
 let debug = Number.parseInt(args[2], 10);
-debug = false;
+debug = true;
 
 const getSession = (sessionId) => {
 
@@ -178,113 +177,47 @@ const createResponse = (url,params) => {
   }
 };
 
+// Starting the server
 
-if (useexpress) {
+let app = null;
 
-  let app = null;
+const express = require('express');
+const cors = require('cors');
 
-  const express = require('express');
-  const cors = require('cors');
+app = express();
+app.use(cors())
+app.use(express.json());
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
 
-  app = express();
-  app.use(cors())
-  app.use(express.json());
-  app.use(
-    express.urlencoded({
-      extended: true,
-    })
-  );
+try {
+  app.get('/*', (req, res) => {
+    let sessionId = Number.parseInt(req.query.sessionId,10);
+    getSession(sessionId);
 
-  try {
-    app.get('/*', (req, res) => {
-      let sessionId = Number.parseInt(req.query.sessionId,10);
-      getSession(sessionId);
+    return res.json(createResponse(req.path,req.query));
+  });
 
-      // console.log("Receiving a request at " + req.path + " for session " + sessionId);
+  app.listen(port, () => {
+    console.log(`Little island listening at port: ${port}`);
+  });
 
-      // req.params.forEach(param => {console.log("== param ==>" + param.name  + " = " + param.value)});
+  app.on('error', (e) => {
+    console.log("app " + e.code);
+  });
 
+  process.on('error', (e) => {
+    console.log("process" + e.code);
+  });
 
-      return res.json(createResponse(req.path,req.query));
-    });
-
-    app.listen(port, () => {
-      console.log(`Little island listening at port: ${port}`);
-    });
-
-    app.on('error', (e) => {
-      console.log("app " + e.code);
-    });
-
-    process.on('error', (e) => {
-      console.log("process" + e.code);
-    });
-
-  } catch(error) {
-     console.error("problem " + error);
-  }
-
-} else {
-
-  try {
-
-    console.log("starting server");
-
-    const http = require('http');
-
-    return http.createServer((req, res) => {
-      const headers = {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'OPTIONS, POST, GET',
-        'Access-Control-Max-Age': 2592000, // 30 days
-      /** add other headers as per requirement */
-      };
-
-      if (req.method === 'OPTIONS') {
-        res.writeHead(204, headers);
-        res.end();
-        return;
-      }
-
-      if (['GET', 'POST'].indexOf(req.method) > -1) {
-
-        const urlsplit = req.url.split("?");
-
-        console.log("===> receiving a request for " + req.url);
-
-        let params = [];
-
-        if (urlsplit[1]) {
-          params = urlsplit[1].split("&").reduce((acc,elem)  => {
-            let parts = elem.split("=");
-            acc[parts[0]] = parts[1];
-            return acc;
-          },{} );
-        }
-
-        if (sessionId) {
-          getSession(params.sessionId);
-        }
-
-        let response = JSON.stringify(createResponse(urlsplit[0],params));
-
-        res.setHeader("Content-Type", "application/json");
-        res.writeHead(200, headers);
-        res.end(response);
-        return;
-      }
-
-      res.writeHead(405, headers);
-      res.end(`${req.method} is not allowed for the request.`);
-
-    }).listen(port);
-
-  } catch(error) {
-     console.error("problem " + error);
-  }
-
+} catch(error) {
+   console.error("problem " + error);
 }
 
+// Main interval loop - for each session triggers the penguin events
 
 setInterval(() => {
   sessions.forEach(session=> {
