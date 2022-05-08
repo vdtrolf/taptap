@@ -1,6 +1,7 @@
 const islandReq = require("./island.js");
 
 let Island = islandReq.Island;
+let debug = false;
 
 class Session {
   constructor(island) {
@@ -89,14 +90,26 @@ class Session {
     this.points = 0;
   }
 
+  // Add a move log record
+  // move objects are made of :
+  // -- move type 1
+  // ---- movement 1
+  // ---- movement 2
+  // -- move type 2
+  // -- move type 1
+  // ---- movement 1
+  // If it is a move, it then checks if there is already a move 1 for
+  // that penguin, and if so, append the movement
+
   addMoveLog(turn, id, num, moveType, moveDir, origH, origL, newH, newL, cat, state) {
 
     this.addPoints(10);
 
     let moveTypes = ["init","move","grow","eat","love","die"];
     let moveid = this.moveCounter++;
-    console.log(turn + " " + moveid + " : Penguin " + id + " " + moveTypes[moveType] + " (" + moveType + ":" + moveDir +") " + origH + "/" + origL + " -> " + newH + "/" + newL + " points:" + this.getPoints());
-
+    if (debug) {
+      console.log(turn + " " + moveid + " : Penguin " + id + " " + moveTypes[moveType] + " (" + moveType + ":" + moveDir +") " + origH + "/" + origL + " -> " + newH + "/" + newL + " points:" + this.getPoints());
+    }
     if (moveType !== 1) {
      this.moveLog.push({
         moveid : moveid,
@@ -125,18 +138,33 @@ class Session {
         });
       }
     }
-
-
-
+  }
+  
+  // Reinitiate the move log and ask the island to fill it with penguins
+  // initial states
+  
+  getInitMoveLog() {
+    
+    this.moveLog = [];
+    this.island.resetPenguins(this);
+    let lastMoves = [...this.moveLog];
+    this.moveLog = [];
+    return lastMoves;
   }
 
+  // returns the last version of the move log and reset the move log
+
   getMoveLog () {
+
     let lastMoves = [...this.moveLog];
     this.moveLog = [];
     return lastMoves;
   }
 
   getPenguinsStates() {
+    
+    console.log("---> getPeguinsStates");
+    
     let lastMoves = [...this.moveLog];
     let states = [];
     this.moveLog = [];

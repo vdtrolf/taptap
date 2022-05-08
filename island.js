@@ -4,6 +4,7 @@ const axios = require("axios");
 
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
+let debug = false;
 
 const deco1 = [" ",".","^","%","#","#","#","#"];
 const deco2 = ["&nbsp;","░","▒","▓","█","█","█","█"];
@@ -257,7 +258,7 @@ class Island {
 
   smelt() {
     // Randomly decrease some terrain parts
-    for (let i = 0; i < this.sizeH * 2 ; i++) {
+    for (let i = 0; i < this.sizeH * 5 ; i++) {
       let hpos = Math.floor(Math.random() * this.sizeH);
       let lpos = Math.floor(Math.random() * this.sizeL);
       let land = this.territory[hpos][lpos];
@@ -300,10 +301,10 @@ class Island {
           this.territory[penguin.hpos][penguin.lpos].removeFish();
           penguin.eat(session, turn);
           session.addPoints(100);
-        } else if ( penguin.canLove() && lover) {
+        } else if ( lover && penguin.canLove(lover.id)) {
           if (! penguin.isLoving()) {
-            penguin.love(session, turn);
-            lover.love(session, turn);
+            penguin.love(session, turn,  lover.id);
+            lover.love(session, turn, this.id);
             session.addPoints(200);
           }
         }
@@ -348,8 +349,9 @@ class Island {
 
           if (targetL > 0){
 
-            console.log(turn + " -  : penguin " + penguin.getId()  + " at  " + penguin.getHPos() + "/" + penguin.getLPos() + " found target : " + targetH + "/" + targetL);
-
+            if (debug) {
+              console.log(turn + " -  : penguin " + penguin.getId()  + " at  " + penguin.getHPos() + "/" + penguin.getLPos() + " found target : " + targetH + "/" + targetL);
+            }
             if (targetL < penguin.getLPos()) {
               if (targetH === penguin.getHPos()) {
                 move = 1;
@@ -415,8 +417,23 @@ class Island {
         } // not eating or loving
       } // isPenguins
     }); // ForEach
-  }
+  } // movePenguins()
 
+  // Goes through all the alive penguins and ask them to generate an initial move + the eat or love move 
+
+  resetPenguins(session) {  
+  
+    let turn = session.getTurn();
+  
+    this.penguins.forEach(penguin => {
+
+      // First check if the penguin is alive
+      if (penguin.isAlive()) {
+        penguin.resetPos(session,turn);
+      }
+    });
+  }
+ 
   // Makes all the penguins older and react on status returned by penguin
   // if status is 1, then the penguin is dead and a cross is placed
   // if status is 2 and the penguin gender is female, then there is a baby
@@ -437,7 +454,9 @@ class Island {
             if (penguin.getGender() === "female") {
               l=penguin.getLPos();
               h=penguin.getHPos();
-              let child = new Penguin(this.numPeng++,h,l,session,turn);
+              let fatherId = penguin.gender === "male" ? penguin.id : penguin.partnerId;
+              let motherId = penguin.gender === "male" ? penguin.partnerId : penguin.id;
+              let child = new Penguin(this.numPeng++,h,l,session,turn,fatherId,motherId);
               this.territory[h][l].addPenguin(child);
               this.penguins.push(child);
             }
@@ -466,7 +485,7 @@ class Island {
       }
       this.weather = newWeather;
 
-      console.log("Changing weather to " + this.weather + " (" + weathers[this.weather] + ")");
+      // console.log("Changing weather to " + this.weather + " (" + weathers[this.weather] + ")");
       this.weatherCount = 0;
     }
   }

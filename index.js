@@ -11,7 +11,7 @@ let Session = sessionReq.Session;
 const port = 3001;
 const sessions = [];
 
-let session = null, island = null;
+let session = null, island = null, sessionId = null;
 
 const args = process.argv.slice(2);
 
@@ -29,7 +29,7 @@ let mode = Number.parseInt(args[1], 10);
 if (!mode) mode = 1;
 
 let debug = Number.parseInt(args[2], 10);
-debug = true;
+debug = false;
 
 const getSession = (sessionId) => {
 
@@ -55,6 +55,8 @@ const getSession = (sessionId) => {
 };
 
 const createResponse = (url,params) => {
+  
+  // console.log("Creating a response for " + url);
 
   switch(url) {
 
@@ -126,12 +128,17 @@ const createResponse = (url,params) => {
        // island : island.getImg(mode,islandH,islandL),
     }
 
+    // return the moves - is the renew parameter is on 1, then returns an initial move log
+
     case "/moves" : {
       if (session) {
+        
         let island = session.getIsland();
+        let renew = Number.parseInt(params.renew,10);        
+        let moves = renew === 0? session.getMoveLog(): session.getInitMoveLog();
 
         return {session : session.getId(),
-                moves : session.getMoveLog(),
+                moves : moves,
                 penguins : island.getPenguins(),
                 weather : island.getWeather(),
                 artifacts: island.getArtifacts(),
@@ -177,7 +184,7 @@ const createResponse = (url,params) => {
   }
 };
 
-// Starting the server
+// Starting the express server
 
 let app = null;
 
@@ -197,6 +204,8 @@ try {
   app.get('/*', (req, res) => {
     let sessionId = Number.parseInt(req.query.sessionId,10);
     getSession(sessionId);
+    
+    if (debug ) {console.log("Processing " + req.path + " " + req.query.renew)};
 
     return res.json(createResponse(req.path,req.query));
   });
@@ -216,6 +225,7 @@ try {
 } catch(error) {
    console.error("problem " + error);
 }
+
 
 // Main interval loop - for each session triggers the penguin events
 
