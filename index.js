@@ -138,6 +138,7 @@ const createResponse = (url,params) => {
         let moves = renew === 0? session.getMoveLog(): session.getInitMoveLog();
 
         return {session : session.getId(),
+                island : island.getImg(mode,islandH,islandL),
                 moves : moves,
                 penguins : island.getPenguins(),
                 weather : island.getWeather(),

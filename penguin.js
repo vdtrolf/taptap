@@ -18,6 +18,8 @@ class Penguin {
     this.name = names[gdname];
     this.eating = 0;
     this.loving = 0;
+    this.waiting = 0;
+    this.moving = 0;
     this.hasLoved = 0;
     this.fatherId = fatherId;
     this.motherId = motherId;
@@ -87,6 +89,7 @@ class Penguin {
     }
     this.hpos = hpos;
     this.lpos = lpos;
+    this.waiting = 0;
   }
   
   // reset the penguin move log by adding an initial move record 
@@ -102,12 +105,14 @@ class Penguin {
     if (this.eating > 0) {
       session.addMoveLog(turn, this.id,this.num,3,0,0,0,0,0,this.getCat(),"eat");
     }
+    this.waiting = 0;
   }
 
   love(session, turn, partnerId) {
     this.loving = 4;
     this.hasLoved = 10;
     this.partnerId = partnerId;
+    this.waiting = 0;
     session.addMoveLog(turn, this.id,this.num,4,0,0,0,0,0,this.getCat(),"love");
   }
 
@@ -118,12 +123,23 @@ class Penguin {
   eat(session, turn) {
     this.age = this.age > 3 ? this.age -3 : 0;
     this.eating = 3;
+    this.waiting = 0;
     session.addMoveLog(turn, this.id,this.num,3,0,0,0,0,0,this.getCat(),"eat");
   }
 
   isEating () {
     return this.eating > 0;
   }
+
+  wait(session, turn) {
+    session.addMoveLog(turn, this.id,this.num,6,0,0,0,0,0,this.getCat(),"still");
+  }
+
+  isWaiting () {
+    return this.eating > 0;
+  }
+
+
 
   // Makes the penguin one year older and check status
   // Return 1 if dead and 2 if end of loving periond (in which case a baby will born)

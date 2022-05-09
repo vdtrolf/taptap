@@ -13,7 +13,13 @@ class Land {
     this.hasCross = false;
     this.hasFish = false;
     this.penguin = null;
+    this.isTarget = false;
   }
+
+  setTarget(isTarget) {
+    this.isTarget=isTarget;
+  }
+
 
   setLand(num) {
     this.type = num;
@@ -30,6 +36,12 @@ class Land {
   getType() {
     return this.type;
   }
+  
+  canMove() {
+    return this.type > 0 && ! this.isTarget && ! this.hasCross; 
+    
+  }
+  
 
   setType(newType) {
     this.type = newType;

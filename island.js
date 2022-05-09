@@ -258,12 +258,12 @@ class Island {
 
   smelt() {
     // Randomly decrease some terrain parts
-    for (let i = 0; i < this.sizeH * 5 ; i++) {
+    for (let i = 0; i < this.sizeH ; i++) {
       let hpos = Math.floor(Math.random() * this.sizeH);
       let lpos = Math.floor(Math.random() * this.sizeL);
       let land = this.territory[hpos][lpos];
 
-      if (this.weather === "sun" || this.weather === "rain") {
+      if (this.weather <2 ) {
 
         if (land && land.getType() == 1) {
           if (land.getConf() < 15 ) {
@@ -273,7 +273,7 @@ class Island {
             land.resetConf();
           }
         }
-      } else {
+      } else if (this.weather === 2 ) {
         if (land && land.getType() == 1) {
           if (land.getConf() > 0 ) {
             land.decreaseConf();
@@ -288,6 +288,16 @@ class Island {
   movePenguins(session) {
 
     let turn = session.getTurn();
+    
+    // Remove all istarget flags from the lands
+    
+    for (let i = 0; i < this.sizeH; i++) {
+      for (let j = 0; j < this.sizeL; j++) {
+        this.territory[i][j].setTarget(false) ;
+      }
+    }
+    
+    
 
     this.penguins.forEach(penguin => {
 
@@ -313,10 +323,10 @@ class Island {
         if (! penguin.isEating() && ! penguin.isLoving()){
 
           let posmoves = [];
-          if (this.territory[penguin.getHPos()][penguin.getLPos()-1].getType()>0) posmoves.push(1);
-          if (this.territory[penguin.getHPos()][penguin.getLPos()+1].getType()>0) posmoves.push(2);
-          if (this.territory[penguin.getHPos()-1][penguin.getLPos()].getType()>0) posmoves.push(3);
-          if (this.territory[penguin.getHPos()+1][penguin.getLPos()].getType()>0) posmoves.push(4);
+          if (this.territory[penguin.getHPos()][penguin.getLPos()-1].canMove() || lover !== null) posmoves.push(1);
+          if (this.territory[penguin.getHPos()][penguin.getLPos()+1].canMove() || lover !== null) posmoves.push(2);
+          if (this.territory[penguin.getHPos()-1][penguin.getLPos()].canMove() || lover !== null) posmoves.push(3);
+          if (this.territory[penguin.getHPos()+1][penguin.getLPos()].canMove() || lover !== null) posmoves.push(4);
 
           let startH = penguin.getHPos() -2;
           let stopH = startH + 4 < this.sizeL ? startH +4 : this.sizeH;
@@ -375,6 +385,7 @@ class Island {
             console.log(turn + " -  : penguin " + penguin.getId() + " going to move "  + move + " (" + movestxt[move] + ")");
 
           } else {
+             
             let aPosMove = Math.floor(Math.random() * posmoves.length);
             move = posmoves[aPosMove];
           }
@@ -386,6 +397,7 @@ class Island {
 
             if (this.territory[h][l].getType() > 0) {
               penguin.setPos(session, turn, move, h,l);
+              this.territory[h][l].setTarget(true);
             }
 
           } else if (move > 0){
@@ -398,22 +410,33 @@ class Island {
                 case 5:
                   penguin.setPos(session, turn, 2, penguin.getHPos(), penguin.getLPos() + 1);
                   penguin.setPos(session, turn, 4, penguin.getHPos() + 1, penguin.getLPos());
+                  this.territory[h][l].setTarget(true);
                   break;
                 case 6:
                   penguin.setPos(session, turn, 2, penguin.getHPos(), penguin.getLPos() + 1);
                   penguin.setPos(session, turn, 3, penguin.getHPos() - 1, penguin.getLPos());
+                  this.territory[h][l].setTarget(true)
+                  
+                  
+                  
+                  ;
                   break;
                 case 7:
                   penguin.setPos(session, turn, 1, penguin.getHPos(), penguin.getLPos() - 1);
                   penguin.setPos(session, turn, 4, penguin.getHPos() + 1, penguin.getLPos());
+                  this.territory[h][l].setTarget(true);
                   break;
                 case 8:
                   penguin.setPos(session, turn, 1, penguin.getHPos(), penguin.getLPos() -1);
                   penguin.setPos(session, turn, 3, penguin.getHPos() - 1, penguin.getLPos());
+                  this.territory[h][l].setTarget(true);
                   break;
               } // switch
             } // is territory > 0
-          } // if move
+          } else if (move === 0) {
+            enguin.wait(session, turn); 
+          }
+          // if move
         } // not eating or loving
       } // isPenguins
     }); // ForEach
@@ -471,7 +494,7 @@ class Island {
   setWeather(session) {
 
     this.weatherCount += 1;
-    if (this.weatherCount  >  Math.floor(Math.random() * 8) + 4) {
+    if (this.weatherCount  >  Math.floor(Math.random() * 20) + 15) {
       let newWeather = this.weather;
 
       while (newWeather === this.weather) {
@@ -503,3 +526,4 @@ class Island {
 module.exports = {
     Island : Island
 }
+      
