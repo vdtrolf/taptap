@@ -38,7 +38,8 @@ const getSessionsList = () => {
       id : session.id,
       points : session.points,
       turn : session.turn,
-      islandName : session.island.getName()
+      islandName : session.island.getName(),
+      islandId : session.island.getId()
     });
   });
   return sessionList;

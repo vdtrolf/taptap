@@ -15,6 +15,7 @@ const names = ["Iswell","Fairland","Esturga","Tranquility","BolderIsland","PureW
 
 class Island {
   constructor(sizeH,sizeL,session) {
+    this.id = Math.floor(Math.random() * 999999);
     this.name = names[Math.floor(Math.random() * 30)];
     this.sizeH = sizeH;
     this.sizeL = sizeL;
@@ -533,13 +534,19 @@ class Island {
     return weathers[this.weather];
   }
 
+  // Returns the id of the island
+
+  getId() {
+    return this.id;
+  }
+
+  // Returns the name of the island
+
   getName() {
     return this.name;
   }
 
 }
-
-
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
