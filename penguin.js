@@ -26,8 +26,8 @@ class Penguin {
     this.partnerId = 0;
 
     getFakeName(this);
-    
-    
+
+
     session.addMoveLog(turn, this.id,this.num,1,0,0,0,this.hpos,this.lpos,this.getCat(),"move");
     console.log("new penguin " + this.id + " at " + this.hpos + "/" + this.lpos);
   }
@@ -67,16 +67,16 @@ class Penguin {
   }
 
   canLove(partnerId) {
-    
-    
+
+
     if (partnerId === this.fatherId) {
       console.log("can not love with my father " + this.fatherId);
     }
     if (partnerId === this.motherId) {
       console.log("can not love with my mother " + this.motherId);
     }
-    
-    return this.age > 5 && this.hasLoved === 0 && partnerId !== this.fatherId && partnerId !== this.motherId;
+
+    return this.age > 6 && this.hasLoved === 0 && partnerId !== this.fatherId && partnerId !== this.motherId;
   }
 
   // let moveType = moves[i].moveType, // 1=move,2=age,3=eat,4=love,5=die
@@ -91,17 +91,17 @@ class Penguin {
     this.lpos = lpos;
     this.waiting = 0;
   }
-  
-  // reset the penguin move log by adding an initial move record 
+
+  // reset the penguin move log by adding an initial move record
   // if the penguin is eating or loving it will also add the corresponding records to the penguins log
-  
+
   resetPos(session,turn) {
     session.addMoveLog(turn, this.id,this.num,1,0,0,0,this.hpos,this.lpos,this.getCat(),"move");
     console.log("reset penguin " + this.id + " at " + this.hpos + "/" + this.lpos);
-    
+
     if (this.loving > 0) {
       session.addMoveLog(turn, this.id,this.num,4,0,0,0,0,0,this.getCat(),"love");
-    } 
+    }
     if (this.eating > 0) {
       session.addMoveLog(turn, this.id,this.num,3,0,0,0,0,0,this.getCat(),"eat");
     }
@@ -121,7 +121,7 @@ class Penguin {
   }
 
   eat(session, turn) {
-    this.age = this.age > 3 ? this.age -3 : 0;
+    this.age = this.age > 6 ? this.age - 6 : 0;
     this.eating = 3;
     this.waiting = 0;
     session.addMoveLog(turn, this.id,this.num,3,0,0,0,0,0,this.getCat(),"eat");
@@ -167,7 +167,7 @@ class Penguin {
     this.age += this.alive ? 0.5 : 0;
     if (this.age === 6) {
       let cat = this.gender === "male" ? "-m-" : "-f-";
-      session.addMoveLog(turn, this.id,this.num,2,0,0,0,0,0,"","age");
+      session.addMoveLog(turn, this.id,this.num,2,0,0,0,0,0,cat,"age");
     }
     if (this.age > 20) {
       if (this.alive) {

@@ -36,12 +36,10 @@ class Land {
   getType() {
     return this.type;
   }
-  
+
   canMove() {
-    return this.type > 0 && ! this.isTarget && ! this.hasCross; 
-    
+    return this.type > 0 && ! this.isTarget && ! this.hasCross;
   }
-  
 
   setType(newType) {
     this.type = newType;
@@ -73,11 +71,11 @@ class Land {
   setCross() {
     this.hasCross = true;
   }
-  
+
   removeFish() {
     this.hasFish = false;
   }
-  
+
   setFish() {
     this.hasFish = true;
   }

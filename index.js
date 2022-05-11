@@ -31,6 +31,19 @@ if (!mode) mode = 1;
 let debug = Number.parseInt(args[2], 10);
 debug = false;
 
+const getSessionsList = () => {
+  let sessionList = [];
+  sessions.forEach( session => {
+    sessionList.push({
+      id : session.id,
+      points : session.points,
+      turn : session.turn,
+      islandName : session.island.getName()
+    });
+  });
+  return sessionList;
+}
+
 const getSession = (sessionId) => {
 
   //console.log("looking for sessionId ==>" + sessionId + "<==");
@@ -55,7 +68,7 @@ const getSession = (sessionId) => {
 };
 
 const createResponse = (url,params) => {
-  
+
   // console.log("Creating a response for " + url);
 
   switch(url) {
@@ -81,6 +94,7 @@ const createResponse = (url,params) => {
         island = session.getIsland();
       }
       return {island : island.getImg(mode,islandH,islandL),
+        islandName : island.getName(),
         weather : island.getWeather(),
         penguins : island.getPenguins(),
         session : session.getId(),
@@ -101,6 +115,7 @@ const createResponse = (url,params) => {
           console.log(island.getAscii(mode,islandH,islandL));
         }
         return {island : island.getImg(mode,islandH,islandL),
+          islandName : island.getName(),
           weather : island.getWeather(),
           penguins : island.getPenguins(),
           session : session.getId(),
@@ -118,6 +133,7 @@ const createResponse = (url,params) => {
         let island = session.getIsland();
 
         return {session : session.getId(),
+                islandName : island.getName(),
                 weather : island.getWeather(),
                 penguins : island.getPenguins(),
                 artifacts: island.getArtifacts(),
@@ -132,13 +148,14 @@ const createResponse = (url,params) => {
 
     case "/moves" : {
       if (session) {
-        
+
         let island = session.getIsland();
-        let renew = Number.parseInt(params.renew,10);        
+        let renew = Number.parseInt(params.renew,10);
         let moves = renew === 0? session.getMoveLog(): session.getInitMoveLog();
 
         return {session : session.getId(),
                 island : island.getImg(mode,islandH,islandL),
+                islandName : island.getName(),
                 moves : moves,
                 penguins : island.getPenguins(),
                 weather : island.getWeather(),
@@ -151,9 +168,9 @@ const createResponse = (url,params) => {
 
     case "/sessions" : {
       if (session) {
-        return {sessions : sessions, session : session.getId()};
+        return {sessions : getSessionsList(), session : session.getId()};
       } else {
-        return {sessions : sessions};
+        return {sessions : getSessionsList()};
       }
     }
 
@@ -165,6 +182,7 @@ const createResponse = (url,params) => {
 
         if (island.setTile(lpos,hpos,session)) {
           return {result : "true",
+          islandName : island.getName(),
           island : island.getImg(mode,islandH,islandL),
           weather : island.getWeather(),
           artifacts: island.getArtifacts(),
@@ -205,7 +223,7 @@ try {
   app.get('/*', (req, res) => {
     let sessionId = Number.parseInt(req.query.sessionId,10);
     getSession(sessionId);
-    
+
     if (debug ) {console.log("Processing " + req.path + " " + req.query.renew)};
 
     return res.json(createResponse(req.path,req.query));
