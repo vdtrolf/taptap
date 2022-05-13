@@ -10,7 +10,7 @@ let debug = false;
 
 const deco1 = [" ",".","^","%","#","#","#","#"];
 const deco2 = ["&nbsp;","░","▒","▓","█","█","█","█"];
-const weathers = ["sun","rain","snow","cold"];
+const weathers = ["sun","rain","snow","cold","gameover"];
 const names = ["Iswell","Fairland","Esturga","Tranquility","BolderIsland","PureWorld","Ratatown","Scotlandia","Ramona","Toroland",
 "Nowherecap","Hopelessland","Karialand","Cupoea","Isolaland","Curfore","Flielandia","Messa","OuatesIsland","Grabundia","Aubonne",
 "Fortune","Coldstone","Vulcania","Ramone","ThreeStones","Syconess","Rueland","MariaIsland","Sofsofland","Terragusta"];
@@ -31,6 +31,7 @@ class Island {
     this.fishes = 5;
     this.turn = 0;
     this.points = 0;
+    this.running = true;
 
 
     let matrix = [];
@@ -419,6 +420,11 @@ class Island {
   // Decrease or increase the amount of ice
 
   smelt() {
+
+    if (! this.running) {
+      return;
+    }
+
     // Randomly decrease some terrain parts
     for (let i = 0; i < this.sizeH ; i++) {
       let hpos = Math.floor(Math.random() * this.sizeH);
@@ -458,6 +464,14 @@ class Island {
 
   movePenguins() {
 
+    // check if there are still alive penguinsLayer
+
+    if (! this.penguins.find(penguin => penguin.isAlive)) {
+      this.running = false;
+      this.weather = 4;
+      if (debug) { console.log("island.js - movePenguins : endgame")};
+    }
+
     let turn = this.getTurn();
 
     // Remove all istarget flags from the lands
@@ -492,10 +506,6 @@ class Island {
         if (! penguin.isEating() && ! penguin.isLoving()){
 
           let posmoves = [];
-          //if (this.territory[penguin.getHPos()][penguin.getLPos()-1].canMove() || lover !== null) posmoves.push(1);
-          //if (this.territory[penguin.getHPos()][penguin.getLPos()+1].canMove() || lover !== null) posmoves.push(2);
-          //if (this.territory[penguin.getHPos()-1][penguin.getLPos()].canMove() || lover !== null) posmoves.push(3);
-          //if (this.territory[penguin.getHPos()+1][penguin.getLPos()].canMove() || lover !== null) posmoves.push(4);
 
           if (this.territory[penguin.getHPos()][penguin.getLPos()-1].canMove() ) posmoves.push(1);
           if (this.territory[penguin.getHPos()][penguin.getLPos()+1].canMove() ) posmoves.push(2);
@@ -523,8 +533,6 @@ class Island {
 
           let l=0,h=0,move=0;
 
-          // move: 1=right,2=left,3=down,4=up
-          //
           //            0  1  2  3  4  5  6  7  8
           //               l  r  u  d rd ru ld lu
           let lmoves = [0,-1, 1, 0, 0, 1, 1,-1,-1];
@@ -638,6 +646,11 @@ class Island {
   // if status is 2 and the penguin gender is female, then there is a baby
 
   makePenguinsOlder() {
+
+    if (! this.running) {
+      return
+    }
+
     let l=0,h=0
     let turn = this.getTurnNoUpd();
 
@@ -668,6 +681,10 @@ class Island {
   // Changing the weather - this will happen any time between 4 and 12 cycles
 
   setWeather(session) {
+
+    if (! this.running) {
+      return
+    }
 
     this.weatherCount += 1;
     if (this.weatherCount  >  Math.floor(Math.random() * 20) + 15) {
