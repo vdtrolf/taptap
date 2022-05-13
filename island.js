@@ -466,7 +466,7 @@ class Island {
 
     // check if there are still alive penguinsLayer
 
-    if (! this.penguins.find(penguin => penguin.isAlive)) {
+    if (! this.penguins.find(penguin => penguin.isAlive())) {
       this.running = false;
       this.weather = 4;
       if (debug) { console.log("island.js - movePenguins : endgame")};
