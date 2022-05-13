@@ -2,8 +2,10 @@ const axios = require("axios");
 const genders = ["male","female"];
 const names = ["Billy Boy", "Glossy Rose"];
 
+const debug = false;
+
 class Penguin {
-  constructor(num, h, l,session, turn, fatherId = 0, motherId=0) {
+  constructor(num, h, l,sessions, turn, fatherId = 0, motherId=0) {
 
     let gdname = Math.floor(Math.random() * 2);
 
@@ -27,9 +29,12 @@ class Penguin {
 
     getFakeName(this);
 
-
-    session.addMoveLog(turn, this.id,this.num,1,0,0,0,this.hpos,this.lpos,this.getCat(),"move");
-    console.log("new penguin " + this.id + " at " + this.hpos + "/" + this.lpos);
+    sessions.forEach(session => {
+      session.addMoveLog(turn, this.id,this.num,1,0,0,0,this.hpos,this.lpos,this.getCat(),"move");
+    });
+    if (debug) {
+      console.log("penguin.js - constructor : new penguin " + this.id + " at " + this.hpos + "/" + this.lpos);
+    }
   }
 
   getCat() {
@@ -69,11 +74,12 @@ class Penguin {
   canLove(partnerId) {
 
 
-    if (partnerId === this.fatherId) {
-      console.log("can not love with my father " + this.fatherId);
+
+    if (debug && partnerId === this.fatherId) {
+      console.log("peguin.js - canLove : canLove not possible with father " + this.fatherId);
     }
-    if (partnerId === this.motherId) {
-      console.log("can not love with my mother " + this.motherId);
+    if (debug && partnerId === this.motherId) {
+      console.log("peguin.js - canLove : canLove not possible with mother " + this.motherId);
     }
 
     return this.age > 6 && this.hasLoved === 0 && partnerId !== this.fatherId && partnerId !== this.motherId;
@@ -82,10 +88,12 @@ class Penguin {
   // let moveType = moves[i].moveType, // 1=move,2=age,3=eat,4=love,5=die
   // let moveDir = moves[i].moveDir, // 1=left,2=right,3=up,4=down
 
-  setPos(session, turn,moveDir,hpos,lpos) {
+  setPos(sessions, turn,moveDir,hpos,lpos) {
 
     if (this.hpos !== hpos || this.lpos !== lpos) {
-      session.addMoveLog(turn,this.id,this.num,1,moveDir,this.hpos,this.lpos,hpos,lpos,this.getCat(),"move");
+      sessions.forEach(session => {
+        session.addMoveLog(turn,this.id,this.num,1,moveDir,this.hpos,this.lpos,hpos,lpos,this.getCat(),"move");
+      });
     }
     this.hpos = hpos;
     this.lpos = lpos;
@@ -95,44 +103,57 @@ class Penguin {
   // reset the penguin move log by adding an initial move record
   // if the penguin is eating or loving it will also add the corresponding records to the penguins log
 
-  resetPos(session,turn) {
-    session.addMoveLog(turn, this.id,this.num,1,0,0,0,this.hpos,this.lpos,this.getCat(),"move");
-    console.log("reset penguin " + this.id + " at " + this.hpos + "/" + this.lpos);
-
+  resetPos(sessions,turn) {
+    sessions.forEach(session => {
+      session.addMoveLog(turn, this.id,this.num,1,0,0,0,this.hpos,this.lpos,this.getCat(),"move");
+    });
+    if (debug) {
+      console.log("penguin.js - resetPos : reset penguin " + this.id + " at " + this.hpos + "/" + this.lpos);
+    }
     if (this.loving > 0) {
-      session.addMoveLog(turn, this.id,this.num,4,0,0,0,0,0,this.getCat(),"love");
+      sessions.forEach(session => {
+        session.addMoveLog(turn, this.id,this.num,4,0,0,0,0,0,this.getCat(),"love");
+      });
     }
     if (this.eating > 0) {
-      session.addMoveLog(turn, this.id,this.num,3,0,0,0,0,0,this.getCat(),"eat");
+      sessions.forEach(session => {
+        session.addMoveLog(turn, this.id,this.num,3,0,0,0,0,0,this.getCat(),"eat");
+      });
     }
     this.waiting = 0;
   }
 
-  love(session, turn, partnerId) {
+  love(sessions, turn, partnerId) {
     this.loving = 4;
     this.hasLoved = 10;
     this.partnerId = partnerId;
     this.waiting = 0;
-    session.addMoveLog(turn, this.id,this.num,4,0,0,0,0,0,this.getCat(),"love");
+    sessions.forEach(session => {
+      session.addMoveLog(turn, this.id,this.num,4,0,0,0,0,0,this.getCat(),"love");
+    });
   }
 
   isLoving () {
     return this.loving > 0;
   }
 
-  eat(session, turn) {
+  eat(sessions, turn) {
     this.age = this.age > 6 ? this.age - 6 : 0;
     this.eating = 3;
     this.waiting = 0;
-    session.addMoveLog(turn, this.id,this.num,3,0,0,0,0,0,this.getCat(),"eat");
+    sessions.forEach(session => {
+      session.addMoveLog(turn, this.id,this.num,3,0,0,0,0,0,this.getCat(),"eat");
+    });
   }
 
   isEating () {
     return this.eating > 0;
   }
 
-  wait(session, turn) {
-    session.addMoveLog(turn, this.id,this.num,6,0,0,0,0,0,this.getCat(),"still");
+  wait(sessions, turn) {
+    sessions.forEach(session => {
+      session.addMoveLog(turn, this.id,this.num,6,0,0,0,0,0,this.getCat(),"still");
+    });
   }
 
   isWaiting () {
@@ -145,7 +166,7 @@ class Penguin {
   // Return 1 if dead and 2 if end of loving periond (in which case a baby will born)
   // Otherwise returns 0
 
-  makeOlder(session, turn) {
+  makeOlder(sessions, turn) {
 
     let hasChild = false;
 
@@ -164,17 +185,21 @@ class Penguin {
       }
     }
 
-    this.age += this.alive ? 0.5 : 0;
+    this.age += this.alive ? 0.25 : 0;
     if (this.age === 6) {
       let cat = this.gender === "male" ? "-m-" : "-f-";
-      session.addMoveLog(turn, this.id,this.num,2,0,0,0,0,0,cat,"age");
+      sessions.forEach(session => {
+        session.addMoveLog(turn, this.id,this.num,2,0,0,0,0,0,cat,"age");
+      });
     }
     if (this.age > 20) {
-      if (this.alive) {
-        console.log(this.name + " just died !")
+      if (debug && this.alive) {
+        console.log("penguin.js - makeOlder : " + this.name + " just died !")
       }
       this.alive = false;
-      session.addMoveLog(turn, this.id,this.num,5,0,0,0,0,0,"","dead");
+      sessions.forEach(session => {
+        session.addMoveLog(turn, this.id,this.num,5,0,0,0,0,0,"","dead");
+      });
       return 1;
     }
     if (hasChild) {

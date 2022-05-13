@@ -1,9 +1,11 @@
 const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
+const sessionReq = require("./session.js");
 const axios = require("axios");
 
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
+let Session = sessionReq.Session;
 let debug = false;
 
 const deco1 = [" ",".","^","%","#","#","#","#"];
@@ -21,14 +23,21 @@ class Island {
     this.sizeL = sizeL;
     this.territory = [];
     this.penguins = [];
+    this.sessions = [session];
     this.weather = 0; // "sun";
     this.weatherCount = 0;
     this.numPeng = 0;
+    this.tiles = 5;
+    this.fishes = 5;
+    this.turn = 0;
+    this.points = 0;
+
 
     let matrix = [];
 
-    console.log("New island : " + this.name);
-
+    if (debug) {
+      console.log("Island.js : new island : " + this.name + " with id " + this.id);
+    }
 
     // creating a matrix of land objects with a value of 0
     for (let h = 0; h < sizeH; h++) {
@@ -127,28 +136,131 @@ class Island {
       }
     }
 
+    // randomly add some penguins
+    for (let i = 0; i < 10; i++) {
+       let hpos = Math.floor(Math.random() * this.sizeH);
+       let lpos = Math.floor(Math.random() * this.sizeL);
+       let land = this.territory[hpos][lpos];
+
+       if (land && land.getType() !== 0 ) { // && this.penguins.length < 1) {
+         let penguin = new Penguin(this.numPeng++,hpos,lpos,this.sessions, this.turn);
+         land.addPenguin(penguin);
+         this.penguins.push(penguin);
+       }
+     }
+
+    if (debug) {
+      console.log(this.getAscii());
+    }
  } // constructor ()
+
+ // Adds a session to the list of listening sessions
+
+  registerSession(session) {
+    if ( ! this.sessions.find(aSession => aSession.id === session.id) )
+    {
+      this.sessions.push(session);
+      if (debug) {
+        console.log("island.js - registerSession : session " + session.id + " registered to island " + this.name + "/" + this.id);
+      }
+    } else {
+      console.log("island.js - registerSession : session " + session.id + " already registered to island " + this.name + "/" + this.id);
+    }
+  }
+
+  // Adds a session to the list of listening sessions
+
+  unregisterSession(session) {
+    this.sessions = this.sessions.filter(aSession => aSession.id !== session.id);
+    if (debug) {
+      console.log("island.js - unregisterSession : session " + session.id + " unregistered from island " + this.name + "/" + this.id);
+    }
+  }
+
+  hasSession(sessionId) {
+    let foundSession = this.sessions.find(session => session.getId() === sessionId);
+    //if (debug) {
+    //  console.log(`island.js - hasSession : looking for session id ${sessionId}, found ${foundSession?"true":"false"}`);
+    //}
+
+    // probably not necessary
+    return foundSession?true:false;
+
+  }
+
+   getTurn() {
+     return this.turn++;
+   }
+
+   getTurnNoUpd() {
+     return this.turn;
+   }
+
+   getTiles() {
+     return this.tiles;
+   }
+
+   addTile() {
+     this.tiles += 1;
+   }
+
+   addFish() {
+     this.fishes += 1;
+   }
+
+   decreaseTiles() {
+     this.tiles -= this.tiles > 0 ? 1 : 0;
+   }
+
+   decreaseFishes() {
+     this.fishes -= this.fishes > 0 ? 1 : 0;
+   }
+
+   getFishes() {
+      return this.fishes;
+   }
+
+   addPoints(points) {
+     this.points += points;
+   }
+
+   getPoints() {
+     return this.points;
+   }
+
+   resetPoints() {
+     this.points = 0;
+   }
+
+
+   getLover(gender, hpos, lpos) {
+
+     let lover = this.penguins.find(penguin => {
+       return penguin.hpos === hpos && penguin.lpos === lpos && penguin.gender !== gender && penguin.alive
+     });
+    return lover;
+  }
 
 
  // Add some penguins to the island
 
- addPenguins(session) {
-
-   let turn = 0;
-
-   // randomly add some penguins
-   for (let i = 0; i < 10; i++) {
-      let hpos = Math.floor(Math.random() * this.sizeH);
-      let lpos = Math.floor(Math.random() * this.sizeL);
-      let land = this.territory[hpos][lpos];
-
-      if (land && land.getType() !== 0 ) { // && this.penguins.length < 1) {
-        let penguin = new Penguin(this.numPeng++,hpos,lpos,session, turn);
-        land.addPenguin(penguin);
-        this.penguins.push(penguin);
-      }
-    }
-  }
+ // addPenguins() {
+ //
+ //   let turn = 0;
+ //
+ //   // randomly add some penguins
+ //   for (let i = 0; i < 10; i++) {
+ //      let hpos = Math.floor(Math.random() * this.sizeH);
+ //      let lpos = Math.floor(Math.random() * this.sizeL);
+ //      let land = this.territory[hpos][lpos];
+ //
+ //      if (land && land.getType() !== 0 ) { // && this.penguins.length < 1) {
+ //        let penguin = new Penguin(this.numPeng++,hpos,lpos,this.sessions, turn);
+ //        land.addPenguin(penguin);
+ //        this.penguins.push(penguin);
+ //      }
+ //    }
+ //  }
 
   getLandType(x, y) {
     const land = this.territory[x][y];
@@ -192,14 +304,46 @@ class Island {
   }
 
   // returns a list of images
+  // getImg(mode,islandH,islandL) {
+  //   let result = ``;
+  //   for (let i = 0; i < islandH; i++) {
+  //     let line = `<div>`;
+  //     for (let j = 0; j < islandL; j++) {
+  //       line += `<img class="tile" id="img-${i}-${j}" src="./tiles/PF-${this.territory[i][j].getType()}-${this.territory[i][j].getConf()}.png" width="48" height="48">`;
+  //     }
+  //     result += line + `</div>`;
+  //   }
+  //   return result;
+  // }
+
+  // getImg(mode,islandH,islandL) {
+  //   let result = [];
+  //   for (let i = 0; i < islandH; i++) {
+  //     for (let j = 0; j < islandL; j++) {
+  //       let id = i + "-" + j;
+  //       let tile = this.territory[i][j].getType() + "-" + this.territory[i][j].getConf();
+  //       result.push({
+  //         line : i,
+  //         id : id,
+  //         tile : tile
+  //       });
+  //     }
+  //   }
+  //   return result;
+  // }
+
   getImg(mode,islandH,islandL) {
-    let result = ``;
-    for (let i = 0; i < islandH; i++) {
-      let line = `<div>`;
-      for (let j = 0; j < islandL; j++) {
-        line += `<img class="tile" id="img-${i}-${j}"src="./tiles/PF-${this.territory[i][j].getType()}-${this.territory[i][j].getConf()}.png" width="48" height="48">`;
+    let result = [];
+    for (let i = 1; i < islandH -1; i++) {
+      for (let j = 1; j < islandL -1 ; j++) {
+        let id = i + "-" + j;
+        let tile = this.territory[i][j].getType() + "-" + this.territory[i][j].getConf();
+        result.push({
+          li : i,
+          id : id,
+          ti : tile
+        });
       }
-      result += line + `</div>`;
     }
     return result;
   }
@@ -236,7 +380,7 @@ class Island {
             }
 
           } catch (error) {
-            console.error("No land at h=" + h + " / l" + l + " - " + error);
+            console.error("island.js - elev : No land at h=" + h + " / l" + l + " - " + error);
           }
         }
       }
@@ -244,18 +388,28 @@ class Island {
     this.territory[hpos][lpos].setLand(height);
   }
 
+  reset() {
+    this.tiles = 5;
+    this.fishes = 5;
+    this.turn = 0;
+    this.points = 0;
+    if (debug) {
+      console.log("island.js - reset : Session reset with id " + this.id);
+    }
+  }
+
   // Set a tile at a given position
 
-  setTile(hpos,lpos,session) {
+  setTile(hpos,lpos) {
     let land = this.territory[hpos][lpos];
     if (land ) {
-      if (land.getType() == 0 && hpos > 0 && lpos > 0 && hpos < this.sizeH -1 && lpos < this.sizeL -1 && session.getTiles() > 0) {
+      if (land.getType() == 0 && hpos > 0 && lpos > 0 && hpos < this.sizeH -1 && lpos < this.sizeL -1 && this.getTiles() > 0) {
         land.setIce();
-        session.decreaseTiles();
+        this.decreaseTiles();
         return true;
-      } else if (land.getType() > 0 && session.getFishes() > 0) {
+      } else if (land.getType() > 0 && this.getFishes() > 0) {
         land.setFish();
-        session.decreaseFishes();
+        this.decreaseFishes();
         return true;
       }
     }
@@ -289,13 +443,22 @@ class Island {
         }
       }
     }
+
+    // make all land pieces older - check if crosses must be removed
+
+    for (let i = 0; i < this.sizeH ; i++) {
+      for (let j = 0; j < this.sizeL ; j++) {
+        let land = this.territory[i][j];
+        land.makeOlder();
+      }
+    }
   }
 
   // Move all the penguins of this island
 
-  movePenguins(session) {
+  movePenguins() {
 
-    let turn = session.getTurn();
+    let turn = this.getTurn();
 
     // Remove all istarget flags from the lands
 
@@ -305,25 +468,23 @@ class Island {
       }
     }
 
-
-
     this.penguins.forEach(penguin => {
 
       // First check if the penguin is alive
       if (penguin.isAlive()) {
 
         // Gonna Eat or Love ?
-        let lover= session.getLover(penguin.gender, penguin.hpos, penguin.lpos);
+        let lover= this.getLover(penguin.gender, penguin.hpos, penguin.lpos);
 
         if (this.territory[penguin.hpos][penguin.lpos].fish()) {
           this.territory[penguin.hpos][penguin.lpos].removeFish();
-          penguin.eat(session, turn);
-          session.addPoints(100);
+          penguin.eat(this.sessions, turn);
+          this.addPoints(100);
         } else if ( lover && penguin.canLove(lover.id)) {
           if (! penguin.isLoving()) {
-            penguin.love(session, turn,  lover.id);
-            lover.love(session, turn, this.id);
-            session.addPoints(200);
+            penguin.love(this.sessions, turn,  lover.id);
+            lover.love(this.sessions, turn, this.id);
+            this.addPoints(200);
           }
         }
 
@@ -372,9 +533,7 @@ class Island {
 
           if (targetL > 0){
 
-            if (debug) {
-              console.log(turn + " -  : penguin " + penguin.getId()  + " at  " + penguin.getHPos() + "/" + penguin.getLPos() + " found target : " + targetH + "/" + targetL);
-            }
+            if (debug) { console.log("island.js - movePenguins : " + turn + " -  : penguin " + penguin.getId()  + " at  " + penguin.getHPos() + "/" + penguin.getLPos() + " found target : " + targetH + "/" + targetL)};
             if (targetL < penguin.getLPos()) {
               if (targetH === penguin.getHPos()) {
                 move = 1;
@@ -398,27 +557,29 @@ class Island {
             // console.log(turn + " -  : penguin " + penguin.getId() + " going to move "  + move + " (" + movestxt[move] + ")");
 
           } else {
-            // console.log("possible moves : " + posmoves.length );
-            if (posmoves.length > 0) {
+            if (Math.floor(Math.random() * 3) === 0 || posmoves.length === 0 ){
+              move =0;
+            } else {
               let aPosMove = Math.floor(Math.random() * posmoves.length);
               move = posmoves[aPosMove];
-            } else {
-              console.log("no move possible");
-              move = 0;
             }
           }
 
           if (move > 0 && move < 5 ) {
 
+            this.addPoints(10);
+
             l=penguin.getLPos() + lmoves[move];
             h=penguin.getHPos() + hmoves[move];
 
             if (this.territory[h][l].getType() > 0) {
-              penguin.setPos(session, turn, move, h,l);
+              penguin.setPos(this.sessions, turn, move, h,l);
               this.territory[h][l].setTarget(true);
             }
 
           } else if (move > 0){
+
+            this.addPoints(10);
 
             l=penguin.getLPos() + lmoves[move];
             h=penguin.getHPos() + hmoves[move];
@@ -426,30 +587,30 @@ class Island {
             if (this.territory[h][l].getType() > 0) {
               switch (move) {
                 case 5:
-                  penguin.setPos(session, turn, 2, penguin.getHPos(), penguin.getLPos() + 1);
-                  penguin.setPos(session, turn, 4, penguin.getHPos() + 1, penguin.getLPos());
+                  penguin.setPos(this.sessions, turn, 2, penguin.getHPos(), penguin.getLPos() + 1);
+                  penguin.setPos(this.sessions, turn, 4, penguin.getHPos() + 1, penguin.getLPos());
                   this.territory[h][l].setTarget(true);
                   break;
                 case 6:
-                  penguin.setPos(session, turn, 2, penguin.getHPos(), penguin.getLPos() + 1);
-                  penguin.setPos(session, turn, 3, penguin.getHPos() - 1, penguin.getLPos());
+                  penguin.setPos(this.sessions, turn, 2, penguin.getHPos(), penguin.getLPos() + 1);
+                  penguin.setPos(this.sessions, turn, 3, penguin.getHPos() - 1, penguin.getLPos());
                   this.territory[h][l].setTarget(true);
                   break;
                 case 7:
-                  penguin.setPos(session, turn, 1, penguin.getHPos(), penguin.getLPos() - 1);
-                  penguin.setPos(session, turn, 4, penguin.getHPos() + 1, penguin.getLPos());
+                  penguin.setPos(this.sessions, turn, 1, penguin.getHPos(), penguin.getLPos() - 1);
+                  penguin.setPos(this.sessions, turn, 4, penguin.getHPos() + 1, penguin.getLPos());
                   this.territory[h][l].setTarget(true);
                   break;
                 case 8:
-                  penguin.setPos(session, turn, 1, penguin.getHPos(), penguin.getLPos() -1);
-                  penguin.setPos(session, turn, 3, penguin.getHPos() - 1, penguin.getLPos());
+                  penguin.setPos(this.sessions, turn, 1, penguin.getHPos(), penguin.getLPos() -1);
+                  penguin.setPos(this.sessions, turn, 3, penguin.getHPos() - 1, penguin.getLPos());
                   this.territory[h][l].setTarget(true);
                   break;
               } // switch
             } // is territory > 0
           } else if (move === 0) {
-            console.log("Have to wait");
-            penguin.wait(session, turn);
+            if (debug) {console.log("island.js movePenguin : Staying still")};
+            penguin.wait(this.sessions, turn);
           }
           // if move
         } // not eating or loving
@@ -461,13 +622,13 @@ class Island {
 
   resetPenguins(session) {
 
-    let turn = session.getTurn();
+    let turn = this.getTurn();
 
     this.penguins.forEach(penguin => {
 
       // First check if the penguin is alive
       if (penguin.isAlive()) {
-        penguin.resetPos(session,turn);
+        penguin.resetPos([session],turn);
       }
     });
   }
@@ -476,13 +637,13 @@ class Island {
   // if status is 1, then the penguin is dead and a cross is placed
   // if status is 2 and the penguin gender is female, then there is a baby
 
-  makePenguinsOlder(session) {
+  makePenguinsOlder() {
     let l=0,h=0
-    let turn = session.getTurnNoUpd();
+    let turn = this.getTurnNoUpd();
 
     this.penguins.forEach(penguin => {
       if (penguin.isAlive()) {
-        switch (penguin.makeOlder(session,turn)) {
+        switch (penguin.makeOlder(this.sessions,turn)) {
           case 1: // died
             l=penguin.getLPos();
             h=penguin.getHPos();
@@ -494,7 +655,7 @@ class Island {
               h=penguin.getHPos();
               let fatherId = penguin.gender === "male" ? penguin.id : penguin.partnerId;
               let motherId = penguin.gender === "male" ? penguin.partnerId : penguin.id;
-              let child = new Penguin(this.numPeng++,h,l,session,turn,fatherId,motherId);
+              let child = new Penguin(this.numPeng++,h,l,this.sessions,turn,fatherId,motherId);
               this.territory[h][l].addPenguin(child);
               this.penguins.push(child);
             }
@@ -517,13 +678,15 @@ class Island {
       }
 
       if (newWeather === 0) {
-        session.addFish();
+        this.addFish();
       } else if (newWeather === 1) {
-        session.addTile();
+        this.addTile();
       }
       this.weather = newWeather;
 
-      // console.log("Changing weather to " + this.weather + " (" + weathers[this.weather] + ")");
+      if (debug) {
+        console.log("island.js - setWeather : Changing weather to " + this.weather + " (" + weathers[this.weather] + ")");
+      }
       this.weatherCount = 0;
     }
   }
@@ -545,7 +708,6 @@ class Island {
   getName() {
     return this.name;
   }
-
 }
 
 // now we export the class, so other modules can create Penguin objects

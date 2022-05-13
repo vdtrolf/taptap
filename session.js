@@ -1,94 +1,41 @@
-const islandReq = require("./island.js");
-
-let Island = islandReq.Island;
 let debug = false;
 
 class Session {
-  constructor(island) {
+  constructor() {
     // console.log(x + " " + y);
     this.id = Math.floor(Math.random() * 99999999999);
-    this.tiles = 5;
-    this.fishes = 5;
     this.moveLog = [];
-    this.island = island;
     this.moveCounter = 0;
-    this.turn = 0;
-    this.points = 0;
-
-    console.log("New session with id " + this.id);
+    if (debug) {
+      console.log("session.js - constructor : New session with id " + this.id);
+    }
 
   }
 
   reset() {
-
-    console.log("Session reset with id " + this.id);
-
-    this.tiles = 5;
-    this.fishes = 5;
-    this.turn = 0;
     this.moveCounter = 0;
-    this.points = 0;
-  }
 
-  getTurn() {
-    return this.turn++;
-  }
-
-  getTurnNoUpd() {
-    return this.turn;
- }
-
-  getIsland() {
-    return this.island;
-  }
-
-  setIsland(island) {
-    this.island = island;
+    if (debug) {
+      console.log("session.js - reset : Session reset with id " + this.id);
+    }
   }
 
   getId() {
     return this.id;
   }
 
-  getTiles() {
-    return this.tiles;
-  }
-
-  addTile() {
-    this.tiles += 1;
-  }
-
-  addFish() {
-    this.fishes += 1;
-  }
-
-  decreaseTiles() {
-    this.tiles -= this.tiles > 0 ? 1 : 0;
-  }
-
-  decreaseFishes() {
-    this.fishes -= this.fishes > 0 ? 1 : 0;
-  }
-
-  getFishes() {
-     return this.fishes;
-  }
-
   isAlive() {
     return true;
   }
 
-  addPoints(points) {
-    this.points += points;
-  }
+  //setIsland(island) {
+  //  this.island = island;
+  //}
 
-  getPoints() {
-    return this.points;
-  }
+  //getIsland() {
+  //  return this.island;
+  //}
 
-  resetPoints() {
-    this.points = 0;
-  }
 
   // Add a move log record
   // move objects are made of :
@@ -103,12 +50,10 @@ class Session {
 
   addMoveLog(turn, id, num, moveType, moveDir, origH, origL, newH, newL, cat, state) {
 
-    this.addPoints(10);
-
     let moveTypes = ["init","move","grow","eat","love","die"];
     let moveid = this.moveCounter++;
     if (debug) {
-      console.log(turn + " " + moveid + " : Penguin " + id + " " + moveTypes[moveType] + " (" + moveType + ":" + moveDir +") " + origH + "/" + origL + " -> " + newH + "/" + newL + " points:" + this.getPoints());
+      console.log("session.js - addMoveLog : " + turn + " " + moveid + " : Penguin " + id + " " + moveTypes[moveType] + " (" + moveType + ":" + moveDir +") " + origH + "/" + origL + " -> " + newH + "/" + newL);
     }
     if (moveType !== 1) {
      this.moveLog.push({
@@ -139,14 +84,19 @@ class Session {
       }
     }
   }
-  
+
   // Reinitiate the move log and ask the island to fill it with penguins
   // initial states
-  
-  getInitMoveLog() {
-    
+
+  getInitMoveLog(island) {
+
     this.moveLog = [];
-    this.island.resetPenguins(this);
+    island.resetPenguins(this);
+
+    if (debug) {
+      console.log("session.js - getInitMoveLog : number of moves after reset = " + this.moveLog.length);
+    }
+
     let lastMoves = [...this.moveLog];
     this.moveLog = [];
     return lastMoves;
@@ -156,31 +106,29 @@ class Session {
 
   getMoveLog () {
 
+    if (debug) {
+      console.log("session.js - getMoveLog : number of moves = " + this.moveLog.length);
+    }
+
+
     let lastMoves = [...this.moveLog];
     this.moveLog = [];
     return lastMoves;
   }
 
-  getPenguinsStates() {
-    
-    console.log("---> getPeguinsStates");
-    
-    let lastMoves = [...this.moveLog];
-    let states = [];
-    this.moveLog = [];
-    lastMoves.forEach(aMove => {
-      states.filter(aState =>aState.id !== aMove.id);
-      states.push(aMove);
-    });
-  }
+  // getPenguinsStates() {
 
-  getLover(gender, hpos, lpos) {
+//    console.log("---> getPeguinsStates");
 
-    let lover = this.island.penguins.find(penguin => {
-      return penguin.hpos === hpos && penguin.lpos === lpos && penguin.gender !== gender && penguin.alive
-    });
-   return lover;
- }
+//    let lastMoves = [...this.moveLog];
+//    let states = [];
+//    this.moveLog = [];
+//    lastMoves.forEach(aMove => {
+//      states.filter(aState =>aState.id !== aMove.id);
+//      states.push(aMove);
+//    });
+//  }
+
 
 
 }

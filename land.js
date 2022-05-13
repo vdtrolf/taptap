@@ -11,6 +11,7 @@ class Land {
     this.type = 0;
     this.conf = 0;
     this.hasCross = false;
+    this.crossAge = 0;
     this.hasFish = false;
     this.penguin = null;
     this.isTarget = false;
@@ -45,6 +46,13 @@ class Land {
     this.type = newType;
   }
 
+  makeOlder() {
+    if (this.crossAge > 0) {
+      this.crossAge -=1;
+      this.hasCross = (this.crossAge > 0 && this.type > 0);
+    }
+  }
+
   removeHill(left,right,up,down) {
     let cnf = 0;
     cnf += left < this.type ? 1 : 0;
@@ -70,6 +78,7 @@ class Land {
 
   setCross() {
     this.hasCross = true;
+    this.crossAge = 10;
   }
 
   removeFish() {

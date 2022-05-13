@@ -9,9 +9,9 @@ let Land = landReq.Land;
 let Session = sessionReq.Session;
 
 const port = 3001;
-const sessions = [];
-
-let session = null, island = null, sessionId = null;
+let islands = [];
+let sessions = [];
+const baseTime = new Date().getTime();
 
 const args = process.argv.slice(2);
 
@@ -29,118 +29,103 @@ let mode = Number.parseInt(args[1], 10);
 if (!mode) mode = 1;
 
 let debug = Number.parseInt(args[2], 10);
+
 debug = false;
 
-const getSessionsList = () => {
-  let sessionList = [];
-  sessions.forEach( session => {
-    sessionList.push({
-      id : session.id,
-      points : session.points,
-      turn : session.turn,
-      islandName : session.island.getName(),
-      islandId : session.island.getId()
-    });
-  });
-  return sessionList;
+
+const createData = (session, island, moves) => {
+
+  let theMoves = moves ? moves : [];
+
+  return {session : session.getId(),
+          island : island.getImg(mode,islandH,islandL),
+          penguins : island.getPenguins(),
+          weather : island.getWeather(),
+          artifacts: island.getArtifacts(),
+          tiles: island.getTiles(),
+          fishes: island.getFishes(),
+          points: island.getPoints(),
+          islandName: island.getName(),
+          moves : theMoves};
 }
 
-const getSession = (sessionId) => {
-
-  //console.log("looking for sessionId ==>" + sessionId + "<==");
-
-  let sId = Number.parseInt(sessionId,10);
-
-  // console.log("looking for sessionId ==>" + sessionId + "<== is ==>" + sId + "<==");
-
-
-  if (sessionId) {
-    session = sessions.find(session => {
-      return session.getId() === sId;
-    });
-  } else {
-    session = null;
-  }
-
-  if (session) {
-    //console.log("Found session =>" + session.getId() + "<=");
-    session.isAlive();
-  }
-};
-
-const createResponse = (url,params) => {
-
-  // console.log("Creating a response for " + url);
+const createResponse = (url,params,session,island) => {
 
   switch(url) {
 
     case "/island" : {
       if (! session) {
-        island = null;
-        island = new Island(islandH,islandL);
-        session = new Session(island);
-        island.addPenguins(session);
 
-        if (debug) {
-          sessions[0] = null;
-          sessions[0] = session;
-          console.log("Building an island of size " + islandH + " * " + islandL);
-          console.log(island.getAscii(mode,islandH,islandL));
-        } else {
-          // console.log("Pushing session =>" + session.getId() + "<==");
-          sessions.push(session);
+        session = new Session();
+        island = new Island(islandH,islandL, session);
+        //island.addPenguins();
+        islands.push(island);
+
+        if (debug ) {
+          timeTag = new Date().getTime() - baseTime;
+          console.log(timeTag + "index.js - createResponse/island : Building an island of size " + islandH + " * " + islandL);
         }
+        sessions.push(session);
 
-      } else {
-        island = session.getIsland();
       }
-      return {island : island.getImg(mode,islandH,islandL),
-        islandName : island.getName(),
-        weather : island.getWeather(),
-        penguins : island.getPenguins(),
-        session : session.getId(),
-        artifacts: island.getArtifacts(),
-        tiles: session.getTiles(),
-        fishes: session.getFishes(),
-        points: session.getPoints()};
+
+      return createData(session, island, session.getInitMoveLog(island));
     }
 
     case "/new-island" : {
       if (session) {
-        island = new Island(islandH,islandL);
-        session.reset();
-        session.setIsland(island);
-        island.addPenguins(session);
-        if (debug) {
-          console.log("Renewing an island of size " + islandH + " * " + islandL);
-          console.log(island.getAscii(mode,islandH,islandL));
+
+
+        if (island) {
+          island.unregisterSession(session);
         }
-        return {island : island.getImg(mode,islandH,islandL),
-          islandName : island.getName(),
-          weather : island.getWeather(),
-          penguins : island.getPenguins(),
-          session : session.getId(),
-          artifacts: island.getArtifacts(),
-          tiles: session.getTiles(),
-          fishes: session.getFishes(),
-          points: session.getPoints()};
+
+        island = new Island(islandH,islandL,session);
+        islands.push(island);
+        session.reset();
+
+        if (debug ) {
+          timeTag = new Date().getTime() - baseTime;
+          console.log(timeTag + "index.js - createResponse/new-island : Renewing an island of size " + islandH + " * " + islandL);
+        }
+
+        return createData(session, island, session.getInitMoveLog(island));
+
       } else {
-        console.log("No island found");
+        if (debug) {
+          console.log("index.js - createResponse : No island found");
+        }
+      }
+    }
+
+    case "/connect-island" : {
+      if (session) {
+        // island = new Island(islandH,islandL);
+
+        if (island) {
+          island.unregisterSession(session);
+        }
+
+        let islandId  = Number.parseInt(params.islandId,10);
+        island = islands.find(island => island.getId() === islandId);
+        session.reset();
+        island.registerSession(session);
+
+        if (debug ) {
+          timeTag = new Date().getTime() - baseTime;
+          console.log(timeTag + "index.js - createResponse/connect-island : Connecting to island  " + island.getName());
+        }
+
+        return createData(session, island,session.getInitMoveLog(island));
+
+      } else {
+        console.log("index.js - createResponse :No island found");
       }
     }
 
     case "/penguins" : {
-      if (session) {
-        let island = session.getIsland();
-
-        return {session : session.getId(),
-                islandName : island.getName(),
-                weather : island.getWeather(),
-                penguins : island.getPenguins(),
-                artifacts: island.getArtifacts(),
-                tiles: session.getTiles(),
-                fishes: session.getFishes(),
-                points: session.getPoints()};
+      if (session && island) {
+        return createData(false);
       }
        // island : island.getImg(mode,islandH,islandL),
     }
@@ -148,49 +133,30 @@ const createResponse = (url,params) => {
     // return the moves - is the renew parameter is on 1, then returns an initial move log
 
     case "/moves" : {
-      if (session) {
-
-        let island = session.getIsland();
+      if (session && island) {
         let renew = Number.parseInt(params.renew,10);
-        let moves = renew === 0? session.getMoveLog(): session.getInitMoveLog();
+        let moves = renew === 0? session.getMoveLog(): session.getInitMoveLog(island);
 
-        return {session : session.getId(),
-                island : island.getImg(mode,islandH,islandL),
-                islandName : island.getName(),
-                moves : moves,
-                penguins : island.getPenguins(),
-                weather : island.getWeather(),
-                artifacts: island.getArtifacts(),
-                tiles: session.getTiles(),
-                fishes: session.getFishes(),
-                points: session.getPoints()};
+        return createData(session, island, moves);
+
       }
     }
 
-    case "/sessions" : {
+    case "/islands" : {
       if (session) {
-        return {sessions : getSessionsList(), session : session.getId()};
+        return {islands : islands, session : session.getId()};
       } else {
-        return {sessions : getSessionsList()};
+        return {islands : islands};
       }
     }
 
     case "/setTile" : {
-      if (session) {
-        let island = session.getIsland();
+      if (session && island) {
         let hpos = Number.parseInt(params.hpos,10);
         let lpos = Number.parseInt(params.lpos,10);
 
         if (island.setTile(lpos,hpos,session)) {
-          return {result : "true",
-          islandName : island.getName(),
-          island : island.getImg(mode,islandH,islandL),
-          weather : island.getWeather(),
-          artifacts: island.getArtifacts(),
-          session : session.getId(),
-          tiles: session.getTiles(),
-          fishes: session.getFishes(),
-          points: session.getPoints()};
+          return createData(session, island, false);
         } else {
           return {result : "false"};
         }
@@ -222,40 +188,55 @@ app.use(
 
 try {
   app.get('/*', (req, res) => {
+
     let sessionId = Number.parseInt(req.query.sessionId,10);
-    getSession(sessionId);
 
-    if (debug ) {console.log("Processing " + req.path + " " + req.query.renew)};
+    let session = null;
+    let island = null;
+    let sId = 0;
+    let iId = 0;
 
-    return res.json(createResponse(req.path,req.query));
+    if (sessionId > 0) {
+      session = sessions.find(session => session.getId() === sessionId);
+      if (session != null) {
+        sId = session.getId();
+        island = islands.find(island => island.hasSession(session.getId()));
+        if (island != null) {iId = island.getId()};
+      }
+    }
+
+    if (debug ) {
+      timeTag = new Date().getTime() - baseTime;
+      console.log(timeTag + " index.js : Processing " + req.path + " for session " + sId + " and island " + iId + ", renew = "+ req.query.renew)
+    };
+
+    return res.json(createResponse(req.path,req.query, session, island));
   });
 
   app.listen(port, () => {
-    console.log(`Little island listening at port: ${port}`);
+    console.log(`index.js : Little island listening at port: ${port}`);
   });
 
   app.on('error', (e) => {
-    console.log("app " + e.code);
+    console.log("index.js : app error " + e.code);
   });
 
   process.on('error', (e) => {
-    console.log("process" + e.code);
+    console.log("index.js : process error " + e.code);
   });
 
 } catch(error) {
-   console.error("problem " + error);
+   console.error("index.js : problem " + error);
 }
-
 
 // Main interval loop - for each session triggers the penguin events
 
 setInterval(() => {
-  sessions.forEach(session=> {
-    let island = session.getIsland();
-    island.makePenguinsOlder(session);
-    island.movePenguins(session);
-    island.setWeather(session);
+  islands.forEach(island=> {
+    island.makePenguinsOlder();
+    island.movePenguins();
+    island.setWeather();
     island.smelt();
   });
 
-}, 1000);
+}, 1200);
