@@ -46,6 +46,8 @@ const createData = (session, island, moves) => {
           fishes: island.getFishes(),
           points: island.getPoints(),
           islandName: island.getName(),
+          islandId: island.getId(),
+          islandSize : island.getLandSize(),
           moves : theMoves};
 }
 
@@ -239,4 +241,4 @@ setInterval(() => {
     island.smelt();
   });
 
-}, 1200);
+}, 864);

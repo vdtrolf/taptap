@@ -10,7 +10,7 @@ let debug = false;
 
 const deco1 = [" ",".","^","%","#","#","#","#"];
 const deco2 = ["&nbsp;","░","▒","▓","█","█","█","█"];
-const weathers = ["sun","rain","snow","cold","gameover"];
+const weathers = ["sun","rain","snow","cold","endgame"];
 const names = ["Iswell","Fairland","Esturga","Tranquility","BolderIsland","PureWorld","Ratatown","Scotlandia","Ramona","Toroland",
 "Nowherecap","Hopelessland","Karialand","Cupoea","Isolaland","Curfore","Flielandia","Messa","OuatesIsland","Grabundia","Aubonne",
 "Fortune","Coldstone","Vulcania","Ramone","ThreeStones","Syconess","Rueland","MariaIsland","Sofsofland","Terragusta"];
@@ -28,6 +28,7 @@ class Island {
     this.weatherCount = 0;
     this.numPeng = 0;
     this.tiles = 5;
+    this.landSize = 0;
     this.fishes = 5;
     this.turn = 0;
     this.points = 0;
@@ -136,6 +137,14 @@ class Island {
          this.territory[h][l].setBorder(h,l,sizeH,sizeL);
       }
     }
+
+    for (let l = 0; l < sizeL ; l++) {
+      for (let h = 0; h < sizeH ; h++) {
+         this.landSize += this.territory[h][l].getType() > 0 ?1:0;
+      }
+    }
+
+
 
     // randomly add some penguins
     for (let i = 0; i < 10; i++) {
@@ -426,7 +435,7 @@ class Island {
     }
 
     // Randomly decrease some terrain parts
-    for (let i = 0; i < this.sizeH ; i++) {
+    for (let i = 0; i < this.sizeH * 2; i++) {
       let hpos = Math.floor(Math.random() * this.sizeH);
       let lpos = Math.floor(Math.random() * this.sizeL);
       let land = this.territory[hpos][lpos];
@@ -452,10 +461,12 @@ class Island {
 
     // make all land pieces older - check if crosses must be removed
 
+    this.landSize = 0;  
     for (let i = 0; i < this.sizeH ; i++) {
       for (let j = 0; j < this.sizeL ; j++) {
         let land = this.territory[i][j];
         land.makeOlder();
+        this.landSize += this.territory[i][j].getType() > 0?1:0;
       }
     }
   }
@@ -465,8 +476,10 @@ class Island {
   movePenguins() {
 
     // check if there are still alive penguinsLayer
+    
+    let cntPenguins = this.penguins.filter(penguin => penguin.isAlive()).length;
 
-    if (! this.penguins.find(penguin => penguin.isAlive())) {
+    if (cntPenguins < 1) {
       this.running = false;
       this.weather = 4;
       if (debug) { console.log("island.js - movePenguins : endgame")};
@@ -494,7 +507,7 @@ class Island {
           this.territory[penguin.hpos][penguin.lpos].removeFish();
           penguin.eat(this.sessions, turn);
           this.addPoints(100);
-        } else if ( lover && penguin.canLove(lover.id)) {
+        } else if ( cntPenguins < this.landSize / 5 && lover && penguin.canLove(lover.id)) {
           if (! penguin.isLoving()) {
             penguin.love(this.sessions, turn,  lover.id);
             lover.love(this.sessions, turn, this.id);
@@ -685,6 +698,18 @@ class Island {
     if (! this.running) {
       return
     }
+    
+    // add some random fishes or tiles
+
+    switch (Math.floor(Math.random() * 40
+    )) {
+      case 0:
+        this.addFish();
+        break;
+      case 1:
+        this.addTile();
+        break;  
+    }
 
     this.weatherCount += 1;
     if (this.weatherCount  >  Math.floor(Math.random() * 20) + 15) {
@@ -719,6 +744,14 @@ class Island {
   getId() {
     return this.id;
   }
+
+  // Returns the land size of the island
+
+  getLandSize() {
+    return this.landSize;
+  }
+
+
 
   // Returns the name of the island
 

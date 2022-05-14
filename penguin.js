@@ -14,6 +14,8 @@ class Penguin {
     this.hpos = h;
     this.lpos = l;
     this.age = Math.floor(Math.random() * 5);
+    this.wealth = 100;
+    this.hungry = 0;
     this.alive = true;
     this.gender = genders[gdname];
     this.cat = "-y-";
@@ -66,6 +68,14 @@ class Penguin {
   getGender() {
     return this.gender;
   }
+  
+  getWealth() {
+    return this.wealth;
+  }
+  
+  getHungry() {
+    return this.hungry;
+  }
 
   setName(name) {
     this.name = name;
@@ -98,6 +108,7 @@ class Penguin {
     this.hpos = hpos;
     this.lpos = lpos;
     this.waiting = 0;
+    this.wealth = this.wealth < 98 ? this.wealth + 2 :100;
   }
 
   // reset the penguin move log by adding an initial move record
@@ -141,6 +152,7 @@ class Penguin {
     this.age = this.age > 6 ? this.age - 6 : 0;
     this.eating = 3;
     this.waiting = 0;
+    this.hungry = this.hungry < 29 ? 0 : this.hungry - 30;
     sessions.forEach(session => {
       session.addMoveLog(turn, this.id,this.num,3,0,0,0,0,0,this.getCat(),"eat");
     });
@@ -154,10 +166,12 @@ class Penguin {
     sessions.forEach(session => {
       session.addMoveLog(turn, this.id,this.num,6,0,0,0,0,0,this.getCat(),"still");
     });
+    this.wealth -= 5;
+    this.hungry += 1;
   }
 
   isWaiting () {
-    return this.eating > 0;
+    return this.waiting > 0;
   }
 
 
@@ -185,6 +199,8 @@ class Penguin {
       }
     }
 
+    this.hungry += 1;
+
     this.age += this.alive ? 0.25 : 0;
     if (this.age === 6) {
       let cat = this.gender === "male" ? "-m-" : "-f-";
@@ -192,7 +208,7 @@ class Penguin {
         session.addMoveLog(turn, this.id,this.num,2,0,0,0,0,0,cat,"age");
       });
     }
-    if (this.age > 20) {
+    if (this.age > 40 || this.hungry > 99 || this.wealth <1 ) {
       if (debug && this.alive) {
         console.log("penguin.js - makeOlder : " + this.name + " just died !")
       }
