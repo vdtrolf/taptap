@@ -13,8 +13,11 @@ class Land {
     this.hasCross = false;
     this.crossAge = 0;
     this.hasFish = false;
+    this.hasSwim = false;
     this.penguin = null;
     this.isTarget = false;
+    this.islandSize = 0;
+    this.islandPopulation = 0;
   }
 
   setTarget(isTarget) {
@@ -49,19 +52,7 @@ class Land {
   makeOlder() {
     if (this.crossAge > 0) {
       this.crossAge -=1;
-      this.hasCross = (this.crossAge > 0 && this.type > 0);
-    }
-  }
-
-  removeHill(left,right,up,down) {
-    let cnf = 0;
-    cnf += left < this.type ? 1 : 0;
-    cnf += up < this.type ? 2 : 0;
-    cnf += right < this.type ? 4 : 0;
-    cnf += down < this.type ? 8 : 0;
-
-    if (cnf === 7 || cnf == 11 || cnf == 13 || cnf == 14 || cnf == 15) {
-      this.type -= 1;
+      this.hasCross = (this.crossAge > 0);
     }
   }
 
@@ -77,6 +68,7 @@ class Land {
   }
 
   setCross() {
+    console.log("setting cross at " + this.hpos + "/" + this.lpos);
     this.hasCross = true;
     this.crossAge = 10;
   }
@@ -111,7 +103,14 @@ class Land {
     }
   }
 
+  // converting a water tile to ice - if there is a fish swimming into the water,
+  // then put it on the ice
+
   setIce() {
+    if (this.hasSwim) {
+      this.hasSwim = false;
+      this.hasFish = true;
+    }
     this.type = 1;
     this.conf = 0;
   }
@@ -131,9 +130,60 @@ class Land {
   getConf() {
     return this.conf;
   }
+
+  // return true if there is a swimming fish
+  swim() {
+    return this.hasSwim;
+  }
+
+  // add a swimming fish
+  addSwim() {
+    this.hasSwim = true;
+  }
+
+  // remove a swimming fish
+  removeSwim() {
+    this.hasSwim = false;
+  }
+
+  // set the island sizeH
+  setIslandSize(size) {
+    this.islandSize = size;
+  }
+
+  // set the island sizeH
+  setIslandPopulation(population) {
+    this.islandPopulation = population;
+  }
+
+  // set the island sizeH
+  getIslandSize(size) {
+    return this.islandSize;
+  }
+
+  // set the island sizeH
+  getIslandPopulation(population) {
+    return this.islandPopulation;
+  }
+
+
+
 }
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
     Land : Land
 }
+
+
+// removeHill(left,right,up,down) {
+//   let cnf = 0;
+//   cnf += left < this.type ? 1 : 0;
+//   cnf += up < this.type ? 2 : 0;
+//   cnf += right < this.type ? 4 : 0;
+//   cnf += down < this.type ? 8 : 0;
+//
+//   if (cnf === 7 || cnf == 11 || cnf == 13 || cnf == 14 || cnf == 15) {
+//     this.type -= 1;
+//   }
+// }

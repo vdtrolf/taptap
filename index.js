@@ -235,6 +235,8 @@ try {
 
 setInterval(() => {
   islands.forEach(island=> {
+    island.calculateNeighbours();
+    island.addSwims();
     island.makePenguinsOlder();
     island.movePenguins();
     island.setWeather();

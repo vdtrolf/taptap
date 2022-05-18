@@ -1,13 +1,13 @@
 const axios = require("axios");
-const genders = ["male","female"];
-const names = ["Billy Boy", "Glossy Rose"];
+const genders = ["male","female","male","female","male","female","male","female","male","female"];
+const names = ["Billy Boy", "Glossy Rose","Titus","Bella","Rolf","Gradina","Paulus","Agripa","Cesar","Mira"];
 
 const debug = false;
 
 class Penguin {
   constructor(num, h, l,sessions, turn, fatherId = 0, motherId=0) {
 
-    let gdname = Math.floor(Math.random() * 2);
+    let gdname = Math.floor(Math.random() * 10);
 
     this.id = Math.floor(Math.random() * 999999);
     this.num = num;
@@ -23,6 +23,7 @@ class Penguin {
     this.eating = 0;
     this.loving = 0;
     this.waiting = 0;
+    this.fishing = 0;
     this.moving = 0;
     this.hasLoved = 0;
     this.fatherId = fatherId;
@@ -39,9 +40,11 @@ class Penguin {
     }
   }
 
+  // returns teh category of the penguin - y,m,f,o (old man), e (eldery woman)
+
   getCat() {
     let cat = this.gender === "male" ? "-m-" : "-f-";
-    cat = this.age < 6 ?"-y-":cat;
+    cat = this.age < 6 ? "-y-":cat;
     return cat;
   }
 
@@ -68,11 +71,11 @@ class Penguin {
   getGender() {
     return this.gender;
   }
-  
+
   getWealth() {
     return this.wealth;
   }
-  
+
   getHungry() {
     return this.hungry;
   }
@@ -81,18 +84,24 @@ class Penguin {
     this.name = name;
   }
 
+  // Check if love is possible
+
   canLove(partnerId) {
 
-
-
-    if (debug && partnerId === this.fatherId) {
-      console.log("peguin.js - canLove : canLove not possible with father " + this.fatherId);
+    if ( partnerId === this.fatherId) {
+      if (debug) { console.log(`penguin.js - canLove : ${this.id}-${this.name} love not possible with father ${this.fatherId}`) };
+      return false;
     }
-    if (debug && partnerId === this.motherId) {
-      console.log("peguin.js - canLove : canLove not possible with mother " + this.motherId);
+    if (partnerId === this.motherId) {
+      if (debug) { console.log(`penguin.js - canLove : ${this.id}-${this.name} love not possible with mother ${this.motherId}`) };
+      return false;
+    }
+    if (this.age < 7 || this.age > 30) {
+      if (debug) { console.log(`penguin.js - canLove : ${this.id}-${this.name} too yong or old for all this (i am ${this.age})`) };
+      return false;
     }
 
-    return this.age > 6 && this.hasLoved === 0 && partnerId !== this.fatherId && partnerId !== this.motherId;
+    return this.hasLoved === 0 && ! this.eating && ! this.fishing ;
   }
 
   // let moveType = moves[i].moveType, // 1=move,2=age,3=eat,4=love,5=die
@@ -134,9 +143,11 @@ class Penguin {
     this.waiting = 0;
   }
 
+  // tells te peguin to make love with a partner
+
   love(sessions, turn, partnerId) {
     this.loving = 4;
-    this.hasLoved = 10;
+    this.hasLoved = 15;
     this.partnerId = partnerId;
     this.waiting = 0;
     sessions.forEach(session => {
@@ -144,19 +155,24 @@ class Penguin {
     });
   }
 
+  // return true is the penguin is makning love
+
   isLoving () {
     return this.loving > 0;
   }
 
+  // tell the penhuin to eat
+
   eat(sessions, turn) {
-    this.age = this.age > 6 ? this.age - 6 : 0;
-    this.eating = 3;
+    this.eating = 5;
     this.waiting = 0;
-    this.hungry = this.hungry < 29 ? 0 : this.hungry - 30;
+    this.hungry = this.hungry < 25 ? 0 : this.hungry - 25;
     sessions.forEach(session => {
       session.addMoveLog(turn, this.id,this.num,3,0,0,0,0,0,this.getCat(),"eat");
     });
   }
+
+  // return true is the penguin is eating
 
   isEating () {
     return this.eating > 0;
@@ -174,6 +190,21 @@ class Penguin {
     return this.waiting > 0;
   }
 
+  // Makes the penguin one year older and check status
+  // Return 1 if dead and 2 if end of loving periond (in which case a baby will born)
+  // Otherwise returns 0
+
+  letDie(sessions, turn) {
+    this.alive = false;
+    this.eating = 0;
+    this.loving = 0;
+    this.hasLoved = 0;
+    this.hungry = 0;
+
+    sessions.forEach(session => {
+      session.addMoveLog(turn, this.id,this.num,5,0,0,0,0,0,"","dead");
+    });
+  }
 
 
   // Makes the penguin one year older and check status
@@ -234,6 +265,8 @@ class Penguin {
   }
 
 }
+
+// Gets a name from a name server
 
 const getFakeName = async (aPenguin) => {
 
