@@ -14,6 +14,7 @@ class Land {
     this.crossAge = 0;
     this.hasFish = false;
     this.hasSwim = false;
+    this.swimAge = 0;
     this.penguin = null;
     this.isTarget = false;
     this.islandSize = 0;
@@ -54,6 +55,9 @@ class Land {
       this.crossAge -=1;
       this.hasCross = (this.crossAge > 0);
     }
+    if (this.swimAge > 0) {
+      this.swimAge -=1;
+    }
   }
 
   setBorder(h,l,sizeH,sizeL) {
@@ -88,6 +92,11 @@ class Land {
   fish() {
     return this.hasFish;
   }
+
+  canFish() {
+    return this.hasSwim;
+  }
+
 
   setConf(newValue) {
     if (newValue) {
@@ -133,17 +142,26 @@ class Land {
 
   // return true if there is a swimming fish
   swim() {
-    return this.hasSwim;
+    return this.hasSwim || this.swimAge > 0;
   }
 
   // add a swimming fish
   addSwim() {
+    // console.log("Adding swim at " + this.hpos + "/" + this.lpos);
     this.hasSwim = true;
   }
 
   // remove a swimming fish
   removeSwim() {
+    // console.log("Removing swim at " + this.hpos + "/" + this.lpos);
     this.hasSwim = false;
+  }
+
+  // remove a swimming fish
+  fishSwim() {
+    // console.log("Removing swim at " + this.hpos + "/" + this.lpos);
+    this.hasSwim = false;
+    this.swimAge = 6;
   }
 
   // set the island sizeH

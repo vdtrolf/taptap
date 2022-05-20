@@ -33,7 +33,7 @@ let debug = Number.parseInt(args[2], 10);
 debug = false;
 
 
-const createData = (session, island, moves) => {
+const createInitData = (session, island, moves) => {
 
   let theMoves = moves ? moves : [];
 
@@ -50,6 +50,31 @@ const createData = (session, island, moves) => {
           islandSize : island.getLandSize(),
           moves : theMoves};
 }
+
+const createIslandData = (session, island) => {
+
+  return {session : session.getId(),
+          island : island.getImg(mode,islandH,islandL),
+          penguins : island.getPenguins(),
+          weather : island.getWeather(),
+          artifacts: island.getArtifacts(),
+          tiles: island.getTiles(),
+          fishes: island.getFishes(),
+          islandName: island.getName(),
+          islandId: island.getId()};
+}
+
+const createMovesData = (session, island, moves) => {
+
+  let theMoves = moves ? moves : [];
+
+  return {session : session.getId(),
+          points: island.getPoints(),
+          islandSize : island.getLandSize(),
+          moves : theMoves};
+}
+
+
 
 const createResponse = (url,params,session,island) => {
 
@@ -71,7 +96,7 @@ const createResponse = (url,params,session,island) => {
 
       }
 
-      return createData(session, island, session.getInitMoveLog(island));
+      return createInitData(session, island, session.getInitMoveLog(island));
     }
 
     case "/new-island" : {
@@ -91,7 +116,7 @@ const createResponse = (url,params,session,island) => {
           console.log(timeTag + "index.js - createResponse/new-island : Renewing an island of size " + islandH + " * " + islandL);
         }
 
-        return createData(session, island, session.getInitMoveLog(island));
+        return createInitData(session, island, session.getInitMoveLog(island));
 
       } else {
         if (debug) {
@@ -118,7 +143,7 @@ const createResponse = (url,params,session,island) => {
           console.log(timeTag + "index.js - createResponse/connect-island : Connecting to island  " + island.getName());
         }
 
-        return createData(session, island,session.getInitMoveLog(island));
+        return createInitData(session, island,session.getInitMoveLog(island));
 
       } else {
         console.log("index.js - createResponse :No island found");
@@ -139,10 +164,18 @@ const createResponse = (url,params,session,island) => {
         let renew = Number.parseInt(params.renew,10);
         let moves = renew === 0? session.getMoveLog(): session.getInitMoveLog(island);
 
-        return createData(session, island, moves);
+        return createMovesData(session, island, moves);
 
       }
     }
+
+    case "/islandmoves" : {
+      if (session && island) {
+        let renew = Number.parseInt(params.renew,10);
+        return createIslandData(session, island);
+      }
+    }
+
 
     case "/islands" : {
       if (session) {
@@ -158,7 +191,7 @@ const createResponse = (url,params,session,island) => {
         let lpos = Number.parseInt(params.lpos,10);
 
         if (island.setTile(lpos,hpos,session)) {
-          return createData(session, island, false);
+          return createIslandData(session, island, false);
         } else {
           return {result : "false"};
         }
@@ -236,11 +269,16 @@ try {
 setInterval(() => {
   islands.forEach(island=> {
     island.calculateNeighbours();
-    island.addSwims();
-    island.makePenguinsOlder();
     island.movePenguins();
     island.setWeather();
-    island.smelt();
   });
 
 }, 864);
+
+setInterval(() => {
+  islands.forEach(island=> {
+    island.addSwims();
+    island.makePenguinsOlder();
+    island.smelt();
+  });
+}, 1296);

@@ -61,6 +61,7 @@ class Session {
         id : id,
         num : num,
         moveType : moveType, // 1 = move
+        direction : moveDir, // necessary for fishing direction
         movements : [],
         cat : cat,
         state : state
@@ -77,6 +78,7 @@ class Session {
           id : id,
           num : num,
           moveType : moveType, // 1 = move
+          direction : moveDir, // necessary for fishing direction
           movements : [{movmtid : moveid, moveDir : moveDir, origH : origH, origL : origL, newH : newH, newL : newL }],
           cat : cat,
           state : state

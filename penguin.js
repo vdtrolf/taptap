@@ -23,7 +23,8 @@ class Penguin {
     this.eating = 0;
     this.loving = 0;
     this.waiting = 0;
-    this.fishing = 0;
+    this.fishTime = 0;
+    this.fishDirection = 0;
     this.moving = 0;
     this.hasLoved = 0;
     this.fatherId = fatherId;
@@ -178,6 +179,24 @@ class Penguin {
     return this.eating > 0;
   }
 
+  // makes the penguin fish
+
+  fish(sessions, turn, direction) {
+    sessions.forEach(session => {
+      session.addMoveLog(turn, this.id,this.num,7,direction,0,0,0,0,this.getCat(),"fish");
+    });
+    this.fishDirection = direction;
+    this.fishTime = 6;
+  }
+
+  // return true is the penguin is eating
+
+  isFishing () {
+    return this.fishTime > 0;
+  }
+
+  // makes the penguin fish
+
   wait(sessions, turn) {
     sessions.forEach(session => {
       session.addMoveLog(turn, this.id,this.num,6,0,0,0,0,0,this.getCat(),"still");
@@ -186,13 +205,13 @@ class Penguin {
     this.hungry += 1;
   }
 
+  // return true is the penguin is eating
+
   isWaiting () {
     return this.waiting > 0;
   }
 
-  // Makes the penguin one year older and check status
-  // Return 1 if dead and 2 if end of loving periond (in which case a baby will born)
-  // Otherwise returns 0
+  // Penguins die - all counters are reset
 
   letDie(sessions, turn) {
     this.alive = false;
@@ -214,9 +233,18 @@ class Penguin {
   makeOlder(sessions, turn) {
 
     let hasChild = false;
+    let returncode = 0;
 
     if (this.eating > 0) {
       this.eating -= 1;
+    }
+
+    if (this.fishTime> 0) {
+      this.fishTime-= 1;
+      if (this.fishTime === 0) {
+        this.fishDirection = 0;
+        this.eat(sessions,turn);
+      }
     }
 
     if (this.hasLoved > 0) {
@@ -247,13 +275,13 @@ class Penguin {
       sessions.forEach(session => {
         session.addMoveLog(turn, this.id,this.num,5,0,0,0,0,0,"","dead");
       });
-      return 1;
+      returncode = 1;
+    } else if (hasChild) {
+      returncode =  2;
     }
-    if (hasChild) {
-      return 2;
-    } else {
-      return 0;
-    }
+
+    return {returncode : returncode};
+
   }
 
   setGender(gender) {
