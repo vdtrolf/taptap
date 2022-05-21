@@ -2,11 +2,13 @@ const penguinReq = require("./penguin.js");
 const islandReq = require("./island.js");
 const landReq = require("./land.js");
 const sessionReq = require("./session.js");
+const nameserverReq = require("./nameserver.js");
 
 let Penguin = penguinReq.Penguin;
 let Island = islandReq.Island;
 let Land = landReq.Land;
 let Session = sessionReq.Session;
+let NameServer = nameserverReq.Session;
 
 const port = 3001;
 let islands = [];
@@ -31,6 +33,7 @@ if (!mode) mode = 1;
 let debug = Number.parseInt(args[2], 10);
 
 debug = false;
+
 
 
 const createInitData = (session, island, moves) => {
@@ -264,6 +267,8 @@ try {
    console.error("index.js : problem " + error);
 }
 
+let nameserver = new NameServer();
+
 // Main interval loop - for each session triggers the penguin events
 
 setInterval(() => {
@@ -281,4 +286,4 @@ setInterval(() => {
     island.makePenguinsOlder();
     island.smelt();
   });
-}, 1296);
+}, 1500);
