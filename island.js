@@ -1,24 +1,24 @@
 const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
 const sessionReq = require("./session.js");
-const axios = require("axios");
+const nameserverReq = require("./nameserver.js");
 
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
 let Session = sessionReq.Session;
-let debug = false;
+let debug = true;
 
 const deco1 = [" ",".","^","%","#","#","#","#"];
 const deco2 = ["&nbsp;","░","▒","▓","█","█","█","█"];
 const weathers = ["sun","rain","snow","cold","endgame"];
-const names = ["Iswell","Fairland","Esturga","Tranquility","BolderIsland","PureWorld","Ratatown","Scotlandia","Ramona","Toroland",
-"Nowherecap","Hopelessland","Karialand","Cupoea","Isolaland","Curfore","Flielandia","Messa","OuatesIsland","Grabundia","Aubonne",
-"Fortune","Coldstone","Vulcania","Ramone","ThreeStones","Syconess","Rueland","MariaIsland","Sofsofland","Terragusta"];
 
 class Island {
-  constructor(sizeH,sizeL,session) {
+  constructor(sizeH,sizeL,session, debugit=false) {
+    
+    debug = debugit;
+    
     this.id = Math.floor(Math.random() * 999999);
-    this.name = names[Math.floor(Math.random() * 30)];
+    this.name = nameserverReq.getIslandName();
     this.sizeH = sizeH;
     this.sizeL = sizeL;
     this.territory = [];
@@ -46,7 +46,7 @@ class Island {
       let line = [];
       let lineNum = [];
       for (let l = 0; l < sizeL; l++) {
-        line.push(new Land(h,l));
+        line.push(new Land(h,l,debug));
         lineNum.push(0);
       }
       this.territory.push(line);
@@ -155,16 +155,13 @@ class Island {
        let land = this.territory[hpos][lpos];
 
        if (land && land.getType() !== 0 ) { // && this.penguins.length < 1) {
-         let penguin = new Penguin(this.numPeng++,hpos,lpos,this.sessions, this.turn);
+         let penguin = new Penguin(this.numPeng++,hpos,lpos,this.sessions, this.turn, this.nameserver);
          land.addPenguin(penguin);
          this.penguins.push(penguin);
          pengCnt++;
        }
      }
 
-    if (debug) {
-      console.log(this.getAscii());
-    }
  } // constructor ()
 
  // Adds a session to the list of listening sessions
@@ -265,30 +262,6 @@ class Island {
 
   getPenguins() {
     return this.penguins;
-  }
-
-  // returns an ascii image of the island
-  getAscii(mode,islandH,islandL) {
-    let deco = mode === 1 ? deco1 : deco2;
-
-    let result = ``;
-    let linetop = `+`;
-    for (let j = 0; j < islandL; j++) linetop += `-`;
-    result += linetop + `+\n`;
-    for (let i = 0; i < islandH; i++) {
-      let line = "|";
-      for (let j = 0; j < islandL; j++) {
-        const land = this.territory[i][j];
-        if (land.checkPenguin()){
-          line += this.territory[i][j].checkPenguin().getNum();
-        } else {
-          line += deco[this.territory[i][j].getType()];
-        }
-      }
-      result += line + `|\n`;
-    }
-    result += linetop + `+\n`;
-    return result;
   }
 
   getImg(mode,islandH,islandL) {
@@ -406,7 +379,9 @@ class Island {
             let sinkingPenguins = this.penguins.filter(penguin => penguin.hpos === hpos && penguin.lpos === lpos);
             if (sinkingPenguins.length > 0) {
               sinkingPenguins.forEach(penguin => {
-                console.log(`penguin ${penguin.name} (${penguin.hpos}/${penguin.lpos}) sinking at ${hpos}/${lpos}`);
+                if (debug) {
+                  console.log(`penguin ${penguin.name} (${penguin.hpos}/${penguin.lpos}) sinking at ${hpos}/${lpos}`);
+                }
                 penguin.letDie(this.sessions,this.turn);
               });
               this.territory[hpos][lpos].setCross();
@@ -426,11 +401,11 @@ class Island {
     // make all land pieces older - check if crosses must be removed
 
     this.landSize = 0;
-    for (let i = 0; i < this.sizeH ; i++) {
-      for (let j = 0; j < this.sizeL ; j++) {
-        let land = this.territory[i][j];
+    for (let hpos = 0; hpos < this.sizeH ; hpos++) {
+      for (let lpos = 0; lpos < this.sizeL ; lpos++) {
+        let land = this.territory[hpos][lpos];
         land.makeOlder();
-        this.landSize += this.territory[i][j].getType() > 0?1:0;
+        this.landSize += this.territory[hpos][lpos].getType() > 0?1:0;
       }
     }
   }
@@ -472,7 +447,6 @@ class Island {
           if (debug) {
             console.log(`island.js - movePenguins : on ${this.name} island for ${penguin.name} is too crowded (size: ${islandSize} and population: ${islandPopulation} = ${islandPopulation / islandSize})` );
           }
-          console.log("wait");
           break ;
         }
 
@@ -485,10 +459,10 @@ class Island {
           break;
         }
 
-        // Gonna love ?
+        // Gonna love ? Only is there is enough room
 
         let lover= this.getLover(penguin.gender, penguin.hpos, penguin.lpos);
-        if ( cntPenguins < this.landSize / 5 && lover && penguin.canLove(lover.id) ) {
+        if ( (islandPopulation / islandSize ) < 0.5 && lover && penguin.canLove(lover.id) ) {
           penguin.love(this.sessions, turn,  lover.id);
           lover.love(this.sessions, turn, this.id);
           this.addPoints(200);
@@ -506,7 +480,9 @@ class Island {
 
         if (fishmoves.length > 0) {
           let fishmove = fishmoves[Math.floor(Math.random() * fishmoves.length)];
-          console.log(`insland.js - movePenguins : ${penguin.name} is going to fish at direction ${fishmove}`)
+          if (debug) {
+            console.log(`insland.js movePenguins : ${penguin.name} is going to fish at direction ${fishmove}`)
+          }
           penguin.fish(this.sessions, turn, fishmove);
           let swimlpos = fishmove === 1 ? penguin.getLPos()-1 : penguin.getLPos();
           swimlpos = fishmove === 2 ? penguin.getLPos() + 1 : swimlpos;
@@ -524,12 +500,6 @@ class Island {
         if (this.territory[penguin.getHPos()][penguin.getLPos()+1].canMove() ) posmoves.push(2);
         if (this.territory[penguin.getHPos()-1][penguin.getLPos()].canMove() ) posmoves.push(3);
         if (this.territory[penguin.getHPos()+1][penguin.getLPos()].canMove() ) posmoves.push(4);
-
-        // if (posmoves.length  === 0) {
-        //   if (debug) {console.log("island.js movePenguin : Staying still")};
-        //   penguin.wait(this.sessions, turn);
-        //   break ;
-        // }
 
         // is is possible to move - let's see which direction
 
@@ -562,7 +532,10 @@ class Island {
 
         if (targetL > 0){
 
-          if (debug) { console.log("island.js - movePenguins : " + turn + " -  : penguin " + penguin.getId()  + " at  " + penguin.getHPos() + "/" + penguin.getLPos() + " found target : " + targetH + "/" + targetL)};
+          if (debug) { 
+            console.log("island.js movePenguins : " + turn + " -  : penguin " + penguin.getId()  + " at  " + penguin.getHPos() + "/" + penguin.getLPos() + " found target : " + targetH + "/" + targetL)
+          };
+          
           if (targetL < penguin.getLPos()) {
             if (targetH === penguin.getHPos()) {
               move = 1;
@@ -584,23 +557,23 @@ class Island {
             }
           }
 
-          // console.log(turn + " -  : penguin " + penguin.getId() + " going to move "  + move + " (" + movestxt[move] + ")");
+          if (debug && posmoves.length === 0) {
+            console.log(`island.js movePenguin : ${penguin.name} has no possible move`);
+           }
 
         } else {
           if (Math.floor(Math.random() * 10) === 0 || posmoves.length === 0 ){
             move = 0;
-            // console.log("no move");
           } else {
             let aPosMove = Math.floor(Math.random() * posmoves.length);
             move = posmoves[aPosMove];
-            // console.log("move " + move);
           }
         }
 
         // No move => wait
 
         if (move === 0) {
-          if (debug) {console.log("island.js movePenguin : Staying still")};
+          // if (debug) {console.log(`island.js movePenguin : ${penguin.name} Staying still`)};
           penguin.wait(this.sessions, turn);
           break ;
         }
@@ -773,7 +746,7 @@ class Island {
       this.weather = newWeather;
 
       if (debug) {
-        console.log("island.js - setWeather : Changing weather to " + this.weather + " (" + weathers[this.weather] + ")");
+        console.log("island.js setWeather : Changing weather to " + this.weather + " (" + weathers[this.weather] + ")");
       }
       this.weatherCount = 0;
     }
@@ -824,9 +797,9 @@ class Island {
           })
 
           allExplored = [...allExplored, ...neighbours];
-          if (debug) {
-            console.log("penguins.js - calculateNeighbours : tile " + hpos + "/" + lpos + " has " + neighbours.length + " neighbours with " + pengCnt + " penguins");
-          }
+          // if (debug) {
+          //  console.log("penguins.js - calculateNeighbours : tile " + hpos + "/" + lpos + " has " + neighbours.length + " neighbours with " + pengCnt + " penguins");
+          // }
         }
       }
     }

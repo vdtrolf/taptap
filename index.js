@@ -8,7 +8,9 @@ let Penguin = penguinReq.Penguin;
 let Island = islandReq.Island;
 let Land = landReq.Land;
 let Session = sessionReq.Session;
-let NameServer = nameserverReq.Session;
+let NameServer = nameserverReq.NameServer;
+
+
 
 const port = 3001;
 let islands = [];
@@ -16,6 +18,7 @@ let sessions = [];
 const baseTime = new Date().getTime();
 
 const args = process.argv.slice(2);
+
 
 // console.log(process.env);
 
@@ -32,8 +35,10 @@ if (!mode) mode = 1;
 
 let debug = Number.parseInt(args[2], 10);
 
-debug = false;
+debug = true;
+procesdebug = false;
 
+let nameserver = new NameServer(30,10,false);
 
 
 const createInitData = (session, island, moves) => {
@@ -64,7 +69,8 @@ const createIslandData = (session, island) => {
           tiles: island.getTiles(),
           fishes: island.getFishes(),
           islandName: island.getName(),
-          islandId: island.getId()};
+          islandId: island.getId(),
+          islandSize : island.getLandSize()};
 }
 
 const createMovesData = (session, island, moves) => {
@@ -77,8 +83,6 @@ const createMovesData = (session, island, moves) => {
           moves : theMoves};
 }
 
-
-
 const createResponse = (url,params,session,island) => {
 
   switch(url) {
@@ -87,7 +91,7 @@ const createResponse = (url,params,session,island) => {
       if (! session) {
 
         session = new Session();
-        island = new Island(islandH,islandL, session);
+        island = new Island(islandH,islandL, session, debug);
         //island.addPenguins();
         islands.push(island);
 
@@ -110,7 +114,7 @@ const createResponse = (url,params,session,island) => {
           island.unregisterSession(session);
         }
 
-        island = new Island(islandH,islandL,session);
+        island = new Island(islandH,islandL,session,debug);
         islands.push(island);
         session.reset();
 
@@ -157,7 +161,6 @@ const createResponse = (url,params,session,island) => {
       if (session && island) {
         return createData(false);
       }
-       // island : island.getImg(mode,islandH,islandL),
     }
 
     // return the moves - is the renew parameter is on 1, then returns an initial move log
@@ -243,7 +246,7 @@ try {
       }
     }
 
-    if (debug ) {
+    if (procesdebug ) {
       timeTag = new Date().getTime() - baseTime;
       console.log(timeTag + " index.js : Processing " + req.path + " for session " + sId + " and island " + iId + ", renew = "+ req.query.renew)
     };
@@ -267,7 +270,6 @@ try {
    console.error("index.js : problem " + error);
 }
 
-let nameserver = new NameServer();
 
 // Main interval loop - for each session triggers the penguin events
 

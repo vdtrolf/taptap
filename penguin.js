@@ -1,13 +1,10 @@
-const axios = require("axios");
-const genders = ["male","female","male","female","male","female","male","female","male","female"];
-const names = ["Billy Boy", "Glossy Rose","Titus","Bella","Rolf","Gradina","Paulus","Agripa","Cesar","Mira"];
+const nameserverReq = require("./nameserver.js");
 
 const debug = false;
 
 class Penguin {
   constructor(num, h, l,sessions, turn, fatherId = 0, motherId=0) {
 
-    let gdname = Math.floor(Math.random() * 10);
 
     this.id = Math.floor(Math.random() * 999999);
     this.num = num;
@@ -17,9 +14,9 @@ class Penguin {
     this.wealth = 100;
     this.hungry = 0;
     this.alive = true;
-    this.gender = genders[gdname];
+    this.gender = "male";
     this.cat = "-y-";
-    this.name = names[gdname];
+    this.name = "titi";
     this.eating = 0;
     this.loving = 0;
     this.waiting = 0;
@@ -31,7 +28,9 @@ class Penguin {
     this.motherId = motherId;
     this.partnerId = 0;
 
-    getFakeName(this);
+    let aPenguinName = nameserverReq.getPenguinName();
+    this.name = aPenguinName.name;
+    this.gender = aPenguinName.gender;
 
     sessions.forEach(session => {
       session.addMoveLog(turn, this.id,this.num,1,0,0,0,this.hpos,this.lpos,this.getCat(),"move");
@@ -293,26 +292,6 @@ class Penguin {
   }
 
 }
-
-// Gets a name from a name server
-
-const getFakeName = async (aPenguin) => {
-
-  for (let i = 0; i <3; i++) {
-    axios
-      .get("https://randomuser.me/api/?inc=gender,name&nat=fr")
-      .then((response) => {
-          aPenguin.setName(response.data.results[0].name.first);
-          aPenguin.setGender(response.data.results[0].gender);
-          i = 4;
-      })
-      .catch((error) => {
-        // aPenguin.setName("toto");
-        //aPenguin.setGender("male");
-      });
-    }
-};
-
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {

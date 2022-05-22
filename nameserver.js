@@ -1,74 +1,100 @@
 const axios = require("axios");
 
-
-const debug = false;
-
 const penguinsNames = [];
 const islandsNames = [];
 
+const genders = ["male","female","male","female","male","female","male","female","male","female"];
+const names = ["Billy Boy", "Glossy Rose","Titus","Bella","Rolf","Gradina","Paulus","Agripa","Cesar","Mira"];
+const islands = ["Iswell","Fairland","Esturga","Tranquility","BolderIsland","PureWorld","Ratatown","Scotlandia","Ramona","Toroland", "Nowherecap","Hopelessland","Karialand","Cupoea","Isolaland","Curfore","Flielandia","Messa","OuatesIsland","Grabundia","Aubonne","Fortune","Coldstone","Vulcania","Ramone","ThreeStones","Syconess","Rueland","MariaIsland","Sofsofland","Terragusta"];
+
+
+let debug = false;
+
 class NameServer { 
-  constructor() {
-    this.namesSize = 20;
-    this.islandsSize = 10;
+  constructor(namesQty,islandsQty, debugit=false) {
+    this.namesSize = namesQty;
+    this.islandsSize = islandsQty;
+    debug = debugit;
     
-    // checkNames();
-    // this.startInterval();
+    if (debug) {
+      console.log("nameserver.js - constructor : starting nameserver");
+    }
+    this.startInterval();
   }
   
-  getPenguinName () {
-    if (penguinsNames.length > 0) {
-      return penguinNames.shift(); 
-    }  else {
-      return {name: "tata", gender : "female"};
-    }
-  }
-  
-  getIslandName () {
-    if (islandsNames.length > 0) {
-      return islandNames.shift();   
-    }
-  }
 
   checkNames () {
-    while ( penguinsNames.length < 20 ) {
+    if  (penguinsNames.length < this.namesSize ) {
       let penguinName = {name: "toto", gender : "male"};
-      getFakeName(penguinName);
+      getFakePenguinName(penguinName);
       penguinsNames.push(penguinName);
-      console.log("Another name");
+      //console.log("Another name");
     }
   }
   
   startInterval () {
     setInterval(() => {
-      checkNames();
-    }, 1000);
+      this.checkNames();
+    }, 100);
   }
+}
 
+const getPenguinName = () => {
+  
+    
+  if (penguinsNames.length > 0) {
+    let aPenguinName  = penguinsNames.shift(); 
+    if (debug) {
+      console.log("nameserver.js - getPenguinName : returning the name " + aPenguinName.name);
+    }
+    return aPenguinName;
+  }  else {
+    let gdname = Math.floor(Math.random() * 10);
+    if (debug) {
+      console.log("nameserver.js - getPenguinName : returning a fake name " + names[gdname]);
+    }
+    return {name: names[gdname], gender : genders[gdname]};
+  }
+}
+  
+const getIslandName = () => {
+  if (islandsNames.length > 0) {
+    return islandsNames.shift(); 
+  } else {
+    let isname = Math.floor(Math.random() * 30);
+    if (debug) {
+      console.log("nameserver.js - getIslandName : returning a fake name " + islands[isname]);
+    }
+    return islands[isname];
+  }
 }
 
 // Gets a name from a name server
 
-const getFakeName = async (aPenguin) => {
+const getFakePenguinName = async (aPenguin) => {
 
-  // for (let i = 0; i <3; i++) {
-    axios
-      .get("https://randomuser.me/api/?inc=gender,name&nat=fr")
-      .then((response) => {
-          aPenguin.name = response.data.results[0].name.first;
-          aPenguin.gender = response.data.results[0].gender;
-          // i = 4;
-      })
-      .catch((error) => {
-        // aPenguin.setName("toto");
-        //aPenguin.setGender("male");
-      });
-    // }
+  axios
+    .get("https://randomuser.me/api/?inc=gender,name&nat=fr")
+    .then((response) => {
+        aPenguin.name = response.data.results[0].name.first;
+        aPenguin.gender = response.data.results[0].gender;
+        if (debug) {
+          console.log("nameserver.js - getFakeName : getting another penguin name");
+        }
+    })
+    .catch((error) => {
+        if (debug) {
+          console.log("nameserver.js - getFakeName : error in getting a penguin name");
+        }
+    });
 };
 
 
-let nameserver = new NameServer(1,1);
-
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
-    NameServer : NameServer
+    NameServer : NameServer,
+    getPenguinName : getPenguinName,
+    getIslandName : getIslandName
+    //penguinsNames : penguinsNames,
+    //islandsNames : islandsNames
 }

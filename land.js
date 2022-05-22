@@ -3,11 +3,15 @@ const axios = require("axios");
 
 let Penguin = penguinReq.Penguin;
 
+let debug = false;
+
 class Land {
-  constructor(l, h) {
+  constructor(h, l, debugit) {
     // console.log(x + " " + y);
-    this.lpos = l;
+    debug = debugit;
+    
     this.hpos = h;
+    this.lpos = l;
     this.type = 0;
     this.conf = 0;
     this.hasCross = false;
@@ -72,7 +76,9 @@ class Land {
   }
 
   setCross() {
-    console.log("setting cross at " + this.hpos + "/" + this.lpos);
+    if (debug) {
+      console.log("land.js - setCross : setting cross at " + this.hpos + "/" + this.lpos);
+    }
     this.hasCross = true;
     this.crossAge = 10;
   }
@@ -147,19 +153,16 @@ class Land {
 
   // add a swimming fish
   addSwim() {
-    // console.log("Adding swim at " + this.hpos + "/" + this.lpos);
     this.hasSwim = true;
   }
 
   // remove a swimming fish
   removeSwim() {
-    // console.log("Removing swim at " + this.hpos + "/" + this.lpos);
     this.hasSwim = false;
   }
 
   // remove a swimming fish
   fishSwim() {
-    // console.log("Removing swim at " + this.hpos + "/" + this.lpos);
     this.hasSwim = false;
     this.swimAge = 6;
   }
@@ -184,8 +187,6 @@ class Land {
     return this.islandPopulation;
   }
 
-
-
 }
 
 // now we export the class, so other modules can create Penguin objects
@@ -193,15 +194,3 @@ module.exports = {
     Land : Land
 }
 
-
-// removeHill(left,right,up,down) {
-//   let cnf = 0;
-//   cnf += left < this.type ? 1 : 0;
-//   cnf += up < this.type ? 2 : 0;
-//   cnf += right < this.type ? 4 : 0;
-//   cnf += down < this.type ? 8 : 0;
-//
-//   if (cnf === 7 || cnf == 11 || cnf == 13 || cnf == 14 || cnf == 15) {
-//     this.type -= 1;
-//   }
-// }
