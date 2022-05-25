@@ -14,9 +14,9 @@ const weathers = ["sun","rain","snow","cold","endgame"];
 
 class Island {
   constructor(sizeH,sizeL,session, debugit=false) {
-    
+
     debug = debugit;
-    
+
     this.id = Math.floor(Math.random() * 999999);
     this.name = nameserverReq.getIslandName();
     this.sizeH = sizeH;
@@ -53,7 +53,7 @@ class Island {
       matrix.push(lineNum);
     }
 
-    // Randomly ceate lands
+    // Randomly ceate lands - for this it uses a matfrix of sizeH * sizeL
     let cnt = 0, max = sizeH * sizeL;
     for (let i = 0; i < sizeH * sizeL * 40 && cnt < max / 3 ; i++) {
       let hpos = Math.floor(Math.random() * sizeH) + Math.floor(sizeH/10);
@@ -126,17 +126,23 @@ class Island {
       }
     }
 
-    // Calculate terrain configuration
+    // Set initial smelt level - if it is next to a see tile
+    // Amount of borders with water will influence how much it is smelt
     for (let l = 1; l < sizeL - 1; l++) {
       for (let h = 1; h < sizeH - 1; h++) {
-        this.territory[h][l].setConf()
+        if (this.territory[h][l].getType() === 1) {
+          let waterBorders = this.territory[h-1][l].getType() === 0 ? 1:0;
+          waterBorders += this.territory[h+1][l].getType() === 0 ?1:0;
+          waterBorders += this.territory[h][l-1].getType() === 0 ?1:0;
+          waterBorders += this.territory[h][l+1].getType() === 0 ?1:0;
+          if (waterBorders > 0) {
+              this.territory[h][l].setRandomSmeltLevel(waterBorders);
+            }
+          }
        }
     }
-    for (let l = 0; l < sizeL ; l++) {
-      for (let h = 0; h < sizeH ; h++) {
-         this.territory[h][l].setBorder(h,l,sizeH,sizeL);
-      }
-    }
+
+    // calculate the size of the land
 
     for (let l = 0; l < sizeL ; l++) {
       for (let h = 0; h < sizeH ; h++) {
@@ -269,7 +275,7 @@ class Island {
     for (let i = 1; i < islandH -1; i++) {
       for (let j = 1; j < islandL -1 ; j++) {
         let id = i + "-" + j;
-        let tile = this.territory[i][j].getType() + "-" + this.territory[i][j].getConf();
+        let tile = this.territory[i][j].getType() + "-" + this.territory[i][j].getConf() + "-" + this.territory[i][j].getVar();
         result.push({
           li : i,
           id : id,
@@ -290,7 +296,7 @@ class Island {
         let land = this.territory[i][j] ;
         if (land && land.cross()) {
           if (land.type === 0) {
-            result += `<img class="cross" src="./tiles/wreath.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
+            result += `<img class="cross" src="./tiles/Wreath.gif" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
           } else {
             result += `<img class="cross" src="./tiles/cross.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
           }
@@ -364,9 +370,15 @@ class Island {
 
     // Randomly decrease some terrain parts
     for (let i = 0; i < this.sizeH * 2; i++) {
-      let hpos = Math.floor(Math.random() * this.sizeH);
-      let lpos = Math.floor(Math.random() * this.sizeL);
+      let hpos = Math.floor(Math.random() * (this.sizeH - 1) ) + 1;
+      let lpos = Math.floor(Math.random() * (this.sizeL - 1) ) + 1;
       let land = this.territory[hpos][lpos];
+
+      //console.log("checking " + hpos + "/" + lpos);
+      let hasWaterBorders = this.territory[hpos-1][lpos].getType() === 0 ||
+        (hpos === 11 || this.territory[hpos+1][lpos].getType() === 0) ||
+        this.territory[hpos][lpos-1].getType() === 0 ||
+        this.territory[hpos][lpos+1].getType() === 0;
 
       if (this.weather <2 ) {
 
@@ -380,7 +392,7 @@ class Island {
             if (sinkingPenguins.length > 0) {
               sinkingPenguins.forEach(penguin => {
                 if (debug) {
-                  console.log(`penguin ${penguin.name} (${penguin.hpos}/${penguin.lpos}) sinking at ${hpos}/${lpos}`);
+                  console.log(`islands.js - smelt : penguin ${penguin.name} sinking at ${hpos}/${lpos}`);
                 }
                 penguin.letDie(this.sessions,this.turn);
               });
@@ -391,7 +403,7 @@ class Island {
         }
       } else if (this.weather === 2 ) {
         if (land && land.getType() == 1) {
-          if (land.getConf() > 0 ) {
+          if (land.getConf() > 0 && hasWaterBorders) {
             land.decreaseConf();
           }
         }
@@ -434,6 +446,18 @@ class Island {
       }
     }
 
+    // set the target flag if there are penguins erating, fishing or loving
+
+    let alivePenguins = 0
+    this.penguins.forEach( penguin => {
+      if (penguin.isAlive()) {
+        alivePenguins++;
+        if (penguin.isEating() || penguin.isFishing() || penguin.isLoving() ) {
+          this.territory[penguin.hpos][penguin.lpos].setTarget(true);
+        }
+      }
+    });
+
     for (let penguin of this.penguins) {
 
       // First check if the penguin is alive
@@ -455,6 +479,7 @@ class Island {
         if (this.territory[penguin.hpos][penguin.lpos].fish()) {
           this.territory[penguin.hpos][penguin.lpos].removeFish();
           penguin.eat(this.sessions, turn);
+          this.territory[penguin.hpos][penguin.lpos].setTarget(true);
           this.addPoints(100);
           break;
         }
@@ -462,11 +487,18 @@ class Island {
         // Gonna love ? Only is there is enough room
 
         let lover= this.getLover(penguin.gender, penguin.hpos, penguin.lpos);
-        if ( (islandPopulation / islandSize ) < 0.5 && lover && penguin.canLove(lover.id) ) {
-          penguin.love(this.sessions, turn,  lover.id);
-          lover.love(this.sessions, turn, this.id);
-          this.addPoints(200);
-          break;
+        if ( lover && penguin.canLove(lover.id) ) {
+          if ( (islandPopulation / islandSize ) > 0.5 ) {
+            console.log(`island.js - movePenguins : can't love : sub-island population: ${islandPopulation} size: ${islandSize} = ${islandPopulation / islandSize}`);
+          } else if (alivePenguins >= (this.landSize / 5)) {
+            console.log(`island.js - movePenguins : can't love : population: ${alivePenguins} tiles : ${this.landSize}`);
+          } else {
+            penguin.love(this.sessions, turn,  lover.id);
+            lover.love(this.sessions, turn, this.id);
+            this.territory[penguin.hpos][penguin.lpos].setTarget(true);
+            this.addPoints(200);
+            break;
+          }
         }
 
         // Fishing ?
@@ -484,6 +516,7 @@ class Island {
             console.log(`insland.js movePenguins : ${penguin.name} is going to fish at direction ${fishmove}`)
           }
           penguin.fish(this.sessions, turn, fishmove);
+          this.territory[penguin.hpos][penguin.lpos].setTarget(true);
           let swimlpos = fishmove === 1 ? penguin.getLPos()-1 : penguin.getLPos();
           swimlpos = fishmove === 2 ? penguin.getLPos() + 1 : swimlpos;
           let swimhpos = fishmove === 3 ? penguin.getHPos()-1 : penguin.getHPos();
@@ -532,10 +565,10 @@ class Island {
 
         if (targetL > 0){
 
-          if (debug) { 
+          if (debug) {
             console.log("island.js movePenguins : " + turn + " -  : penguin " + penguin.getId()  + " at  " + penguin.getHPos() + "/" + penguin.getLPos() + " found target : " + targetH + "/" + targetL)
           };
-          
+
           if (targetL < penguin.getLPos()) {
             if (targetH === penguin.getHPos()) {
               move = 1;

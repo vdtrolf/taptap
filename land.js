@@ -9,11 +9,12 @@ class Land {
   constructor(h, l, debugit) {
     // console.log(x + " " + y);
     debug = debugit;
-    
+
     this.hpos = h;
     this.lpos = l;
     this.type = 0;
     this.conf = 0;
+    this.var  = Math.floor(Math.random() * 2) === 1?"a":"b";
     this.hasCross = false;
     this.crossAge = 0;
     this.hasFish = false;
@@ -64,17 +65,6 @@ class Land {
     }
   }
 
-  setBorder(h,l,sizeH,sizeL) {
-    if (this.type === 0 ) {
-      let cnf = 0;
-      cnf += h === 0 ? 1 : 0;
-      cnf += h === sizeH - 1 ? 4 : 0;
-      cnf += l === sizeL - 1 ? 2 : 0;
-      cnf += l === 0 ? 8 : 0;
-      this.conf = cnf;
-    }
-  }
-
   setCross() {
     if (debug) {
       console.log("land.js - setCross : setting cross at " + this.hpos + "/" + this.lpos);
@@ -103,19 +93,8 @@ class Land {
     return this.hasSwim;
   }
 
-
-  setConf(newValue) {
-    if (newValue) {
-      this.conf = newValue;
-    } else if (this.type === 1 ) {
-      this.conf = Math.floor(Math.random() * 15);
-    }
-  }
-
-  setConf() {
-    if (this.type === 1) {
-      this.conf = Math.floor(Math.random() * 15);
-    }
+  setRandomSmeltLevel(waterBorders) {
+    this.conf = (waterBorders * 2) + Math.floor(Math.random() * 7);
   }
 
   // converting a water tile to ice - if there is a fish swimming into the water,
@@ -145,6 +124,11 @@ class Land {
   getConf() {
     return this.conf;
   }
+
+  getVar() {
+    return this.var;
+  }
+
 
   // return true if there is a swimming fish
   swim() {
@@ -193,4 +177,3 @@ class Land {
 module.exports = {
     Land : Land
 }
-

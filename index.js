@@ -274,18 +274,22 @@ try {
 // Main interval loop - for each session triggers the penguin events
 
 setInterval(() => {
-  islands.forEach(island=> {
-    island.calculateNeighbours();
-    island.movePenguins();
-    island.setWeather();
+  islands.forEach(island => {
+    if (island.running) {
+      island.calculateNeighbours();
+      island.movePenguins();
+      island.setWeather();
+    }
   });
 
 }, 864);
 
 setInterval(() => {
-  islands.forEach(island=> {
-    island.addSwims();
-    island.makePenguinsOlder();
-    island.smelt();
+  islands.forEach(island => {
+    if (island.running) {
+      island.addSwims();
+      island.makePenguinsOlder();
+      island.smelt();
+    }
   });
 }, 1500);
