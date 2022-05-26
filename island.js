@@ -296,7 +296,7 @@ class Island {
         let land = this.territory[i][j] ;
         if (land && land.cross()) {
           if (land.type === 0) {
-            result += `<img class="cross" src="./tiles/Wreath.gif" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
+            result += `<img class="cross" src="./tiles/wreath.gif" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
           } else {
             result += `<img class="cross" src="./tiles/cross.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
           }
@@ -510,7 +510,7 @@ class Island {
         if (this.territory[penguin.getHPos()-1][penguin.getLPos()].canFish() ) fishmoves.push(3);
         if (this.territory[penguin.getHPos()+1][penguin.getLPos()].canFish() ) fishmoves.push(4);
 
-        if (fishmoves.length > 0) {
+        if (penguin.age > 6 && fishmoves.length > 0) {
           let fishmove = fishmoves[Math.floor(Math.random() * fishmoves.length)];
           if (debug) {
             console.log(`insland.js movePenguins : ${penguin.name} is going to fish at direction ${fishmove}`)
