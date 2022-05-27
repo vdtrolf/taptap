@@ -28,6 +28,7 @@ class Penguin {
     this.fatherId = fatherId;
     this.motherId = motherId;
     this.partnerId = 0;
+    this.strategicMap = null;
 
     let aPenguinName = nameserverReq.getPenguinName();
     this.name = aPenguinName.name;
@@ -86,10 +87,19 @@ class Penguin {
   }
 
   getStrategicMap(island) {
-    let strategicMap = new StrategicMap(island);
-    strategicMap.look(this.hpos,this.lpos,this.age > 3 ? 3 : 2, this.hungry, this.wealth);
+    if (this.strategicMap === null) {
+      this.strategicMap = new StrategicMap(island);
+    }
+    this.strategicMap.look(this.hpos,this.lpos,this.age > 3 ? 3 : 2, this.hungry, this.wealth);
   }
 
+  calculateWealth() {
+    if (this.strategicMap) {
+      this.wealth += this.strategicMap.calculateWealth();
+      if (this.wealth > 99) this.wealth = 100;
+      if (this.wealth < 1 ) this.wealth = 0;
+    }
+  }
 
   // Check if love is possible
 
@@ -124,7 +134,6 @@ class Penguin {
     this.hpos = hpos;
     this.lpos = lpos;
     this.waiting = 0;
-    this.wealth = this.wealth < 98 ? this.wealth + 2 :100;
   }
 
   // reset the penguin move log by adding an initial move record
@@ -207,7 +216,6 @@ class Penguin {
     sessions.forEach(session => {
       session.addMoveLog(turn, this.id,this.num,6,0,0,0,0,0,this.getCat(),"still");
     });
-    this.wealth -= 5;
     this.hungry += 1;
   }
 

@@ -659,6 +659,11 @@ class Island {
         } // is territory > 0
       }  // is penguin alive
     } // for of
+
+    for (let penguin of this.penguins) {
+      penguin.calculateWealth();
+    }
+
   } // movePenguins()
 
 
