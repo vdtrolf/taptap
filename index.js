@@ -19,7 +19,6 @@ const baseTime = new Date().getTime();
 
 const args = process.argv.slice(2);
 
-
 // console.log(process.env);
 
 args.forEach((arg) => {
@@ -39,6 +38,8 @@ debug = true;
 procesdebug = false;
 
 let nameserver = new NameServer(30,10,false);
+
+
 
 
 const createInitData = (session, island, moves) => {
@@ -92,7 +93,6 @@ const createResponse = (url,params,session,island) => {
 
         session = new Session();
         island = new Island(islandH,islandL, session, debug);
-        //island.addPenguins();
         islands.push(island);
 
         if (debug ) {
@@ -271,6 +271,12 @@ try {
 }
 
 
+// for debug purpose - we start one island and follow one penguin
+
+session = new Session();
+island = new Island(islandH,islandL,session,debug);
+islands.push(island);
+
 // Main interval loop - for each session triggers the penguin events
 
 setInterval(() => {
@@ -278,10 +284,8 @@ setInterval(() => {
     if (island.running) {
       island.calculateNeighbours();
       island.movePenguins();
-      island.setWeather();
     }
   });
-
 }, 864);
 
 setInterval(() => {
@@ -290,6 +294,7 @@ setInterval(() => {
       island.addSwims();
       island.makePenguinsOlder();
       island.smelt();
+      island.setWeather();
     }
   });
-}, 1500);
+}, 864 * 2);

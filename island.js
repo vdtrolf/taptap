@@ -2,10 +2,13 @@ const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
 const sessionReq = require("./session.js");
 const nameserverReq = require("./nameserver.js");
+const strategicMapReq = require("./strategicmap.js");
 
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
 let Session = sessionReq.Session;
+let StrategicMap = strategicMapReq.StrategicMap;
+
 let debug = true;
 
 const deco1 = [" ",".","^","%","#","#","#","#"];
@@ -152,7 +155,7 @@ class Island {
 
     // randomly add some penguins
 
-    let pengNum = Math.floor(Math.random() * 2) + 4;
+    let pengNum = 1; // Math.floor(Math.random() * 2) + 4;
     let pengCnt = 0;
 
     while (pengCnt < pengNum) {
@@ -167,6 +170,7 @@ class Island {
          pengCnt++;
        }
      }
+
 
  } // constructor ()
 
@@ -408,6 +412,9 @@ class Island {
           }
         }
       }
+
+
+
     }
 
     // make all land pieces older - check if crosses must be removed
@@ -459,6 +466,11 @@ class Island {
     });
 
     for (let penguin of this.penguins) {
+
+      penguin.getStrategicMap(this);
+      //if (Math.floor(Math.random() * 2) === 1 ) {
+      //  break;
+      //}
 
       // First check if the penguin is alive
       if (penguin.isAlive() && ! penguin.isEating() && ! penguin.isLoving() && ! penguin.isFishing()) {

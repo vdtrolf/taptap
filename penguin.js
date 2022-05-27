@@ -1,11 +1,12 @@
 const nameserverReq = require("./nameserver.js");
+const strategicMapReq = require("./strategicmap.js");
+
+let StrategicMap = strategicMapReq.StrategicMap;
 
 const debug = false;
 
 class Penguin {
   constructor(num, h, l,sessions, turn, fatherId = 0, motherId=0) {
-
-
     this.id = Math.floor(Math.random() * 999999);
     this.num = num;
     this.hpos = h;
@@ -83,6 +84,12 @@ class Penguin {
   setName(name) {
     this.name = name;
   }
+
+  getStrategicMap(island) {
+    let strategicMap = new StrategicMap(island);
+    strategicMap.look(this.hpos,this.lpos,this.age > 3 ? 3 : 2);
+  }
+
 
   // Check if love is possible
 
