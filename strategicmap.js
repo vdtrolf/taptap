@@ -9,7 +9,7 @@ class StrategicMap {
     this.maxL = island.sizeL;
   }
 
-  look = (centerH,centerL,viewLength) => {
+  look = (centerH,centerL,viewLength,hunger,wealth) => {
     this.knownWorld = [];
     for (let hpos = centerH - viewLength; hpos <= centerH + viewLength; hpos++ ) {
       let hline = [];
@@ -20,25 +20,33 @@ class StrategicMap {
             let land = this.island.territory[hpos][lpos];
             // console.log(hpos + " " + lpos + " " + land.getType());
             if (land.getType() === 0) {
-              hline.push({hpos:hpos,lpos:lpos,pos:false,fish:false,stable:false,swim:false});
+              hline.push({hpos:hpos,lpos:lpos,pos:false,fish:false,stable:false,swim:false,smelt:0});
             } else {
-              hline.push({hpos:hpos,lpos:lpos,pos:true,fish:land.hasFish, stable: this.isLandStable(hpos,lpos),swim: this.isLandSwim(hpos,lpos)});
+              hline.push({hpos:hpos,lpos:lpos,pos:true,fish:land.hasFish, stable: this.isLandStable(hpos,lpos),swim: this.isLandSwim(hpos,lpos), smelt: this.island.territory[hpos][lpos].getConf()});
             }
           } else {
-            hline.push({hpos:hpos,lpos:lpos,pos:false,fish:false,stable:false,swim:false});
+            hline.push({hpos:hpos,lpos:lpos,pos:false,fish:false,stable:false,swim:false, smelt: 0});
           }
         } else {
-          hline.push({hpos:hpos,lpos:lpos,pos:false,fish:false,stable:false,swim:false});
+          hline.push({hpos:hpos,lpos:lpos,pos:false,fish:false,stable:false,swim:false, smelt:0});
         }
       }
       this.knownWorld.push(hline);
     }
+    
+    let curFish = this.island.territory[centerH][centerL].hasFish;
+    let curStable = this.isLandStable(centerH,centerL);
+    let curSwim = this.isLandSwim(centerH,centerL);
+    
+    console.log()
+    
+    
     console.log("+" + "--------".substring(0,(viewLength * 2) +1) + "+");
     this.knownWorld.forEach(line => {
       let txt = "|";
       line.forEach(cell => {
         let celltxt = " ";
-        if (cell.pos ) celltxt = ".";
+        if (cell.pos ) celltxt = Math.floor(cell.smelt /2);
         if (cell.stable ) celltxt = "=";
         if (cell.swim ) celltxt = "~";
         if (cell.fish ) celltxt = "@";
@@ -47,6 +55,10 @@ class StrategicMap {
       console.log(txt + "|");
     })
     console.log("+" + "--------".substring(0,(viewLength * 2) +1) + "+");
+  
+  
+  
+  
   }
 
   // A land is stable if it's made from stone or if circled by ice

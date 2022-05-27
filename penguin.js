@@ -87,7 +87,7 @@ class Penguin {
 
   getStrategicMap(island) {
     let strategicMap = new StrategicMap(island);
-    strategicMap.look(this.hpos,this.lpos,this.age > 3 ? 3 : 2);
+    strategicMap.look(this.hpos,this.lpos,this.age > 3 ? 3 : 2, this.hungry, this.wealth);
   }
 
 
