@@ -2,12 +2,12 @@ const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
 const sessionReq = require("./session.js");
 const nameserverReq = require("./nameserver.js");
-const strategicMapReq = require("./strategicmap.js");
+// const strategicMapReq = require("./strategicmap.js");
 
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
 let Session = sessionReq.Session;
-let StrategicMap = strategicMapReq.StrategicMap;
+// let StrategicMap = strategicMapReq.StrategicMap;
 
 let debug = true;
 
@@ -155,7 +155,7 @@ class Island {
 
     // randomly add some penguins
 
-    let pengNum = 1; // Math.floor(Math.random() * 2) + 4;
+    let pengNum = Math.floor(Math.random() * 2) + 4;
     let pengCnt = 0;
 
     while (pengCnt < pengNum) {
@@ -433,6 +433,9 @@ class Island {
 
   movePenguins() {
 
+
+    // console.log("--------------");
+
     // check if there are still alive penguinsLayer
 
     let cntPenguins = this.penguins.filter(penguin => penguin.isAlive()).length;
@@ -455,7 +458,8 @@ class Island {
 
     // set the target flag if there are penguins erating, fishing or loving
 
-    let alivePenguins = 0
+    let alivePenguins = 0;
+    
     this.penguins.forEach( penguin => {
       if (penguin.isAlive()) {
         alivePenguins++;
@@ -465,203 +469,174 @@ class Island {
       }
     });
 
-    for (let penguin of this.penguins) {
-
-      penguin.getStrategicMap(this);
-      //if (Math.floor(Math.random() * 2) === 1 ) {
-      //  break;
-      //}
-
+    // for (let penguin of this.penguins) {
+    
+    this.penguins.forEach( penguin => {
+              
+ 
       // First check if the penguin is alive
-      if (penguin.isAlive() && ! penguin.isEating() && ! penguin.isLoving() && ! penguin.isFishing()) {
+      if (penguin.isAlive()) {
+        
+        let pengH = penguin.hpos;
+        let pengL = penguin.lpos;
+   
+        let islandSize = this.territory[pengH][pengL].getIslandSize();
+        let islandPopulation = this.territory[pengH][pengL].getIslandPopulation();
 
-        let islandSize = this.territory[penguin.hpos][penguin.lpos].getIslandSize();
-        let islandPopulation = this.territory[penguin.hpos][penguin.lpos].getIslandPopulation();
+   
+        if (! penguin.isEating() && ! penguin.isLoving() && ! penguin.isFishing()) {
 
-        if (islandPopulation / islandSize > 0.79) {
-          penguin.wait(this.sessions, turn);
-          if (debug) {
-            console.log(`island.js - movePenguins : on ${this.name} island for ${penguin.name} is too crowded (size: ${islandSize} and population: ${islandPopulation} = ${islandPopulation / islandSize})` );
-          }
-          break ;
-        }
+          penguin.getStrategicMap(this);
+ 
+          // Is the penguin hungry ? Lets see if it can eat or fish
 
-        // Gonna Eat ?
+          if (penguin.hungry > 30) {
+        
+            // Gonna Eat ?
 
-        if (this.territory[penguin.hpos][penguin.lpos].fish()) {
-          this.territory[penguin.hpos][penguin.lpos].removeFish();
-          penguin.eat(this.sessions, turn);
-          this.territory[penguin.hpos][penguin.lpos].setTarget(true);
-          this.addPoints(100);
-          break;
-        }
+            if (this.territory[penguin.hpos][penguin.lpos].fish()){
+              this.territory[pengH][pengL].removeFish();
+              penguin.eat(this.sessions, turn);
+              this.territory[pengH][pengL].setTarget(true);
+              this.addPoints(100);
+            }
+        
+            // Fishing ?
+
+            let fishmoves = [];
+
+            if (this.territory[pengH][pengL-1].canFish() ) fishmoves.push(1);
+            if (this.territory[pengH][pengL+1].canFish() ) fishmoves.push(2);
+            if (this.territory[pengH-1][pengL].canFish() ) fishmoves.push(3);
+            if (this.territory[pengH+1][pengL].canFish() ) fishmoves.push(4);
+
+            if (penguin.age > 6 && fishmoves.length > 0) {
+              let fishmove = fishmoves[Math.floor(Math.random() * fishmoves.length)];
+              if (debug) {
+                console.log(`insland.js movePenguins : ${penguin.name} is going to fish at direction ${fishmove}`)
+              }
+             
+              penguin.fish(this.sessions, turn, fishmove);
+                
+              this.territory[pengH][pengL].setTarget(true);
+                
+              let swimlpos = fishmove === 1 ? pengL - 1 : pengL
+                  swimlpos = fishmove === 2 ? pengL + 1 : swimlpos;
+              let swimhpos = fishmove === 3 ? pengH - 1 : pengH;
+                  swimhpos = fishmove === 4 ? pengH + 1 : swimhpos;
+              this.territory[swimhpos][swimlpos].fishSwim();
+              
+            }
+          } // if hungry > 30
+        } // not eating, fishing or loving
+
 
         // Gonna love ? Only is there is enough room
+        if (! penguin.isEating() && ! penguin.isLoving() && ! penguin.isFishing()) {
 
-        let lover= this.getLover(penguin.gender, penguin.hpos, penguin.lpos);
-        if ( lover && penguin.canLove(lover.id) ) {
-          if ( (islandPopulation / islandSize ) > 0.5 ) {
-            console.log(`island.js - movePenguins : can't love : sub-island population: ${islandPopulation} size: ${islandSize} = ${islandPopulation / islandSize}`);
-          } else if (alivePenguins >= (this.landSize / 5)) {
-            console.log(`island.js - movePenguins : can't love : population: ${alivePenguins} tiles : ${this.landSize}`);
-          } else {
-            penguin.love(this.sessions, turn,  lover.id);
-            lover.love(this.sessions, turn, this.id);
-            this.territory[penguin.hpos][penguin.lpos].setTarget(true);
-            this.addPoints(200);
-            break;
-          }
-        }
-
-        // Fishing ?
-
-        let fishmoves = [];
-
-        if (this.territory[penguin.getHPos()][penguin.getLPos()-1].canFish() ) fishmoves.push(1);
-        if (this.territory[penguin.getHPos()][penguin.getLPos()+1].canFish() ) fishmoves.push(2);
-        if (this.territory[penguin.getHPos()-1][penguin.getLPos()].canFish() ) fishmoves.push(3);
-        if (this.territory[penguin.getHPos()+1][penguin.getLPos()].canFish() ) fishmoves.push(4);
-
-        if (penguin.age > 6 && fishmoves.length > 0) {
-          let fishmove = fishmoves[Math.floor(Math.random() * fishmoves.length)];
-          if (debug) {
-            console.log(`insland.js movePenguins : ${penguin.name} is going to fish at direction ${fishmove}`)
-          }
-          penguin.fish(this.sessions, turn, fishmove);
-          this.territory[penguin.hpos][penguin.lpos].setTarget(true);
-          let swimlpos = fishmove === 1 ? penguin.getLPos()-1 : penguin.getLPos();
-          swimlpos = fishmove === 2 ? penguin.getLPos() + 1 : swimlpos;
-          let swimhpos = fishmove === 3 ? penguin.getHPos()-1 : penguin.getHPos();
-          swimhpos = fishmove === 4 ? penguin.getHPos() + 1 : swimhpos;
-          this.territory[swimhpos][swimlpos].fishSwim();
-          break;
-        }
-
+          let lover= this.getLover(penguin.gender, pengH, pengL);
+          if ( lover && penguin.canLove(lover.id) ) {
+            
+            if ( (islandPopulation / islandSize ) > 0.5 ) {
+              console.log(`island.js - movePenguins : can't love : sub-island population: ${islandPopulation} size: ${islandSize} = ${islandPopulation / islandSize}`);
+            } else if (alivePenguins >= (this.landSize / 5)) {
+              console.log(`island.js - movePenguins : can't love : population: ${alivePenguins} tiles : ${this.landSize}`);
+            } else {
+              penguin.love(this.sessions, turn,  lover.id);
+              lover.love(this.sessions, turn, this.id);
+              this.territory[pengH][pengL].setTarget(true);
+              this.addPoints(200);
+            } // pop/size > 0.5
+          } // if canlove
+        } // not eating, fishing or loving
+        
         // No doing anything else - can the penguin move  ?
+ 
+        if (! penguin.isEating() && ! penguin.isLoving() && ! penguin.isFishing()) {
+        
 
-        let posmoves = [];
-
-        if (this.territory[penguin.getHPos()][penguin.getLPos()-1].canMove() ) posmoves.push(1);
-        if (this.territory[penguin.getHPos()][penguin.getLPos()+1].canMove() ) posmoves.push(2);
-        if (this.territory[penguin.getHPos()-1][penguin.getLPos()].canMove() ) posmoves.push(3);
-        if (this.territory[penguin.getHPos()+1][penguin.getLPos()].canMove() ) posmoves.push(4);
-
-        // is is possible to move - let's see which direction
-
-        let startH = penguin.getHPos() -2;
-        let stopH = startH + 4 < this.sizeL ? startH +4 : this.sizeH;
-        startH = startH > 0 ? startH : 1;
-
-        let startL = penguin.getLPos() -2;
-        let stopL = startL + 4 < this.sizeL ? startL +4 : this.sizeL;
-        startL = startL > 0 ? startL : 1;
-
-        let targetL = 0, targetH = 0;
-
-        for (let h= startH; h < stopH ; h++) {
-          for (let l =startL; l < stopL ; l++) {
-            if(this.territory[h][l].fish()) {
-              targetL = l;
-              targetH = h;
-            }
-          }
-        }
-
-        let l=0,h=0,move=0;
-
-        //            0  1  2  3  4  5  6  7  8
-        //               l  r  u  d rd ru ld lu
-        let lmoves = [0,-1, 1, 0, 0, 1, 1,-1,-1];
-        let hmoves = [0, 0, 0,-1, 1, 1,-1, 1,-1];
-        let movestxt = ["-","l","r","u","d","rd","ru","ld","lu"];
-
-        if (targetL > 0){
-
-          if (debug) {
-            console.log("island.js movePenguins : " + turn + " -  : penguin " + penguin.getId()  + " at  " + penguin.getHPos() + "/" + penguin.getLPos() + " found target : " + targetH + "/" + targetL)
-          };
-
-          if (targetL < penguin.getLPos()) {
-            if (targetH === penguin.getHPos()) {
-              move = 1;
-            } else {
-              move = targetH < penguin.getHPos() ? 8:7;
-            }
-          } else if (targetL > penguin.getLPos()) {
-            if (targetH === penguin.getHPos()) {
-              move = 2;
-            } else {
-              move = targetH < penguin.getHPos() ? 6:5;
+          if (islandPopulation / islandSize > 0.79) {
+            penguin.wait(this.sessions, turn);
+            this.territory[pengH][pengL].setTarget(true);
+            if (debug) {
+              console.log(`island.js - movePenguins : on ${this.name} island for ${penguin.name} is too crowded (size: ${islandSize} and population: ${islandPopulation} = ${islandPopulation / islandSize})` );
             }
           } else {
-            if (targetH === penguin.getHPos()) {
-              move = 0;
-              console.log("target but no move");
-            } else {
-              move = targetH < penguin.getHPos() ? 3:4;
+        
+            let move=0;
+
+            //            0  1  2  3  4  5  6  7  8
+            //               l  r  u  d rd ru ld lu
+            let lmoves = [0,-1, 1, 0, 0, 1, 1,-1,-1];
+            let hmoves = [0, 0, 0,-1, 1, 1,-1, 1,-1];
+            let movestxt = ["-","l","r","u","d","rd","ru","ld","lu"];
+
+            if (penguin.hasTarget()){
+          
+              let directions = penguin.getDirections();
+
+              if (debug) {
+                console.log("island.js movePenguins : " + turn + " -  : penguin " + penguin.getId()  + " at  " + penguin.getHPos() + "/" + penguin.getLPos() + " hasTarget : " + directions[0] + "-" + directions[1]);
+              };
+
+              for (let curDir =0; curDir < penguin.getDirections().length && move === 0; curDir ++) {
+                let curmove = directions[curDir];
+                if ((curmove === 1 && this.territory[pengH][pengL-1].canMove())
+                || (curmove === 2 && this.territory[pengH][pengL+1].canMove()) 
+                || (curmove === 3 && this.territory[pengH-1][pengL].canMove()) 
+                || (curmove === 4 && this.territory[pengH+1][pengL].canMove()))
+                move = curmove;
+              }
+
+            }                  
+        
+            if (penguin.wantsSearch()){
+          
+              let posmoves = [];
+              if (this.territory[pengH][pengL-1].canMove() ) posmoves.push(1);
+              if (this.territory[pengH][pengL+1].canMove() ) posmoves.push(2);
+              if (this.territory[pengH-1][pengL].canMove() ) posmoves.push(3);
+              if (this.territory[pengH+1][pengL].canMove() ) posmoves.push(4);
+          
+              // if (Math.floor(Math.random() * 10) === 0 || posmoves.length === 0 ){
+              if ( posmoves.length === 0 ){
+                move = 0;
+              } else {
+                let aPosMove = Math.floor(Math.random() * posmoves.length);
+                move = posmoves[aPosMove];
+              }
             }
-          }
 
-          if (debug && posmoves.length === 0) {
-            console.log(`island.js movePenguin : ${penguin.name} has no possible move`);
-           }
+          // No move => wait
 
-        } else {
-          if (Math.floor(Math.random() * 10) === 0 || posmoves.length === 0 ){
-            move = 0;
-          } else {
-            let aPosMove = Math.floor(Math.random() * posmoves.length);
-            move = posmoves[aPosMove];
-          }
-        }
+            if (move === 0) {
+              // if (debug) {console.log(`island.js movePenguin : ${penguin.name} Staying still`)};
+              penguin.wait(this.sessions, turn);
+              this.territory[pengH][pengL].setTarget(true);
+            } else {
 
-        // No move => wait
+              this.addPoints(10);
 
-        if (move === 0) {
-          // if (debug) {console.log(`island.js movePenguin : ${penguin.name} Staying still`)};
-          penguin.wait(this.sessions, turn);
-          break ;
-        }
+              let l=penguin.getLPos() + lmoves[move];
+              let h=penguin.getHPos() + hmoves[move];
 
-        // Simple move (under 5)
-
-        this.addPoints(10);
-
-        l=penguin.getLPos() + lmoves[move];
-        h=penguin.getHPos() + hmoves[move];
-
-        if (this.territory[h][l].getType() > 0) {
-          switch (move) {
-            case 5:
-              penguin.setPos(this.sessions, turn, 2, penguin.getHPos(), penguin.getLPos() + 1);
-              penguin.setPos(this.sessions, turn, 4, penguin.getHPos() + 1, penguin.getLPos());
-              this.territory[h][l].setTarget(true);
-              break;
-            case 6:
-              penguin.setPos(this.sessions, turn, 2, penguin.getHPos(), penguin.getLPos() + 1);
-              penguin.setPos(this.sessions, turn, 3, penguin.getHPos() - 1, penguin.getLPos());
-              this.territory[h][l].setTarget(true);
-              break;
-            case 7:
-              penguin.setPos(this.sessions, turn, 1, penguin.getHPos(), penguin.getLPos() - 1);
-              penguin.setPos(this.sessions, turn, 4, penguin.getHPos() + 1, penguin.getLPos());
-              this.territory[h][l].setTarget(true);
-              break;
-            case 8:
-              penguin.setPos(this.sessions, turn, 1, penguin.getHPos(), penguin.getLPos() -1);
-              penguin.setPos(this.sessions, turn, 3, penguin.getHPos() - 1, penguin.getLPos());
-              this.territory[h][l].setTarget(true);
-              break;
-            default:
-              penguin.setPos(this.sessions, turn, move, h,l);
-              this.territory[h][l].setTarget(true);
-          } // switch on move
-        } // is territory > 0
-      }  // is penguin alive
-    } // for of
+              if (this.territory[h][l].getType() > 0) {
+                penguin.setPos(this.sessions, turn, move, h,l);
+                this.territory[h][l].setTarget(true);
+              } else {
+                penguin.wait(this.sessions, turn);
+                this.territory[h][l].setTarget(true);
+              }
+            } // is territory > 0
+          } // NOT TO CROWDED
+        } // not eating, fishing or loving
+      } // is penguin alive
+      
+    });  // forEach
+      
 
     for (let penguin of this.penguins) {
-      penguin.calculateWealth();
+      penguin.calculateWealth(this,penguin.hpos,penguin.lpos);
     }
 
   } // movePenguins()

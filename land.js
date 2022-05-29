@@ -27,6 +27,7 @@ class Land {
   }
 
   setTarget(isTarget) {
+    // if (isTarget) console.log("Set Target : " + this.hpos + "/" + this.lpos);
     this.isTarget=isTarget;
   }
 

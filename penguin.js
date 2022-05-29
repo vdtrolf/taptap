@@ -29,6 +29,7 @@ class Penguin {
     this.motherId = motherId;
     this.partnerId = 0;
     this.strategicMap = null;
+    this.strategyShort = "";
 
     let aPenguinName = nameserverReq.getPenguinName();
     this.name = aPenguinName.name;
@@ -86,20 +87,54 @@ class Penguin {
     this.name = name;
   }
 
+  // Calculates the strategic map for the penguin
+
   getStrategicMap(island) {
     if (this.strategicMap === null) {
-      this.strategicMap = new StrategicMap(island);
+      this.strategicMap = new StrategicMap(island.sizeH,island.sizeL);
     }
-    this.strategicMap.look(this.hpos,this.lpos,this.age > 3 ? 3 : 2, this.hungry, this.wealth);
+    this.strategyShort = this.strategicMap.look(island,this.hpos,this.lpos,this.age > 3 ? 3 : 2, this.hungry, this.wealth, this.name, this.num === 1);
   }
 
-  calculateWealth() {
+  // Wealth will decrease if the penguin is not surrended by other penguins - unless the sun is shinning
+  
+  calculateWealth(island) {
+    let weatherFactor = island.weather === 0 ? 1 :0;
     if (this.strategicMap) {
-      this.wealth += this.strategicMap.calculateWealth();
+      this.wealth += this.strategicMap.calculateWarm(island,this.hpos,this.lpos);
       if (this.wealth > 99) this.wealth = 100;
       if (this.wealth < 1 ) this.wealth = 0;
     }
   }
+  
+  hasTarget() {
+    if (this.strategicMap) {
+      return this.strategicMap.hasTarget;
+    }
+    return false;
+  }
+     
+  wantsSearch() {
+    if (this.strategicMap) {
+      return this.strategicMap.wantsSearch;
+    }
+    return false;
+  }
+
+  getDirections(){
+    if (this.strategicMap) {
+      return this.strategicMap.targetDirections;
+    }
+    return [0,0,0,0];
+  }
+ 
+  getStrategy() {
+    if (this.strategicMap) {
+      return this.strategicMap.strategyShort;
+    }
+    return "";
+  }
+  
 
   // Check if love is possible
 
@@ -183,6 +218,7 @@ class Penguin {
     this.eating = 5;
     this.waiting = 0;
     this.hungry = this.hungry < 25 ? 0 : this.hungry - 25;
+    this.wealth = this.wealth > 90 ? 100 : this.wealth + 10; 
     sessions.forEach(session => {
       session.addMoveLog(turn, this.id,this.num,3,0,0,0,0,0,this.getCat(),"eat");
     });

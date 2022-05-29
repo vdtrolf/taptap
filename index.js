@@ -13,6 +13,7 @@ let NameServer = nameserverReq.NameServer;
 
 
 const port = 3001;
+const intervalTime = 864; // 648;  // 1728; //864
 let islands = [];
 let sessions = [];
 const baseTime = new Date().getTime();
@@ -34,7 +35,7 @@ if (!mode) mode = 1;
 
 let debug = Number.parseInt(args[2], 10);
 
-debug = true;
+debug = false;
 procesdebug = false;
 
 let nameserver = new NameServer(30,10,false);
@@ -273,9 +274,9 @@ try {
 
 // for debug purpose - we start one island and follow one penguin
 
-session = new Session();
-island = new Island(islandH,islandL,session,debug);
-islands.push(island);
+//session = new Session();
+//island = new Island(islandH,islandL,session,debug);
+//islands.push(island);
 
 // Main interval loop - for each session triggers the penguin events
 
@@ -286,7 +287,7 @@ setInterval(() => {
       island.movePenguins();
     }
   });
-}, 864);
+}, intervalTime);
 
 setInterval(() => {
   islands.forEach(island => {
@@ -297,4 +298,4 @@ setInterval(() => {
       island.setWeather();
     }
   });
-}, 864 * 2);
+}, intervalTime * 2);
