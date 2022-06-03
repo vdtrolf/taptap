@@ -75,9 +75,13 @@ const createIslandData = (session, island) => {
           islandSize : island.getLandSize()};
 }
 
-const createMovesData = (session, island, moves) => {
+// the parameter followId indicates that penguin must be followed in the console
+
+const createMovesData = (session, island, moves, followId) => {
 
   let theMoves = moves ? moves : [];
+
+  island.setFollowId(followId);
 
   return {session : session.getId(),
           points: island.getPoints(),
@@ -165,13 +169,17 @@ const createResponse = (url,params,session,island) => {
     }
 
     // return the moves - is the renew parameter is on 1, then returns an initial move log
+    // the parameter renew indicates the movement log must reinitiated withe 'placeament' moves (moveDir =0)
+    // the parameter followId indicates that penguin must be followed in the console
 
     case "/moves" : {
       if (session && island) {
         let renew = Number.parseInt(params.renew,10);
+        let followId = Number.parseInt(params.followId,10);
+
         let moves = renew === 0? session.getMoveLog(): session.getInitMoveLog(island);
 
-        return createMovesData(session, island, moves);
+        return createMovesData(session, island, moves, followId);
 
       }
     }

@@ -28,15 +28,6 @@ class Session {
     return true;
   }
 
-  //setIsland(island) {
-  //  this.island = island;
-  //}
-
-  //getIsland() {
-  //  return this.island;
-  //}
-
-
   // Add a move log record
   // move objects are made of :
   // -- move type 1
@@ -117,21 +108,6 @@ class Session {
     this.moveLog = [];
     return lastMoves;
   }
-
-  // getPenguinsStates() {
-
-//    console.log("---> getPeguinsStates");
-
-//    let lastMoves = [...this.moveLog];
-//    let states = [];
-//    this.moveLog = [];
-//    lastMoves.forEach(aMove => {
-//      states.filter(aState =>aState.id !== aMove.id);
-//      states.push(aMove);
-//    });
-//  }
-
-
 
 }
 

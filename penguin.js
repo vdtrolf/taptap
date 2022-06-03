@@ -12,6 +12,7 @@ class Penguin {
     this.hpos = h;
     this.lpos = l;
     this.age = Math.floor(Math.random() * 5);
+    this.fat = Math.floor(Math.random() * 4);
     this.wealth = 100;
     this.hungry = 0;
     this.alive = true;
@@ -93,27 +94,33 @@ class Penguin {
     if (this.strategicMap === null) {
       this.strategicMap = new StrategicMap(island.sizeH,island.sizeL);
     }
-    this.strategyShort = this.strategicMap.look(island,this.hpos,this.lpos,this.age > 3 ? 3 : 2, this.hungry, this.wealth, this.name, this.num === 1);
+    this.strategyShort = this.strategicMap.look(island,this.hpos,this.lpos,this.age > 5 ? 3 : 2, this.hungry, this.wealth, this.name, this.id === island.followId && this.alive);
   }
 
   // Wealth will decrease if the penguin is not surrended by other penguins - unless the sun is shinning
-  
+  // If the penguin is fat it will go slower than is h3e is meaget
+
   calculateWealth(island) {
-    let weatherFactor = island.weather === 0 ? 1 :0;
+
     if (this.strategicMap) {
-      this.wealth += this.strategicMap.calculateWarm(island,this.hpos,this.lpos);
+      let weatherFactor = island.weather === 0 ? 1 :0;
+      let warmth = this.strategicMap.calculateWarm(island,this.hpos,this.lpos);
+      this.wealth += (warmth * weatherFactor);
+
+      if (this.id === island.followId && this.alive) console.log("Warmth: " + warmth + " fatfactor: " + this.fat + " weatherfactor: " + weatherFactor);
+
       if (this.wealth > 99) this.wealth = 100;
       if (this.wealth < 1 ) this.wealth = 0;
     }
   }
-  
+
   hasTarget() {
     if (this.strategicMap) {
       return this.strategicMap.hasTarget;
     }
     return false;
   }
-     
+
   wantsSearch() {
     if (this.strategicMap) {
       return this.strategicMap.wantsSearch;
@@ -127,14 +134,14 @@ class Penguin {
     }
     return [0,0,0,0];
   }
- 
+
   getStrategy() {
     if (this.strategicMap) {
       return this.strategicMap.strategyShort;
     }
     return "";
   }
-  
+
 
   // Check if love is possible
 
@@ -218,7 +225,7 @@ class Penguin {
     this.eating = 5;
     this.waiting = 0;
     this.hungry = this.hungry < 25 ? 0 : this.hungry - 25;
-    this.wealth = this.wealth > 90 ? 100 : this.wealth + 10; 
+    this.wealth = this.wealth > 90 ? 100 : this.wealth + 10;
     sessions.forEach(session => {
       session.addMoveLog(turn, this.id,this.num,3,0,0,0,0,0,this.getCat(),"eat");
     });
@@ -252,7 +259,11 @@ class Penguin {
     sessions.forEach(session => {
       session.addMoveLog(turn, this.id,this.num,6,0,0,0,0,0,this.getCat(),"still");
     });
-    this.hungry += 1;
+
+    // if (this.id === island.followId && this.alive) console.log("Hungry: " + this.hungry + " fatfactor: " + this.fat + " getting more hungry by : " + (Math.floor(this.fat / 2) + 1));
+
+
+    this.hungry += (Math.floor(this.fat / 2) + 1);
   }
 
   // return true is the penguin is eating
@@ -308,7 +319,7 @@ class Penguin {
       }
     }
 
-    this.hungry += 1;
+    this.hungry += (Math.floor(this.fat / 2) + 1);
 
     this.age += this.alive ? 0.25 : 0;
     if (this.age === 6) {

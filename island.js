@@ -36,6 +36,7 @@ class Island {
     this.turn = 0;
     this.points = 0;
     this.running = true;
+    this.followId = 0;
 
 
     let matrix = [];
@@ -246,6 +247,10 @@ class Island {
 
    resetPoints() {
      this.points = 0;
+   }
+
+   setFollowId(followId) {
+     this.followId = followId;
    }
 
 
@@ -459,7 +464,7 @@ class Island {
     // set the target flag if there are penguins erating, fishing or loving
 
     let alivePenguins = 0;
-    
+
     this.penguins.forEach( penguin => {
       if (penguin.isAlive()) {
         alivePenguins++;
@@ -470,28 +475,28 @@ class Island {
     });
 
     // for (let penguin of this.penguins) {
-    
+
     this.penguins.forEach( penguin => {
-              
- 
+
+
       // First check if the penguin is alive
       if (penguin.isAlive()) {
-        
+
         let pengH = penguin.hpos;
         let pengL = penguin.lpos;
-   
+
         let islandSize = this.territory[pengH][pengL].getIslandSize();
         let islandPopulation = this.territory[pengH][pengL].getIslandPopulation();
 
-   
+
         if (! penguin.isEating() && ! penguin.isLoving() && ! penguin.isFishing()) {
 
           penguin.getStrategicMap(this);
- 
+
           // Is the penguin hungry ? Lets see if it can eat or fish
 
           if (penguin.hungry > 30) {
-        
+
             // Gonna Eat ?
 
             if (this.territory[penguin.hpos][penguin.lpos].fish()){
@@ -500,7 +505,7 @@ class Island {
               this.territory[pengH][pengL].setTarget(true);
               this.addPoints(100);
             }
-        
+
             // Fishing ?
 
             let fishmoves = [];
@@ -515,17 +520,17 @@ class Island {
               if (debug) {
                 console.log(`insland.js movePenguins : ${penguin.name} is going to fish at direction ${fishmove}`)
               }
-             
+
               penguin.fish(this.sessions, turn, fishmove);
-                
+
               this.territory[pengH][pengL].setTarget(true);
-                
+
               let swimlpos = fishmove === 1 ? pengL - 1 : pengL
                   swimlpos = fishmove === 2 ? pengL + 1 : swimlpos;
               let swimhpos = fishmove === 3 ? pengH - 1 : pengH;
                   swimhpos = fishmove === 4 ? pengH + 1 : swimhpos;
               this.territory[swimhpos][swimlpos].fishSwim();
-              
+
             }
           } // if hungry > 30
         } // not eating, fishing or loving
@@ -536,7 +541,7 @@ class Island {
 
           let lover= this.getLover(penguin.gender, pengH, pengL);
           if ( lover && penguin.canLove(lover.id) ) {
-            
+
             if ( (islandPopulation / islandSize ) > 0.5 ) {
               console.log(`island.js - movePenguins : can't love : sub-island population: ${islandPopulation} size: ${islandSize} = ${islandPopulation / islandSize}`);
             } else if (alivePenguins >= (this.landSize / 5)) {
@@ -549,11 +554,11 @@ class Island {
             } // pop/size > 0.5
           } // if canlove
         } // not eating, fishing or loving
-        
+
         // No doing anything else - can the penguin move  ?
- 
+
         if (! penguin.isEating() && ! penguin.isLoving() && ! penguin.isFishing()) {
-        
+
 
           if (islandPopulation / islandSize > 0.79) {
             penguin.wait(this.sessions, turn);
@@ -562,7 +567,7 @@ class Island {
               console.log(`island.js - movePenguins : on ${this.name} island for ${penguin.name} is too crowded (size: ${islandSize} and population: ${islandPopulation} = ${islandPopulation / islandSize})` );
             }
           } else {
-        
+
             let move=0;
 
             //            0  1  2  3  4  5  6  7  8
@@ -572,7 +577,7 @@ class Island {
             let movestxt = ["-","l","r","u","d","rd","ru","ld","lu"];
 
             if (penguin.hasTarget()){
-          
+
               let directions = penguin.getDirections();
 
               if (debug) {
@@ -582,22 +587,26 @@ class Island {
               for (let curDir =0; curDir < penguin.getDirections().length && move === 0; curDir ++) {
                 let curmove = directions[curDir];
                 if ((curmove === 1 && this.territory[pengH][pengL-1].canMove())
-                || (curmove === 2 && this.territory[pengH][pengL+1].canMove()) 
-                || (curmove === 3 && this.territory[pengH-1][pengL].canMove()) 
+                || (curmove === 2 && this.territory[pengH][pengL+1].canMove())
+                || (curmove === 3 && this.territory[pengH-1][pengL].canMove())
                 || (curmove === 4 && this.territory[pengH+1][pengL].canMove()))
                 move = curmove;
               }
 
-            }                  
-        
-            if (penguin.wantsSearch()){
-          
+            }
+
+            let hasOther = this.penguins.some(other => other.id !== penguin.id && other.hpos === penguin.hpos && other.lpos === penguin.lpos);
+
+            if (hasOther) console.log("has other on " + penguin.hpos + "/" + penguin.lpos);
+
+            if (penguin.wantsSearch() || hasOther){
+
               let posmoves = [];
               if (this.territory[pengH][pengL-1].canMove() ) posmoves.push(1);
               if (this.territory[pengH][pengL+1].canMove() ) posmoves.push(2);
               if (this.territory[pengH-1][pengL].canMove() ) posmoves.push(3);
               if (this.territory[pengH+1][pengL].canMove() ) posmoves.push(4);
-          
+
               // if (Math.floor(Math.random() * 10) === 0 || posmoves.length === 0 ){
               if ( posmoves.length === 0 ){
                 move = 0;
@@ -631,9 +640,9 @@ class Island {
           } // NOT TO CROWDED
         } // not eating, fishing or loving
       } // is penguin alive
-      
+
     });  // forEach
-      
+
 
     for (let penguin of this.penguins) {
       penguin.calculateWealth(this,penguin.hpos,penguin.lpos);
