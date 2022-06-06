@@ -597,7 +597,7 @@ class Island {
 
             let hasOther = this.penguins.some(other => other.id !== penguin.id && other.hpos === penguin.hpos && other.lpos === penguin.lpos);
 
-            if (hasOther) console.log("has other on " + penguin.hpos + "/" + penguin.lpos);
+            // if (hasOther) console.log("has other on " + penguin.hpos + "/" + penguin.lpos);
 
             if (penguin.wantsSearch() || hasOther){
 

@@ -94,7 +94,7 @@ class Penguin {
     if (this.strategicMap === null) {
       this.strategicMap = new StrategicMap(island.sizeH,island.sizeL);
     }
-    this.strategyShort = this.strategicMap.look(island,this.hpos,this.lpos,this.age > 5 ? 3 : 2, this.hungry, this.wealth, this.name, this.id === island.followId && this.alive);
+    this.strategyShort = this.strategicMap.look(island,this.hpos,this.lpos,this.age > 5 ? 3 : 2, this.hungry, this.wealth, this.name, this.id, this.id === island.followId && this.alive);
   }
 
   // Wealth will decrease if the penguin is not surrended by other penguins - unless the sun is shinning
@@ -104,10 +104,10 @@ class Penguin {
 
     if (this.strategicMap) {
       let weatherFactor = island.weather === 0 ? 1 :0;
-      let warmth = this.strategicMap.calculateWarm(island,this.hpos,this.lpos);
-      this.wealth += (warmth * weatherFactor);
+      let warmth = this.strategicMap.calculateWarm(island,this.hpos,this.lpos,this.id);
+      this.wealth += (warmth  * weatherFactor);
 
-      if (this.id === island.followId && this.alive) console.log("Warmth: " + warmth + " fatfactor: " + this.fat + " weatherfactor: " + weatherFactor);
+      // if (this.id === island.followId && this.alive) console.log("Warmth: " + warmth + " fatfactor: " + this.fat + " weatherfactor: " + weatherFactor);
 
       if (this.wealth > 99) this.wealth = 100;
       if (this.wealth < 1 ) this.wealth = 0;
@@ -319,10 +319,10 @@ class Penguin {
       }
     }
 
-    this.hungry += (Math.floor(this.fat / 2) + 1);
+    this.hungry += (Math.floor(this.fat / 3) + 1);
 
     this.age += this.alive ? 0.25 : 0;
-    if (this.age === 6) {
+    if (this.age === 4) {
       let cat = this.gender === "male" ? "-m-" : "-f-";
       sessions.forEach(session => {
         session.addMoveLog(turn, this.id,this.num,2,0,0,0,0,0,cat,"age");

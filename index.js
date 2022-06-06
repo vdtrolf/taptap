@@ -13,7 +13,7 @@ let NameServer = nameserverReq.NameServer;
 
 
 const port = 3001;
-const intervalTime = 864; // 648;  // 1728; //864
+const intervalTime = 864; // 864; // 648;  // 1728; //864
 let islands = [];
 let sessions = [];
 const baseTime = new Date().getTime();

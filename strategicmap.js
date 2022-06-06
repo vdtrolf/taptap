@@ -10,14 +10,15 @@ class StrategicMap {
     this.strategy = "";
     this.strategyShort = "";
     this.hasTarget = false;
+    this.path = [];
     this.targetH = 0;
     this.targetL = 0;
     this.targetDirections = [0,0,0,0];
     this.wantsSearch = false;
   }
 
-  look = (island,centerH,centerL,viewLength,hungry,wealth,name,show=false) => {
-
+  look = (island,centerH,centerL,viewLength,hungry,wealth,name,id,show=false) => {
+ 
     this.strategy = "";
     this.strategyShort = " I am fine";
     this.hasTarget = false;
@@ -28,7 +29,7 @@ class StrategicMap {
     let curFish = island.territory[centerH][centerL].hasFish;
     let curStable = this.isLandStable(island,centerH,centerL);
     let curSwim = this.isLandSwim(island,centerH,centerL);
-    let curWarm = this.calculateWarm(island,centerH,centerL) + 1;
+    let curWarm = 0; // this.calculateWarm(island,centerH,centerL,id,show) + 1;
     let curSmelt = island.territory[centerH][centerL].getType() !== 1?1:island.territory[centerH][centerL].getConf();
 
     let foundFish = false;
@@ -55,17 +56,13 @@ class StrategicMap {
         if (hpos > 0 && hpos < this.maxH) {
           if (lpos > 0 && lpos < this.maxL) {
             let land = island.territory[hpos][lpos];
-            // console.log(hpos + " " + lpos + " " + land.getType());
             if (land.getType() === 0) {
               hline.push({hpos:hpos,lpos:lpos,pos:false,fish:false,stable:false,swim:false,smelt:0, warm:0 });
             } else {
-
+ 
               let stable = this.isLandStable(island,hpos,lpos);
               let swim = this.isLandSwim(island,hpos,lpos);
-              let warm = this.calculateWarm(island,hpos,lpos) + 1;
-
-
-
+              let warm = this.calculateWarm(island,hpos,lpos,id,show) + 1;
               hline.push({hpos:hpos,
                 pos:lpos,
                 pos:true,
@@ -110,8 +107,6 @@ class StrategicMap {
                   distStable = dist;
                 }
               }
-
-
             }
           } else {
             hline.push({hpos:hpos,lpos:lpos,pos:false,fish:false,stable:false,swim:false, smelt: 0,warm:0});
@@ -147,7 +142,7 @@ class StrategicMap {
         this.strategyShort = " search stability";
         this.wantsSearch = true;
       }
-    } else if ((wealth < 40 && foundWarm > curWarm) || wealth < 20) {
+    } else if ((wealth < 90 && foundWarm > curWarm) || wealth < 60) {
       if (foundWarm) {
         this.strategyShort = " go to warmth";
         this.hasTarget = true;
@@ -164,25 +159,26 @@ class StrategicMap {
     // l  r  u  d rd ru ld lu
 
     if (this.hasTarget) {
-      this.targetDirections = [];
-      let deltaH = this.targetH - centerH;
-      let deltaL = this.targetL - centerL;
-      if (deltaH !== 0 || deltaL !== 0) {
-        if (deltaH === 0 && deltaL !== 0) {
-          this.targetDirections.push(deltaL < 0 ? 1: 2 );
-          this.targetDirections.push(deltaL < 0 ? 2: 1 );
-          this.targetDirections.push(0);
-          this.targetDirections.push(0);
-        } else if (deltaH !== 0 && deltaL !== 0) {
-          this.targetDirections.push(deltaH < 0 ? 3: 4 );
-          this.targetDirections.push(deltaL < 0 ? 1: 2 );
-          this.targetDirections.push(deltaL < 0 ? 2: 1 );
-          this.targetDirections.push(0);
-        } else if (deltaH !== 0 && deltaL === 0) {
-          this.targetDirections.push(deltaH < 0 ? 3: 4 );
-          this.targetDirections.push(deltaH < 0 ? 4: 3 );
-          this.targetDirections.push(0);
-          this.targetDirections.push(0);
+      
+      this.path = [];
+      let hasPath = findPath(island,centerH,centerL,this.targetH,this.targetL,this.path,show);
+      
+      if (show) this.path.forEach(step => console.log(hasPath + " step to dir " + step.dir + " at " + step.posH + "/" + step.posL));
+      
+      if (hasPath && this.path.length > 0) {
+        switch (this.path[this.path.length - 1].dir) {
+          case 1:
+            this.targetDirections = [1,3,4,2];
+            break;
+          case 2:
+            this.targetDirections = [2,4,3,1];
+            break;
+          case 3:
+            this.targetDirections = [3,1,2,4];
+            break;
+          case 4:
+            this.targetDirections = [4,2,1,3];
+            break;
         }
       } else {
         this.targetDirections.push(0,0,0,0);
@@ -215,7 +211,7 @@ class StrategicMap {
 
         switch (cntline++) {
           case 0:
-            txt += " " + name + " Pos: " + centerH + "/" + centerL + " wealth: " + wealth;
+            txt += " " + name + "(" + id + ") Pos: " + centerH + "/" + centerL + " wealth: " + wealth;
             break;
           case 1:
             txt += " Hungry = " + hungry;
@@ -231,17 +227,20 @@ class StrategicMap {
             break;
           case 4:
             txt += this.strategyShort;
-            if (this.hasTarget) txt += " target: " + this.targetDirections[0] + "-" + this.targetDirections[1] + "-" + this.targetDirections[2] + "-" + this.targetDirections[3];
+            if (this.hasTarget && this.path.length > 0) {
+              txt += ' path : ';
+              this.path.reverse().forEach(step => txt += + step.dir + "-" + step.posH + "/" + step.posL );
+            }  
             break;
         }
         console.log(txt);
       })
       console.log("+" + "--------".substring(0,(viewLength * 2) +1) + "+ +" + "--------".substring(0,(viewLength * 2) +1) + "+");
 
+      
+ 
     }
-
     return this.strategyShort;
-
   }
 
 
@@ -264,19 +263,20 @@ class StrategicMap {
       || island.territory[hpos][lpos+1].hasSwim;
   }
 
-  calculateWarm(island,hpos,lpos) {
-    if (island) {
+  calculateWarm(island,hpos,lpos,id, show = false ) {
+    if (island && id) {
       let neighbours = 0;
 
       island.penguins.forEach(penguin => {
-        if (( penguin.hpos == hpos && (penguin.lpos === lpos -1 || penguin.lpos === lpos + 11))
-          || ( penguin.lpos == lpos && (penguin.hpos === hpos -1 || penguin.hpos === hpos + 11))) {
-        neighbours += 1;
+        if ( penguin.isAlive() && penguin.id !== id ) {
+        
+          if (penguin.hpos === hpos && (penguin.lpos === lpos -1 || penguin.lpos === lpos + 1)
+          || penguin.lpos === lpos && (penguin.hpos === hpos -1 || penguin.hpos === hpos + 1)) {
+            neighbours += 1;
+            
+          }
         }
       });
-
-    //if (neighbours > 1)
-    // console.log(neighbours +" neighbours");
 
       if (neighbours < 1) {
         return -1
@@ -285,10 +285,76 @@ class StrategicMap {
       }
       return 0;
     }
-    return 1;
+    return 0;
   }
 
 }
+
+    //  setting directions
+    // 1  2  3  4  5  6  7  8
+    // l  r  u  d rd ru ld lu
+
+
+const findPath = (island,curH,curL,targetH,targetL,path,show,cnt=0,visited = []) => {
+  
+  if (++cnt > 5) return false; 
+  
+  
+  visited.push({hpos:curH, lpos:curL});
+  
+  let movesH = [0,0,0,-1,1];
+  let movesL = [0,-1,1,0,0];
+  let dirs = [];
+  let deltaH = targetH - curH;
+  let deltaL = targetL - curL;
+  if (deltaH !== 0 || deltaL !== 0) {
+    if (deltaH === 0 && deltaL !== 0) {
+      dirs=deltaL < 0 ? [1,3,4,2]: [2,4,3,1];
+    } else if (deltaH !== 0 && deltaL !== 0) {
+      dirs.push(deltaH < 0 ? 3: 4);
+      dirs.push(deltaL < 0 ? 2: 1);
+      dirs.push(deltaL < 0 ? 1: 2);
+      dirs.push(deltaH < 0 ? 4: 3);
+    } else if (deltaH !== 0 && deltaL === 0) {
+      dirs=deltaH < 0 ? [3,1,2,4]: [4,2,1,3];
+    }
+    let foundMov= false,cntdir =0;
+    for (let dir of dirs) {
+      let movH = curH + movesH[dir];
+      let movL = curL + movesL[dir];
+      if (movH > 0 && movH < island.sizeH && movL > 0 && movL < island.sizeL ) {
+        let land=island.territory[movH][movL];
+        if (show) {
+          if (land.getType()>0 
+          && ! land.hasCross 
+          && ! visited.some(vland => vland.hpos === movH && vland.lpos === movL)) {        
+            console.log("findPath (" + cnt + "-" + ++cntdir + ") " 
+                  + targetH + "/" + targetL  
+                  + " from " + curH + "/" + curL  
+                  + " to " + movH + "/" + movL 
+                  + " dir " + dir 
+                  + " => " + (land.getType()>0 ? "~ " : "= " ) 
+                  + (land.hasCross ? "+":"_"));
+          }
+        }
+        if (land.getType()>0 
+          && ! land.hasCross 
+          && ! visited.some(vland => vland.hpos === movH && vland.lpos === movL)
+          && findPath(island,movH,movL,targetH,targetL,path,show,cnt,visited)) { 
+          path.push({dir: dir,posH:movH,posL:movL});
+          
+          foundMov = true;
+          break;
+        }
+      }
+    }
+    return foundMov;
+  } else {
+    return true;
+  }
+}
+
+
 
 class knownLand {
 
