@@ -1,6 +1,7 @@
 'use strict';
 console.log('Loading tap tap function');
 
+
 exports.handler = async (event) => {
     let name = "you";
     let city = 'World';
