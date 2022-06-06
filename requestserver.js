@@ -79,7 +79,7 @@ const createResponse = (url,params,sessionId) => {
   //let sId = 0;
   //let iId = 0;
 
-  console.log("in createResponse url: >" + url + "< params: >" + params + "< sessionId: >" + sessionId + "<")
+  console.log("in createResponse url: >" + url + "< params: >" + params.renew + "< sessionId: >" + sessionId + "<")
 
 
   if (sessionId > 0) {

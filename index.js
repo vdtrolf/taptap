@@ -69,7 +69,7 @@ exports.handler = async (event) => {
         sessionId = event.queryStringParameters.sessionId;
     }
 
-    let responseBody = createResponse(event.pathParameters, event.queryStringParameters, sessionId);
+    let responseBody = createResponse(event.path, event.queryStringParameters, sessionId);
 
     let response = {
         statusCode: responseCode,
