@@ -7,7 +7,7 @@ console.log('Loading tap tap function');
 
 const port = 3001;
 let debug = false;
-let startExpress = true;
+let startExpress = false;
 
 // Starting the express server
 
