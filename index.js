@@ -5,7 +5,6 @@ const port = 3001;
 debug = false;
 
 // Starting the express server
-
 let app = null;
 
 const express = require('express');
