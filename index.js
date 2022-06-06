@@ -15,12 +15,12 @@ exports.handler = async (event) => {
         sessionId = event.queryStringParameters.sessionId;
     }
 
-    let responseBody = createResponse(event.pathParameters.name, event.queryStringParameters, sessionId);
+    let responseBody = createResponse(event.pathParameters, event.queryStringParameters, sessionId);
 
     let response = {
         statusCode: responseCode,
         headers: {
-            "x-custom-header" : "my custom header value"
+            "x-custom-header" : "tap tap header value"
         },
         body: JSON.stringify(responseBody)
     };
