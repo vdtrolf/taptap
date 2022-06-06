@@ -17,7 +17,7 @@ class StrategicMap {
     this.wantsSearch = false;
   }
 
-  look = (island,centerH,centerL,viewLength,hungry,wealth,name,id,show=false) => {
+  look(island,centerH,centerL,viewLength,hungry,wealth,name,id,show=false) {
  
     this.strategy = "";
     this.strategyShort = " I am fine";
