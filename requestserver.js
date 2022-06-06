@@ -79,6 +79,9 @@ const createResponse = (url,params,sessionId) => {
   //let sId = 0;
   //let iId = 0;
 
+  console.log("in createResponse url: >" + url + "< params: >" + params + "< sessionId: >" + sessionId + "<")
+
+
   if (sessionId > 0) {
     session = sessions.find(session => session.getId() === sessionId);
     if (session != null) {
