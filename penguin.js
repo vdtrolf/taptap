@@ -13,6 +13,12 @@ class Penguin {
     this.lpos = l;
     this.age = Math.floor(Math.random() * 5);
     this.fat = Math.floor(Math.random() * 4);
+
+    // maxcnt = the maximum length of a traject
+    this.maxcnt = 5;
+    // vision = how far the penguin can see
+    this.vision = 2;
+
     this.wealth = 100;
     this.hungry = 0;
     this.alive = true;
@@ -94,7 +100,7 @@ class Penguin {
     if (this.strategicMap === null) {
       this.strategicMap = new StrategicMap(island.sizeH,island.sizeL);
     }
-    this.strategyShort = this.strategicMap.look(island,this.hpos,this.lpos,this.age > 5 ? 3 : 2, this.hungry, this.wealth, this.name, this.id, this.id === island.followId && this.alive);
+    this.strategyShort = this.strategicMap.look(island,this.hpos,this.lpos,this.vision,this.hungry, this.wealth, this.name, this.id, this.id === island.followId && this.alive,this.maxcnt);
   }
 
   // Wealth will decrease if the penguin is not surrended by other penguins - unless the sun is shinning
@@ -143,7 +149,7 @@ class Penguin {
   }
 
 
-  // Check if love is possible
+  // Check if love is possible (not recently in love and age < 20)
 
   canLove(partnerId) {
 
@@ -160,7 +166,7 @@ class Penguin {
       return false;
     }
 
-    return this.hasLoved === 0 && ! this.eating && ! this.fishing ;
+    return this.hasLoved === 0 && ! this.eating && ! this.fishing && this.age < 21;
   }
 
   // let moveType = moves[i].moveType, // 1=move,2=age,3=eat,4=love,5=die
@@ -290,6 +296,8 @@ class Penguin {
   // Makes the penguin one year older and check status
   // Return 1 if dead and 2 if end of loving periond (in which case a baby will born)
   // Otherwise returns 0
+  // If the penguin becomes adult (above 4) it's vision passes from 2 to 3
+  // If the penguin gets old (above 20), it's max planfiable traject passes from 5 to 7
 
   makeOlder(sessions, turn) {
 
@@ -324,11 +332,17 @@ class Penguin {
     this.age += this.alive ? 0.25 : 0;
     if (this.age === 4) {
       let cat = this.gender === "male" ? "-m-" : "-f-";
+      this.vision = 3;
       sessions.forEach(session => {
         session.addMoveLog(turn, this.id,this.num,2,0,0,0,0,0,cat,"age");
       });
     }
-    if (this.age > 40 || this.hungry > 99 || this.wealth <1 ) {
+
+    if (this.age > 20) {
+      this.maxcnt = 7;
+    }
+
+    if (this.age > 30 || this.hungry > 99 || this.wealth <1 ) {
       if (debug && this.alive) {
         console.log("penguin.js - makeOlder : " + this.name + " just died !")
       }

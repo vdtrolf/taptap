@@ -3,16 +3,15 @@
 const requestserverReq = require("./requestserver.js");
 let createResponse = requestserverReq.createResponse;
 
-console.log('Loading tap tap function');
-
-const port = 3001;
+const args = process.argv.slice(2);
+let startExpress = (args[0] && args[0].toLowerCase() === "local")
 let debug = false;
-let startExpress = false;
 
 // Starting the express server
 
 if (startExpress) {
 
+  const port = 3001;
   let app = null;
 
   const express = require('express');
@@ -56,8 +55,11 @@ if (startExpress) {
      console.error("index.js : problem " + error);
   }
 
+} else {
+  console.log('index.js : Little island function listening on Lambda');
 }
 
+// Handler for the Lambda
 
 exports.handler = async (event) => {
     let sessionId = "";
@@ -65,7 +67,7 @@ exports.handler = async (event) => {
     console.log("request: " + JSON.stringify(event));
 
     if (event.queryStringParameters && event.queryStringParameters.sessionId) {
-        console.log("Received sessionId: " + event.queryStringParameters.sessionId);
+        console.log("index.js : Received sessionId: " + event.queryStringParameters.sessionId);
         sessionId = event.queryStringParameters.sessionId;
     }
 
@@ -74,7 +76,7 @@ exports.handler = async (event) => {
     let response = {
         statusCode: responseCode,
         headers: {
-            "x-custom-header" : "tap tap header value"
+            "x-custom-header" : "little island"
         },
         body: JSON.stringify(responseBody)
     };
