@@ -76,7 +76,8 @@ exports.handler = async (event) => {
     let response = {
         statusCode: responseCode,
         headers: {
-            "x-custom-header" : "little island"
+            "x-custom-header" : "little island",
+            "Access-Control-Allow-Origin" : "*"
         },
         body: JSON.stringify(responseBody)
     };
