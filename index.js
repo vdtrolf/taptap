@@ -6,6 +6,7 @@ let createResponse = requestserverReq.createResponse;
 const args = process.argv.slice(2);
 let startExpress = (args[0] && args[0].toLowerCase() === "local")
 let debug = false;
+let requestcounter = 0;
 
 // Starting the express server
 
@@ -64,7 +65,7 @@ if (startExpress) {
 exports.handler = async (event) => {
     let sessionId = "";
     let responseCode = 200;
-    console.log("request: " + JSON.stringify(event));
+    console.log("request " + requestcounter++ + " : " + JSON.stringify(event) +);
 
     if (event.queryStringParameters && event.queryStringParameters.sessionId) {
         console.log("index.js : Received sessionId: " + event.queryStringParameters.sessionId);
