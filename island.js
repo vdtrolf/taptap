@@ -9,7 +9,7 @@ let Land = landReq.Land;
 let Session = sessionReq.Session;
 // let StrategicMap = strategicMapReq.StrategicMap;
 
-let debug = true;
+let debug = false;
 
 const deco1 = [" ",".","^","%","#","#","#","#"];
 const deco2 = ["&nbsp;","░","▒","▓","█","█","█","█"];

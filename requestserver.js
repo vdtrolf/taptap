@@ -20,7 +20,7 @@ const baseTime = new Date().getTime();
 
 // console.log(process.env);
 
-debug = true;
+debug = false;
 procesdebug = false;
 
 let nameserver = new NameServer(30,10,false);

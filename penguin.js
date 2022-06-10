@@ -100,7 +100,7 @@ class Penguin {
     if (this.strategicMap === null) {
       this.strategicMap = new StrategicMap(island.sizeH,island.sizeL);
     }
-    this.strategyShort = this.strategicMap.look(island,this.hpos,this.lpos,this.vision,this.hungry, this.wealth, this.name, this.id, this.id === island.followId && this.alive,this.maxcnt);
+    this.strategyShort = this.strategicMap.look(island,this.hpos,this.lpos,this.vision,this.hungry, this.wealth, this.name, this.id, this.maxcnt, this.id === island.followId && this.alive,this.maxcnt);
   }
 
   // Wealth will decrease if the penguin is not surrended by other penguins - unless the sun is shinning
