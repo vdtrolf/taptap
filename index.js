@@ -65,7 +65,9 @@ if (startExpress) {
 exports.handler = async (event) => {
     let sessionId = "";
     let responseCode = 200;
-    console.log("request " + requestcounter++ + " : " + JSON.stringify(event) +);
+    requestcounter += 1
+
+    console.log("request " + requestcounter + " : " + JSON.stringify(event));
 
     if (event.queryStringParameters && event.queryStringParameters.sessionId) {
         console.log("index.js : Received sessionId: " + event.queryStringParameters.sessionId);
