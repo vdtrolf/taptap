@@ -6,47 +6,94 @@ let StrategicMap = strategicMapReq.StrategicMap;
 const debug = false;
 
 class Penguin {
-  constructor(num, h, l,sessions, turn, fatherId = 0, motherId=0) {
-    this.id = Math.floor(Math.random() * 999999);
+  constructor(
+    num,
+    h,
+    l,
+    sessions,
+    islandId,
+    fatherId = 0,
+    motherId = 0,
+    id = 0,
+    age = 0,
+    fat = 0,
+    maxcnt = 5,
+    vision = 2,
+    wealth = 100,
+    hungry = 0,
+    alive = true,
+    gender = "male",
+    cat = "-y-",
+    name = "titi",
+    loving = 0,
+    waiting = 0,
+    fishTime = 0,
+    fishDirection = 0,
+    moving = 0,
+    hasLoved = 0,
+    partnerId = 0
+  ) {
+    this.id = id === 0 ? Math.floor(Math.random() * 999999) : 0;
+    this.islandId = islandId;
     this.num = num;
     this.hpos = h;
     this.lpos = l;
-    this.age = Math.floor(Math.random() * 5);
-    this.fat = Math.floor(Math.random() * 4);
+    this.age = age === 0 ? Math.floor(Math.random() * 5) + 1 : age;
+    this.fat = fat === 0 ? Math.floor(Math.random() * 4) + 1 : fat;
 
     // maxcnt = the maximum length of a traject
-    this.maxcnt = 5;
+    this.maxcnt = maxcnt;
     // vision = how far the penguin can see
-    this.vision = 2;
+    this.vision = vision;
 
-    this.wealth = 100;
-    this.hungry = 0;
-    this.alive = true;
-    this.gender = "male";
-    this.cat = "-y-";
-    this.name = "titi";
-    this.eating = 0;
-    this.loving = 0;
-    this.waiting = 0;
-    this.fishTime = 0;
-    this.fishDirection = 0;
-    this.moving = 0;
-    this.hasLoved = 0;
+    this.wealth = wealth;
+    this.hungry = hungry;
+    this.alive = alive;
+    this.gender = gender;
+    this.cat = cat;
+    this.name = name;
+
+    this.loving = loving;
+    this.waiting = waiting;
+    this.fishTime = fishTime;
+    this.fishDirection = fishDirection;
+    this.moving = moving;
+    this.hasLoved = hasLoved;
     this.fatherId = fatherId;
     this.motherId = motherId;
-    this.partnerId = 0;
+    this.partnerId = partnerId;
+
     this.strategicMap = null;
     this.strategyShort = "";
 
-    let aPenguinName = nameserverReq.getPenguinName();
+    let aPenguinName =
+      this.name === "titi" ? nameserverReq.getPenguinName() : this.name;
     this.name = aPenguinName.name;
     this.gender = aPenguinName.gender;
 
-    sessions.forEach(session => {
-      session.addMoveLog(turn, this.id,this.num,1,0,0,0,this.hpos,this.lpos,this.getCat(),"move");
+    sessions.forEach((session) => {
+      session.addMoveLog(
+        this.id,
+        this.num,
+        1,
+        0,
+        0,
+        0,
+        this.hpos,
+        this.lpos,
+        this.getCat(),
+        "move"
+      );
     });
     if (debug) {
-      console.log("penguin.js - constructor : new penguin " + this.id + " at " + this.hpos + "/" + this.lpos);
+      console.log(
+        "penguin.js - constructor : new penguin " +
+          this.id +
+          " at " +
+          this.hpos +
+          "/" +
+          this.lpos
+      );
     }
   }
 
@@ -54,40 +101,8 @@ class Penguin {
 
   getCat() {
     let cat = this.gender === "male" ? "-m-" : "-f-";
-    cat = this.age < 6 ? "-y-":cat;
+    cat = this.age < 6 ? "-y-" : cat;
     return cat;
-  }
-
-  getId() {
-    return this.id;
-  }
-
-  getName() {
-    return this.name;
-  }
-
-  getNum() {
-    return this.num;
-  }
-
-  getLPos() {
-    return this.lpos;
-  }
-
-  getHPos() {
-    return this.hpos;
-  }
-
-  getGender() {
-    return this.gender;
-  }
-
-  getWealth() {
-    return this.wealth;
-  }
-
-  getHungry() {
-    return this.hungry;
   }
 
   setName(name) {
@@ -98,25 +113,41 @@ class Penguin {
 
   getStrategicMap(island) {
     if (this.strategicMap === null) {
-      this.strategicMap = new StrategicMap(island.sizeH,island.sizeL);
+      this.strategicMap = new StrategicMap(island.sizeH, island.sizeL);
     }
-    this.strategyShort = this.strategicMap.look(island,this.hpos,this.lpos,this.vision,this.hungry, this.wealth, this.name, this.id, this.maxcnt, this.id === island.followId && this.alive,this.maxcnt);
+    this.strategyShort = this.strategicMap.look(
+      island,
+      this.hpos,
+      this.lpos,
+      this.vision,
+      this.hungry,
+      this.wealth,
+      this.name,
+      this.id,
+      this.maxcnt,
+      this.id === island.followId && this.alive,
+      this.maxcnt
+    );
   }
 
   // Wealth will decrease if the penguin is not surrended by other penguins - unless the sun is shinning
   // If the penguin is fat it will go slower than is h3e is meaget
 
   calculateWealth(island) {
-
     if (this.strategicMap) {
-      let weatherFactor = island.weather === 0 ? 1 :0;
-      let warmth = this.strategicMap.calculateWarm(island,this.hpos,this.lpos,this.id);
-      this.wealth += (warmth  * weatherFactor);
+      let weatherFactor = island.weather === 0 ? 1 : 0;
+      let warmth = this.strategicMap.calculateWarm(
+        island,
+        this.hpos,
+        this.lpos,
+        this.id
+      );
+      this.wealth += warmth * weatherFactor;
 
       // if (this.id === island.followId && this.alive) console.log("Warmth: " + warmth + " fatfactor: " + this.fat + " weatherfactor: " + weatherFactor);
 
       if (this.wealth > 99) this.wealth = 100;
-      if (this.wealth < 1 ) this.wealth = 0;
+      if (this.wealth < 1) this.wealth = 0;
     }
   }
 
@@ -134,11 +165,11 @@ class Penguin {
     return false;
   }
 
-  getDirections(){
+  getDirections() {
     if (this.strategicMap) {
       return this.strategicMap.targetDirections;
     }
-    return [0,0,0,0];
+    return [0, 0, 0, 0];
   }
 
   getStrategy() {
@@ -148,35 +179,57 @@ class Penguin {
     return "";
   }
 
-
   // Check if love is possible (not recently in love and age < 20)
 
   canLove(partnerId) {
-
-    if ( partnerId === this.fatherId) {
-      if (debug) { console.log(`penguin.js - canLove : ${this.id}-${this.name} love not possible with father ${this.fatherId}`) };
+    if (partnerId === this.fatherId) {
+      if (debug) {
+        console.log(
+          `penguin.js - canLove : ${this.id}-${this.name} love not possible with father ${this.fatherId}`
+        );
+      }
       return false;
     }
     if (partnerId === this.motherId) {
-      if (debug) { console.log(`penguin.js - canLove : ${this.id}-${this.name} love not possible with mother ${this.motherId}`) };
+      if (debug) {
+        console.log(
+          `penguin.js - canLove : ${this.id}-${this.name} love not possible with mother ${this.motherId}`
+        );
+      }
       return false;
     }
     if (this.age < 7 || this.age > 30) {
-      if (debug) { console.log(`penguin.js - canLove : ${this.id}-${this.name} too yong or old for all this (i am ${this.age})`) };
+      if (debug) {
+        console.log(
+          `penguin.js - canLove : ${this.id}-${this.name} too yong or old for all this (i am ${this.age})`
+        );
+      }
       return false;
     }
 
-    return this.hasLoved === 0 && ! this.eating && ! this.fishing && this.age < 21;
+    return (
+      this.hasLoved === 0 && !this.eating && !this.fishing && this.age < 21
+    );
   }
 
   // let moveType = moves[i].moveType, // 1=move,2=age,3=eat,4=love,5=die
   // let moveDir = moves[i].moveDir, // 1=left,2=right,3=up,4=down
 
-  setPos(sessions, turn,moveDir,hpos,lpos) {
-
+  setPos(sessions, moveDir, hpos, lpos) {
     if (this.hpos !== hpos || this.lpos !== lpos) {
-      sessions.forEach(session => {
-        session.addMoveLog(turn,this.id,this.num,1,moveDir,this.hpos,this.lpos,hpos,lpos,this.getCat(),"move");
+      sessions.forEach((session) => {
+        session.addMoveLog(
+          this.id,
+          this.num,
+          1,
+          moveDir,
+          this.hpos,
+          this.lpos,
+          hpos,
+          lpos,
+          this.getCat(),
+          "move"
+        );
       });
     }
     this.hpos = hpos;
@@ -187,21 +240,63 @@ class Penguin {
   // reset the penguin move log by adding an initial move record
   // if the penguin is eating or loving it will also add the corresponding records to the penguins log
 
-  resetPos(sessions,turn) {
-    sessions.forEach(session => {
-      session.addMoveLog(turn, this.id,this.num,1,0,0,0,this.hpos,this.lpos,this.getCat(),"move");
+  resetPos(sessions) {
+    sessions.forEach((session) => {
+      session.addMoveLog(
+        this.id,
+        this.num,
+        1,
+        0,
+        0,
+        0,
+        this.hpos,
+        this.lpos,
+        this.getCat(),
+        "move"
+      );
     });
     if (debug) {
-      console.log("penguin.js - resetPos : reset penguin " + this.id + " at " + this.hpos + "/" + this.lpos);
+      console.log(
+        "penguin.js - resetPos : reset penguin " +
+          this.id +
+          " at " +
+          this.hpos +
+          "/" +
+          this.lpos
+      );
     }
     if (this.loving > 0) {
-      sessions.forEach(session => {
-        session.addMoveLog(turn, this.id,this.num,4,0,0,0,0,0,this.getCat(),"love");
+      sessions.forEach((session) => {
+        session.addMoveLog(
+          turn,
+          this.id,
+          this.num,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          this.getCat(),
+          "love"
+        );
       });
     }
     if (this.eating > 0) {
-      sessions.forEach(session => {
-        session.addMoveLog(turn, this.id,this.num,3,0,0,0,0,0,this.getCat(),"eat");
+      sessions.forEach((session) => {
+        session.addMoveLog(
+          turn,
+          this.id,
+          this.num,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0,
+          this.getCat(),
+          "eat"
+        );
       });
     }
     this.waiting = 0;
@@ -209,45 +304,78 @@ class Penguin {
 
   // tells te peguin to make love with a partner
 
-  love(sessions, turn, partnerId) {
+  love(sessions, partnerId) {
     this.loving = 4;
     this.hasLoved = 15;
     this.partnerId = partnerId;
     this.waiting = 0;
-    sessions.forEach(session => {
-      session.addMoveLog(turn, this.id,this.num,4,0,0,0,0,0,this.getCat(),"love");
+    sessions.forEach((session) => {
+      session.addMoveLog(
+        this.id,
+        this.num,
+        4,
+        0,
+        0,
+        0,
+        0,
+        0,
+        this.getCat(),
+        "love"
+      );
     });
   }
 
   // return true is the penguin is makning love
 
-  isLoving () {
+  isLoving() {
     return this.loving > 0;
   }
 
   // tell the penhuin to eat
 
-  eat(sessions, turn) {
+  eat(sessions) {
     this.eating = 5;
     this.waiting = 0;
     this.hungry = this.hungry < 25 ? 0 : this.hungry - 25;
     this.wealth = this.wealth > 90 ? 100 : this.wealth + 10;
-    sessions.forEach(session => {
-      session.addMoveLog(turn, this.id,this.num,3,0,0,0,0,0,this.getCat(),"eat");
+    sessions.forEach((session) => {
+      session.addMoveLog(
+        this.id,
+        this.num,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0,
+        this.getCat(),
+        "eat"
+      );
     });
   }
 
   // return true is the penguin is eating
 
-  isEating () {
+  isEating() {
     return this.eating > 0;
   }
 
   // makes the penguin fish
 
-  fish(sessions, turn, direction) {
-    sessions.forEach(session => {
-      session.addMoveLog(turn, this.id,this.num,7,direction,0,0,0,0,this.getCat(),"fish");
+  fish(sessions, direction) {
+    sessions.forEach((session) => {
+      session.addMoveLog(
+        this.id,
+        this.num,
+        7,
+        direction,
+        0,
+        0,
+        0,
+        0,
+        this.getCat(),
+        "fish"
+      );
     });
     this.fishDirection = direction;
     this.fishTime = 6;
@@ -255,43 +383,52 @@ class Penguin {
 
   // return true is the penguin is eating
 
-  isFishing () {
+  isFishing() {
     return this.fishTime > 0;
   }
 
   // makes the penguin fish
 
-  wait(sessions, turn) {
-    sessions.forEach(session => {
-      session.addMoveLog(turn, this.id,this.num,6,0,0,0,0,0,this.getCat(),"still");
+  wait(sessions) {
+    sessions.forEach((session) => {
+      session.addMoveLog(
+        this.id,
+        this.num,
+        6,
+        0,
+        0,
+        0,
+        0,
+        0,
+        this.getCat(),
+        "still"
+      );
     });
 
     // if (this.id === island.followId && this.alive) console.log("Hungry: " + this.hungry + " fatfactor: " + this.fat + " getting more hungry by : " + (Math.floor(this.fat / 2) + 1));
 
-
-    this.hungry += (Math.floor(this.fat / 2) + 1);
+    this.hungry += Math.floor(this.fat / 2) + 1;
   }
 
   // return true is the penguin is eating
 
-  isWaiting () {
+  isWaiting() {
     return this.waiting > 0;
   }
 
   // Penguins die - all counters are reset
 
-  letDie(sessions, turn) {
+  letDie(sessions) {
     this.alive = false;
     this.eating = 0;
     this.loving = 0;
     this.hasLoved = 0;
     this.hungry = 0;
 
-    sessions.forEach(session => {
-      session.addMoveLog(turn, this.id,this.num,5,0,0,0,0,0,"","dead");
+    sessions.forEach((session) => {
+      session.addMoveLog(this.id, this.num, 5, 0, 0, 0, 0, 0, "", "dead");
     });
   }
-
 
   // Makes the penguin one year older and check status
   // Return 1 if dead and 2 if end of loving periond (in which case a baby will born)
@@ -299,8 +436,7 @@ class Penguin {
   // If the penguin becomes adult (above 4) it's vision passes from 2 to 3
   // If the penguin gets old (above 20), it's max planfiable traject passes from 5 to 7
 
-  makeOlder(sessions, turn) {
-
+  makeOlder(sessions) {
     let hasChild = false;
     let returncode = 0;
 
@@ -308,11 +444,11 @@ class Penguin {
       this.eating -= 1;
     }
 
-    if (this.fishTime> 0) {
-      this.fishTime-= 1;
+    if (this.fishTime > 0) {
+      this.fishTime -= 1;
       if (this.fishTime === 0) {
         this.fishDirection = 0;
-        this.eat(sessions,turn);
+        this.eat(sessions);
       }
     }
 
@@ -327,14 +463,14 @@ class Penguin {
       }
     }
 
-    this.hungry += (Math.floor(this.fat / 3) + 1);
+    this.hungry += Math.floor(this.fat / 3) + 1;
 
     this.age += this.alive ? 0.25 : 0;
     if (this.age === 4) {
       let cat = this.gender === "male" ? "-m-" : "-f-";
       this.vision = 3;
-      sessions.forEach(session => {
-        session.addMoveLog(turn, this.id,this.num,2,0,0,0,0,0,cat,"age");
+      sessions.forEach((session) => {
+        session.addMoveLog(this.id, this.num, 2, 0, 0, 0, 0, 0, cat, "age");
       });
     }
 
@@ -342,34 +478,32 @@ class Penguin {
       this.maxcnt = 7;
     }
 
-    if (this.age > 30 || this.hungry > 99 || this.wealth <1 ) {
+    if (this.age > 30 || this.hungry > 99 || this.wealth < 1) {
       if (debug && this.alive) {
-        console.log("penguin.js - makeOlder : " + this.name + " just died !")
+        console.log("penguin.js - makeOlder : " + this.name + " just died !");
       }
       this.alive = false;
-      sessions.forEach(session => {
-        session.addMoveLog(turn, this.id,this.num,5,0,0,0,0,0,"","dead");
+      sessions.forEach((session) => {
+        session.addMoveLog(this.id, this.num, 5, 0, 0, 0, 0, 0, "", "dead");
       });
       returncode = 1;
     } else if (hasChild) {
-      returncode =  2;
+      returncode = 2;
     }
 
-    return {returncode : returncode};
-
+    return { returncode: returncode };
   }
 
   setGender(gender) {
     this.gender = gender;
   }
 
-  isAlive() {
-    return this.alive;
-  }
-
+  //isAlive() {
+  //  return this.alive;
+  // }
 }
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
-    Penguin : Penguin
-}
+  Penguin: Penguin,
+};

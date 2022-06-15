@@ -1,12 +1,12 @@
-const penguinReq = require("./penguin.js");
+// const penguinReq = require("./penguin.js");
 const islandReq = require("./island.js");
-const landReq = require("./land.js");
+// const landReq = require("./land.js");
 const sessionReq = require("./session.js");
 const nameserverReq = require("./nameserver.js");
 
-let Penguin = penguinReq.Penguin;
+// let Penguin = penguinReq.Penguin;
 let Island = islandReq.Island;
-let Land = landReq.Land;
+// let Land = landReq.Land;
 let Session = sessionReq.Session;
 let NameServer = nameserverReq.NameServer;
 
@@ -23,113 +23,118 @@ const baseTime = new Date().getTime();
 debug = false;
 procesdebug = false;
 
-let nameserver = new NameServer(30,10,false);
+let nameserver = new NameServer(30, 10, false);
 
 const createInitData = (session, island, moves) => {
-
   let theMoves = moves ? moves : [];
 
-  return {session : session.getId(),
-          island : island.getImg(mode,islandH,islandL),
-          penguins : island.getPenguins(),
-          weather : island.getWeather(),
-          artifacts: island.getArtifacts(),
-          tiles: island.getTiles(),
-          fishes: island.getFishes(),
-          points: island.getPoints(),
-          islandName: island.getName(),
-          islandId: island.getId(),
-          islandSize : island.getLandSize(),
-          moves : theMoves};
-}
+  return {
+    session: session.getId(),
+    island: island.getImg(mode, islandH, islandL),
+    penguins: island.getPenguins(),
+    weather: island.getWeather(),
+    artifacts: island.getArtifacts(),
+    tiles: island.tiles,
+    fishes: island.fishes,
+    points: island.points,
+    islandName: island.name,
+    islandId: island.id,
+    islandSize: island.landSize,
+    moves: theMoves,
+  };
+};
 
 const createIslandData = (session, island) => {
-
-  return {session : session.getId(),
-          island : island.getImg(mode,islandH,islandL),
-          penguins : island.getPenguins(),
-          weather : island.getWeather(),
-          artifacts: island.getArtifacts(),
-          tiles: island.getTiles(),
-          fishes: island.getFishes(),
-          islandName: island.getName(),
-          islandId: island.getId(),
-          islandSize : island.getLandSize()};
-}
+  return {
+    session: session.getId(),
+    island: island.getImg(mode, islandH, islandL),
+    penguins: island.getPenguins(),
+    weather: island.getWeather(),
+    artifacts: island.getArtifacts(),
+    tiles: island.tiles,
+    fishes: island.fishes,
+    islandName: island.name,
+    islandId: island.id,
+    islandSize: island.landSize,
+  };
+};
 
 // the parameter followId indicates that penguin must be followed in the console
 
 const createMovesData = (session, island, moves, followId) => {
-
   let theMoves = moves ? moves : [];
 
   island.setFollowId(followId);
 
-  return {session : session.getId(),
-          points: island.getPoints(),
-          islandSize : island.getLandSize(),
-          moves : theMoves};
-}
+  return {
+    session: session.getId(),
+    points: island.points,
+    islandSize: island.landSize,
+    moves: theMoves,
+  };
+};
 
-const createResponse = (url,params,sessionId) => {
-
-
+const createResponse = (url, params, sessionId) => {
   let session = null;
   let island = null;
-  //let sId = 0;
-  //let iId = 0;
 
-  console.log("in createResponse url: >" + url + "< sessionId: >" + sessionId + "<")
-
+  if (debug)
+    console.log(
+      "in createResponse url: >" + url + "< sessionId: >" + sessionId + "<"
+    );
 
   if (sessionId > 0) {
-    session = sessions.find(session => session.getId() === sessionId);
+    session = sessions.find((session) => session.getId() === sessionId);
     if (session != null) {
-      //sId = session.getId();
-      island = islands.find(island => island.hasSession(session.getId()));
-      // if (island != null) {iId = island.getId()};
+      island = islands.find((island) => island.hasSession(session.getId()));
     }
   }
 
-  switch(url) {
-
-    case "/island" : {
-      if (! session) {
-
+  switch (url) {
+    case "/island": {
+      if (!session) {
         session = new Session();
-        island = new Island(islandH,islandL, session, debug);
+        island = new Island(islandH, islandL, session, debug);
         islands.push(island);
 
-        if (debug ) {
+        if (debug) {
           timeTag = new Date().getTime() - baseTime;
-          console.log(timeTag + "index.js - createResponse/island : Building an island of size " + islandH + " * " + islandL);
+          console.log(
+            timeTag +
+              "index.js - createResponse/island : Building an island of size " +
+              islandH +
+              " * " +
+              islandL
+          );
         }
         sessions.push(session);
-
       }
 
       return createInitData(session, island, session.getInitMoveLog(island));
     }
 
-    case "/new-island" : {
+    case "/new-island": {
       if (session) {
-
-
         if (island) {
           island.unregisterSession(session);
         }
 
-        island = new Island(islandH,islandL,session,debug);
+        island = new Island(islandH, islandL, session, debug);
         islands.push(island);
         session.reset();
 
-        if (debug ) {
+        if (debug) {
           timeTag = new Date().getTime() - baseTime;
-          console.log(timeTag + "index.js - createResponse/new-island : Renewing an island of size " + islandH + " * " + islandL);
+          console.log(
+            timeTag +
+              "index.js - createResponse/new-island : Renewing an island of size " +
+              islandH +
+              " * " +
+              islandL
+          );
         }
 
         return createInitData(session, island, session.getInitMoveLog(island));
-
       } else {
         if (debug) {
           console.log("index.js - createResponse : No island found");
@@ -137,32 +142,33 @@ const createResponse = (url,params,sessionId) => {
       }
     }
 
-    case "/connect-island" : {
+    case "/connect-island": {
       if (session) {
-        // island = new Island(islandH,islandL);
-
         if (island) {
           island.unregisterSession(session);
         }
 
-        let islandId  = Number.parseInt(params.islandId,10);
-        island = islands.find(island => island.getId() === islandId);
+        let islandId = Number.parseInt(params.islandId, 10);
+        island = islands.find((island) => island.getId() === islandId);
         session.reset();
         island.registerSession(session);
 
-        if (debug ) {
+        if (debug) {
           timeTag = new Date().getTime() - baseTime;
-          console.log(timeTag + "index.js - createResponse/connect-island : Connecting to island  " + island.getName());
+          console.log(
+            timeTag +
+              "index.js - createResponse/connect-island : Connecting to island  " +
+              island.getName()
+          );
         }
 
-        return createInitData(session, island,session.getInitMoveLog(island));
-
+        return createInitData(session, island, session.getInitMoveLog(island));
       } else {
         console.log("index.js - createResponse :No island found");
       }
     }
 
-    case "/penguins" : {
+    case "/penguins": {
       if (session && island) {
         return createData(false);
       }
@@ -172,78 +178,74 @@ const createResponse = (url,params,sessionId) => {
     // the parameter renew indicates the movement log must reinitiated withe 'placeament' moves (moveDir =0)
     // the parameter followId indicates that penguin must be followed in the console
 
-    case "/moves" : {
+    case "/moves": {
       if (session && island) {
-        let renew = Number.parseInt(params.renew,10);
-        let followId = Number.parseInt(params.followId,10);
+        let renew = Number.parseInt(params.renew, 10);
+        let followId = Number.parseInt(params.followId, 10);
 
-        let moves = renew === 0? session.getMoveLog(): session.getInitMoveLog(island);
+        let moves =
+          renew === 0 ? session.getMoveLog() : session.getInitMoveLog(island);
 
         return createMovesData(session, island, moves, followId);
-
       }
     }
 
-    case "/islandmoves" : {
+    case "/islandmoves": {
       if (session && island) {
-        let renew = Number.parseInt(params.renew,10);
+        let renew = Number.parseInt(params.renew, 10);
         return createIslandData(session, island);
       }
     }
 
-
-    case "/islands" : {
+    case "/islands": {
       if (session) {
-        return {islands : islands, session : session.getId()};
+        return { islands: islands, session: session.getId() };
       } else {
-        return {islands : islands};
+        return { islands: islands };
       }
     }
 
-    case "/setTile" : {
+    case "/setTile": {
       if (session && island) {
-        let hpos = Number.parseInt(params.hpos,10);
-        let lpos = Number.parseInt(params.lpos,10);
+        let hpos = Number.parseInt(params.hpos, 10);
+        let lpos = Number.parseInt(params.lpos, 10);
 
-        if (island.setTile(lpos,hpos,session)) {
+        if (island.setTile(lpos, hpos, session)) {
           return createIslandData(session, island, false);
         } else {
-          return {result : "false"};
+          return { result: "false" };
         }
       }
     }
 
-    default : {
+    default: {
       return {};
     }
-
   }
 };
 
 // Main interval loop - for each session triggers the penguin events
 
+let doAll = true;
+
 setInterval(() => {
-  islands.forEach(island => {
+  islands.forEach((island) => {
     if (island.running) {
       island.calculateNeighbours();
       island.movePenguins();
+      if (doAll) {
+        island.addSwims();
+        island.makePenguinsOlder();
+        island.smelt();
+        island.setWeather();
+      }
+      doAll = !doAll;
+      island.persist();
     }
   });
 }, intervalTime);
 
-setInterval(() => {
-  islands.forEach(island => {
-    if (island.running) {
-      island.addSwims();
-      island.makePenguinsOlder();
-      island.smelt();
-      island.setWeather();
-    }
-  });
-}, intervalTime * 2);
-
-
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
-  createResponse : createResponse
-}
+  createResponse: createResponse,
+};

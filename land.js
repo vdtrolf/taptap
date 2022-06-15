@@ -6,50 +6,67 @@ let Penguin = penguinReq.Penguin;
 let debug = false;
 
 class Land {
-  constructor(h, l, debugit) {
-    // console.log(x + " " + y);
-    debug = debugit;
+  constructor(
+    h,
+    l,
+    debugit,
+    islandId,
+    id = 0,
+    atype = 0,
+    conf = 0,
+    avar = 0,
+    hasCross = false,
+    crossAge = 0,
+    hasFish = false,
+    hasSwim = false,
+    swimAge = 0
+  ) {
+    // console.log("new land at " + h + "/" + l + " " + islandId);
 
+    this.id = id === 0 ? Math.floor(Math.random() * 999999) : id;
+    this.islandId = islandId;
     this.hpos = h;
     this.lpos = l;
-    this.type = 0;
-    this.conf = 0;
-    this.var  = Math.floor(Math.random() * 2) === 1?"a":"b";
-    this.hasCross = false;
-    this.crossAge = 0;
-    this.hasFish = false;
-    this.hasSwim = false;
-    this.swimAge = 0;
-    this.penguin = null;
+    this.type = atype;
+    this.conf = conf;
+    this.var =
+      avar === 0 ? (Math.floor(Math.random() * 2) === 1 ? "a" : "b") : avar;
+    this.hasCross = hasCross;
+    this.crossAge = crossAge;
+    this.hasFish = hasFish;
+    this.hasSwim = hasSwim;
+    this.swimAge = swimAge;
+
     this.isTarget = false;
     this.islandSize = 0;
     this.islandPopulation = 0;
+
+    debug = debugit;
   }
 
   setTarget(isTarget) {
     // if (isTarget) console.log("Set Target : " + this.hpos + "/" + this.lpos);
-    this.isTarget=isTarget;
+    this.isTarget = isTarget;
   }
-
 
   setLand(num) {
     this.type = num;
   }
 
-  addPenguin(penguin) {
-    this.penguin = penguin;
-  }
+  // addPenguin(penguin) {
+  //  this.penguin = penguin;
+  // }
 
-  checkPenguin(){
-    return this.penguin;
-  }
+  // checkPenguin(){
+  //   return this.penguin;
+  // }
 
   getType() {
     return this.type;
   }
 
   canMove() {
-    return this.type > 0 && ! this.isTarget && ! this.hasCross;
+    return this.type > 0 && !this.isTarget && !this.hasCross;
   }
 
   setType(newType) {
@@ -58,17 +75,19 @@ class Land {
 
   makeOlder() {
     if (this.crossAge > 0) {
-      this.crossAge -=1;
-      this.hasCross = (this.crossAge > 0);
+      this.crossAge -= 1;
+      this.hasCross = this.crossAge > 0;
     }
     if (this.swimAge > 0) {
-      this.swimAge -=1;
+      this.swimAge -= 1;
     }
   }
 
   setCross() {
     if (debug) {
-      console.log("land.js - setCross : setting cross at " + this.hpos + "/" + this.lpos);
+      console.log(
+        "land.js - setCross : setting cross at " + this.hpos + "/" + this.lpos
+      );
     }
     this.hasCross = true;
     this.crossAge = 10;
@@ -95,7 +114,7 @@ class Land {
   }
 
   setRandomSmeltLevel(waterBorders) {
-    this.conf = (waterBorders * 2) + Math.floor(Math.random() * 7);
+    this.conf = waterBorders * 2 + Math.floor(Math.random() * 7);
   }
 
   // converting a water tile to ice - if there is a fish swimming into the water,
@@ -119,7 +138,7 @@ class Land {
   }
 
   decreaseConf() {
-    this.conf = this.conf -1;
+    this.conf = this.conf - 1;
   }
 
   getConf() {
@@ -129,7 +148,6 @@ class Land {
   getVar() {
     return this.var;
   }
-
 
   // return true if there is a swimming fish
   swim() {
@@ -171,10 +189,9 @@ class Land {
   getIslandPopulation(population) {
     return this.islandPopulation;
   }
-
 }
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
-    Land : Land
-}
+  Land: Land,
+};

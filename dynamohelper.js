@@ -1,34 +1,89 @@
-const dynamoReq = require("@aws-sdk/client-dynamodb");
+const AWS = require("aws-sdk");
+AWS.config.update({ region: "us-east-1" });
 
-let DynamoDB = dynamoReq.DynamoDBClient;
-let CreateTableCommand = dynamoReq.CreateTableCommand;
-
-const dynamodb = new DynamoDB({ region: "us-east-1" });
+const dynamodb = new AWS.DynamoDB.DocumentClient();
 
 const params = {
-  AttributeDefinitions: [
-    { AttributeName: "Season", AttributeType: "N" },
-    { AttributeName: "Episode", AttributeType: "N" },
-  ],
-  KeySchema: [
-    { AttributeName: "Season", KeyType: "HASH" },
-    { AttributeName: "Episode", KeyType: "RANGE" },
-  ],
-  ProvisionedThroughput: {
-    ReadCapacityUnits: 1,
-    WriteCapacityUnits: 1,
+  Item: {
+    id: 1243,
+    name: "test me",
+    otherattrib: "test value 1236",
   },
-  TableName: "TEST_TABLE", //TABLE_NAME
-  StreamSpecification: {
-    StreamEnabled: false,
+  TableName: "island",
+};
+
+var queryparams = {
+  ExpressionAttributeValues: {
+    ":id": 1236, //Not
   },
+  KeyConditionExpression: "id = :id",
+  TableName: "island",
+};
+
+var scanparams = {
+  ExpressionAttributeValues: {
+    ":id": 1000, //Not
+  },
+  FilterExpression: "id > :id",
+  TableName: "island",
 };
 
 (async function () {
-  try {
-    const data = await dynamodb.send(new CreateTableCommand(params));
-    console.log("Success", data);
-  } catch (err) {
-    console.log("Error", err);
-  }
+  dynamodb.put(params, (err, data) => {
+    if (err) {
+      console.log("dynamohelper.js : Could not put data", err);
+    } else {
+      console.log("dynamohelper.js : Could put data", data);
+    }
+  });
+
+  dynamodb.query(queryparams, function (err, data) {
+    if (err) {
+      console.log("Error", err);
+    } else {
+      //console.log("Success", data.Items);
+      data.Items.forEach(function (island, index, array) {
+        console.log(
+          island.id + " : " + island.name + " (" + island.otherattrib + ")"
+        );
+      });
+    }
+  });
+
+  dynamodb.scan(scanparams, function (err, data) {
+    if (err) {
+      console.log("Error", err);
+    } else {
+      //console.log("Success", data.Items);
+      data.Items.forEach(function (island, index, array) {
+        console.log(
+          island.id + " : " + island.name + " (" + island.otherattrib + ")"
+        );
+      });
+    }
+  });
 })();
+
+const putItem = (TableName, Item) => {
+  let params = {
+    Item,
+    TableName,
+  };
+  dynamodb.put(params, (err, data) => {
+    if (err) {
+      console.log("dynamohelper.js : Could not put data in " + TableName, err);
+      return false;
+    } else {
+      //console.log(
+      //  "dynamohelper.js : Success with puting data in " + TableName,
+      //  data
+      //);
+      return true;
+    }
+  });
+};
+
+// now we export the class, so other modules can create Penguin objects
+module.exports = {
+  putItem,
+};
