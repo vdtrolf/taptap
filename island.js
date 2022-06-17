@@ -2,8 +2,7 @@ const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
 const sessionReq = require("./session.js");
 const nameserverReq = require("./nameserver.js");
-const dbhelperReq = require("./dynamohelper.js");
-// const strategicMapReq = require("./strategicmap.js");
+const dbhelperReq = require("./acebasehelper.js");
 
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
@@ -51,6 +50,7 @@ class Island {
     this.territory = [];
     this.penguins = [];
     this.sessions = [session];
+
 
     let matrix = [];
 
@@ -257,7 +257,7 @@ class Island {
 
   hasSession(sessionId) {
     let foundSession = this.sessions.find(
-      (session) => session.getId() === sessionId
+      (session) => session.id === sessionId
     );
     // probably not necessary
     return foundSession ? true : false;
@@ -425,12 +425,12 @@ class Island {
         lpos > 0 &&
         hpos < this.sizeH - 1 &&
         lpos < this.sizeL - 1 &&
-        this.getTiles() > 0
+        this.tiles > 0
       ) {
         land.setIce();
         this.decreaseTiles();
         return true;
-      } else if (land.getType() > 0 && this.getFishes() > 0) {
+      } else if (land.getType() > 0 && this.fishes > 0) {
         land.setFish();
         this.decreaseFishes();
         return true;
@@ -832,11 +832,9 @@ class Island {
                 h,
                 l,
                 this.sessions,
-                turn,
                 fatherId,
                 motherId
               );
-              this.territory[h][l].addPenguin(child);
               this.penguins.push(child);
             }
             break;
@@ -1036,7 +1034,7 @@ class Island {
       points: this.points,
       running: this.running,
       followId: this.followId,
-    });
+    },this.id);
 
     for (let i = 0; i < this.sizeH; i++) {
       for (let j = 0; j < this.sizeL; j++) {
@@ -1054,17 +1052,17 @@ class Island {
           hasFish: land.hasFish,
           hasSwim: land.hasSwim,
           swimAge: land.swimAge,
-        });
+        },land.id);
       }
     }
 
     this.penguins.forEach((penguin) => {
-      putItem("penguin", {
+      putItem("penguin", {      
         id: penguin.id,
         islandId: penguin.islandId,
         num: penguin.num,
-        hpos: penguin.h,
-        lpos: penguin.l,
+        hpos: penguin.hpos,
+        lpos: penguin.lpos,
         age: penguin.age,
         fat: penguin.fat,
         maxcnt: penguin.maxcnt,
@@ -1083,10 +1081,10 @@ class Island {
         hasLoved: penguin.hasLoved,
         fatherId: penguin.fatherId,
         motherId: penguin.motherId,
-        partnerId: penguin.partnerId,
-      });
+        partnerId: penguin.partnerId
+      },penguin.id)
     });
-  };
+  } 
 }
 
 // now we export the class, so other modules can create Penguin objects

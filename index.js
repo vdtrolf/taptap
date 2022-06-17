@@ -3,14 +3,21 @@
 const requestserverReq = require("./requestserver.js");
 let createResponse = requestserverReq.createResponse;
 
+const dbhelperReq = require("./acebasehelper.js");
+let createDb = dbhelperReq.createDb;
+
 const args = process.argv.slice(2);
 let startExpress = (args[0] && args[0].toLowerCase() === "local")
+startExpress = true;
 let debug = false;
 let requestcounter = 0;
 
 // Starting the express server
 
 if (startExpress) {
+
+  createDb();
+
 
   const port = 3001;
   let app = null;

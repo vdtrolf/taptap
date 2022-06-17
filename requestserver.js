@@ -1,13 +1,14 @@
-// const penguinReq = require("./penguin.js");
 const islandReq = require("./island.js");
-// const landReq = require("./land.js");
 const sessionReq = require("./session.js");
 const nameserverReq = require("./nameserver.js");
 
-// let Penguin = penguinReq.Penguin;
 let Island = islandReq.Island;
-// let Land = landReq.Land;
+
 let Session = sessionReq.Session;
+let getSession = sessionReq.getSession;
+let createSession = sessionReq.createSession;
+let persistSessions = sessionReq.persistSessions;
+
 let NameServer = nameserverReq.NameServer;
 
 const intervalTime = 864; // 864; // 648;  // 1728; //864
@@ -15,7 +16,7 @@ let islandH = 12;
 let islandL = 12;
 let mode = 1;
 let islands = [];
-let sessions = [];
+// let sessions = [];
 const baseTime = new Date().getTime();
 
 // console.log(process.env);
@@ -29,7 +30,7 @@ const createInitData = (session, island, moves) => {
   let theMoves = moves ? moves : [];
 
   return {
-    session: session.getId(),
+    session: session.id,
     island: island.getImg(mode, islandH, islandL),
     penguins: island.getPenguins(),
     weather: island.getWeather(),
@@ -46,7 +47,7 @@ const createInitData = (session, island, moves) => {
 
 const createIslandData = (session, island) => {
   return {
-    session: session.getId(),
+    session: session.id,
     island: island.getImg(mode, islandH, islandL),
     penguins: island.getPenguins(),
     weather: island.getWeather(),
@@ -67,7 +68,7 @@ const createMovesData = (session, island, moves, followId) => {
   island.setFollowId(followId);
 
   return {
-    session: session.getId(),
+    session: session.id,
     points: island.points,
     islandSize: island.landSize,
     moves: theMoves,
@@ -84,30 +85,24 @@ const createResponse = (url, params, sessionId) => {
     );
 
   if (sessionId > 0) {
-    session = sessions.find((session) => session.getId() === sessionId);
+    session = getSession(sessionId);
     if (session != null) {
-      island = islands.find((island) => island.hasSession(session.getId()));
+      island = islands.find((island) => island.hasSession(session.id));
     }
+//    session = sessions.find((session) => session.getId() === sessionId);
   }
 
   switch (url) {
     case "/island": {
       if (!session) {
-        session = new Session();
+        session = createSession();
         island = new Island(islandH, islandL, session, debug);
         islands.push(island);
 
         if (debug) {
           timeTag = new Date().getTime() - baseTime;
-          console.log(
-            timeTag +
-              "index.js - createResponse/island : Building an island of size " +
-              islandH +
-              " * " +
-              islandL
-          );
+          console.log( timeTag + "index.js - createResponse/island : Building an island of size " + islandH + " * " + islandL );
         }
-        sessions.push(session);
       }
 
       return createInitData(session, island, session.getInitMoveLog(island));
@@ -125,13 +120,7 @@ const createResponse = (url, params, sessionId) => {
 
         if (debug) {
           timeTag = new Date().getTime() - baseTime;
-          console.log(
-            timeTag +
-              "index.js - createResponse/new-island : Renewing an island of size " +
-              islandH +
-              " * " +
-              islandL
-          );
+          console.log( timeTag + "index.js - createResponse/new-island : Renewing an island of size " + islandH + " * " + island );
         }
 
         return createInitData(session, island, session.getInitMoveLog(island));
@@ -241,6 +230,7 @@ setInterval(() => {
       }
       doAll = !doAll;
       island.persist();
+      persistSessions();
     }
   });
 }, intervalTime);

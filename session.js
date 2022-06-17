@@ -1,31 +1,40 @@
+const dbhelperReq = require("./acebasehelper.js");
+let putItem = dbhelperReq.putItem;
+let getItems = dbhelperReq.getItems;
+let deleteItem = dbhelperReq.deletItem;
+
+
 let debug = false;
+
+const sessions = [];
 
 class Session {
   constructor() {
-    // console.log(x + " " + y);
     this.id = Math.floor(Math.random() * 99999999999);
     this.moveLog = [];
     this.moveCounter = 0;
+    this.lastInvocation = new Date().getTime();
     if (debug) {
       console.log("session.js - constructor : New session with id " + this.id);
     }
   }
 
+  // resets the session - that is set the moveCounter to 0
+
   reset() {
     this.moveCounter = 0;
-
     if (debug) {
       console.log("session.js - reset : Session reset with id " + this.id);
     }
   }
 
-  getId() {
-    return this.id;
-  }
+  //getId() {
+  //  return this.id;
+  //}
 
-  isAlive() {
-    return true;
-  }
+  //isAlive() {
+  //  return true;
+  // }
 
   // Add a move log record
   // move objects are made of :
@@ -42,25 +51,9 @@ class Session {
     let moveTypes = ["init", "move", "grow", "eat", "love", "die"];
     let moveid = this.moveCounter++;
     if (debug) {
-      console.log(
-        "session.js - addMoveLog : " +
-          moveid +
-          " : Penguin " +
-          id +
-          " " +
-          moveTypes[moveType] +
-          " (" +
-          moveType +
-          ":" +
-          moveDir +
-          ") " +
-          origH +
-          "/" +
-          origL +
-          " -> " +
-          newH +
-          "/" +
-          newL
+      console.log("session.js - addMoveLog : " + moveid + " : Penguin " + id + " " 
+                  + moveTypes[moveType] + " (" + moveType + ":" + moveDir + ") " 
+                  + origH + "/" + origL + " -> " + newH + "/" + newL
       );
     }
     if (moveType !== 1) {
@@ -119,11 +112,7 @@ class Session {
     this.moveLog = [];
     island.resetPenguins(this);
 
-    if (debug) {
-      console.log(
-        "session.js - getInitMoveLog : number of moves after reset = " +
-          this.moveLog.length
-      );
+    if (debug) { console.log( "session.js - getInitMoveLog : number of moves after reset = " + this.moveLog.length );
     }
 
     let lastMoves = [...this.moveLog];
@@ -146,7 +135,64 @@ class Session {
   }
 }
 
+// create a new session and directly returns it, in the mean time saves the session to the db
+
+const createSession = () => {
+  session = new Session();
+  sessions.push(session); 
+  persistSessions(session);
+  return session;
+}
+
+// gets the session, either out of the local array or out of the NoSQL db
+
+const getSession = (sessionId) => {
+  
+  //if (sessions.length === 0) {
+    getItems("session").forEach(item => {
+      console.log("found session " + item.id + " " + item.moveCounter + " " + item.lastInvocation);
+        
+    });
+  // }
+  
+  let foundSession = sessions.find(session => session.id = sessionId);
+  foundSession.lastInvocation = new Date().getTime();
+  return foundSession;
+}
+
+// persists the session in the NoSQL db
+
+const persistSessions = (session = null) => {
+  if ( ! session) {
+    sessions.forEach((session) => {
+      
+      let currentTime = new Date().getTime();
+      
+      if (currentTime - session.lastInvocation > 10000) {
+        deleteItem("session",session.id);
+      } else {
+        putItem("session", {      
+          id: session.id,
+          moveLog: session.moveLog,
+          moveCounter: session.moveCounter,
+          lastInvocation: session.lastInvocation,
+        },session.id)
+      }
+    }); 
+  } else {
+    putItem("session", {      
+      id: session.id,
+      moveLog: session.moveLog,
+      moveCounter: session.moveCounter,
+      lastInvocation: session.lastInvocation,
+    },session.id)
+  }
+}
+
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
   Session: Session,
+  getSession: getSession,
+  createSession: createSession,
+  persistSessions: persistSessions
 };
