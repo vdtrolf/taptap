@@ -1,13 +1,17 @@
 const islandReq = require("./island.js");
+const islandDataReq = require("./islandData.js");
 const sessionReq = require("./session.js");
 const nameserverReq = require("./nameserver.js");
 
+
 let Island = islandReq.Island;
+let getIslands = islandReq.getIslands;
 
 let Session = sessionReq.Session;
 let getSession = sessionReq.getSession;
 let createSession = sessionReq.createSession;
 let persistSessions = sessionReq.persistSessions;
+let persistIsland = islandDataReq.persistIsland;
 
 let NameServer = nameserverReq.NameServer;
 
@@ -138,7 +142,7 @@ const createResponse = (url, params, sessionId) => {
         }
 
         let islandId = Number.parseInt(params.islandId, 10);
-        island = islands.find((island) => island.getId() === islandId);
+        island = islands.find(island => island.id === islandId);
         session.reset();
         island.registerSession(session);
 
@@ -188,9 +192,9 @@ const createResponse = (url, params, sessionId) => {
 
     case "/islands": {
       if (session) {
-        return { islands: islands, session: session.getId() };
+        return { islands: getIslands(), session: session.getId() };
       } else {
-        return { islands: islands };
+        return { islands: getIslands() };
       }
     }
 
@@ -229,7 +233,7 @@ setInterval(() => {
         island.setWeather();
       }
       doAll = !doAll;
-      island.persist();
+      persistIsland(island);
       persistSessions();
     }
   });

@@ -3,9 +3,44 @@ const { AceBase } = require('acebase');
 let db = null;
 
 const createDb = () => {
-  const options = { logLevel: 'err'};
+  const options = { logLevel: 'err'};  //   'verbose'};
   db = new AceBase('my_db',options);
 } 
+
+const cleanDb = () => {
+  
+  if (db && db.ready() ) {
+    
+    db.ref('land')
+    .update({ 112517: null })
+    .then(ref => console.log("done"));
+    
+    
+    db.query('island')
+    .take(1000)
+    .remove();
+    db.query('lands')
+    .take(1000)
+    .remove();
+    db.query('penguins')
+    .take(1000)
+    .remove();
+    db.query('session')
+    .take(1000)
+    .remove();
+  }
+
+} 
+
+const remove = (path) => {
+  
+  console.log('going to remove ' + path);
+  
+     db.query(path)
+    .remove(result => console.log(result));
+}
+
+
 
 const putItem = (tableName, Item, uniqueId) => {
 
@@ -34,18 +69,25 @@ const getItem = (tableName, uniqueId) => {
   }
 };
 
-const getItems = (tableName) => {
-
-  if (db && db.ready()) {
-    db.query(tableName)
+const getItems = (tableName, callbackFunction, filter) => {
+  
+  console.log("acebasehelper.js - getItems: table " + tableName + " filter " + filter)
+  
+  if (db && db.ready() ) {
+    
+    try {
+      db.query(tableName)
+      .take(1000)
+//      // .filter(filter)
       .get(snapshots => {
-      const items = snapshots.getValues();
-      // console.dir(items);
-      return items;
-    });
-  } else {
-    return undefined;
-  }
+//        console.dir(snapshots.getValues());
+//        (tableName + " values: " + snapshots.getValues().length
+        callbackFunction(snapshots.getValues());
+      })
+    } catch (error) {
+      console.error("acebasehelpers.js - getItems: ",error)
+    }
+  }    
 };
 
 const deleteItem = (tableName, uniqueId) => {
@@ -62,5 +104,6 @@ module.exports = {
   putItem,
   getItems,
   deleteItem,
-  createDb
+  createDb,
+  cleanDb
 };

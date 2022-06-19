@@ -1,14 +1,18 @@
 'use strict';
 
 const requestserverReq = require("./requestserver.js");
-let createResponse = requestserverReq.createResponse;
-
 const dbhelperReq = require("./acebasehelper.js");
+const islandDataReq = require("./islandData.js");
+
+let createResponse = requestserverReq.createResponse;
 let createDb = dbhelperReq.createDb;
+let cleanDb = dbhelperReq.cleanDb;
+let initiateIslands = islandDataReq.initiateIslands;
 
 const args = process.argv.slice(2);
 let startExpress = (args[0] && args[0].toLowerCase() === "local")
 startExpress = true;
+
 let debug = false;
 let requestcounter = 0;
 
@@ -17,7 +21,9 @@ let requestcounter = 0;
 if (startExpress) {
 
   createDb();
-
+  // cleanDb();
+  // initiateSessions();
+  initiateIslands();
 
   const port = 3001;
   let app = null;

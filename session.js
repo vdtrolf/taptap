@@ -1,7 +1,7 @@
 const dbhelperReq = require("./acebasehelper.js");
 let putItem = dbhelperReq.putItem;
 let getItems = dbhelperReq.getItems;
-let deleteItem = dbhelperReq.deletItem;
+let deleteItem = dbhelperReq.deleteItem;
 
 
 let debug = false;
@@ -9,13 +9,14 @@ let debug = false;
 const sessions = [];
 
 class Session {
-  constructor() {
-    this.id = Math.floor(Math.random() * 99999999999);
+  constructor(id = 0, lastInvocation = 0, islandId = 0) {
+    this.id = id===0?Math.floor(Math.random() * 99999999999):id;
     this.moveLog = [];
     this.moveCounter = 0;
-    this.lastInvocation = new Date().getTime();
+    this.lastInvocation = lastInvocation===0?new Date().getTime():lastInvocation;
+    this.islandId = islandId;
     if (debug) {
-      console.log("session.js - constructor : New session with id " + this.id);
+      console.log("session.js - constructor : New session with id " + this.id + " last " +  this.lastInvocation );
     }
   }
 
@@ -27,6 +28,11 @@ class Session {
       console.log("session.js - reset : Session reset with id " + this.id);
     }
   }
+
+  setIsland(islandId) {
+    this.islandId = islandId; 
+  }
+
 
   //getId() {
   //  return this.id;
@@ -135,6 +141,25 @@ class Session {
   }
 }
 
+const initiateSessions = () => {
+  
+  console.log("session.js - initiateSessions: getting sessions out of DB");
+  getItems("session",loadSessions);
+  
+}
+
+const loadSessions = (theSessions) => {
+  
+  console.log("session.js - loadSessions: found " + theSessions.length + " sessions");
+
+  theSessions.forEach(asession => {
+    let session = new Session(asession.id, asession.lastInvocation, asession.islandId);
+    sessions.push(session);
+  });
+  
+}
+
+
 // create a new session and directly returns it, in the mean time saves the session to the db
 
 const createSession = () => {
@@ -148,27 +173,23 @@ const createSession = () => {
 
 const getSession = (sessionId) => {
   
-  //if (sessions.length === 0) {
-    getItems("session").forEach(item => {
-      console.log("found session " + item.id + " " + item.moveCounter + " " + item.lastInvocation);
-        
-    });
-  // }
-  
-  let foundSession = sessions.find(session => session.id = sessionId);
+  let foundSession = sessions.find(session => session.id === sessionId);
   foundSession.lastInvocation = new Date().getTime();
   return foundSession;
 }
 
 // persists the session in the NoSQL db
 
-const persistSessions = (session = null) => {
-  if ( ! session) {
-    sessions.forEach((session) => {
+const persistSessions = (asession = null) => {
+  
+  
+  if ( ! asession) {
+    sessions.forEach(session => {
       
       let currentTime = new Date().getTime();
-      
-      if (currentTime - session.lastInvocation > 10000) {
+
+      if (currentTime - session.lastInvocation > 300000) {
+        // console.log("Going to delete session " + session.id + " " + session.lastInvocation + " now:" + currentTime);
         deleteItem("session",session.id);
       } else {
         putItem("session", {      
@@ -181,11 +202,11 @@ const persistSessions = (session = null) => {
     }); 
   } else {
     putItem("session", {      
-      id: session.id,
-      moveLog: session.moveLog,
-      moveCounter: session.moveCounter,
-      lastInvocation: session.lastInvocation,
-    },session.id)
+      id: asession.id,
+      moveLog: asession.moveLog,
+      moveCounter: asession.moveCounter,
+      lastInvocation: asession.lastInvocation,
+    },asession.id)
   }
 }
 
@@ -194,5 +215,6 @@ module.exports = {
   Session: Session,
   getSession: getSession,
   createSession: createSession,
-  persistSessions: persistSessions
+  persistSessions: persistSessions,
+  initiateSessions: initiateSessions
 };

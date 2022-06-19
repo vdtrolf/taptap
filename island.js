@@ -3,13 +3,21 @@ const landReq = require("./land.js");
 const sessionReq = require("./session.js");
 const nameserverReq = require("./nameserver.js");
 const dbhelperReq = require("./acebasehelper.js");
+const islandDataReq = require("./islandData.js");
 
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
 let Session = sessionReq.Session;
 let putItem = dbhelperReq.putItem;
+let deleteItem = dbhelperReq.deleteItem;
+let getItems = dbhelperReq.getItems;
+let initiateSessions = sessionReq.initiateSessions;
+let persistIsland = islandDataReq.persistIsland;
 
-let debug = false;
+let islands = [];
+
+let debug = true;
+
 const weathers = ["sun", "rain", "snow", "cold", "endgame"];
 
 class Island {
@@ -28,6 +36,7 @@ class Island {
     fishes = 5,
     points = 0,
     running = true,
+    lastInvocation = 0,
     followId = 0
   ) {
     debug = debugit;
@@ -46,7 +55,7 @@ class Island {
     this.points = points;
     this.running = running;
     this.followId = followId;
-
+    this.lastInvocation = lastInvocation===0?new Date().getTime():lastInvocation;
     this.territory = [];
     this.penguins = [];
     this.sessions = [session];
@@ -205,9 +214,12 @@ class Island {
           pengCnt++;
         }
       }
+    
+    
+      islands.push(this);
+   
+      persistIsland(this);
     }
-
-    this.persist();
   } // constructor ()
 
   // Adds a session to the list of listening sessions
@@ -1018,76 +1030,21 @@ class Island {
 
     return exploredTiles;
   }
-
-  persist = () => {
-    putItem("island", {
-      id: this.id,
-      name: this.name,
-      sizeH: this.sizeH,
-      sizeL: this.sizeL,
-      weather: this.weather,
-      weatherCount: this.weatherCount,
-      numPeng: this.numPeng,
-      tiles: this.tiles,
-      landSize: this.landSize,
-      fishes: this.fishes,
-      points: this.points,
-      running: this.running,
-      followId: this.followId,
-    },this.id);
-
-    for (let i = 0; i < this.sizeH; i++) {
-      for (let j = 0; j < this.sizeL; j++) {
-        let land = this.territory[i][j];
-        putItem("land", {
-          id: land.id,
-          islandId: land.islandId,
-          hpos: land.hpos,
-          lpos: land.lpos,
-          type: land.type,
-          conf: land.conf,
-          var: land.var,
-          hasCross: land.hasCross,
-          crossAge: land.crossAge,
-          hasFish: land.hasFish,
-          hasSwim: land.hasSwim,
-          swimAge: land.swimAge,
-        },land.id);
-      }
-    }
-
-    this.penguins.forEach((penguin) => {
-      putItem("penguin", {      
-        id: penguin.id,
-        islandId: penguin.islandId,
-        num: penguin.num,
-        hpos: penguin.hpos,
-        lpos: penguin.lpos,
-        age: penguin.age,
-        fat: penguin.fat,
-        maxcnt: penguin.maxcnt,
-        vision: penguin.vision,
-        wealth: penguin.wealth,
-        hungry: penguin.hungry,
-        alive: penguin.alive,
-        gender: penguin.gender,
-        cat: penguin.cat,
-        name: penguin.name,
-        loving: penguin.loving,
-        waiting: penguin.waiting,
-        fishTime: penguin.fishTime,
-        fishDirection: penguin.fishDirection,
-        moving: penguin.moving,
-        hasLoved: penguin.hasLoved,
-        fatherId: penguin.fatherId,
-        motherId: penguin.motherId,
-        partnerId: penguin.partnerId
-      },penguin.id)
-    });
-  } 
 }
+
+setIslands = (islands) => {
+  islands = islands;
+}
+
+
+getIslands = () => {
+  return islands;
+}
+
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
   Island: Island,
+  getIslands: getIslands,
+  setIslands: setIslands
 };
