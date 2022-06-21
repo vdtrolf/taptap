@@ -103,12 +103,6 @@ class Penguin {
 
   // returns teh category of the penguin - y,m,f,o (old man), e (eldery woman)
 
-  //getCat() {
-  // let cat = this.gender === "male" ? "-m-" : "-f-";
-  // cat = this.age < 6 ? "-y-" : cat;
-  // return this.cat;
-  // }
-
   setName(name) {
     this.name = name;
   }
