@@ -14,7 +14,7 @@ let persistIsland = islandDataReq.persistIsland;
 
 let NameServer = nameserverReq.NameServer;
 
-const intervalTime = 3456; // 864; // 864; // 648;  // 1728; //864
+const intervalTime = 846; // 3456; //864; // 864; // 648;  // 1728; //864
 let islandH = 12;
 let islandL = 12;
 let mode = 1;
