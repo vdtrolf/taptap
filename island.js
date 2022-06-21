@@ -3,7 +3,7 @@ const landReq = require("./land.js");
 const sessionReq = require("./session.js");
 const nameserverReq = require("./nameserver.js");
 const dbhelperReq = require("./acebasehelper.js");
-const islandDataReq = require("./islandData.js");
+// const islandDataReq = require("./islandData.js");
 
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
@@ -12,7 +12,7 @@ let putItem = dbhelperReq.putItem;
 let deleteItem = dbhelperReq.deleteItem;
 let getItems = dbhelperReq.getItems;
 let initiateSessions = sessionReq.initiateSessions;
-let persistIsland = islandDataReq.persistIsland;
+// let persistIsland = islandDataReq.persistIsland;
 
 let islands = [];
 
@@ -55,11 +55,11 @@ class Island {
     this.points = points;
     this.running = running;
     this.followId = followId;
-    this.lastInvocation = lastInvocation===0?new Date().getTime():lastInvocation;
+    this.lastInvocation =
+      lastInvocation === 0 ? new Date().getTime() : lastInvocation;
     this.territory = [];
     this.penguins = [];
-    this.sessions = [session];
-
+    this.sessions = session ? [session] : [];
 
     let matrix = [];
 
@@ -214,11 +214,10 @@ class Island {
           pengCnt++;
         }
       }
-    
-    
+
       islands.push(this);
-   
-      persistIsland(this);
+
+      // persistIsland(this);
     }
   } // constructor ()
 
@@ -275,10 +274,6 @@ class Island {
     return foundSession ? true : false;
   }
 
-  //getTiles() {
-  //  return this.tiles;
-  //}
-
   addTile() {
     this.tiles += 1;
   }
@@ -295,17 +290,9 @@ class Island {
     this.fishes -= this.fishes > 0 ? 1 : 0;
   }
 
-  //getFishes() {
-  //  return this.fishes;
-  //}
-
   addPoints(points) {
     this.points += points;
   }
-
-  //getPoints() {
-  //  return this.points;
-  //}
 
   resetPoints() {
     this.points = 0;
@@ -536,7 +523,7 @@ class Island {
 
     for (let i = 0; i < this.sizeH; i++) {
       for (let j = 0; j < this.sizeL; j++) {
-        this.territory[i][j].setTarget(false);
+        if (this.territory[i][j]) this.territory[i][j].setTarget(false);
       }
     }
 
@@ -650,7 +637,7 @@ class Island {
           !penguin.isFishing()
         ) {
           if (islandPopulation / islandSize > 0.79) {
-            penguin.wait(this.sessions, turn);
+            penguin.wait(this.sessions);
             this.territory[pengH][pengL].setTarget(true);
             if (debug) {
               console.log(
@@ -907,24 +894,6 @@ class Island {
     return weathers[this.weather];
   }
 
-  // Returns the id of the island
-
-  //getId() {
-  //  return this.id;
-  // }
-
-  // Returns the land size of the island
-
-  //getLandSize() {
-  //  return this.landSize;
-  //}
-
-  // Returns the name of the island
-
-  //getName() {
-  //  return this.name;
-  //}
-
   // calculate the size and populations of subislands
 
   calculateNeighbours() {
@@ -933,7 +902,8 @@ class Island {
     for (let hpos = 1; hpos < this.sizeH - 1; hpos++) {
       for (let lpos = 1; lpos < this.sizeL - 1; lpos++) {
         if (
-          this.territory[hpos][lpos].getType() > 0 &&
+          this.territory[hpos][lpos] &&
+          this.territory[hpos][lpos].type > 0 &&
           !allExplored.some((tile) => tile.hpos === hpos && tile.lpos === lpos)
         ) {
           let neighbours = this.getNeighbourTiles(0, hpos, lpos, [], []);
@@ -955,9 +925,6 @@ class Island {
           });
 
           allExplored = [...allExplored, ...neighbours];
-          // if (debug) {
-          //  console.log("penguins.js - calculateNeighbours : tile " + hpos + "/" + lpos + " has " + neighbours.length + " neighbours with " + pengCnt + " penguins");
-          // }
         }
       }
     }
@@ -966,13 +933,11 @@ class Island {
   // iteratively set up the list of neighbours (tiles > 0) for a tile
 
   getNeighbourTiles(inc, hpos, lpos, neigbourTiles, exploredTiles) {
-    // console.log("exploring " + hpos + "/" + lpos + " " + exploredTiles.length);
-
     exploredTiles.push({ hpos: hpos, lpos: lpos });
-    // console.dir(exploredTiles);
 
     if (
-      this.territory[hpos - 1][lpos].getType() > 0 &&
+      this.territory[hpos - 1][lpos] &&
+      this.territory[hpos - 1][lpos].type > 0 &&
       !exploredTiles.some(
         (tile) => tile.hpos === hpos - 1 && tile.lpos === lpos
       )
@@ -1032,19 +997,22 @@ class Island {
   }
 }
 
-setIslands = (islands) => {
-  islands = islands;
-}
-
+setIslands = (theIslands) => {
+  islands = theIslands;
+};
 
 getIslands = () => {
   return islands;
-}
+};
 
+getIsland = (islandId) => {
+  return islands.find((island) => island.id === islandId);
+};
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
   Island: Island,
+  getIsland: getIsland,
   getIslands: getIslands,
-  setIslands: setIslands
+  setIslands: setIslands,
 };

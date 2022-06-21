@@ -33,7 +33,7 @@ class Penguin {
     hasLoved = 0,
     partnerId = 0
   ) {
-    this.id = id === 0 ? Math.floor(Math.random() * 999999) : 0;
+    this.id = id === 0 ? Math.floor(Math.random() * 999999) : id;
     this.islandId = islandId;
     this.num = num;
     this.hpos = h;
@@ -51,7 +51,7 @@ class Penguin {
     this.alive = alive;
     this.gender = gender;
     this.cat = cat;
-    this.name = name;
+    this.name = name.length < 1 ? "titi" : name;
 
     this.loving = loving;
     this.waiting = waiting;
@@ -66,10 +66,14 @@ class Penguin {
     this.strategicMap = null;
     this.strategyShort = "";
 
-    let aPenguinName =
-      this.name === "titi" ? nameserverReq.getPenguinName() : this.name;
-    this.name = aPenguinName.name;
-    this.gender = aPenguinName.gender;
+    if (this.name === "titi") {
+      let aPenguinName =
+        this.name === "titi" ? nameserverReq.getPenguinName() : this.name;
+      this.name = aPenguinName.name;
+      this.gender = aPenguinName.gender;
+    }
+
+    // console.log("new penguin " + this.name + " " + this.gender);
 
     sessions.forEach((session) => {
       session.addMoveLog(
@@ -407,7 +411,7 @@ class Penguin {
 
     // if (this.id === island.followId && this.alive) console.log("Hungry: " + this.hungry + " fatfactor: " + this.fat + " getting more hungry by : " + (Math.floor(this.fat / 2) + 1));
 
-    this.hungry += Math.floor(this.fat / 2) + 1;
+    this.hungry += Math.floor((this.fat - 1) / 2) + 1;
   }
 
   // return true is the penguin is eating

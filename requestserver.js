@@ -3,7 +3,6 @@ const islandDataReq = require("./islandData.js");
 const sessionReq = require("./session.js");
 const nameserverReq = require("./nameserver.js");
 
-
 let Island = islandReq.Island;
 let getIslands = islandReq.getIslands;
 
@@ -15,12 +14,10 @@ let persistIsland = islandDataReq.persistIsland;
 
 let NameServer = nameserverReq.NameServer;
 
-const intervalTime = 864; // 864; // 648;  // 1728; //864
+const intervalTime = 3456; // 864; // 864; // 648;  // 1728; //864
 let islandH = 12;
 let islandL = 12;
 let mode = 1;
-let islands = [];
-// let sessions = [];
 const baseTime = new Date().getTime();
 
 // console.log(process.env);
@@ -82,6 +79,7 @@ const createMovesData = (session, island, moves, followId) => {
 const createResponse = (url, params, sessionId) => {
   let session = null;
   let island = null;
+  let islands = getIslands();
 
   if (debug)
     console.log(
@@ -93,7 +91,7 @@ const createResponse = (url, params, sessionId) => {
     if (session != null) {
       island = islands.find((island) => island.hasSession(session.id));
     }
-//    session = sessions.find((session) => session.getId() === sessionId);
+    //    session = sessions.find((session) => session.getId() === sessionId);
   }
 
   switch (url) {
@@ -101,11 +99,17 @@ const createResponse = (url, params, sessionId) => {
       if (!session) {
         session = createSession();
         island = new Island(islandH, islandL, session, debug);
-        islands.push(island);
+        // islands.push(island);
 
         if (debug) {
           timeTag = new Date().getTime() - baseTime;
-          console.log( timeTag + "index.js - createResponse/island : Building an island of size " + islandH + " * " + islandL );
+          console.log(
+            timeTag +
+              "index.js - createResponse/island : Building an island of size " +
+              islandH +
+              " * " +
+              islandL
+          );
         }
       }
 
@@ -119,12 +123,18 @@ const createResponse = (url, params, sessionId) => {
         }
 
         island = new Island(islandH, islandL, session, debug);
-        islands.push(island);
+        // islands.push(island);
         session.reset();
 
         if (debug) {
           timeTag = new Date().getTime() - baseTime;
-          console.log( timeTag + "index.js - createResponse/new-island : Renewing an island of size " + islandH + " * " + island );
+          console.log(
+            timeTag +
+              "index.js - createResponse/new-island : Renewing an island of size " +
+              islandH +
+              " * " +
+              island
+          );
         }
 
         return createInitData(session, island, session.getInitMoveLog(island));
@@ -142,7 +152,7 @@ const createResponse = (url, params, sessionId) => {
         }
 
         let islandId = Number.parseInt(params.islandId, 10);
-        island = islands.find(island => island.id === islandId);
+        island = islands.find((island) => island.id === islandId);
         session.reset();
         island.registerSession(session);
 
@@ -151,7 +161,10 @@ const createResponse = (url, params, sessionId) => {
           console.log(
             timeTag +
               "index.js - createResponse/connect-island : Connecting to island  " +
-              island.getName()
+              island.name +
+              "( id " +
+              island.id +
+              ")"
           );
         }
 
@@ -222,7 +235,7 @@ const createResponse = (url, params, sessionId) => {
 let doAll = true;
 
 setInterval(() => {
-  islands.forEach((island) => {
+  getIslands().forEach((island) => {
     if (island.running) {
       island.calculateNeighbours();
       island.movePenguins();

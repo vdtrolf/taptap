@@ -1,8 +1,10 @@
 const dbhelperReq = require("./acebasehelper.js");
+const islandReq = require("./island.js");
+
 let putItem = dbhelperReq.putItem;
 let getItems = dbhelperReq.getItems;
 let deleteItem = dbhelperReq.deleteItem;
-
+// let getIsland = islandReq.getIsland;
 
 let debug = false;
 
@@ -10,14 +12,23 @@ const sessions = [];
 
 class Session {
   constructor(id = 0, lastInvocation = 0, islandId = 0) {
-    this.id = id===0?Math.floor(Math.random() * 99999999999):id;
+    this.id = id === 0 ? Math.floor(Math.random() * 99999999999) : id;
     this.moveLog = [];
     this.moveCounter = 0;
-    this.lastInvocation = lastInvocation===0?new Date().getTime():lastInvocation;
+    this.lastInvocation =
+      lastInvocation === 0 ? new Date().getTime() : lastInvocation;
     this.islandId = islandId;
     if (debug) {
-      console.log("session.js - constructor : New session with id " + this.id + " last " +  this.lastInvocation );
+      console.log(
+        "session.js - constructor : New session with id " +
+          this.id +
+          " last " +
+          this.lastInvocation
+      );
     }
+
+    let island = getIsland(this.islandId);
+    if (island) island.registerSession(this);
   }
 
   // resets the session - that is set the moveCounter to 0
@@ -30,9 +41,8 @@ class Session {
   }
 
   setIsland(islandId) {
-    this.islandId = islandId; 
+    this.islandId = islandId;
   }
-
 
   //getId() {
   //  return this.id;
@@ -57,9 +67,25 @@ class Session {
     let moveTypes = ["init", "move", "grow", "eat", "love", "die"];
     let moveid = this.moveCounter++;
     if (debug) {
-      console.log("session.js - addMoveLog : " + moveid + " : Penguin " + id + " " 
-                  + moveTypes[moveType] + " (" + moveType + ":" + moveDir + ") " 
-                  + origH + "/" + origL + " -> " + newH + "/" + newL
+      console.log(
+        "session.js - addMoveLog : " +
+          moveid +
+          " : Penguin " +
+          id +
+          " " +
+          moveTypes[moveType] +
+          " (" +
+          moveType +
+          ":" +
+          moveDir +
+          ") " +
+          origH +
+          "/" +
+          origL +
+          " -> " +
+          newH +
+          "/" +
+          newL
       );
     }
     if (moveType !== 1) {
@@ -118,7 +144,11 @@ class Session {
     this.moveLog = [];
     island.resetPenguins(this);
 
-    if (debug) { console.log( "session.js - getInitMoveLog : number of moves after reset = " + this.moveLog.length );
+    if (debug) {
+      console.log(
+        "session.js - getInitMoveLog : number of moves after reset = " +
+          this.moveLog.length
+      );
     }
 
     let lastMoves = [...this.moveLog];
@@ -142,73 +172,80 @@ class Session {
 }
 
 const initiateSessions = () => {
-  
   console.log("session.js - initiateSessions: getting sessions out of DB");
-  getItems("session",loadSessions);
-  
-}
+  getItems("session", loadSessions);
+};
 
 const loadSessions = (theSessions) => {
-  
-  console.log("session.js - loadSessions: found " + theSessions.length + " sessions");
+  console.log(
+    "session.js - loadSessions: found " + theSessions.length + " sessions"
+  );
 
-  theSessions.forEach(asession => {
-    let session = new Session(asession.id, asession.lastInvocation, asession.islandId);
+  theSessions.forEach((asession) => {
+    let session = new Session(
+      asession.id,
+      asession.lastInvocation,
+      asession.islandId
+    );
     sessions.push(session);
   });
-  
-}
-
+};
 
 // create a new session and directly returns it, in the mean time saves the session to the db
 
 const createSession = () => {
   session = new Session();
-  sessions.push(session); 
+  sessions.push(session);
   persistSessions(session);
   return session;
-}
+};
 
 // gets the session, either out of the local array or out of the NoSQL db
 
 const getSession = (sessionId) => {
-  
-  let foundSession = sessions.find(session => session.id === sessionId);
+  let foundSession = sessions.find((session) => session.id === sessionId);
   foundSession.lastInvocation = new Date().getTime();
   return foundSession;
-}
+};
 
 // persists the session in the NoSQL db
 
 const persistSessions = (asession = null) => {
-  
-  
-  if ( ! asession) {
-    sessions.forEach(session => {
-      
+  if (!asession) {
+    sessions.forEach((session) => {
       let currentTime = new Date().getTime();
 
       if (currentTime - session.lastInvocation > 300000) {
         // console.log("Going to delete session " + session.id + " " + session.lastInvocation + " now:" + currentTime);
-        deleteItem("session",session.id);
+        deleteItem("session", session.id);
       } else {
-        putItem("session", {      
-          id: session.id,
-          moveLog: session.moveLog,
-          moveCounter: session.moveCounter,
-          lastInvocation: session.lastInvocation,
-        },session.id)
+        putItem(
+          "session",
+          {
+            id: session.id,
+            moveLog: session.moveLog,
+            moveCounter: session.moveCounter,
+            lastInvocation: session.lastInvocation,
+            islandId: session.islandId,
+          },
+          session.id
+        );
       }
-    }); 
+    });
   } else {
-    putItem("session", {      
-      id: asession.id,
-      moveLog: asession.moveLog,
-      moveCounter: asession.moveCounter,
-      lastInvocation: asession.lastInvocation,
-    },asession.id)
+    putItem(
+      "session",
+      {
+        id: asession.id,
+        moveLog: asession.moveLog,
+        moveCounter: asession.moveCounter,
+        lastInvocation: asession.lastInvocation,
+        islandId: session.islandId,
+      },
+      asession.id
+    );
   }
-}
+};
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
@@ -216,5 +253,5 @@ module.exports = {
   getSession: getSession,
   createSession: createSession,
   persistSessions: persistSessions,
-  initiateSessions: initiateSessions
+  initiateSessions: initiateSessions,
 };

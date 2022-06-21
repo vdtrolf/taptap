@@ -250,7 +250,8 @@ class StrategicMap {
       }
     }
 
-    if (show) {
+    if (false) {
+      // (show) {
       let cntline = 0;
       console.log(
         "+" +
@@ -434,7 +435,8 @@ const findPath = (
       let movL = curL + movesL[dir];
       if (movH > 0 && movH < island.sizeH && movL > 0 && movL < island.sizeL) {
         let land = island.territory[movH][movL];
-        if (show) {
+        if (false) {
+          // (show) {
           if (
             land.getType() > 0 &&
             !land.hasCross &&
