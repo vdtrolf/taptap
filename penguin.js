@@ -85,7 +85,7 @@ class Penguin {
         0,
         this.hpos,
         this.lpos,
-        this.getCat(),
+        this.cat,
         "move"
       );
     });
@@ -103,11 +103,11 @@ class Penguin {
 
   // returns teh category of the penguin - y,m,f,o (old man), e (eldery woman)
 
-  getCat() {
-    let cat = this.gender === "male" ? "-m-" : "-f-";
-    cat = this.age < 6 ? "-y-" : cat;
-    return cat;
-  }
+  //getCat() {
+  // let cat = this.gender === "male" ? "-m-" : "-f-";
+  // cat = this.age < 6 ? "-y-" : cat;
+  // return this.cat;
+  // }
 
   setName(name) {
     this.name = name;
@@ -202,7 +202,7 @@ class Penguin {
       }
       return false;
     }
-    if (this.age < 7 || this.age > 30) {
+    if (this.age < 6 || this.age > 30) {
       if (debug) {
         console.log(
           `penguin.js - canLove : ${this.id}-${this.name} too yong or old for all this (i am ${this.age})`
@@ -231,7 +231,7 @@ class Penguin {
           this.lpos,
           hpos,
           lpos,
-          this.getCat(),
+          this.cat,
           "move"
         );
       });
@@ -255,7 +255,7 @@ class Penguin {
         0,
         this.hpos,
         this.lpos,
-        this.getCat(),
+        this.cat,
         "move"
       );
     });
@@ -272,7 +272,6 @@ class Penguin {
     if (this.loving > 0) {
       sessions.forEach((session) => {
         session.addMoveLog(
-          turn,
           this.id,
           this.num,
           4,
@@ -281,7 +280,7 @@ class Penguin {
           0,
           0,
           0,
-          this.getCat(),
+          this.cat,
           "love"
         );
       });
@@ -289,7 +288,6 @@ class Penguin {
     if (this.eating > 0) {
       sessions.forEach((session) => {
         session.addMoveLog(
-          turn,
           this.id,
           this.num,
           3,
@@ -298,7 +296,7 @@ class Penguin {
           0,
           0,
           0,
-          this.getCat(),
+          this.cat,
           "eat"
         );
       });
@@ -314,18 +312,7 @@ class Penguin {
     this.partnerId = partnerId;
     this.waiting = 0;
     sessions.forEach((session) => {
-      session.addMoveLog(
-        this.id,
-        this.num,
-        4,
-        0,
-        0,
-        0,
-        0,
-        0,
-        this.getCat(),
-        "love"
-      );
+      session.addMoveLog(this.id, this.num, 4, 0, 0, 0, 0, 0, this.cat, "love");
     });
   }
 
@@ -343,18 +330,7 @@ class Penguin {
     this.hungry = this.hungry < 25 ? 0 : this.hungry - 25;
     this.wealth = this.wealth > 90 ? 100 : this.wealth + 10;
     sessions.forEach((session) => {
-      session.addMoveLog(
-        this.id,
-        this.num,
-        3,
-        0,
-        0,
-        0,
-        0,
-        0,
-        this.getCat(),
-        "eat"
-      );
+      session.addMoveLog(this.id, this.num, 3, 0, 0, 0, 0, 0, this.cat, "eat");
     });
   }
 
@@ -377,7 +353,7 @@ class Penguin {
         0,
         0,
         0,
-        this.getCat(),
+        this.cat,
         "fish"
       );
     });
@@ -404,7 +380,7 @@ class Penguin {
         0,
         0,
         0,
-        this.getCat(),
+        this.cat,
         "still"
       );
     });
@@ -470,11 +446,22 @@ class Penguin {
     this.hungry += Math.floor(this.fat / 3) + 1;
 
     this.age += this.alive ? 0.25 : 0;
-    if (this.age === 4) {
-      let cat = this.gender === "male" ? "-m-" : "-f-";
+    if (this.age > 5 && this.cat === "-y-") {
+      this.cat = this.gender === "male" ? "-m-" : "-f-";
       this.vision = 3;
       sessions.forEach((session) => {
-        session.addMoveLog(this.id, this.num, 2, 0, 0, 0, 0, 0, cat, "age");
+        session.addMoveLog(
+          this.id,
+          this.num,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          this.cat,
+          "age"
+        );
       });
     }
 
@@ -501,10 +488,6 @@ class Penguin {
   setGender(gender) {
     this.gender = gender;
   }
-
-  //isAlive() {
-  //  return this.alive;
-  // }
 }
 
 // now we export the class, so other modules can create Penguin objects

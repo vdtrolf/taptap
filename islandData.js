@@ -1,5 +1,6 @@
 const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
+// const dbhelperReq = require("./dynamohelper.js");
 const dbhelperReq = require("./acebasehelper.js");
 const sessionReq = require("./session.js");
 const islandReq = require("./island.js");
@@ -14,7 +15,7 @@ let initiateSessions = sessionReq.initiateSessions;
 let setIslands = islandReq.setIslands;
 
 const islands = [];
-const debug = true;
+const debug = false;
 
 const persistIsland = (island) => {
   putItem(
@@ -97,14 +98,16 @@ const persistIsland = (island) => {
 };
 
 const initiateIslands = () => {
-  console.log("islandData.js - initiateIslands: getting islands out of DB");
+  if (debug)
+    console.log("islandData.js - initiateIslands: getting islands out of DB");
   getItems("island", loadIslands);
 };
 
 const loadIslands = (theIslands) => {
-  console.log(
-    "islandData.js - loadIslands: found " + theIslands.length + " islands"
-  );
+  if (debug)
+    console.log(
+      "islandData.js - loadIslands: found " + theIslands.length + " islands"
+    );
 
   let currentTime = new Date().getTime();
 
@@ -139,13 +142,14 @@ const loadIslands = (theIslands) => {
     console.error("problem", error);
   }
 
-  console.log("registered islands " + islands.length);
-
   initiateSessions();
 };
 
 const loadLands = (theLands) => {
-  console.log("islandData.js - loadLands: found " + theLands.length + " lands");
+  if (debug)
+    console.log(
+      "islandData.js - loadLands: found " + theLands.length + " lands"
+    );
 
   let island = null;
 
@@ -189,7 +193,10 @@ const loadLands = (theLands) => {
         try {
           island.territory[i][j].getType();
         } catch (error) {
-          console.log("--->" + i + "/" + j + "is empty");
+          if (debug)
+            console.log(
+              "islandData.js - loadLands: missing land at " + i + "/" + j
+            );
           island.territory[i][j] = new Land(i, j, false, island.id);
         }
       }
@@ -197,14 +204,15 @@ const loadLands = (theLands) => {
 
     getItems("penguins", loadPenguins, "islandId", "==", island.id);
   } catch (error) {
-    console.error("problem", error);
+    console.error("islandData.js - loadLands: problem", error);
   }
 };
 
 const loadPenguins = (thePenguins) => {
-  console.log(
-    "islandData.js - loadPenguins: found " + thePenguins.length + " penguins"
-  );
+  if (debug)
+    console.log(
+      "islandData.js - loadPenguins: found " + thePenguins.length + " penguins"
+    );
 
   // console.dir(thePenguins);
 
