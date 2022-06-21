@@ -11,18 +11,19 @@ let initiateIslands = islandDataReq.initiateIslands;
 
 const args = process.argv.slice(2);
 let startExpress = args[0] && args[0].toLowerCase() === "local";
-startExpress = true;
+// startExpress = true;
 
 let debug = false;
 let requestcounter = 0;
 
 // Starting the express server
 
+createDb();
+// cleanDb();
+// initiateSessions();
+initiateIslands();
+
 if (startExpress) {
-  createDb();
-  // cleanDb();
-  // initiateSessions();
-  initiateIslands();
 
   const port = 3001;
   let app = null;
