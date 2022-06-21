@@ -328,7 +328,7 @@ class Penguin {
     });
   }
 
-  // return true is the penguin is eating
+  // return true is the penguin is eating a lot
 
   isEating() {
     return this.eating > 0;
