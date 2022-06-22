@@ -246,10 +246,10 @@ setInterval(() => {
         island.smelt();
         island.setWeather();
         persistIsland(island);
-        persistSessions();
       }
     }
   });
+  persistSessions();
   doAll = !doAll;
 }, intervalTime);
 

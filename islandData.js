@@ -20,7 +20,7 @@ const debug = false;
 
 const persistIsland = (island) => {
 
-  console.log("persisting " + island.id);
+  // console.log("persisting " + island.id);
 
   putItem(
     "island",
@@ -49,7 +49,7 @@ const persistIsland = (island) => {
  
       if (land.changed) {
 
-        console.log ("land changed at " + land.hpos + "/" + land.lpos + ": " + land.changed)
+        // console.log ("land changed at " + land.hpos + "/" + land.lpos + ": " + land.changed)
 
         putItem(
           "lands",
