@@ -1,9 +1,9 @@
-const penguinReq = require("./penguin.js");
-const axios = require("axios");
+// const penguinReq = require("./penguin.js");
+//const axios = require("axios");
 
-let Penguin = penguinReq.Penguin;
+//let Penguin = penguinReq.Penguin;
 
-let debug = false;
+let debug = true;
 
 class Land {
   constructor(
@@ -37,29 +37,22 @@ class Land {
     this.hasSwim = hasSwim;
     this.swimAge = swimAge;
 
+
+    this.changed = true;
     this.isTarget = false;
     this.islandSize = 0;
     this.islandPopulation = 0;
 
-    debug = debugit;
+    debug = false;
   }
 
   setTarget(isTarget) {
-    // if (isTarget) console.log("Set Target : " + this.hpos + "/" + this.lpos);
     this.isTarget = isTarget;
   }
 
   setLand(num) {
     this.type = num;
   }
-
-  // addPenguin(penguin) {
-  //  this.penguin = penguin;
-  // }
-
-  // checkPenguin(){
-  //   return this.penguin;
-  // }
 
   getType() {
     return this.type;
@@ -99,14 +92,7 @@ class Land {
 
   setFish() {
     this.hasFish = true;
-  }
-
-  cross() {
-    return this.hasCross;
-  }
-
-  fish() {
-    return this.hasFish;
+    this.changed = true;
   }
 
   canFish() {
@@ -127,6 +113,8 @@ class Land {
     }
     this.type = 1;
     this.conf = 0;
+    this.changed = true;
+
   }
 
   resetConf() {
@@ -135,10 +123,13 @@ class Land {
 
   increaseConf() {
     this.conf = this.conf + 1;
+    this.changed = true;
+
   }
 
   decreaseConf() {
     this.conf = this.conf - 1;
+    this.changed = true;
   }
 
   getConf() {
@@ -157,17 +148,21 @@ class Land {
   // add a swimming fish
   addSwim() {
     this.hasSwim = true;
+    this.changed = true;
   }
 
   // remove a swimming fish
   removeSwim() {
     this.hasSwim = false;
+    this.changed = true;
+
   }
 
   // remove a swimming fish
   fishSwim() {
     this.hasSwim = false;
-    this.swimAge = 6;
+    this.swimAge = 12;
+    this.changed = true;
   }
 
   // set the island sizeH

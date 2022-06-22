@@ -204,7 +204,7 @@ const createSession = () => {
 
 const getSession = (sessionId) => {
   let foundSession = sessions.find((session) => session.id === sessionId);
-  foundSession.lastInvocation = new Date().getTime();
+  if (foundSession) foundSession.lastInvocation = new Date().getTime();
   return foundSession;
 };
 

@@ -81,7 +81,7 @@ const createResponse = (url, params, sessionId) => {
   let island = null;
   let islands = getIslands();
 
-  if (debug)
+  if (debug && url !== "/islands")
     console.log(
       "in createResponse url: >" + url + "< sessionId: >" + sessionId + "<"
     );
@@ -146,32 +146,32 @@ const createResponse = (url, params, sessionId) => {
     }
 
     case "/connect-island": {
-      if (session) {
-        if (island) {
-          island.unregisterSession(session);
-        }
-
-        let islandId = Number.parseInt(params.islandId, 10);
-        island = islands.find((island) => island.id === islandId);
-        session.reset();
-        island.registerSession(session);
-
-        if (debug) {
-          timeTag = new Date().getTime() - baseTime;
-          console.log(
-            timeTag +
-              "index.js - createResponse/connect-island : Connecting to island  " +
-              island.name +
-              "( id " +
-              island.id +
-              ")"
-          );
-        }
-
-        return createInitData(session, island, session.getInitMoveLog(island));
+      if (!session) {
+        session = createSession();
       } else {
-        console.log("index.js - createResponse :No island found");
+        session.reset();
       }
+
+      getIslands().forEach((island) => island.unregisterSession(session));
+
+      let islandId = Number.parseInt(params.islandId, 10);
+      island = islands.find((island) => island.id === islandId);
+      island.registerSession(session);
+
+      if (debug) {
+        timeTag = new Date().getTime() - baseTime;
+        console.log(
+          timeTag +
+            "index.js - createResponse/connect-island : Connecting to island  " +
+            island.name +
+            "( id " +
+            island.id +
+            ")"
+        );
+      }
+
+      return createInitData(session, island, session.getInitMoveLog(island));
+
     }
 
     case "/penguins": {
@@ -235,6 +235,7 @@ const createResponse = (url, params, sessionId) => {
 let doAll = true;
 
 setInterval(() => {
+
   getIslands().forEach((island) => {
     if (island.running) {
       island.calculateNeighbours();
@@ -244,12 +245,12 @@ setInterval(() => {
         island.makePenguinsOlder();
         island.smelt();
         island.setWeather();
+        persistIsland(island);
+        persistSessions();
       }
-      doAll = !doAll;
-      persistIsland(island);
-      persistSessions();
     }
   });
+  doAll = !doAll;
 }, intervalTime);
 
 // now we export the class, so other modules can create Penguin objects
