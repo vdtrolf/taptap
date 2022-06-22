@@ -3,7 +3,6 @@ const landReq = require("./land.js");
 const sessionReq = require("./session.js");
 const nameserverReq = require("./nameserver.js");
 const dbhelperReq = require("./acebasehelper.js");
-// const islandDataReq = require("./islandData.js");
 
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
@@ -12,11 +11,10 @@ let putItem = dbhelperReq.putItem;
 let deleteItem = dbhelperReq.deleteItem;
 let getItems = dbhelperReq.getItems;
 let initiateSessions = sessionReq.initiateSessions;
-// let persistIsland = islandDataReq.persistIsland;
 
 let islands = [];
 
-let debug = true;
+let debug = false;
 
 const weathers = ["sun", "rain", "snow", "cold", "endgame"];
 
@@ -215,7 +213,7 @@ class Island {
         }
       }
 
-      islands.push(this);
+      addIsland(this);
 
       // persistIsland(this);
     }
@@ -252,7 +250,7 @@ class Island {
 
   unregisterSession(session) {
     this.sessions = this.sessions.filter(
-      (aSession) => aSession.id !== session.id
+      aSession => aSession.id !== session.id
     );
     if (debug) {
       console.log(
@@ -360,17 +358,19 @@ class Island {
       for (let j = 0; j < this.sizeL; j++) {
         let l = j * 48 + 16; // + 16 ;
         let land = this.territory[i][j];
-        if (land && land.cross()) {
-          if (land.type === 0) {
-            result += `<img class="cross" src="./tiles/wreath.gif" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
-          } else {
-            result += `<img class="cross" src="./tiles/cross.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
+        if (land) {
+          if (land.hasCross) {
+            if (land.type === 0) {
+              result += `<img class="cross" src="./tiles/wreath.gif" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
+            } else {
+              result += `<img class="cross" src="./tiles/cross.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
+            }
+          } else if (land.hasFish) {
+            result += `<img class="fish" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
+          } else if (land.hasSwim) {
+            let transp = 0.6; // ((Math.floor(Math.random() * 2) / 10))  + 0.3;
+            result += `<img class="swim" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute; opacity:${transp}" width="48" height="48" >\n`;
           }
-        } else if (land && land.fish()) {
-          result += `<img class="fish" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
-        } else if (land && land.swim()) {
-          let transp = 0.6; // ((Math.floor(Math.random() * 2) / 10))  + 0.3;
-          result += `<img class="swim" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute; opacity:${transp}" width="48" height="48" >\n`;
         }
       }
     }
@@ -507,6 +507,9 @@ class Island {
   // Move all the penguins of this island
 
   movePenguins() {
+
+    // console.log("move " + this.id);
+
     // check if there are still alive penguins
 
     let cntPenguins = this.penguins.filter((penguin) => penguin.alive).length;
@@ -564,7 +567,7 @@ class Island {
           if (penguin.hungry > 30) {
             // Gonna Eat ?
 
-            if (this.territory[penguin.hpos][penguin.lpos].fish()) {
+            if (this.territory[penguin.hpos][penguin.lpos].hasFish) {
               this.territory[pengH][pengL].removeFish();
               penguin.eat(this.sessions);
               this.territory[pengH][pengL].setTarget(true);
@@ -997,7 +1000,14 @@ class Island {
   }
 }
 
+addIsland = (anIsland) => {
+  if (! islands.find((island) => island.id === anIsland.id)) {
+    islands.push(anIsland);
+  }
+}
+
 setIslands = (theIslands) => {
+ //  console.log("setting the islands " + theIslands.length);
   islands = theIslands;
 };
 
@@ -1012,6 +1022,7 @@ getIsland = (islandId) => {
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
   Island: Island,
+  addIsland: addIsland,
   getIsland: getIsland,
   getIslands: getIslands,
   setIslands: setIslands,

@@ -1,7 +1,7 @@
 const { AceBase } = require("acebase");
 
 let db = null;
-const debug = false;
+const debug = true;
 
 const createDb = () => {
   const options = { logLevel: "err" }; //   'verbose'};

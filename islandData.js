@@ -1,6 +1,7 @@
 const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
 // const dbhelperReq = require("./dynamohelper.js");
+
 const dbhelperReq = require("./acebasehelper.js");
 const sessionReq = require("./session.js");
 const islandReq = require("./island.js");
@@ -12,12 +13,15 @@ let putItem = dbhelperReq.putItem;
 let deleteItem = dbhelperReq.deleteItem;
 let getItems = dbhelperReq.getItems;
 let initiateSessions = sessionReq.initiateSessions;
-let setIslands = islandReq.setIslands;
+let addIsland = islandReq.addIsland;
 
 const islands = [];
 const debug = false;
 
 const persistIsland = (island) => {
+
+  // console.log("persisting " + island.id);
+
   putItem(
     "island",
     {
@@ -42,24 +46,31 @@ const persistIsland = (island) => {
   for (let i = 0; i < island.sizeH; i++) {
     for (let j = 0; j < island.sizeL; j++) {
       let land = island.territory[i][j];
-      putItem(
-        "lands",
-        {
-          id: land.id,
-          islandId: land.islandId,
-          hpos: land.hpos,
-          lpos: land.lpos,
-          type: land.type,
-          conf: land.conf,
-          var: land.var,
-          hasCross: land.hasCross,
-          crossAge: land.crossAge,
-          hasFish: land.hasFish,
-          hasSwim: land.hasSwim,
-          swimAge: land.swimAge,
-        },
-        land.id
-      );
+ 
+      if (land.changed) {
+
+        // console.log ("land changed at " + land.hpos + "/" + land.lpos + ": " + land.changed)
+
+        putItem(
+          "lands",
+          {
+            id: land.id,
+            islandId: land.islandId,
+            hpos: land.hpos,
+            lpos: land.lpos,
+            type: land.type,
+            conf: land.conf,
+            var: land.var,
+            hasCross: land.hasCross,
+            crossAge: land.crossAge,
+            hasFish: land.hasFish,
+            hasSwim: land.hasSwim,
+            swimAge: land.swimAge,
+          },
+          land.id
+        );
+        land.changed = false;
+      }
     }
   }
 
@@ -98,15 +109,12 @@ const persistIsland = (island) => {
 };
 
 const initiateIslands = () => {
-  if (debug)
-    console.log("islandData.js - initiateIslands: getting islands out of DB");
+  if (debug) console.log("islandData.js - initiateIslands: getting islands out of DB");
   getItems("island", loadIslands);
 };
 
 const loadIslands = (theIslands) => {
-  if (debug)
-    console.log(
-      "islandData.js - loadIslands: found " + theIslands.length + " islands"
+  if (debug) console.log("islandData.js - loadIslands: found " + theIslands.length + " islands"
     );
 
   let currentTime = new Date().getTime();
@@ -134,15 +142,14 @@ const loadIslands = (theIslands) => {
         );
 
         islands.push(island);
-
         getItems("lands", loadLands, "islandId", "==", anIsland.id);
       }
     });
+
   } catch (error) {
     console.error("problem", error);
   }
 
-  initiateSessions();
 };
 
 const loadLands = (theLands) => {
@@ -257,8 +264,9 @@ const loadPenguins = (thePenguins) => {
   } catch (error) {
     console.error("problem", error);
   }
-
-  setIslands(islands);
+  
+  islands.forEach(island => addIsland(island));
+  initiateSessions();
 };
 
 // now we export the class, so other modules can create Penguin objects
