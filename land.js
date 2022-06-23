@@ -1,7 +1,4 @@
-// const penguinReq = require("./penguin.js");
-//const axios = require("axios");
 
-//let Penguin = penguinReq.Penguin;
 
 let debug = true;
 
@@ -21,7 +18,6 @@ class Land {
     hasSwim = false,
     swimAge = 0
   ) {
-    // console.log("new land at " + h + "/" + l + " " + islandId);
 
     this.id = id === 0 ? Math.floor(Math.random() * 999999) : id;
     this.islandId = islandId;
