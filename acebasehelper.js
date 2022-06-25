@@ -1,9 +1,8 @@
-const { AceBase } = require("acebase");
-
 let db = null;
 const debug = true;
 
 const createDb = () => {
+  const { AceBase } = require("acebase");
   const options = { logLevel: "err" }; //   'verbose'};
   db = new AceBase("my_db", options);
 };
