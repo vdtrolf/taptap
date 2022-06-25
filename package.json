@@ -1,11 +1,10 @@
 {
   "dependencies": {
-    "aws-sdk": "^2.1160.0"
+    "aws-sdk": "^2.1162.0"
   },
   "name": "little-island",
   "version": "1.0.0",
   "main": "index.js",
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
