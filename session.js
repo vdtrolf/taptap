@@ -1,5 +1,7 @@
-const dbhelperReq = require("./acebasehelper.js");
-const islandReq = require("./island.js");
+// const dbhelperReq = require("./acebasehelper.js");
+const dbhelperReq = require("./dynamohelper.js");
+
+// const islandReq = require("./island.js");
 
 let putItem = dbhelperReq.putItem;
 let getItems = dbhelperReq.getItems;
@@ -7,6 +9,7 @@ let deleteItem = dbhelperReq.deleteItem;
 // let getIsland = islandReq.getIsland;
 
 let debug = false;
+let loaded = false;
 
 const sessions = [];
 
@@ -63,7 +66,7 @@ class Session {
   // If it is a move, it then checks if there is already a move 1 for
   // that penguin, and if so, append the movement
 
-  addMoveLog(id, num, moveType, moveDir, origH, origL, newH, newL, cat, state) {
+  addMoveLog(id, num, moveType, cat, state, moveDir=0, origH=0, origL=0, newH=0, newL=0) {
     let moveTypes = ["init", "move", "grow", "eat", "love", "die"];
     let moveid = this.moveCounter++;
     if (debug) {
@@ -72,6 +75,8 @@ class Session {
           moveid +
           " : Penguin " +
           id +
+          " " + 
+          cat +
           " " +
           moveTypes[moveType] +
           " (" +
@@ -172,8 +177,11 @@ class Session {
 }
 
 const initiateSessions = () => {
-  console.log("session.js - initiateSessions: getting sessions out of DB");
-  getItems("session", loadSessions);
+  if (! loaded) {
+    console.log("session.js - initiateSessions: getting sessions out of DB");
+    getItems("session", loadSessions);
+  }
+  loaded = true;
 };
 
 const loadSessions = (theSessions) => {
@@ -216,8 +224,8 @@ const persistSessions = (asession = null) => {
       let currentTime = new Date().getTime();
 
       if (currentTime - session.lastInvocation > 300000) {
-        // console.log("Going to delete session " + session.id + " " + session.lastInvocation + " now:" + currentTime);
-        deleteItem("session", session.id);
+         if (debug) { console.log("Going to delete session " + session.id + " " + session.lastInvocation + " now:" + currentTime); }
+         deleteItem("session", session.id);
       } else {
         putItem(
           "session",
