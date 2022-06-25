@@ -2,14 +2,10 @@ const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
 const sessionReq = require("./session.js");
 const nameserverReq = require("./nameserver.js");
-const dbhelperReq = require("./acebasehelper.js");
 
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
 let Session = sessionReq.Session;
-let putItem = dbhelperReq.putItem;
-let deleteItem = dbhelperReq.deleteItem;
-let getItems = dbhelperReq.getItems;
 let initiateSessions = sessionReq.initiateSessions;
 
 let islands = [];
