@@ -1,4 +1,4 @@
-const axios = require("axios");
+// const axios = require("axios");
 
 const penguinsNames = [];
 const islandsNames = [];
@@ -14,7 +14,18 @@ const genders = [
   "female",
   "male",
   "female",
+  "male",
+  "female",
+  "male",
+  "female",
+  "male",
+  "female",
+  "male",
+  "female",
+  "male",
+  "female"
 ];
+
 const names = [
   "Billy Boy",
   "Glossy Rose",
@@ -26,6 +37,16 @@ const names = [
   "Agripa",
   "Cesar",
   "Mira",
+  "Georges",
+  "Amelie",
+  "Owen",
+  "Miranda",
+  "Ronald",
+  "Dragina",
+  "Titeuf",
+  "Marie",
+  "Auguste",
+  "Sophie"
 ];
 const islands = [
   "Iswell",
@@ -128,28 +149,34 @@ const getIslandName = () => {
   }
 };
 
+const getFakePenguinName = async (aPenguin) => {
+  let random = Math.floor(Math.random() * 20);
+  aPenguin.name = names[random];
+  aPenguin.gender = genders[random];
+}
+
 // Gets a name from a name server
 
-const getFakePenguinName = async (aPenguin) => {
-  axios
-    .get("https://randomuser.me/api/?inc=gender,name&nat=fr")
-    .then((response) => {
-      aPenguin.name = response.data.results[0].name.first;
-      aPenguin.gender = response.data.results[0].gender;
-      if (debug) {
-        console.log(
-          "nameserver.js - getFakeName : getting another penguin name"
-        );
-      }
-    })
-    .catch((error) => {
-      if (debug) {
-        console.log(
-          "nameserver.js - getFakeName : error in getting a penguin name"
-        );
-      }
-    });
-};
+// const getFakePenguinName = async (aPenguin) => {
+//   axios
+//     .get("https://randomuser.me/api/?inc=gender,name&nat=fr")
+//     .then((response) => {
+//       aPenguin.name = response.data.results[0].name.first;
+//       aPenguin.gender = response.data.results[0].gender;
+//       if (debug) {
+//         console.log(
+//           "nameserver.js - getFakeName : getting another penguin name"
+//         );
+//       }
+//     })
+//     .catch((error) => {
+//       if (debug) {
+//         console.log(
+//           "nameserver.js - getFakeName : error in getting a penguin name"
+//         );
+//       }
+//     });
+// };
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {

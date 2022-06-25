@@ -76,18 +76,7 @@ class Penguin {
     // console.log("new penguin " + this.name + " " + this.gender);
 
     sessions.forEach((session) => {
-      session.addMoveLog(
-        this.id,
-        this.num,
-        1,
-        0,
-        0,
-        0,
-        this.hpos,
-        this.lpos,
-        this.cat,
-        "move"
-      );
+      session.addMoveLog(this.id, this.num, 1, this.cat, "move", 0, 0, 0, this.hpos, this.lpos);
     });
     if (debug) {
       console.log(
@@ -220,13 +209,13 @@ class Penguin {
           this.id,
           this.num,
           1,
+          this.cat,
+          "move",
           moveDir,
           this.hpos,
           this.lpos,
           hpos,
-          lpos,
-          this.cat,
-          "move"
+          lpos
         );
       });
     }
@@ -244,13 +233,13 @@ class Penguin {
         this.id,
         this.num,
         1,
+        this.cat,
+        "move",
         0,
         0,
         0,
         this.hpos,
-        this.lpos,
-        this.cat,
-        "move"
+        this.lpos, 
       );
     });
     if (debug) {
@@ -265,34 +254,12 @@ class Penguin {
     }
     if (this.loving > 0) {
       sessions.forEach((session) => {
-        session.addMoveLog(
-          this.id,
-          this.num,
-          4,
-          0,
-          0,
-          0,
-          0,
-          0,
-          this.cat,
-          "love"
-        );
+        session.addMoveLog( this.id, this.num, 4, this.cat,"love");
       });
     }
     if (this.eating > 0) {
       sessions.forEach((session) => {
-        session.addMoveLog(
-          this.id,
-          this.num,
-          3,
-          0,
-          0,
-          0,
-          0,
-          0,
-          this.cat,
-          "eat"
-        );
+        session.addMoveLog(this.id, this.num, 3, this.cat, "eat" );
       });
     }
     this.waiting = 0;
@@ -306,7 +273,7 @@ class Penguin {
     this.partnerId = partnerId;
     this.waiting = 0;
     sessions.forEach((session) => {
-      session.addMoveLog(this.id, this.num, 4, 0, 0, 0, 0, 0, this.cat, "love");
+      session.addMoveLog(this.id, this.num, 4,this.cat, "love");
     });
   }
 
@@ -324,7 +291,7 @@ class Penguin {
     this.hungry = this.hungry < 25 ? 0 : this.hungry - 25;
     this.wealth = this.wealth > 90 ? 100 : this.wealth + 10;
     sessions.forEach((session) => {
-      session.addMoveLog(this.id, this.num, 3, 0, 0, 0, 0, 0, this.cat, "eat");
+      session.addMoveLog(this.id, this.num, 3, this.cat, "eat" );
     });
   }
 
@@ -338,18 +305,7 @@ class Penguin {
 
   fish(sessions, direction) {
     sessions.forEach((session) => {
-      session.addMoveLog(
-        this.id,
-        this.num,
-        7,
-        direction,
-        0,
-        0,
-        0,
-        0,
-        this.cat,
-        "fish"
-      );
+      session.addMoveLog( this.id, this.num, 7, this.cat, "fish", direction );
     });
     this.fishDirection = direction;
     this.fishTime = 6;
@@ -365,18 +321,7 @@ class Penguin {
 
   wait(sessions) {
     sessions.forEach((session) => {
-      session.addMoveLog(
-        this.id,
-        this.num,
-        6,
-        0,
-        0,
-        0,
-        0,
-        0,
-        this.cat,
-        "still"
-      );
+      session.addMoveLog(this.id, this.num, 6, this.cat, "still");
     });
 
     // if (this.id === island.followId && this.alive) console.log("Hungry: " + this.hungry + " fatfactor: " + this.fat + " getting more hungry by : " + (Math.floor(this.fat / 2) + 1));
@@ -400,7 +345,7 @@ class Penguin {
     this.hungry = 0;
 
     sessions.forEach((session) => {
-      session.addMoveLog(this.id, this.num, 5, 0, 0, 0, 0, 0, "", "dead");
+      session.addMoveLog(this.id, this.num, 5, "", "dead");
     });
   }
 
@@ -444,18 +389,7 @@ class Penguin {
       this.cat = this.gender === "male" ? "-m-" : "-f-";
       this.vision = 3;
       sessions.forEach((session) => {
-        session.addMoveLog(
-          this.id,
-          this.num,
-          2,
-          0,
-          0,
-          0,
-          0,
-          0,
-          this.cat,
-          "age"
-        );
+        session.addMoveLog( this.id, this.num, 2,this.cat, "age");
       });
     }
 
@@ -469,7 +403,7 @@ class Penguin {
       }
       this.alive = false;
       sessions.forEach((session) => {
-        session.addMoveLog(this.id, this.num, 5, 0, 0, 0, 0, 0, "", "dead");
+        session.addMoveLog(this.id, this.num, 5, "", "dead");
       });
       returncode = 1;
     } else if (hasChild) {
