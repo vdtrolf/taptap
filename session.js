@@ -66,7 +66,18 @@ class Session {
   // If it is a move, it then checks if there is already a move 1 for
   // that penguin, and if so, append the movement
 
-  addMoveLog(id, num, moveType, cat, state, moveDir=0, origH=0, origL=0, newH=0, newL=0) {
+  addMoveLog(
+    id,
+    num,
+    moveType,
+    cat,
+    state,
+    moveDir = 0,
+    origH = 0,
+    origL = 0,
+    newH = 0,
+    newL = 0
+  ) {
     let moveTypes = ["init", "move", "grow", "eat", "love", "die"];
     let moveid = this.moveCounter++;
     if (debug) {
@@ -75,7 +86,7 @@ class Session {
           moveid +
           " : Penguin " +
           id +
-          " " + 
+          " " +
           cat +
           " " +
           moveTypes[moveType] +
@@ -177,7 +188,7 @@ class Session {
 }
 
 const initiateSessions = () => {
-  if (! loaded) {
+  if (!loaded) {
     console.log("session.js - initiateSessions: getting sessions out of DB");
     getItems("session", loadSessions);
   }
@@ -219,16 +230,24 @@ const getSession = (sessionId) => {
 // persists the session in the NoSQL db
 
 const persistSessions = async (asession = null) => {
-
-  console.log("persisting session " + asession.id);
-
   if (!asession) {
+    console.log("persisting sessions " + asession);
+
     sessions.forEach((session) => {
       let currentTime = new Date().getTime();
 
       if (currentTime - session.lastInvocation > 300000) {
-         if (debug) { console.log("Going to delete session " + session.id + " " + session.lastInvocation + " now:" + currentTime); }
-         deleteItem("session", session.id);
+        if (debug) {
+          console.log(
+            "Going to delete session " +
+              session.id +
+              " " +
+              session.lastInvocation +
+              " now:" +
+              currentTime
+          );
+        }
+        deleteItem("session", session.id);
       } else {
         putItem(
           "session",
@@ -244,6 +263,7 @@ const persistSessions = async (asession = null) => {
       }
     });
   } else {
+    console.log("persisting session " + asession.id);
     putItem(
       "session",
       {

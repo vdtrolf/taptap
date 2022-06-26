@@ -1,16 +1,14 @@
 const AWS = require("aws-sdk");
 AWS.config.update({ region: "us-east-1" });
 
-// const dynamodb = new AWS.DynamoDB({ endpoint: new AWS.Endpoint('http://localhost:8000')});
-const dynamodb = new AWS.DynamoDB();
+const dynamodb = new AWS.DynamoDB({
+  endpoint: new AWS.Endpoint("http://localhost:8000"),
+});
+// const dynamodb = new AWS.DynamoDB();
 
 const islanddefs = {
-  AttributeDefinitions: [
-    { AttributeName: "id", AttributeType: "N" }
-  ],
-  KeySchema: [
-    { AttributeName: "id", KeyType: "HASH" }
-  ],
+  AttributeDefinitions: [{ AttributeName: "id", AttributeType: "N" }],
+  KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
   ProvisionedThroughput: {
     ReadCapacityUnits: 1,
     WriteCapacityUnits: 1,
@@ -19,12 +17,8 @@ const islanddefs = {
 };
 
 const penguindefs = {
-  AttributeDefinitions: [
-    { AttributeName: "id", AttributeType: "N" }
-  ],
-  KeySchema: [
-    { AttributeName: "id", KeyType: "HASH" }
-  ],
+  AttributeDefinitions: [{ AttributeName: "id", AttributeType: "N" }],
+  KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
   ProvisionedThroughput: {
     ReadCapacityUnits: 1,
     WriteCapacityUnits: 1,
@@ -36,12 +30,8 @@ const penguindefs = {
 };
 
 const landdefs = {
-  AttributeDefinitions: [
-    { AttributeName: "id", AttributeType: "N" }
-  ],
-  KeySchema: [
-    { AttributeName: "id", KeyType: "HASH" }
-  ],
+  AttributeDefinitions: [{ AttributeName: "id", AttributeType: "N" }],
+  KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
   ProvisionedThroughput: {
     ReadCapacityUnits: 1,
     WriteCapacityUnits: 1,
@@ -53,12 +43,8 @@ const landdefs = {
 };
 
 const sessiondefs = {
-  AttributeDefinitions: [
-    { AttributeName: "id", AttributeType: "N" }
-  ],
-  KeySchema: [
-    { AttributeName: "id", KeyType: "HASH" }
-  ],
+  AttributeDefinitions: [{ AttributeName: "id", AttributeType: "N" }],
+  KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
   ProvisionedThroughput: {
     ReadCapacityUnits: 1,
     WriteCapacityUnits: 1,
@@ -68,7 +54,6 @@ const sessiondefs = {
     StreamEnabled: false,
   },
 };
-
 
 (async function () {
   let tableNames = [];
