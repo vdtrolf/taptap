@@ -30,17 +30,50 @@ const putItem = (TableName, anItem, uniqueId) => {
       } 
       return false;
     } else {
-      if (debug)
-        console.log(
-          "dynamohelper.js : Success with puting data in " + TableName,
-          data
-        );
+      //if (debug)
+        //console.log(
+        //  "dynamohelper.js : Success with puting data in " + TableName,
+        //  data
+        //);
       return true;
     }
   });
 };
 
+const getAsyncItem = async (tableName, uniqueId) => {
+
+  if (debug) console.log("dynamohelper.js - getAsyncItem: table=" + tableName + " id=" + uniqueId)
+  
+  
+  try { 
+    
+    const fval = `${uniqueId}`
+    const queryparams = {
+      ExpressionAttributeValues: {
+        ':id': {N: fval}
+      },
+      KeyConditionExpression: `id = :id`,
+      TableName: tableName,
+    };
+
+    // if (debug) console.dir(queryparams);
+
+    let data = await dynamodb.query(queryparams).promise();
+    let unmarshalled = AWS.DynamoDB.Converter.unmarshall(data.Items[0]);
+    if (debug) {
+      console.log("================================");
+      console.dir(unmarshalled);
+      console.log("================================");
+    }
+    return unmarshalled;
+
+  } catch(err) {
+    console.dir(err);
+  }
+};
+
 const getItem = (tableName, uniqueId) => {
+
   var queryparams = {
     ExpressionAttributeValues: {
       ":id": uniqueId,
@@ -59,6 +92,51 @@ const getItem = (tableName, uniqueId) => {
     }
   });
 };
+
+const getAsyncItems = async (
+  tableName,
+  filterIdx = "id",
+  filterComparator = ">",
+  filterVal = 0
+) => {
+
+  if (debug) { console.log("dynamohelper.js - getAsyncItems: table=" + tableName + " filter=" + filterIdx + filterComparator + filterVal)}
+
+  try { 
+    
+    const fval = `${filterVal}`
+    const scanparams = {
+      ExpressionAttributeValues: {
+        ':id': {N: fval}
+      },
+      FilterExpression: `${filterIdx} ${filterComparator} :id`,
+      TableName: tableName,
+    };
+
+    if (debug) console.dir(scanparams);
+
+    let data = await dynamodb.scan(scanparams).promise();
+
+    const cleanItems = [];
+    data.Items.forEach(function (item, index, array) {
+      let cleanItem = AWS.DynamoDB.Converter.unmarshall(item);
+      if (debug) {
+          console.log("===== " + tableName + " ====================");
+          console.dir(cleanItem);
+          console.log("===== " + tableName + " ====================");
+      }
+      cleanItems.push(cleanItem);
+    });
+
+    return cleanItems;
+
+  } catch(err) {
+    console.dir(err);
+  }
+
+};
+
+
 
 const getItems = (
   tableName,
@@ -130,6 +208,8 @@ const deleteItem = (tableName, uniqueId) => {
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
+  getAsyncItem,
+  getAsyncItems,
   putItem,
   getItems,
   deleteItem,

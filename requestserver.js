@@ -1,7 +1,9 @@
 const islandReq = require("./island.js");
+const islandWorkerReq = require("./islandWorker.js");
 const islandDataReq = require("./islandData.js");
 const sessionReq = require("./session.js");
 const nameserverReq = require("./nameserver.js");
+const dbhelperReq = require("./dynamohelper.js");
 
 let Island = islandReq.Island;
 let getIslands = islandReq.getIslands;
@@ -11,6 +13,9 @@ let getSession = sessionReq.getSession;
 let createSession = sessionReq.createSession;
 let persistSessions = sessionReq.persistSessions;
 let persistIsland = islandDataReq.persistIsland;
+let getAsyncItem = dbhelperReq.getAsyncItem;
+let getIslandData = islandWorkerReq.getIslandData;
+let getMovesData = islandWorkerReq.getMovesData;
 
 let NameServer = nameserverReq.NameServer;
 
@@ -22,61 +27,65 @@ const baseTime = new Date().getTime();
 
 // console.log(process.env);
 
-debug = false;
-procesdebug = false;
+let debug = false;
+let deepDebug = false;
+let procesdebug = false;
 
 let nameserver = new NameServer(30, 10, false);
 
-const createInitData = (session, island, moves) => {
-  let theMoves = moves ? moves : [];
+const createInitData = async (sessionId, moves) => {
+  
+  let data = await getIslandData(sessionId, true);
+  
+  if (deepDebug) {
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 1 >>" )
+    console.dir(data);
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 1 >>" )
+  }
 
-  return {
-    session: session.id,
-    island: island.getImg(mode, islandH, islandL),
-    penguins: island.getPenguins(),
-    weather: island.getWeather(),
-    artifacts: island.getArtifacts(),
-    tiles: island.tiles,
-    fishes: island.fishes,
-    points: island.points,
-    islandName: island.name,
-    islandId: island.id,
-    islandSize: island.landSize,
-    moves: theMoves,
-  };
+  return data;
+
 };
 
-const createIslandData = (session, island) => {
-  return {
-    session: session.id,
-    island: island.getImg(mode, islandH, islandL),
-    penguins: island.getPenguins(),
-    weather: island.getWeather(),
-    artifacts: island.getArtifacts(),
-    tiles: island.tiles,
-    fishes: island.fishes,
-    islandName: island.name,
-    islandId: island.id,
-    islandSize: island.landSize,
-  };
+const createIslandData = async (sessionId) => {
+
+  let data = await getIslandData(sessionId);
+
+  if (deepDebug) {
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 2 >>" )
+    console.dir(data);
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 2 >>" )
+  }
+
+  return data;
 };
 
 // the parameter followId indicates that penguin must be followed in the console
 
-const createMovesData = (session, island, moves, followId) => {
+const createMovesData = async (sessionId, island, moves, followId) => {
   let theMoves = moves ? moves : [];
 
-  island.setFollowId(followId);
+  
 
-  return {
-    session: session.id,
-    points: island.points,
-    islandSize: island.landSize,
-    moves: theMoves,
-  };
+  let data = await getMovesData(sessionId);
+  
+  if (deepDebug) {
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 3 >>" )
+    console.dir(data);
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 3 >>" )
+  }
+
+  return data;
+
+  // return {
+  //   session: session.id,
+  //   points: island.points,
+  //   islandSize: island.landSize,
+  //   moves: theMoves,
+  // };
 };
 
-const createResponse = (url, params, sessionId) => {
+const createResponse = async (url, params, sessionId) => {
   let session = null;
   let island = null;
   let islands = getIslands();
@@ -91,14 +100,17 @@ const createResponse = (url, params, sessionId) => {
     if (session != null) {
       island = islands.find((island) => island.hasSession(session.id));
     }
-    //    session = sessions.find((session) => session.getId() === sessionId);
   }
 
   switch (url) {
     case "/island": {
       if (!session) {
         session = createSession();
+        sessionId = session.id;
         island = new Island(islandH, islandL, session, debug);
+        session.setIsland(island.id);
+        persistSessions(session);
+        persistIsland(island);
         // islands.push(island);
 
         if (debug) {
@@ -113,7 +125,7 @@ const createResponse = (url, params, sessionId) => {
         }
       }
 
-      return createInitData(session, island, session.getInitMoveLog(island));
+      return await createInitData(sessionId,  session.getInitMoveLog(island));
     }
 
     case "/new-island": {
@@ -125,6 +137,9 @@ const createResponse = (url, params, sessionId) => {
         island = new Island(islandH, islandL, session, debug);
         // islands.push(island);
         session.reset();
+        session.setIsland(island.id);
+        persistSessions(session);
+        persistIsland(island);
 
         if (debug) {
           timeTag = new Date().getTime() - baseTime;
@@ -137,7 +152,7 @@ const createResponse = (url, params, sessionId) => {
           );
         }
 
-        return createInitData(session, island, session.getInitMoveLog(island));
+        return await createInitData(sessionId, session.getInitMoveLog(island));
       } else {
         if (debug) {
           console.log("index.js - createResponse : No island found");
@@ -170,7 +185,7 @@ const createResponse = (url, params, sessionId) => {
         );
       }
 
-      return createInitData(session, island, session.getInitMoveLog(island));
+      return await createInitData(sessionId, session.getInitMoveLog(island));
 
     }
 
@@ -189,17 +204,19 @@ const createResponse = (url, params, sessionId) => {
         let renew = Number.parseInt(params.renew, 10);
         let followId = Number.parseInt(params.followId, 10);
 
+        island.setFollowId(followId);
+
         let moves =
           renew === 0 ? session.getMoveLog() : session.getInitMoveLog(island);
 
-        return createMovesData(session, island, moves, followId);
+        return createMovesData(sessionId,  moves);
       }
     }
 
     case "/islandmoves": {
       if (session && island) {
         let renew = Number.parseInt(params.renew, 10);
-        return createIslandData(session, island);
+        return await createIslandData(sessionId);
       }
     }
 
@@ -217,7 +234,7 @@ const createResponse = (url, params, sessionId) => {
         let lpos = Number.parseInt(params.lpos, 10);
 
         if (island.setTile(lpos, hpos, session)) {
-          return createIslandData(session, island, false);
+          return await createIslandData(sessionId, false);
         } else {
           return { result: "false" };
         }

@@ -1,6 +1,8 @@
 {
   "dependencies": {
-    "aws-sdk": "^2.1162.0"
+    "aws-sdk": "^2.1162.0",
+    "express": "^4.17.3",
+    "cors": "^2.8.5"
   },
   "name": "little-island",
   "version": "1.0.0",

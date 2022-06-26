@@ -55,7 +55,13 @@ if (local) {
         );
       }
 
-      return res.json(createResponse(req.path, req.query, sessionId));
+      createResponse(req.path, req.query, sessionId)
+      .then(responseBody => {
+        // console.dir(responseBody);
+        return res.json(responseBody);
+      })
+
+      // return res.json(createResponse(req.path, req.query, sessionId));
     });
 
     app.listen(port, () => {
@@ -92,20 +98,21 @@ exports.handler = async (event) => {
     sessionId = event.queryStringParameters.sessionId;
   }
 
-  let responseBody = createResponse(
+  createResponse(
     event.path,
     event.queryStringParameters,
     sessionId
-  );
-
-  let response = {
-    statusCode: responseCode,
-    headers: {
-      "x-custom-header": "little island",
-      "Access-Control-Allow-Origin": "*",
-    },
-    body: JSON.stringify(responseBody),
-  };
-  console.log("response: " + JSON.stringify(response));
-  return response;
+  )
+  .then (responseBody => {
+    let response = {
+      statusCode: responseCode,
+      headers: {
+        "x-custom-header": "little island",
+        "Access-Control-Allow-Origin": "*",
+      },
+      body: JSON.stringify(responseBody),
+    }
+    console.log("response: " + JSON.stringify(response));
+    return response;
+  });
 };
