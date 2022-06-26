@@ -1,0 +1,1 @@
+{"statusCode":200,"headers":{"x-custom-header":"little island","Access-Control-Allow-Origin":"*"},"body":"{}"}

@@ -16,12 +16,13 @@ let initiateSessions = sessionReq.initiateSessions;
 let addIsland = islandReq.addIsland;
 
 const islands = [];
-const debug = true;
+const debug = false;
 const maxAge = 3600000; // one hour
 
 const persistIsland = (island) => {
 
-  // if (debug) console.log("islandData.js - persistIsland : persisting island " + island.id);
+  
+  if (debug) console.log("islandData.js - persistIsland : persisting island " + island.id);
 
   putItem(
     "island",
@@ -39,7 +40,7 @@ const persistIsland = (island) => {
       points: island.points,
       running: island.running,
       lastInvocation: island.lastInvocation,
-      followId: island.followId,
+      followId: island.followId
     },
     island.id
   );

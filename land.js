@@ -16,6 +16,7 @@ class Land {
     crossAge = 0,
     hasFish = false,
     hasSwim = false,
+    hasIce = false,
     swimAge = 0
   ) {
 
@@ -25,14 +26,13 @@ class Land {
     this.lpos = l;
     this.type = atype;
     this.conf = conf;
-    this.var =
-      avar === 0 ? (Math.floor(Math.random() * 2) === 1 ? "a" : "b") : avar;
+    this.var = avar === 0 ? (Math.floor(Math.random() * 2) === 1 ? "a" : "b") : avar;
     this.hasCross = hasCross;
     this.crossAge = crossAge;
     this.hasFish = hasFish;
     this.hasSwim = hasSwim;
+    this.hasIce = hasIce,
     this.swimAge = swimAge;
-
 
     this.changed = true;
     this.isTarget = false;
