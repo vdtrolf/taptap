@@ -211,7 +211,6 @@ class Island {
 
       addIsland(this);
 
-      // persistIsland(this);
     }
   } // constructor ()
 
@@ -366,6 +365,8 @@ class Island {
           } else if (land.hasSwim) {
             let transp = 0.6; // ((Math.floor(Math.random() * 2) / 10))  + 0.3;
             result += `<img class="swim" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute; opacity:${transp}" width="48" height="48" >\n`;
+          } else if (land.hasIce) {
+            result += `<img class="fish" src="./tiles/ice.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
           }
         }
       }

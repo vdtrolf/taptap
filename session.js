@@ -218,7 +218,10 @@ const getSession = (sessionId) => {
 
 // persists the session in the NoSQL db
 
-const persistSessions = (asession = null) => {
+const persistSessions = async (asession = null) => {
+
+  console.log("persisting session " + asession.id);
+
   if (!asession) {
     sessions.forEach((session) => {
       let currentTime = new Date().getTime();
