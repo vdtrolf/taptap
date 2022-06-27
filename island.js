@@ -210,7 +210,6 @@ class Island {
       }
 
       addIsland(this);
-
     }
   } // constructor ()
 
@@ -245,7 +244,7 @@ class Island {
 
   unregisterSession(session) {
     this.sessions = this.sessions.filter(
-      aSession => aSession.id !== session.id
+      (aSession) => aSession.id !== session.id
     );
     if (debug) {
       console.log(
@@ -504,7 +503,6 @@ class Island {
   // Move all the penguins of this island
 
   movePenguins() {
-
     // console.log("move " + this.id);
 
     // check if there are still alive penguins
@@ -998,13 +996,13 @@ class Island {
 }
 
 addIsland = (anIsland) => {
-  if (! islands.find((island) => island.id === anIsland.id)) {
+  if (!islands.find((island) => island.id === anIsland.id)) {
     islands.push(anIsland);
   }
-}
+};
 
 setIslands = (theIslands) => {
- //  console.log("setting the islands " + theIslands.length);
+  //  console.log("setting the islands " + theIslands.length);
   islands = theIslands;
 };
 

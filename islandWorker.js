@@ -4,6 +4,7 @@ let getAsyncItem = dbhelperReq.getAsyncItem;
 let getAsyncItems = dbhelperReq.getAsyncItems;
 
 let debug = false;
+let deepdebug = false;
 
 const weathers = ["sun", "rain", "snow", "cold", "endgame"];
 
@@ -13,17 +14,25 @@ const getIslandData = async (sessionId, withMoves = false) => {
   let sessionData = await getAsyncItem("session", sessionId);
   if (sessionData) {
     if (debug) {
-      console.log("islandWorker.js - getIslandData ------------------");
+      console.log(
+        "islandWorker.js - getIslandData: found session " + sessionData.id
+      );
+    } else if (deepdebug) {
+      console.log("islandWorker.js - getIslandData -- session -------");
       console.dir(sessionData);
-      console.log("islandWorker.js - getIslandData ------------------");
+      console.log("islandWorker.js - getIslandData -- session -------");
     }
 
     let islandData = await getAsyncItem("island", sessionData.islandId);
     if (islandData) {
       if (debug) {
-        console.log("islandWorker.js - getIslandData ----------------------");
+        console.log(
+          "islandWorker.js - getIslandData: found island " + islandData.id
+        );
+      } else if (deepdebug) {
+        console.log("islandWorker.js - getIslandData -- island -----------");
         console.dir(islandData);
-        console.log("islandWorker.js - getIslandData ----------------------");
+        console.log("islandWorker.js - getIslandData -- island -----------");
       }
 
       let theLands = await getAsyncItems(
@@ -37,7 +46,7 @@ const getIslandData = async (sessionId, withMoves = false) => {
           console.log(
             "islandWorker.js - getIslandData: found " +
               theLands.length +
-              " islands"
+              " lands"
           );
 
         let thePenguins = await getAsyncItems(
@@ -94,9 +103,7 @@ const getIslandData = async (sessionId, withMoves = false) => {
         }
       }
     } else {
-      console.log(
-        "islandWorker.js - getIslandData: no island data found for " + islandId
-      );
+      console.log("islandWorker.js - getIslandData: no island data found  ");
     }
   } else {
     console.log(

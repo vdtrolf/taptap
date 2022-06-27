@@ -231,7 +231,7 @@ const getSession = (sessionId) => {
 
 const persistSessions = async (asession = null) => {
   if (!asession) {
-    console.log("persisting sessions " + asession);
+    // console.log("persisting sessions " + asession);
 
     sessions.forEach((session) => {
       let currentTime = new Date().getTime();
@@ -263,7 +263,7 @@ const persistSessions = async (asession = null) => {
       }
     });
   } else {
-    console.log("persisting session " + asession.id);
+    // console.log("persisting session " + asession.id);
     putItem(
       "session",
       {

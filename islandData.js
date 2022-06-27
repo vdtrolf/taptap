@@ -5,6 +5,7 @@ const dbhelperReq = require("./dynamohelper.js");
 // const dbhelperReq = require("./acebasehelper.js");
 const sessionReq = require("./session.js");
 const islandReq = require("./island.js");
+const session = require("./session.js");
 
 let Island = islandReq.Island;
 let Penguin = penguinReq.Penguin;
@@ -19,10 +20,14 @@ const islands = [];
 const debug = false;
 const maxAge = 3600000; // one hour
 
-const persistIsland = (island) => {
+const persistIsland = (island, force = false) => {
+  if (debug)
+    console.log(
+      "islandData.js - persistIsland : persisting island " + island.id
+    );
 
-  
-  if (debug) console.log("islandData.js - persistIsland : persisting island " + island.id);
+  sessionsList = [];
+  island.sessions.forEach((session) => sessionsList.push(session.id));
 
   putItem(
     "island",
@@ -40,7 +45,8 @@ const persistIsland = (island) => {
       points: island.points,
       running: island.running,
       lastInvocation: island.lastInvocation,
-      followId: island.followId
+      followId: island.followId,
+      sessions: sessionsList,
     },
     island.id
   );
@@ -48,9 +54,8 @@ const persistIsland = (island) => {
   for (let i = 0; i < island.sizeH; i++) {
     for (let j = 0; j < island.sizeL; j++) {
       let land = island.territory[i][j];
- 
-      if (land.changed) {
 
+      if (force || land.changed) {
         // console.log ("land changed at " + land.hpos + "/" + land.lpos + ": " + land.changed)
 
         putItem(
@@ -111,12 +116,15 @@ const persistIsland = (island) => {
 };
 
 const initiateIslands = () => {
-  if (debug) console.log("islandData.js - initiateIslands: getting islands out of DB");
+  if (debug)
+    console.log("islandData.js - initiateIslands: getting islands out of DB");
   getItems("island", loadIslands);
 };
 
 const loadIslands = (theIslands) => {
-  if (debug) console.log("islandData.js - loadIslands: found " + theIslands.length + " islands"
+  if (debug)
+    console.log(
+      "islandData.js - loadIslands: found " + theIslands.length + " islands"
     );
 
   let currentTime = new Date().getTime();
@@ -126,11 +134,10 @@ const loadIslands = (theIslands) => {
       let age = currentTime - Number.parseInt(anIsland.lastInvocation);
 
       if (anIsland.lastInvocation > 0 && (age < maxAge || anIsland.running)) {
-        
         let island = new Island(
           anIsland.sizeH,
           anIsland.sizeL,
-          anIsland.session ? anIsland.session : null,
+          null, // anIsland.session ? anIsland.session : null,
           false,
           anIsland.id,
           anIsland.name,
@@ -146,26 +153,43 @@ const loadIslands = (theIslands) => {
           anIsland.followId
         );
 
-        if (debug) { console.log("islandData.js - loadIslands: Loaded island " + anIsland.name + "-" + anIsland.id  + " age " + age + " runnning " + anIsland.running)} 
+        if (debug) {
+          console.log(
+            "islandData.js - loadIslands: Loaded island " +
+              anIsland.name +
+              "-" +
+              anIsland.id +
+              " age " +
+              age +
+              " runnning " +
+              anIsland.running
+          );
+        }
 
         islands.push(island);
         getItems("land", loadLands, "islandId", "=", anIsland.id);
       } else {
-        if (debug) { console.log("islandData.js - loadIslands: Could not load island " + anIsland.id  + " age " + age + " runnning " + anIsland.running)} 
+        if (debug) {
+          console.log(
+            "islandData.js - loadIslands: Could not load island " +
+              anIsland.id +
+              " age " +
+              age +
+              " runnning " +
+              anIsland.running
+          );
+        }
         getItems("land", deleteLands, "islandId", "=", anIsland.id);
         getItems("penguin", deletePenguins, "islandId", "=", anIsland.id);
         deleteItem("island", anIsland.id);
       }
     });
-
   } catch (error) {
     console.error("problem", error);
   }
-
 };
 
 const loadLands = (theLands) => {
-
   let island = null;
 
   try {
@@ -217,21 +241,21 @@ const loadLands = (theLands) => {
         }
       }
       getItems("penguin", loadPenguins, "islandId", "=", island.id);
-    } 
+    }
 
     if (debug)
-    console.log(
-      "islandData.js - loadLands: found " + theLands.length + " lands for island "+ island.id
-    );
-
-
+      console.log(
+        "islandData.js - loadLands: found " +
+          theLands.length +
+          " lands for island " +
+          island.id
+      );
   } catch (error) {
     console.error("islandData.js - loadLands: problem", error);
   }
 };
 
 const loadPenguins = (thePenguins) => {
-
   let island = null;
   let penguins = [];
 
@@ -273,13 +297,16 @@ const loadPenguins = (thePenguins) => {
   } catch (error) {
     console.error("problem", error);
   }
-  
-  if (debug)
-  console.log(
-    "islandData.js - loadPenguins: found " + thePenguins.length + " penguins for island " + island.id
-  );
 
-  islands.forEach(island => addIsland(island));
+  if (debug)
+    console.log(
+      "islandData.js - loadPenguins: found " +
+        thePenguins.length +
+        " penguins for island " +
+        island.id
+    );
+
+  islands.forEach((island) => addIsland(island));
   initiateSessions();
 };
 
@@ -291,7 +318,7 @@ const deleteLands = (theLands) => {
 
   try {
     theLands.forEach((aLand) => {
-      deleteItem("land", aLand.id)
+      deleteItem("land", aLand.id);
     });
   } catch (error) {
     console.error("islandData.js - deleteLands: problem", error);
@@ -301,20 +328,19 @@ const deleteLands = (theLands) => {
 const deletePenguins = (thePenguins) => {
   if (debug)
     console.log(
-      "islandData.js - deletePenguins: deleting " + thePenguins.length + " penguins"
+      "islandData.js - deletePenguins: deleting " +
+        thePenguins.length +
+        " penguins"
     );
 
   try {
     thePenguins.forEach((aPenguin) => {
-      deleteItem("penguin", aPenguin.id)
+      deleteItem("penguin", aPenguin.id);
     });
   } catch (error) {
     console.error("islandData.js - deletePenguins: problem", error);
   }
 };
-
-
-
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
