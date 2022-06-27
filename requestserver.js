@@ -22,39 +22,32 @@ let NameServer = nameserverReq.NameServer;
 const intervalTime = 846; // 3456; //864; // 864; // 648;  // 1728; //864
 let islandH = 12;
 let islandL = 12;
-let mode = 1;
 const baseTime = new Date().getTime();
 
-// console.log(process.env);
-
 let debug = false;
-let deepDebug = false;
-let procesdebug = false;
+let deepDebug = true;
 
 let nameserver = new NameServer(30, 10, false);
 
 const createInitData = async (sessionId, moves) => {
-  
   let data = await getIslandData(sessionId, true);
-  
+
   if (deepDebug) {
-    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 1 >>" )
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 1 >>");
     console.dir(data);
-    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 1 >>" )
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 1 >>");
   }
 
   return data;
-
 };
 
 const createIslandData = async (sessionId) => {
-
   let data = await getIslandData(sessionId);
 
   if (deepDebug) {
-    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 2 >>" )
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 2 >>");
     console.dir(data);
-    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 2 >>" )
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 2 >>");
   }
 
   return data;
@@ -65,24 +58,15 @@ const createIslandData = async (sessionId) => {
 const createMovesData = async (sessionId, island, moves, followId) => {
   let theMoves = moves ? moves : [];
 
-  
-
   let data = await getMovesData(sessionId);
-  
+
   if (deepDebug) {
-    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 3 >>" )
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 3 >>");
     console.dir(data);
-    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 3 >>" )
+    console.log(">>>>>>>>>>>>>>>>>>>>>>>>>>>> 3 >>");
   }
 
   return data;
-
-  // return {
-  //   session: session.id,
-  //   points: island.points,
-  //   islandSize: island.landSize,
-  //   moves: theMoves,
-  // };
 };
 
 const createResponse = async (url, params, sessionId) => {
@@ -97,9 +81,9 @@ const createResponse = async (url, params, sessionId) => {
 
   if (sessionId > 0) {
     session = getSession(sessionId);
-    if (session != null) {
-      island = islands.find((island) => island.hasSession(session.id));
-    }
+    // if (session != null) {
+    //   island = islands.find((island) => island.hasSession(session.id));
+    // }
   }
 
   switch (url) {
@@ -110,7 +94,7 @@ const createResponse = async (url, params, sessionId) => {
         island = new Island(islandH, islandL, session, debug);
         session.setIsland(island.id);
         persistSessions(session);
-        persistIsland(island);
+        persistIsland(island, true);
         // islands.push(island);
 
         if (debug) {
@@ -125,7 +109,7 @@ const createResponse = async (url, params, sessionId) => {
         }
       }
 
-      return await createInitData(sessionId,  session.getInitMoveLog(island));
+      return await createInitData(sessionId, session.getInitMoveLog(island));
     }
 
     case "/new-island": {
@@ -186,43 +170,41 @@ const createResponse = async (url, params, sessionId) => {
       }
 
       return await createInitData(sessionId, session.getInitMoveLog(island));
-
     }
 
-    case "/penguins": {
-      if (session && island) {
-        return createData(false);
-      }
-    }
+    // case "/penguins": {
+    //   if (session && island) {
+    //     return createData(false);
+    //   }
+    // }
 
     // return the moves - is the renew parameter is on 1, then returns an initial move log
     // the parameter renew indicates the movement log must reinitiated withe 'placeament' moves (moveDir =0)
     // the parameter followId indicates that penguin must be followed in the console
 
     case "/moves": {
-      if (session && island) {
+      if (session) {
         let renew = Number.parseInt(params.renew, 10);
         let followId = Number.parseInt(params.followId, 10);
 
-        island.setFollowId(followId);
-
+        // island.setFollowId(followId);
         let moves =
           renew === 0 ? session.getMoveLog() : session.getInitMoveLog(island);
 
-        return createMovesData(sessionId,  moves);
+        return createMovesData(sessionId, moves);
       }
     }
 
     case "/islandmoves": {
-      if (session && island) {
+      if (sessionId) {
         let renew = Number.parseInt(params.renew, 10);
         return await createIslandData(sessionId);
       }
     }
 
     case "/islands": {
-      if (session) {
-        return { islands: getIslands(), session: session.getId() };
+      if (sessionId) {
+        return { islands: getIslands(), session: sessionId };
       } else {
         return { islands: getIslands() };
       }
@@ -252,7 +234,6 @@ const createResponse = async (url, params, sessionId) => {
 let doAll = true;
 
 setInterval(() => {
-
   getIslands().forEach((island) => {
     if (island.running) {
       island.calculateNeighbours();
