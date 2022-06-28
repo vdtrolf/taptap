@@ -85,9 +85,9 @@ const createResponse = async (url, params, sessionId) => {
 
   if (sessionId > 0) {
     session = getSession(sessionId);
-    if (session != null) {
-      island = islands.find((island) => island.hasSession(session.id));
-    }
+    // if (session != null) {
+    //   island = islands.find((island) => island.hasSession(session.id));
+    // }
   }
 
   switch (url) {
@@ -95,7 +95,7 @@ const createResponse = async (url, params, sessionId) => {
       if (!session) {
         session = createSession();
         sessionId = session.id;
-        island = new Island(islandH, islandL, session, debug);
+        let island = new Island(islandH, islandL, session, debug);
         session.setIsland(island.id);
         persistSessions(session);
         persistIsland(island);
@@ -122,7 +122,7 @@ const createResponse = async (url, params, sessionId) => {
           island.unregisterSession(session);
         }
 
-        island = new Island(islandH, islandL, session, debug);
+        let island = new Island(islandH, islandL, session, debug);
         // islands.push(island);
         session.reset();
         session.setIsland(island.id);
@@ -158,7 +158,7 @@ const createResponse = async (url, params, sessionId) => {
       getIslands().forEach((island) => island.unregisterSession(session));
 
       let islandId = Number.parseInt(params.islandId, 10);
-      island = islands.find((island) => island.id === islandId);
+      let island = islands.find((island) => island.id === islandId);
       island.registerSession(session);
 
       if (debug) {

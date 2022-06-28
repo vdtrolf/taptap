@@ -6,6 +6,7 @@ const dbhelperReq = require("./dynamohelper.js");
 let putItem = dbhelperReq.putItem;
 let getItems = dbhelperReq.getItems;
 let deleteItem = dbhelperReq.deleteItem;
+let getAsyncItem = dbhelperReq.getAsyncItem;
 // let getIsland = islandReq.getIsland;
 
 let debug = false;
@@ -14,13 +15,12 @@ let loaded = false;
 const sessions = [];
 
 class Session {
-  constructor(id = 0, lastInvocation = 0, islandId = 0) {
+  constructor(id = 0, lastInvocation = 0, islandId = 0, moveCounter = 0, moveLog = []) {
     this.id = id === 0 ? Math.floor(Math.random() * 99999999999) : id;
-    this.moveLog = [];
-    this.moveCounter = 0;
-    this.lastInvocation =
-      lastInvocation === 0 ? new Date().getTime() : lastInvocation;
+    this.lastInvocation = lastInvocation === 0 ? new Date().getTime() : lastInvocation;
     this.islandId = islandId;
+    this.moveCounter = moveCounter;
+    this.moveLog = moveLog;  
     if (debug) {
       console.log(
         "session.js - constructor : New session with id " +
@@ -47,14 +47,6 @@ class Session {
     this.islandId = islandId;
   }
 
-  //getId() {
-  //  return this.id;
-  //}
-
-  //isAlive() {
-  //  return true;
-  // }
-
   // Add a move log record
   // move objects are made of :
   // -- move type 1
@@ -78,6 +70,7 @@ class Session {
     newH = 0,
     newL = 0
   ) {
+
     let moveTypes = ["init", "move", "grow", "eat", "love", "die"];
     let moveid = this.moveCounter++;
     if (debug) {
@@ -156,9 +149,9 @@ class Session {
   // Reinitiate the move log and ask the island to fill it with penguins
   // initial states
 
-  getInitMoveLog(island) {
+  getInitMoveLog (island) {
     this.moveLog = [];
-    island.resetPenguins(this);
+    if (island) island.resetPenguins(this);
 
     if (debug) {
       console.log(
@@ -169,6 +162,7 @@ class Session {
 
     let lastMoves = [...this.moveLog];
     this.moveLog = [];
+    persistSessions(this);
     return lastMoves;
   }
 
@@ -183,6 +177,7 @@ class Session {
 
     let lastMoves = [...this.moveLog];
     this.moveLog = [];
+    persistSessions(this);
     return lastMoves;
   }
 }
@@ -204,7 +199,9 @@ const loadSessions = (theSessions) => {
     let session = new Session(
       asession.id,
       asession.lastInvocation,
-      asession.islandId
+      asession.islandId,
+      asession.moveCounter,
+      asession.movelog
     );
     sessions.push(session);
   });
@@ -213,18 +210,41 @@ const loadSessions = (theSessions) => {
 // create a new session and directly returns it, in the mean time saves the session to the db
 
 const createSession = () => {
-  session = new Session();
+  let session = new Session();
   sessions.push(session);
-  persistSessions(session);
+  // persistSessions(session);
   return session;
 };
 
 // gets the session, either out of the local array or out of the NoSQL db
 
-const getSession = (sessionId) => {
+const getSession = async (sessionId) => {
+
+  if (debug) console.log("session.js - getSession: looking for session with id " + sessionId);
+
   let foundSession = sessions.find((session) => session.id === sessionId);
-  if (foundSession) foundSession.lastInvocation = new Date().getTime();
-  return foundSession;
+  if (foundSession) {
+    if (debug) console.log("session.js - getSession: found a session with id " + sessionId);
+    foundSession.lastInvocation = new Date().getTime();
+    return foundSession;
+  } else {
+    let sessionData = await getAsyncItem("session", sessionId);
+    if (sessionData) {
+      if (debug) { console.log("session.js - getSession:: found a DB session " + sessionData.id) };
+      let session = new Session(sessionData.id, 
+        sessionData.lastInvocation,
+        sessionData.islandId,
+        sessionData.moveCounter,
+        sessionData.moveLog);
+      return session;
+    } else {
+      if (debug) { console.log("session.js - getSession:: creatinf a session " + sessionId) };
+      let session = new Session(sessionId);
+      await persistSessions(session);
+      return session;
+    }
+
+  }
 };
 
 // persists the session in the NoSQL db
@@ -271,7 +291,7 @@ const persistSessions = async (asession = null) => {
         moveLog: asession.moveLog,
         moveCounter: asession.moveCounter,
         lastInvocation: asession.lastInvocation,
-        islandId: session.islandId,
+        islandId: asession.islandId,
       },
       asession.id
     );

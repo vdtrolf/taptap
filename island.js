@@ -274,13 +274,13 @@ class Island {
     this.fishes += 1;
   }
 
-  decreaseTiles() {
-    this.tiles -= this.tiles > 0 ? 1 : 0;
-  }
+  // decreaseTiles() {
+  //   this.tiles -= this.tiles > 0 ? 1 : 0;
+  // }
 
-  decreaseFishes() {
-    this.fishes -= this.fishes > 0 ? 1 : 0;
-  }
+  // decreaseFishes() {
+  //   this.fishes -= this.fishes > 0 ? 1 : 0;
+  // }
 
   addPoints(points) {
     this.points += points;
@@ -411,28 +411,28 @@ class Island {
 
   // Set a tile at a given position
 
-  setTile(hpos, lpos) {
-    let land = this.territory[hpos][lpos];
-    if (land) {
-      if (
-        land.getType() == 0 &&
-        hpos > 0 &&
-        lpos > 0 &&
-        hpos < this.sizeH - 1 &&
-        lpos < this.sizeL - 1 &&
-        this.tiles > 0
-      ) {
-        land.setIce();
-        this.decreaseTiles();
-        return true;
-      } else if (land.getType() > 0 && this.fishes > 0) {
-        land.setFish();
-        this.decreaseFishes();
-        return true;
-      }
-    }
-    return false;
-  }
+  // setTile(hpos, lpos) {
+  //   let land = this.territory[hpos][lpos];
+  //   if (land) {
+  //     if (
+  //       land.getType() == 0 &&
+  //       hpos > 0 &&
+  //       lpos > 0 &&
+  //       hpos < this.sizeH - 1 &&
+  //       lpos < this.sizeL - 1 &&
+  //       this.tiles > 0
+  //     ) {
+  //       land.setIce();
+  //       this.decreaseTiles();
+  //       return true;
+  //     } else if (land.getType() > 0 && this.fishes > 0) {
+  //       land.setFish();
+  //       this.decreaseFishes();
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }
 
   // Decrease or increase the amount of ice
 

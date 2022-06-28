@@ -17,6 +17,12 @@ const createDb = (local) => {
 const cleanDb = () => {};
 
 const putItem = (TableName, anItem, uniqueId) => {
+
+  //console.log("====================== putItem ============");
+  //console.dir(anItem);
+  //console.log("====================== putItem ============");
+
+
   let Item = AWS.DynamoDB.Converter.marshall(anItem);
   let params = {
     Item,
