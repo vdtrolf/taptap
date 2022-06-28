@@ -210,7 +210,6 @@ class Island {
       }
 
       addIsland(this);
-
     }
   } // constructor ()
 
@@ -245,7 +244,7 @@ class Island {
 
   unregisterSession(session) {
     this.sessions = this.sessions.filter(
-      aSession => aSession.id !== session.id
+      (aSession) => aSession.id !== session.id
     );
     if (debug) {
       console.log(
@@ -275,13 +274,13 @@ class Island {
     this.fishes += 1;
   }
 
-  decreaseTiles() {
-    this.tiles -= this.tiles > 0 ? 1 : 0;
-  }
+  // decreaseTiles() {
+  //   this.tiles -= this.tiles > 0 ? 1 : 0;
+  // }
 
-  decreaseFishes() {
-    this.fishes -= this.fishes > 0 ? 1 : 0;
-  }
+  // decreaseFishes() {
+  //   this.fishes -= this.fishes > 0 ? 1 : 0;
+  // }
 
   addPoints(points) {
     this.points += points;
@@ -412,28 +411,28 @@ class Island {
 
   // Set a tile at a given position
 
-  setTile(hpos, lpos) {
-    let land = this.territory[hpos][lpos];
-    if (land) {
-      if (
-        land.getType() == 0 &&
-        hpos > 0 &&
-        lpos > 0 &&
-        hpos < this.sizeH - 1 &&
-        lpos < this.sizeL - 1 &&
-        this.tiles > 0
-      ) {
-        land.setIce();
-        this.decreaseTiles();
-        return true;
-      } else if (land.getType() > 0 && this.fishes > 0) {
-        land.setFish();
-        this.decreaseFishes();
-        return true;
-      }
-    }
-    return false;
-  }
+  // setTile(hpos, lpos) {
+  //   let land = this.territory[hpos][lpos];
+  //   if (land) {
+  //     if (
+  //       land.getType() == 0 &&
+  //       hpos > 0 &&
+  //       lpos > 0 &&
+  //       hpos < this.sizeH - 1 &&
+  //       lpos < this.sizeL - 1 &&
+  //       this.tiles > 0
+  //     ) {
+  //       land.setIce();
+  //       this.decreaseTiles();
+  //       return true;
+  //     } else if (land.getType() > 0 && this.fishes > 0) {
+  //       land.setFish();
+  //       this.decreaseFishes();
+  //       return true;
+  //     }
+  //   }
+  //   return false;
+  // }
 
   // Decrease or increase the amount of ice
 
@@ -504,7 +503,6 @@ class Island {
   // Move all the penguins of this island
 
   movePenguins() {
-
     // console.log("move " + this.id);
 
     // check if there are still alive penguins
@@ -998,13 +996,13 @@ class Island {
 }
 
 addIsland = (anIsland) => {
-  if (! islands.find((island) => island.id === anIsland.id)) {
+  if (!islands.find((island) => island.id === anIsland.id)) {
     islands.push(anIsland);
   }
-}
+};
 
 setIslands = (theIslands) => {
- //  console.log("setting the islands " + theIslands.length);
+  //  console.log("setting the islands " + theIslands.length);
   islands = theIslands;
 };
 

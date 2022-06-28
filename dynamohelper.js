@@ -4,10 +4,11 @@ AWS.config.update({ region: "us-east-1" });
 const debug = false;
 let dynamodb = null;
 
-
 const createDb = (local) => {
   if (local) {
-    dynamodb = new AWS.DynamoDB({ endpoint: new AWS.Endpoint('http://localhost:8000')});
+    dynamodb = new AWS.DynamoDB({
+      endpoint: new AWS.Endpoint("http://localhost:8000"),
+    });
   } else {
     dynamodb = new AWS.DynamoDB();
   }
@@ -16,7 +17,12 @@ const createDb = (local) => {
 const cleanDb = () => {};
 
 const putItem = (TableName, anItem, uniqueId) => {
-  
+
+  //console.log("====================== putItem ============");
+  //console.dir(anItem);
+  //console.log("====================== putItem ============");
+
+
   let Item = AWS.DynamoDB.Converter.marshall(anItem);
   let params = {
     Item,
@@ -27,30 +33,30 @@ const putItem = (TableName, anItem, uniqueId) => {
       console.log("dynamohelper.js : Could not put data in " + TableName, err);
       if (debug) {
         console.dir(params);
-      } 
+      }
       return false;
     } else {
       //if (debug)
-        //console.log(
-        //  "dynamohelper.js : Success with puting data in " + TableName,
-        //  data
-        //);
+      //console.log(
+      //  "dynamohelper.js : Success with puting data in " + TableName,
+      //  data
+      //);
       return true;
     }
   });
 };
 
 const getAsyncItem = async (tableName, uniqueId) => {
+  if (debug)
+    console.log(
+      "dynamohelper.js - getAsyncItem: table=" + tableName + " id=" + uniqueId
+    );
 
-  if (debug) console.log("dynamohelper.js - getAsyncItem: table=" + tableName + " id=" + uniqueId)
-  
-  
-  try { 
-    
-    const fval = `${uniqueId}`
+  try {
+    const fval = `${uniqueId}`;
     const queryparams = {
       ExpressionAttributeValues: {
-        ':id': {N: fval}
+        ":id": { N: fval },
       },
       KeyConditionExpression: `id = :id`,
       TableName: tableName,
@@ -66,14 +72,12 @@ const getAsyncItem = async (tableName, uniqueId) => {
       console.log("================================");
     }
     return unmarshalled;
-
-  } catch(err) {
+  } catch (err) {
     console.dir(err);
   }
 };
 
 const getItem = (tableName, uniqueId) => {
-
   var queryparams = {
     ExpressionAttributeValues: {
       ":id": uniqueId,
@@ -99,15 +103,22 @@ const getAsyncItems = async (
   filterComparator = ">",
   filterVal = 0
 ) => {
+  if (debug) {
+    console.log(
+      "dynamohelper.js - getAsyncItems: table=" +
+        tableName +
+        " filter=" +
+        filterIdx +
+        filterComparator +
+        filterVal
+    );
+  }
 
-  if (debug) { console.log("dynamohelper.js - getAsyncItems: table=" + tableName + " filter=" + filterIdx + filterComparator + filterVal)}
-
-  try { 
-    
-    const fval = `${filterVal}`
+  try {
+    const fval = `${filterVal}`;
     const scanparams = {
       ExpressionAttributeValues: {
-        ':id': {N: fval}
+        ":id": { N: fval },
       },
       FilterExpression: `${filterIdx} ${filterComparator} :id`,
       TableName: tableName,
@@ -121,22 +132,18 @@ const getAsyncItems = async (
     data.Items.forEach(function (item, index, array) {
       let cleanItem = AWS.DynamoDB.Converter.unmarshall(item);
       if (debug) {
-          console.log("===== " + tableName + " ====================");
-          console.dir(cleanItem);
-          console.log("===== " + tableName + " ====================");
+        console.log("===== " + tableName + " ====================");
+        console.dir(cleanItem);
+        console.log("===== " + tableName + " ====================");
       }
       cleanItems.push(cleanItem);
     });
 
     return cleanItems;
-
-  } catch(err) {
+  } catch (err) {
     console.dir(err);
   }
-
 };
-
-
 
 const getItems = (
   tableName,
@@ -145,13 +152,21 @@ const getItems = (
   filterComparator = ">",
   filterVal = 0
 ) => {
+  if (debug) {
+    console.log(
+      "dynamohelper.js - getItems: table=" +
+        tableName +
+        " filter=" +
+        filterIdx +
+        filterComparator +
+        filterVal
+    );
+  }
 
-  if (debug) { console.log("dynamohelper.js - getItems: table=" + tableName + " filter=" + filterIdx + filterComparator + filterVal)}
-
-  const fval = `${filterVal}`
+  const fval = `${filterVal}`;
   const scanparams = {
     ExpressionAttributeValues: {
-      ':id': {N: fval}
+      ":id": { N: fval },
     },
     FilterExpression: `${filterIdx} ${filterComparator} :id`,
     TableName: tableName,
@@ -166,10 +181,10 @@ const getItems = (
       const cleanItems = [];
       data.Items.forEach(function (item, index, array) {
         let cleanItem = AWS.DynamoDB.Converter.unmarshall(item);
-       
+
         if (debug) {
-            console.log("===== " + tableName + " ====================");
-            console.dir(cleanItem);
+          console.log("===== " + tableName + " ====================");
+          console.dir(cleanItem);
         }
 
         // small check to avoid old dirt in the island table
@@ -177,19 +192,17 @@ const getItems = (
         if (tableName !== "island" || cleanItem.sizeH) {
           cleanItems.push(cleanItem);
         }
-        
       });
       callbackFunction(cleanItems);
     }
   });
 };
 
-
 const deleteItem = (tableName, uniqueId) => {
-  const fval = `${uniqueId}`
+  const fval = `${uniqueId}`;
   var deleteparams = {
-    Key:  {
-      id: {N: fval}
+    Key: {
+      id: { N: fval },
     },
     TableName: tableName,
   };
@@ -202,8 +215,6 @@ const deleteItem = (tableName, uniqueId) => {
       return data;
     }
   });
-
-
 };
 
 // now we export the class, so other modules can create Penguin objects

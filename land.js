@@ -86,10 +86,10 @@ class Land {
     this.hasFish = false;
   }
 
-  setFish() {
-    this.hasFish = true;
-    this.changed = true;
-  }
+  // setFish() {
+  //   this.hasFish = true;
+  //   this.changed = true;
+  // }
 
   canFish() {
     return this.hasSwim;
@@ -102,16 +102,16 @@ class Land {
   // converting a water tile to ice - if there is a fish swimming into the water,
   // then put it on the ice
 
-  setIce() {
-    if (this.hasSwim) {
-      this.hasSwim = false;
-      this.hasFish = true;
-    }
-    this.type = 1;
-    this.conf = 0;
-    this.changed = true;
+  // setIce() {
+  //   if (this.hasSwim) {
+  //     this.hasSwim = false;
+  //     this.hasFish = true;
+  //   }
+  //   this.type = 1;
+  //   this.conf = 0;
+  //   this.changed = true;
 
-  }
+  // }
 
   resetConf() {
     this.conf = 0;

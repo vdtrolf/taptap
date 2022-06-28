@@ -13,7 +13,7 @@ let initiateIslands = islandDataReq.initiateIslands;
 const args = process.argv.slice(2);
 let local = args[0] && args[0].toLowerCase() === "local";
 
-let debug = false;
+let debug = true;
 let requestcounter = 0;
 
 // Starting the express server
@@ -22,7 +22,6 @@ createDb(local);
 initiateIslands();
 
 if (local) {
-
   const port = 3001;
   let app = null;
 
@@ -43,10 +42,8 @@ if (local) {
       let sessionId = Number.parseInt(req.query.sessionId, 10);
 
       if (debug) {
-        timeTag = new Date().getTime() - baseTime;
         console.log(
-          timeTag +
-            " index.js : Processing " +
+          " index.js : Processing " +
             req.path +
             " for session " +
             sessionId +
@@ -55,11 +52,10 @@ if (local) {
         );
       }
 
-      createResponse(req.path, req.query, sessionId)
-      .then(responseBody => {
-        // console.dir(responseBody);
+      createResponse(req.path, req.query, sessionId).then((responseBody) => {
+        // if (debug) console.dir(responseBody);
         return res.json(responseBody);
-      })
+      });
 
       // return res.json(createResponse(req.path, req.query, sessionId));
     });
@@ -98,21 +94,18 @@ exports.handler = async (event) => {
     sessionId = event.queryStringParameters.sessionId;
   }
 
-  createResponse(
-    event.path,
-    event.queryStringParameters,
-    sessionId
-  )
-  .then (responseBody => {
-    let response = {
-      statusCode: responseCode,
-      headers: {
-        "x-custom-header": "little island",
-        "Access-Control-Allow-Origin": "*",
-      },
-      body: JSON.stringify(responseBody),
+  createResponse(event.path, event.queryStringParameters, sessionId).then(
+    (responseBody) => {
+      let response = {
+        statusCode: responseCode,
+        headers: {
+          "x-custom-header": "little island",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify(responseBody),
+      };
+      console.log("response: " + JSON.stringify(response));
+      return response;
     }
-    console.log("response: " + JSON.stringify(response));
-    return response;
-  });
+  );
 };
