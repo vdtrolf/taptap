@@ -3,7 +3,7 @@ const strategicMapReq = require("./strategicmap.js");
 
 let StrategicMap = strategicMapReq.StrategicMap;
 
-const debug = false;
+const debug = true;
 
 class Penguin {
   constructor(
@@ -76,7 +76,18 @@ class Penguin {
     // console.log("new penguin " + this.name + " " + this.gender);
 
     sessions.forEach((session) => {
-      session.addMoveLog(this.id, this.num, 1, this.cat, "move", 0, 0, 0, this.hpos, this.lpos);
+      session.addMoveLog(
+        this.id,
+        this.num,
+        1,
+        this.cat,
+        "move",
+        0,
+        0,
+        0,
+        this.hpos,
+        this.lpos
+      );
     });
     if (debug) {
       console.log(
@@ -239,7 +250,7 @@ class Penguin {
         0,
         0,
         this.hpos,
-        this.lpos, 
+        this.lpos
       );
     });
     if (debug) {
@@ -254,12 +265,12 @@ class Penguin {
     }
     if (this.loving > 0) {
       sessions.forEach((session) => {
-        session.addMoveLog( this.id, this.num, 4, this.cat,"love");
+        session.addMoveLog(this.id, this.num, 4, this.cat, "love");
       });
     }
     if (this.eating > 0) {
       sessions.forEach((session) => {
-        session.addMoveLog(this.id, this.num, 3, this.cat, "eat" );
+        session.addMoveLog(this.id, this.num, 3, this.cat, "eat");
       });
     }
     this.waiting = 0;
@@ -273,7 +284,7 @@ class Penguin {
     this.partnerId = partnerId;
     this.waiting = 0;
     sessions.forEach((session) => {
-      session.addMoveLog(this.id, this.num, 4,this.cat, "love");
+      session.addMoveLog(this.id, this.num, 4, this.cat, "love");
     });
   }
 
@@ -291,7 +302,7 @@ class Penguin {
     this.hungry = this.hungry < 25 ? 0 : this.hungry - 25;
     this.wealth = this.wealth > 90 ? 100 : this.wealth + 10;
     sessions.forEach((session) => {
-      session.addMoveLog(this.id, this.num, 3, this.cat, "eat" );
+      session.addMoveLog(this.id, this.num, 3, this.cat, "eat");
     });
   }
 
@@ -305,7 +316,7 @@ class Penguin {
 
   fish(sessions, direction) {
     sessions.forEach((session) => {
-      session.addMoveLog( this.id, this.num, 7, this.cat, "fish", direction );
+      session.addMoveLog(this.id, this.num, 7, this.cat, "fish", direction);
     });
     this.fishDirection = direction;
     this.fishTime = 6;
@@ -389,7 +400,7 @@ class Penguin {
       this.cat = this.gender === "male" ? "-m-" : "-f-";
       this.vision = 3;
       sessions.forEach((session) => {
-        session.addMoveLog( this.id, this.num, 2,this.cat, "age");
+        session.addMoveLog(this.id, this.num, 2, this.cat, "age");
       });
     }
 

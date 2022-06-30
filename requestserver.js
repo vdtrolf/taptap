@@ -14,7 +14,6 @@ let getSession = sessionReq.getSession;
 let createSession = sessionReq.createSession;
 let persistSessions = sessionReq.persistSessions;
 let persistIsland = islandDataReq.persistIsland;
-let getAsyncItem = dbhelperReq.getAsyncItem;
 let getIslandData = islandWorkerReq.getIslandData;
 let getMovesData = islandWorkerReq.getMovesData;
 let getAsyncIslands = islandWorkerReq.getAsyncIslands;
@@ -22,7 +21,7 @@ let connectIsland = islandWorkerReq.connectIsland;
 
 let NameServer = nameserverReq.NameServer;
 
-const intervalTime = 846; // 3456; //864; // 864; // 648;  // 1728; //864
+const intervalTime = 3456; //864; // 864; // 648;  // 1728; //864
 let islandH = 12;
 let islandL = 12;
 const baseTime = new Date().getTime();
@@ -36,21 +35,27 @@ const createInitData = async (session, moves) => {
   let data = await getIslandData(session.islandId, session.id, moves);
 
   if (deepDebug) {
-    console.log("requestserver.js - createInitData >>>>>>>>>>>>>>>>>>");
+    console.log("requestserver.js - createInitData ----------");
     console.dir(data);
-    console.log("requestserver.js - createInitData >>>>>>>>>>>>>>>>>>");
+    console.log("requestserver.js - createInitData ----------");
   }
 
   return data;
 };
 
-const createIslandData = async (session, tileHpos, tileLpos) => {
-  let data = await getIslandData(session.islandId, session.id, null, tileHpos, tileLpos);
+const createIslandData = async (session, moves = [], tileHpos, tileLpos) => {
+  let data = await getIslandData(
+    session.islandId,
+    session.id,
+    moves,
+    tileHpos,
+    tileLpos
+  );
 
   if (deepDebug) {
-    console.log("requestserver.js - createIslandData >>>>>>>>>>>>>>>>>>");
+    console.log("requestserver.js - createIslandData ----------");
     console.dir(data);
-    console.log("requestserver.js - createIslandData >>>>>>>>>>>>>>>>>>");
+    console.log("requestserver.js - createIslandData ----------");
   }
 
   return data;
@@ -63,19 +68,17 @@ const createMovesData = async (session, moves, followId) => {
 
   let data = await getMovesData(session.islandId, session.id, moves);
 
-  if (deepDebug) {
-    console.log("requestserver.js - createMovesData >>>>>>>>>>>>>>>>>>");
-    console.dir(data);
-    console.log("requestserver.js - createMovesData >>>>>>>>>>>>>>>>>>");
-  }
+  // if (deepDebug) {
+  console.log("requestserver.js - createMovesData ----------");
+  console.dir(data.moves);
+  console.log("requestserver.js - createMovesData ----------");
+  // }
 
   return data;
 };
 
 const createResponse = async (url, params, sessionId) => {
   let session = null;
-  let island = null;
-  let islands = getIslands();
 
   if (debug && url !== "/islands")
     console.log(
@@ -84,46 +87,18 @@ const createResponse = async (url, params, sessionId) => {
 
   if (sessionId > 0) {
     session = await getSession(sessionId);
-  }
+    switch (url) {
+      case "/new-island": {
+        // if (island) {
+        //   island.unregisterSession(session);
+        // }
 
-  switch (url) {
-    case "/island": {
-      if (!session) {
-        session = createSession();
-        sessionId = session.id;
-        island = new Island(islandH, islandL, session, debug);
-        session.setIsland(island.id);
-        persistSessions(session);
-        persistIsland(island, true);
-        // islands.push(island);
-
-        if (debug) {
-          timeTag = new Date().getTime() - baseTime;
-          console.log(
-            timeTag +
-              "index.js - createResponse/island : Building an island of size " +
-              islandH +
-              " * " +
-              islandL
-          );
-        }
-      }
-      await resetPenguinsPos(session);
-      return await createInitData(session, session.getMoveLog());
-    }
-
-    case "/new-island": {
-      if (session) {
-        if (island) {
-          island.unregisterSession(session);
-        }
-
-        island = new Island(islandH, islandL, session, debug);
-        // islands.push(island);
-        session.reset();
-        session.setIsland(island.id);
-        persistSessions(session);
-        persistIsland(island);
+        // island = new Island(islandH, islandL, session, debug);
+        // // islands.push(island);
+        // session.reset();
+        // session.setIsland(island.id);
+        // persistSessions(session);
+        // persistIsland(island);
 
         if (debug) {
           timeTag = new Date().getTime() - baseTime;
@@ -137,59 +112,42 @@ const createResponse = async (url, params, sessionId) => {
         }
         await resetPenguinsPos(session);
         return await createInitData(session, session.getMoveLog());
-      } else {
-        if (debug) {
-          console.log("index.js - createResponse : No island found");
-        }
       }
-    }
 
-    case "/connect-island": {
-      if (!session) {
-
+      case "/connect-island": {
         // getIslands().forEach((island) => island.unregisterSession(session));
 
-        connectIsland(sessionId,Number.parseInt(params.islandId, 10));
+        connectIsland(sessionId, Number.parseInt(params.islandId, 10));
 
         // let islandId = Number.parseInt(params.islandId, 10);
         // island = islands.find((island) => island.id === islandId);
         // island.registerSession(session);
 
         if (debug) {
-          console.log("index.js - createResponse/connect-island : Connecting to island  " + islandId );
+          console.log(
+            "index.js - createResponse/connect-island : Connecting to island  " +
+              Number.parseInt(params.islandId, 10)
+          );
         }
-        
-        await resetPenguinsPos(session)
+
+        await resetPenguinsPos(session);
         return await createInitData(session, session.getMoveLog());
       }
-    }
 
-    // case "/penguins": {
-    //   if (session && island) {
-    //     return createData(false);
-    //   }
-    // }
-
-    // return the moves - is the renew parameter is on 1, then returns an initial move log
-    // the parameter renew indicates the movement log must reinitiated withe 'placeament' moves (moveDir =0)
-    // the parameter followId indicates that penguin must be followed in the console
-
-    case "/moves": {
-      if (session) {
+      // return the moves - is the renew parameter is on 1, then returns an initial move log
+      // the parameter renew indicates the movement log must reinitiated withe 'placeament' moves (moveDir =0)
+      // the parameter followId indicates that penguin must be followed in the console
+      case "/moves": {
         let renew = Number.parseInt(params.renew, 10);
         let followId = Number.parseInt(params.followId, 10);
 
         // island.setFollowId(followId);
-        
-        if (renew !== 0) resetPenguinsPos(session);      
+
+        if (renew !== 0) resetPenguinsPos(session);
         return await createMovesData(session, session.getMoveLog());
-  
       }
-    }
 
-    case "/islandmoves": {
-      if (session) {
-
+      case "/islandmoves": {
         let renew = Number.parseInt(params.renew, 10);
         let followId = Number.parseInt(params.followId, 10);
 
@@ -198,30 +156,48 @@ const createResponse = async (url, params, sessionId) => {
         if (renew !== 0) resetPenguinsPos(session);
         return await createIslandData(session, session.getMoveLog());
       }
-    }
 
-    case "/islands": {
-      if (session) {
-
+      case "/islands": {
         let islands = await getAsyncIslands();
-
         return { islands: islands, session: session.id };
-      } else {
-        return { islands: islands };
       }
-    }
 
-    case "/setTile": {
-      if (sessionId) {
+      case "/setTile": {
         let hpos = Number.parseInt(params.hpos, 10);
         let lpos = Number.parseInt(params.lpos, 10);
+        return await createIslandData(session, [], hpos, lpos);
+      }
 
-        return await createIslandData(session, hpos, lpos);
+      default: {
+        return {};
       }
     }
+  } else {
+    switch (url) {
+      case "/island": {
+        session = createSession();
+        sessionId = session.id;
+        let island = new Island(islandH, islandL, session, debug);
+        session.setIsland(island.id);
+        persistSessions(session);
+        persistIsland(island, true);
 
-    default: {
-      return {};
+        if (debug) {
+          console.log(
+            "index.js - createResponse/island : Building an new island"
+          );
+        }
+        await resetPenguinsPos(session);
+        return await createInitData(session, session.getMoveLog());
+      }
+
+      case "/islands": {
+        return { islands: islands };
+      }
+
+      default: {
+        return {};
+      }
     }
   }
 };
