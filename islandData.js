@@ -11,6 +11,7 @@ let Island = islandReq.Island;
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
 let putItem = dbhelperReq.putItem;
+let putAsyncItem = dbhelperReq.putAsyncItem;
 let deleteItem = dbhelperReq.deleteItem;
 let getItems = dbhelperReq.getItems;
 let initiateSessions = sessionReq.initiateSessions;

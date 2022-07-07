@@ -9,10 +9,18 @@ let deepdebug = false;
 
 const weathers = ["sun", "rain", "snow", "cold", "endgame"];
 
-const getIslandData = async (islandId,sessionId, theMoves=null, tileHpos=0, tileLpos=0) => {
+// To be used when the island has been persisted
+// Creates a result set based on the island data in the DB
+
+const getIslandData = async (
+  islandId,
+  sessionId,
+  theMoves = null,
+  tileHpos = 0,
+  tileLpos = 0
+) => {
   result = {};
 
- 
   let islandData = await getAsyncItem("island", islandId);
   if (islandData) {
     if (debug) {
@@ -25,18 +33,11 @@ const getIslandData = async (islandId,sessionId, theMoves=null, tileHpos=0, tile
       console.log("islandWorker.js - getIslandData -- island -----------");
     }
 
-    let theLands = await getAsyncItems(
-      "land",
-      "islandId",
-      "=",
-      islandData.id
-    );
+    let theLands = await getAsyncItems("land", "islandId", "=", islandData.id);
     if (theLands) {
       if (debug)
         console.log(
-          "islandWorker.js - getIslandData: found " +
-            theLands.length +
-            " lands"
+          "islandWorker.js - getIslandData: found " + theLands.length + " lands"
         );
 
       let thePenguins = await getAsyncItems(
@@ -66,13 +67,17 @@ const getIslandData = async (islandId,sessionId, theMoves=null, tileHpos=0, tile
         territory[land.hpos][land.lpos] = land;
       });
 
-      if (tileHpos > 0 && tileLpos > 0 && tileHpos < islandData.sizeH - 1 && tileLpos < islandData.sizeL - 1) {
-
+      if (
+        tileHpos > 0 &&
+        tileLpos > 0 &&
+        tileHpos < islandData.sizeH - 1 &&
+        tileLpos < islandData.sizeL - 1
+      ) {
         let land = territory[tileHpos][tileLpos];
         let changed = false;
 
         if (land) {
-          if (land.type === 0 && islandData.tiles > 0 ) {
+          if (land.type === 0 && islandData.tiles > 0) {
             if (land.hasSwim) {
               land.hasSwim = false;
               land.hasFish = true;
@@ -81,39 +86,31 @@ const getIslandData = async (islandId,sessionId, theMoves=null, tileHpos=0, tile
             land.conf = 0;
             land.changed = true;
             islandData.tiles -= islandData.tiles > 0 ? 1 : 0;
-            changed =  true;
+            changed = true;
           } else if (land.type > 0 && islandData.fishes > 0) {
             land.hasFish = true;
             land.changed = true;
             islandData.fishes -= islandData.fishes > 0 ? 1 : 0;
-            changed =  true;
+            changed = true;
           }
 
           if (changed) {
-            putItem("land",land,land.id);
-            putItem("island",islandData,islandData.id);
+            putItem("land", land, land.id);
+            putItem("island", islandData, islandData.id);
           }
+        }
       }
-
-      }
-
-      
 
       let penguins = [];
       // thePenguins.forEach((penguin) => penguins.push({ Penguin: penguin }));
       thePenguins.forEach((penguin) => penguins.push(penguin));
-     
 
       result = {
         session: sessionId,
         island: getImg(territory, islandData.sizeH, islandData.sizeL),
         penguins: penguins,
         weather: weathers[islandData.weather],
-        artifacts: getArtifacts(
-          territory,
-          islandData.sizeH,
-          islandData.sizeL
-        ),
+        artifacts: getArtifacts(territory, islandData.sizeH, islandData.sizeL),
         tiles: islandData.tiles,
         fishes: islandData.fishes,
         points: islandData.points,
@@ -123,7 +120,7 @@ const getIslandData = async (islandId,sessionId, theMoves=null, tileHpos=0, tile
       };
 
       if (theMoves) {
-        let moves = {moves: theMoves};
+        let moves = { moves: theMoves };
         result = { ...result, ...moves };
       }
     }
@@ -131,10 +128,34 @@ const getIslandData = async (islandId,sessionId, theMoves=null, tileHpos=0, tile
     console.log("islandWorker.js - getIslandData: no island data found  ");
   }
 
-
   return result;
 };
 
+// To be used just after the island was created - while the island object is still in memory
+// Creates a result set based on the island object
+
+const getInitData = async (island, sessionId, theMoves = null) => {
+  result = {
+    session: sessionId,
+    island: getImg(island.territory, island.sizeH, island.sizeL),
+    penguins: island.getPenguins(),
+    weather: weathers[island.weather],
+    artifacts: getArtifacts(island.territory, island.sizeH, island.sizeL),
+    tiles: island.tiles,
+    fishes: island.fishes,
+    points: island.points,
+    islandName: island.name,
+    islandId: island.id,
+    islandSize: island.landSize,
+  };
+
+  if (theMoves) {
+    let moves = { moves: theMoves };
+    result = { ...result, ...moves };
+  }
+
+  return result;
+};
 
 const getMovesData = async (islandId, sessionId, moves) => {
   result = {};
@@ -166,31 +187,24 @@ const getMovesData = async (islandId, sessionId, moves) => {
 };
 
 const getAsyncIslands = async () => {
-  let theIslands = await getAsyncItems(
-    "island",
-    "id",
-    ">",
-    0
-  );
+  let theIslands = await getAsyncItems("island", "id", ">", 0);
   return theIslands;
-}
+};
 
 const connectIsland = async (sessionId, islandId) => {
-  let theIslands = await getAsyncItems("island","id",">",0 );
-  if(theIslands) {
-    theIslands.forEach(island => {
+  let theIslands = await getAsyncItems("island", "id", ">", 0);
+  if (theIslands) {
+    theIslands.forEach((island) => {
       let sessions = island.sessions;
       console.dir(sesssions);
 
       //if (sessions.some(sessionid => sessionId == ))
       // island.sessions = sessions.map(session => sessionId !== sessionId);
-
-    })
+    });
   }
-}
+};
 
 const resetPenguinsPos = async (session) => {
-
   let islandData = await getAsyncItem("island", session.islandId);
   if (islandData) {
     let thePenguins = await getAsyncItems(
@@ -200,7 +214,7 @@ const resetPenguinsPos = async (session) => {
       islandData.id
     );
 
-    thePenguins.forEach(penguin => {
+    thePenguins.forEach((penguin) => {
       session.addMoveLog(
         penguin.id,
         penguin.num,
@@ -211,23 +225,22 @@ const resetPenguinsPos = async (session) => {
         0,
         0,
         penguin.hpos,
-        penguin.lpos, 
+        penguin.lpos
       );
       if (penguin.loving > 0) {
-        session.addMoveLog(penguin.id,penguin.num, 4,penguin.cat,"love");
+        session.addMoveLog(penguin.id, penguin.num, 4, penguin.cat, "love");
       }
       if (penguin.eating > 0) {
-        session.addMoveLog(penguin.id,penguin.num, 3,penguin.cat, "eat" );
+        session.addMoveLog(penguin.id, penguin.num, 3, penguin.cat, "eat");
       }
       penguin.waiting = 0;
 
-      putItem("penguin",penguin,penguin.id);
-
+      putItem("penguin", penguin, penguin.id);
     });
-    
-    putItem("session",session,session.id);
+
+    putItem("session", session, session.id);
   }
-}
+};
 
 const getImg = (territory, islandH, islandL) => {
   let result = [];
@@ -282,8 +295,9 @@ const getArtifacts = (territory, islandH, islandL) => {
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
   getIslandData: getIslandData,
+  getInitData: getInitData,
   getMovesData: getMovesData,
-  getAsyncIslands:getAsyncIslands,
+  getAsyncIslands: getAsyncIslands,
   connectIsland: connectIsland,
-  resetPenguinsPos: resetPenguinsPos
+  resetPenguinsPos: resetPenguinsPos,
 };

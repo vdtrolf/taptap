@@ -10,17 +10,25 @@ let getAsyncItem = dbhelperReq.getAsyncItem;
 // let getIsland = islandReq.getIsland;
 
 let debug = false;
+let deepdebug = false;
 let loaded = false;
 
 const sessions = [];
 
 class Session {
-  constructor(id = 0, lastInvocation = 0, islandId = 0, moveCounter = 0, moveLog = []) {
+  constructor(
+    id = 0,
+    lastInvocation = 0,
+    islandId = 0,
+    moveCounter = 0,
+    moveLog = []
+  ) {
     this.id = id === 0 ? Math.floor(Math.random() * 99999999999) : id;
-    this.lastInvocation = lastInvocation === 0 ? new Date().getTime() : lastInvocation;
+    this.lastInvocation =
+      lastInvocation === 0 ? new Date().getTime() : lastInvocation;
     this.islandId = islandId;
     this.moveCounter = moveCounter;
-    this.moveLog = moveLog;  
+    this.moveLog = moveLog;
     if (debug) {
       console.log(
         "session.js - constructor : New session with id " +
@@ -70,8 +78,7 @@ class Session {
     newH = 0,
     newL = 0
   ) {
-
-    let moveTypes = ["init", "move", "grow", "eat", "love", "die"];
+    let moveTypes = ["init", "move", "grow", "eat", "love", "die", "still"];
     let moveid = this.moveCounter++;
     if (debug) {
       console.log(
@@ -149,7 +156,7 @@ class Session {
   // Reinitiate the move log and ask the island to fill it with penguins
   // initial states
 
-  getInitMoveLog (island) {
+  getInitMoveLog(island) {
     this.moveLog = [];
     if (island) island.resetPenguins(this);
 
@@ -219,31 +226,45 @@ const createSession = () => {
 // gets the session, either out of the local array or out of the NoSQL db
 
 const getSession = async (sessionId) => {
-
-  if (debug) console.log("session.js - getSession: looking for session with id " + sessionId);
+  if (deepdebug)
+    console.log(
+      "session.js - getSession: looking for session with id " + sessionId
+    );
 
   let foundSession = sessions.find((session) => session.id === sessionId);
   if (foundSession) {
-    if (debug) console.log("session.js - getSession: found a session with id " + sessionId);
+    if (deepdebug)
+      console.log(
+        "session.js - getSession: found a session with id " + sessionId
+      );
     foundSession.lastInvocation = new Date().getTime();
     return foundSession;
   } else {
     let sessionData = await getAsyncItem("session", sessionId);
     if (sessionData) {
-      if (debug) { console.log("session.js - getSession:: found a DB session " + sessionData.id) };
-      let session = new Session(sessionData.id, 
+      if (deepdebug) {
+        console.log(
+          "session.js - getSession:: found a DB session " + sessionData.id
+        );
+      }
+      let session = new Session(
+        sessionData.id,
         sessionData.lastInvocation,
         sessionData.islandId,
         sessionData.moveCounter,
-        sessionData.moveLog);
+        sessionData.moveLog
+      );
       return session;
     } else {
-      if (debug) { console.log("session.js - getSession:: creatinf a session " + sessionId) };
+      if (deepdebug) {
+        console.log(
+          "session.js - getSession:: creatinf a session " + sessionId
+        );
+      }
       let session = new Session(sessionId);
       await persistSessions(session);
       return session;
     }
-
   }
 };
 
@@ -251,13 +272,13 @@ const getSession = async (sessionId) => {
 
 const persistSessions = async (asession = null) => {
   if (!asession) {
-    // console.log("persisting sessions " + asession);
+    if (deepdebug) console.log("persisting sessions " + asession);
 
     sessions.forEach((session) => {
       let currentTime = new Date().getTime();
 
       if (currentTime - session.lastInvocation > 300000) {
-        if (debug) {
+        if (deepdebug) {
           console.log(
             "Going to delete session " +
               session.id +
@@ -283,7 +304,7 @@ const persistSessions = async (asession = null) => {
       }
     });
   } else {
-    // console.log("persisting session " + asession.id);
+    if (deepdebug) console.log("persisting session " + asession.id);
     putItem(
       "session",
       {

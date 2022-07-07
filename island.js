@@ -323,55 +323,55 @@ class Island {
     return this.penguins;
   }
 
-  getImg(mode, islandH, islandL) {
-    let result = [];
-    for (let i = 1; i < islandH - 1; i++) {
-      for (let j = 1; j < islandL - 1; j++) {
-        let id = i + "-" + j;
-        let tile =
-          this.territory[i][j].getType() +
-          "-" +
-          this.territory[i][j].getConf() +
-          "-" +
-          this.territory[i][j].getVar();
-        result.push({
-          li: i,
-          id: id,
-          ti: tile,
-        });
-      }
-    }
-    return result;
-  }
+  // getImg(mode, islandH, islandL) {
+  //   let result = [];
+  //   for (let i = 1; i < islandH - 1; i++) {
+  //     for (let j = 1; j < islandL - 1; j++) {
+  //       let id = i + "-" + j;
+  //       let tile =
+  //         this.territory[i][j].getType() +
+  //         "-" +
+  //         this.territory[i][j].getConf() +
+  //         "-" +
+  //         this.territory[i][j].getVar();
+  //       result.push({
+  //         li: i,
+  //         id: id,
+  //         ti: tile,
+  //       });
+  //     }
+  //   }
+  //   return result;
+  // }
 
-  // returns the list of artifacts
-  getArtifacts() {
-    let result = ``;
-    for (let i = 0; i < this.sizeH; i++) {
-      let h = i * 48 + 16; //  + 16;
-      for (let j = 0; j < this.sizeL; j++) {
-        let l = j * 48 + 16; // + 16 ;
-        let land = this.territory[i][j];
-        if (land) {
-          if (land.hasCross) {
-            if (land.type === 0) {
-              result += `<img class="cross" src="./tiles/wreath.gif" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
-            } else {
-              result += `<img class="cross" src="./tiles/cross.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
-            }
-          } else if (land.hasFish) {
-            result += `<img class="fish" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
-          } else if (land.hasSwim) {
-            let transp = 0.6; // ((Math.floor(Math.random() * 2) / 10))  + 0.3;
-            result += `<img class="swim" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute; opacity:${transp}" width="48" height="48" >\n`;
-          } else if (land.hasIce) {
-            result += `<img class="fish" src="./tiles/ice.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
-          }
-        }
-      }
-    }
-    return result + ``;
-  }
+  // // returns the list of artifacts
+  // getArtifacts() {
+  //   let result = ``;
+  //   for (let i = 0; i < this.sizeH; i++) {
+  //     let h = i * 48 + 16; //  + 16;
+  //     for (let j = 0; j < this.sizeL; j++) {
+  //       let l = j * 48 + 16; // + 16 ;
+  //       let land = this.territory[i][j];
+  //       if (land) {
+  //         if (land.hasCross) {
+  //           if (land.type === 0) {
+  //             result += `<img class="cross" src="./tiles/wreath.gif" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
+  //           } else {
+  //             result += `<img class="cross" src="./tiles/cross.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
+  //           }
+  //         } else if (land.hasFish) {
+  //           result += `<img class="fish" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
+  //         } else if (land.hasSwim) {
+  //           let transp = 0.6; // ((Math.floor(Math.random() * 2) / 10))  + 0.3;
+  //           result += `<img class="swim" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute; opacity:${transp}" width="48" height="48" >\n`;
+  //         } else if (land.hasIce) {
+  //           result += `<img class="fish" src="./tiles/ice.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
+  //         }
+  //       }
+  //     }
+  //   }
+  //   return result + ``;
+  // }
 
   // elevate a plot os land - can be called recusrsively to elevate adjacent plots of land
   elev(land, hpos, lpos) {
@@ -503,8 +503,6 @@ class Island {
   // Move all the penguins of this island
 
   movePenguins() {
-    // console.log("move " + this.id);
-
     // check if there are still alive penguins
 
     let cntPenguins = this.penguins.filter((penguin) => penguin.alive).length;
