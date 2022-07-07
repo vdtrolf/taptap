@@ -186,7 +186,7 @@ class Island {
 
       // randomly add some penguins
 
-      let pengNum = 1; // Math.floor(Math.random() * 2) + 4;
+      let pengNum = Math.floor(Math.random() * 2) + 4;
       let pengCnt = 0;
 
       while (pengCnt < pengNum) {

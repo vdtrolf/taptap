@@ -9,7 +9,7 @@ let deleteItem = dbhelperReq.deleteItem;
 let getAsyncItem = dbhelperReq.getAsyncItem;
 // let getIsland = islandReq.getIsland;
 
-let debug = true;
+let debug = false;
 let deepdebug = false;
 let loaded = false;
 
@@ -272,7 +272,7 @@ const getSession = async (sessionId) => {
 
 const persistSessions = async (asession = null) => {
   if (!asession) {
-    console.log("persisting sessions " + asession);
+    if (deepdebug) console.log("persisting sessions " + asession);
 
     sessions.forEach((session) => {
       let currentTime = new Date().getTime();
@@ -304,7 +304,7 @@ const persistSessions = async (asession = null) => {
       }
     });
   } else {
-    // console.log("persisting session " + asession.id);
+    if (deepdebug) console.log("persisting session " + asession.id);
     putItem(
       "session",
       {

@@ -14,6 +14,7 @@ let getSession = sessionReq.getSession;
 let createSession = sessionReq.createSession;
 let persistSessions = sessionReq.persistSessions;
 let persistIsland = islandDataReq.persistIsland;
+let getInitData = islandWorkerReq.getInitData;
 let getIslandData = islandWorkerReq.getIslandData;
 let getMovesData = islandWorkerReq.getMovesData;
 let getAsyncIslands = islandWorkerReq.getAsyncIslands;
@@ -21,7 +22,7 @@ let connectIsland = islandWorkerReq.connectIsland;
 
 let NameServer = nameserverReq.NameServer;
 
-const intervalTime = 3456; //864; // 864; // 648;  // 1728; //864
+const intervalTime = 864; // 864; // 648;  // 1728; //864
 let islandH = 12;
 let islandL = 12;
 const baseTime = new Date().getTime();
@@ -31,8 +32,9 @@ let deepDebug = false;
 
 let nameserver = new NameServer(30, 10, false);
 
-const createInitData = async (session, moves) => {
-  let data = await getIslandData(session.islandId, session.id, moves);
+const createInitData = async (island, session, moves) => {
+  // let data = await getIslandData(session.islandId, session.id, moves);
+  let data = await getInitData(island, session.id, moves);
 
   if (deepDebug) {
     console.log("requestserver.js - createInitData ----------");
@@ -68,11 +70,11 @@ const createMovesData = async (session, moves, followId) => {
 
   let data = await getMovesData(session.islandId, session.id, moves);
 
-  // if (deepDebug) {
-  console.log("requestserver.js - createMovesData ----------");
-  console.dir(data.moves);
-  console.log("requestserver.js - createMovesData ----------");
-  // }
+  if (deepDebug) {
+    console.log("requestserver.js - createMovesData ----------");
+    console.dir(data.moves);
+    console.log("requestserver.js - createMovesData ----------");
+  }
 
   return data;
 };
@@ -180,7 +182,7 @@ const createResponse = async (url, params, sessionId) => {
         let island = new Island(islandH, islandL, session, debug);
         session.setIsland(island.id);
         persistSessions(session);
-        persistIsland(island, true);
+        await persistIsland(island, true);
 
         if (debug) {
           console.log(
@@ -188,7 +190,11 @@ const createResponse = async (url, params, sessionId) => {
           );
         }
         await resetPenguinsPos(session);
-        return await createInitData(session, session.getMoveLog());
+        return await createInitData(
+          island,
+          session,
+          session.getInitMoveLog(island)
+        );
       }
 
       case "/islands": {

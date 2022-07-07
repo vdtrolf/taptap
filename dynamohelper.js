@@ -17,11 +17,9 @@ const createDb = (local) => {
 const cleanDb = () => {};
 
 const putItem = (TableName, anItem, uniqueId) => {
-
   //console.log("====================== putItem ============");
   //console.dir(anItem);
   //console.log("====================== putItem ============");
-
 
   let Item = AWS.DynamoDB.Converter.marshall(anItem);
   let params = {
@@ -44,6 +42,29 @@ const putItem = (TableName, anItem, uniqueId) => {
       return true;
     }
   });
+};
+
+const putAsyncItem = async (TableName, anItem) => {
+  //console.log("====================== putItem ============");
+  //console.dir(anItem);
+  //console.log("====================== putItem ============");
+
+  let Item = AWS.DynamoDB.Converter.marshall(anItem);
+  let params = {
+    Item,
+    TableName,
+  };
+
+  try {
+    let data = await dynamodb.putItem(params);
+    return true;
+  } catch (err) {
+    console.log("dynamohelper.js : Could not put data in " + TableName, err);
+    if (debug) {
+      console.dir(params);
+    }
+    return false;
+  }
 };
 
 const getAsyncItem = async (tableName, uniqueId) => {
@@ -222,6 +243,7 @@ module.exports = {
   getAsyncItem,
   getAsyncItems,
   putItem,
+  putAsyncItem,
   getItems,
   deleteItem,
   createDb,

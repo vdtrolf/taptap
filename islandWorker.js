@@ -9,6 +9,9 @@ let deepdebug = false;
 
 const weathers = ["sun", "rain", "snow", "cold", "endgame"];
 
+// To be used when the island has been persisted
+// Creates a result set based on the island data in the DB
+
 const getIslandData = async (
   islandId,
   sessionId,
@@ -123,6 +126,32 @@ const getIslandData = async (
     }
   } else {
     console.log("islandWorker.js - getIslandData: no island data found  ");
+  }
+
+  return result;
+};
+
+// To be used just after the island was created - while the island object is still in memory
+// Creates a result set based on the island object
+
+const getInitData = async (island, sessionId, theMoves = null) => {
+  result = {
+    session: sessionId,
+    island: getImg(island.territory, island.sizeH, island.sizeL),
+    penguins: island.getPenguins(),
+    weather: weathers[island.weather],
+    artifacts: getArtifacts(island.territory, island.sizeH, island.sizeL),
+    tiles: island.tiles,
+    fishes: island.fishes,
+    points: island.points,
+    islandName: island.name,
+    islandId: island.id,
+    islandSize: island.landSize,
+  };
+
+  if (theMoves) {
+    let moves = { moves: theMoves };
+    result = { ...result, ...moves };
   }
 
   return result;
@@ -266,6 +295,7 @@ const getArtifacts = (territory, islandH, islandL) => {
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
   getIslandData: getIslandData,
+  getInitData: getInitData,
   getMovesData: getMovesData,
   getAsyncIslands: getAsyncIslands,
   connectIsland: connectIsland,
