@@ -105,6 +105,7 @@ exports.handler = async (event) => {
 
   createResponse(event.path, event.queryStringParameters, sessionId)
     .then((responseBody) => {
+      console.log("=== === == == = =>" + responseBody);
       let response = {
         statusCode: responseCode,
         headers: {
