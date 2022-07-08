@@ -16,10 +16,11 @@ let local = args[0] && args[0].toLowerCase() === "local";
 let debug = false;
 let requestcounter = 0;
 
-// Starting the express server
-
+// createDb();
 createDb(local);
-initiateIslands();
+// initiateIslands();
+
+// Starting the express server
 
 if (local) {
   const port = 3001;

@@ -183,15 +183,8 @@ const connectIsland = async (sessionId, islandId) => {
 
 const resetPenguinsPos = async (session) => {
   let islandData = await getAsyncItem("island", session.islandId);
-  if (islandData) {
-    let thePenguins = await getAsyncItems(
-      "penguin",
-      "islandId",
-      "=",
-      islandData.id
-    );
-
-    thePenguins.forEach((penguin) => {
+  if (islandData && islandData.penguins) {
+    islandData.penguins.forEach((penguin) => {
       session.addMoveLog(
         penguin.id,
         penguin.num,
