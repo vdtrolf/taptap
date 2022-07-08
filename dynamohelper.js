@@ -5,6 +5,8 @@ const debug = false;
 let dynamodb = null;
 
 const createDb = (local) => {
+  console.log("dynamohelper.js - createDb : creating DB on local " + local);
+
   if (local) {
     dynamodb = new AWS.DynamoDB({
       endpoint: new AWS.Endpoint("http://localhost:8000"),
