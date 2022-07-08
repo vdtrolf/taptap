@@ -175,6 +175,8 @@ const createResponse = async (url, params, sessionId) => {
       }
     }
   } else {
+    // No session
+
     switch (url) {
       case "/island": {
         session = createSession();
@@ -198,7 +200,11 @@ const createResponse = async (url, params, sessionId) => {
       }
 
       case "/islands": {
-        return { islands: islands };
+        session = createSession();
+        sessionId = session.id;
+        persistSessions(session);
+        let islands = await getAsyncIslands();
+        return { islands: islands, session: session.id };
       }
 
       default: {
