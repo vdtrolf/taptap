@@ -2,6 +2,7 @@ const AWS = require("aws-sdk");
 AWS.config.update({ region: "us-east-1" });
 
 const debug = false;
+const deepdebug = false;
 let dynamodb = null;
 
 const createDb = (local) => {
@@ -19,9 +20,15 @@ const createDb = (local) => {
 const cleanDb = () => {};
 
 const putItem = (TableName, anItem, uniqueId) => {
-  //console.log("====================== putItem ============");
-  //console.dir(anItem);
-  //console.log("====================== putItem ============");
+  if (debug) {
+    console.log(
+      "dynamohelper.js - putItem : table " + TableName + " id " + uniqueId
+    );
+  } else if (deepdebug) {
+    console.log("dynamohelper.js - putItem : vvvvvv " + TableName + " vvvvvv");
+    console.dir(anItem);
+    console.log("dynamohelper.js - putItem : ^^^^^^ " + TableName + " ^^^^^^");
+  }
 
   let Item = AWS.DynamoDB.Converter.marshall(anItem);
   let params = {
@@ -85,14 +92,16 @@ const getAsyncItem = async (tableName, uniqueId) => {
       TableName: tableName,
     };
 
-    // if (debug) console.dir(queryparams);
-
     let data = await dynamodb.query(queryparams).promise();
     let unmarshalled = AWS.DynamoDB.Converter.unmarshall(data.Items[0]);
-    if (debug) {
-      console.log("================================");
+    if (deepdebug) {
+      console.log(
+        "dynamohelper.js - getAsyncItem : vvvvvv " + tableName + " vvvvvv"
+      );
       console.dir(unmarshalled);
-      console.log("================================");
+      console.log(
+        "dynamohelper.js - getAsyncItem : ^^^^^^ " + tableName + " ^^^^^^"
+      );
     }
     return unmarshalled;
   } catch (err) {
@@ -154,10 +163,14 @@ const getAsyncItems = async (
     const cleanItems = [];
     data.Items.forEach(function (item, index, array) {
       let cleanItem = AWS.DynamoDB.Converter.unmarshall(item);
-      if (debug) {
-        console.log("===== " + tableName + " ====================");
+      if (deepdebug) {
+        console.log(
+          "dynamohelper.js - getAsyncItems : vvvvvv " + tableName + " vvvvvv"
+        );
         console.dir(cleanItem);
-        console.log("===== " + tableName + " ====================");
+        console.log(
+          "dynamohelper.js - getAsyncItems : ^^^^^^ " + tableName + " ^^^^^^"
+        );
       }
       cleanItems.push(cleanItem);
     });
@@ -205,9 +218,14 @@ const getItems = (
       data.Items.forEach(function (item, index, array) {
         let cleanItem = AWS.DynamoDB.Converter.unmarshall(item);
 
-        if (debug) {
-          console.log("===== " + tableName + " ====================");
+        if (deepdebug) {
+          console.log(
+            "dynamohelper.js - getItems : vvvvvv " + tableName + " vvvvvv"
+          );
           console.dir(cleanItem);
+          console.log(
+            "dynamohelper.js - getItems : ^^^^^^ " + tableName + " ^^^^^^"
+          );
         }
 
         // small check to avoid old dirt in the island table

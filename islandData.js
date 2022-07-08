@@ -18,7 +18,7 @@ let initiateSessions = sessionReq.initiateSessions;
 let addIsland = islandReq.addIsland;
 
 const islands = [];
-const debug = false;
+const debug = true;
 const maxAge = 3600000; // one hour
 
 const persistIsland = (island, force = false) => {
@@ -29,6 +29,60 @@ const persistIsland = (island, force = false) => {
 
   sessionsList = [];
   island.sessions.forEach((session) => sessionsList.push(session.id));
+
+  let lands = [];
+
+  for (let i = 0; i < island.sizeH; i++) {
+    for (let j = 0; j < island.sizeL; j++) {
+      let land = island.territory[i][j];
+
+      lands.push({
+        id: land.id,
+        islandId: land.islandId,
+        hpos: land.hpos,
+        lpos: land.lpos,
+        type: land.type,
+        conf: land.conf,
+        var: land.var,
+        hasCross: land.hasCross,
+        crossAge: land.crossAge,
+        hasFish: land.hasFish,
+        hasSwim: land.hasSwim,
+        swimAge: land.swimAge,
+      });
+    }
+  }
+
+  let penguins = [];
+
+  island.penguins.forEach((penguin) => {
+    penguins.push({
+      id: penguin.id,
+      islandId: penguin.islandId,
+      num: penguin.num,
+      hpos: penguin.hpos,
+      lpos: penguin.lpos,
+      age: penguin.age,
+      fat: penguin.fat,
+      maxcnt: penguin.maxcnt,
+      vision: penguin.vision,
+      wealth: penguin.wealth,
+      hungry: penguin.hungry,
+      alive: penguin.alive,
+      gender: penguin.gender,
+      cat: penguin.cat,
+      name: penguin.name,
+      loving: penguin.loving,
+      waiting: penguin.waiting,
+      fishTime: penguin.fishTime,
+      fishDirection: penguin.fishDirection,
+      moving: penguin.moving,
+      hasLoved: penguin.hasLoved,
+      fatherId: penguin.fatherId,
+      motherId: penguin.motherId,
+      partnerId: penguin.partnerId,
+    });
+  });
 
   putItem(
     "island",
@@ -48,72 +102,11 @@ const persistIsland = (island, force = false) => {
       lastInvocation: island.lastInvocation,
       followId: island.followId,
       sessions: sessionsList,
+      lands: lands,
+      penguins: penguins,
     },
     island.id
   );
-
-  for (let i = 0; i < island.sizeH; i++) {
-    for (let j = 0; j < island.sizeL; j++) {
-      let land = island.territory[i][j];
-
-      if (force || land.changed) {
-        // console.log ("land changed at " + land.hpos + "/" + land.lpos + ": " + land.changed)
-
-        putItem(
-          "land",
-          {
-            id: land.id,
-            islandId: land.islandId,
-            hpos: land.hpos,
-            lpos: land.lpos,
-            type: land.type,
-            conf: land.conf,
-            var: land.var,
-            hasCross: land.hasCross,
-            crossAge: land.crossAge,
-            hasFish: land.hasFish,
-            hasSwim: land.hasSwim,
-            swimAge: land.swimAge,
-          },
-          land.id
-        );
-        land.changed = false;
-      }
-    }
-  }
-
-  island.penguins.forEach((penguin) => {
-    putItem(
-      "penguin",
-      {
-        id: penguin.id,
-        islandId: penguin.islandId,
-        num: penguin.num,
-        hpos: penguin.hpos,
-        lpos: penguin.lpos,
-        age: penguin.age,
-        fat: penguin.fat,
-        maxcnt: penguin.maxcnt,
-        vision: penguin.vision,
-        wealth: penguin.wealth,
-        hungry: penguin.hungry,
-        alive: penguin.alive,
-        gender: penguin.gender,
-        cat: penguin.cat,
-        name: penguin.name,
-        loving: penguin.loving,
-        waiting: penguin.waiting,
-        fishTime: penguin.fishTime,
-        fishDirection: penguin.fishDirection,
-        moving: penguin.moving,
-        hasLoved: penguin.hasLoved,
-        fatherId: penguin.fatherId,
-        motherId: penguin.motherId,
-        partnerId: penguin.partnerId,
-      },
-      penguin.id
-    );
-  });
 };
 
 const initiateIslands = () => {
@@ -154,6 +147,70 @@ const loadIslands = (theIslands) => {
           anIsland.followId
         );
 
+        for (let i = 0; i < island.sizeH; i++) {
+          let line = [];
+          for (let j = 0; j < island.sizeL; j++) {
+            line.push([]);
+          }
+          island.territory.push(line);
+        }
+
+        anIsland.lands.forEach((aLand) => {
+          let land = new Land(
+            aLand.hpos,
+            aLand.lpos,
+            false,
+            island.id,
+            aLand.id,
+            aLand.type,
+            aLand.conf,
+            aLand.var,
+            aLand.hasCross,
+            aLand.crossAge,
+            aLand.hasFish,
+            aLand.hasSwim,
+            aLand.swimAge
+          );
+          island.territory[aLand.hpos][aLand.lpos] = land;
+        });
+
+        let penguins = [];
+
+        anIsland.penguins.forEach((aPenguin) => {
+          let penguin = new Penguin(
+            aPenguin.num,
+            aPenguin.hpos,
+            aPenguin.lpos,
+            [],
+            island.id,
+            aPenguin.fatherId,
+            aPenguin.motherId,
+            aPenguin.id,
+            aPenguin.age,
+            aPenguin.fat,
+            aPenguin.maxcnt,
+            aPenguin.vision,
+            aPenguin.wealth,
+            aPenguin.hungry,
+            aPenguin.alive,
+            aPenguin.gender,
+            aPenguin.cat,
+            aPenguin.name,
+            aPenguin.loving,
+            aPenguin.waiting,
+            aPenguin.fishTime,
+            aPenguin.fishDirection,
+            aPenguin.moving,
+            aPenguin.hasLoved,
+            aPenguin.partnerId
+          );
+          penguins.push(penguin);
+        });
+
+        island.penguins = penguins;
+
+        islands.push(island);
+
         if (debug) {
           console.log(
             "islandData.js - loadIslands: Loaded island " +
@@ -166,9 +223,6 @@ const loadIslands = (theIslands) => {
               anIsland.running
           );
         }
-
-        islands.push(island);
-        getItems("land", loadLands, "islandId", "=", anIsland.id);
       } else {
         if (debug) {
           console.log(
@@ -180,8 +234,6 @@ const loadIslands = (theIslands) => {
               anIsland.running
           );
         }
-        getItems("land", deleteLands, "islandId", "=", anIsland.id);
-        getItems("penguin", deletePenguins, "islandId", "=", anIsland.id);
         deleteItem("island", anIsland.id);
       }
     });
@@ -191,156 +243,20 @@ const loadIslands = (theIslands) => {
 };
 
 const loadLands = (theLands) => {
-  let island = null;
-
-  try {
-    theLands.forEach((aLand) => {
-      if (!island) {
-        island = islands.find((island) => island.id === aLand.islandId);
-        if (island) {
-          for (let i = 0; i < island.sizeH; i++) {
-            let line = [];
-            for (let j = 0; j < island.sizeL; j++) {
-              line.push([]);
-            }
-            island.territory.push(line);
-          }
-        }
-      }
-
-      let land = new Land(
-        aLand.hpos,
-        aLand.lpos,
-        false,
-        island.id,
-        aLand.id,
-        aLand.type,
-        aLand.conf,
-        aLand.var,
-        aLand.hasCross,
-        aLand.crossAge,
-        aLand.hasFish,
-        aLand.hasSwim,
-        aLand.swimAge
-      );
-      island.territory[aLand.hpos][aLand.lpos] = land;
-    });
-
-    // Sanity check => are all land pieces present ?
-    if (island) {
-      for (let i = 0; i < island.sizeH; i++) {
-        for (let j = 0; j < island.sizeL; j++) {
-          try {
-            island.territory[i][j].getType();
-          } catch (error) {
-            if (debug)
-              console.log(
-                "islandData.js - loadLands: missing land at " + i + "/" + j
-              );
-            island.territory[i][j] = new Land(i, j, false, island.id);
-          }
-        }
-      }
-      getItems("penguin", loadPenguins, "islandId", "=", island.id);
-    }
-
-    if (debug)
-      console.log(
-        "islandData.js - loadLands: found " +
-          theLands.length +
-          " lands for island " +
-          island.id
-      );
-  } catch (error) {
-    console.error("islandData.js - loadLands: problem", error);
-  }
-};
-
-const loadPenguins = (thePenguins) => {
-  let island = null;
-  let penguins = [];
-
-  try {
-    thePenguins.forEach((aPenguin) => {
-      if (!island)
-        island = islands.find((island) => island.id === aPenguin.islandId);
-
-      let penguin = new Penguin(
-        aPenguin.num,
-        aPenguin.hpos,
-        aPenguin.lpos,
-        [],
-        island.id,
-        aPenguin.fatherId,
-        aPenguin.motherId,
-        aPenguin.id,
-        aPenguin.age,
-        aPenguin.fat,
-        aPenguin.maxcnt,
-        aPenguin.vision,
-        aPenguin.wealth,
-        aPenguin.hungry,
-        aPenguin.alive,
-        aPenguin.gender,
-        aPenguin.cat,
-        aPenguin.name,
-        aPenguin.loving,
-        aPenguin.waiting,
-        aPenguin.fishTime,
-        aPenguin.fishDirection,
-        aPenguin.moving,
-        aPenguin.hasLoved,
-        aPenguin.partnerId
-      );
-      penguins.push(penguin);
-    });
-    island.penguins = penguins;
-  } catch (error) {
-    console.error("problem", error);
-  }
-
-  if (debug)
-    console.log(
-      "islandData.js - loadPenguins: found " +
-        thePenguins.length +
-        " penguins for island " +
-        island.id
-    );
-
-  islands.forEach((island) => addIsland(island));
-  initiateSessions();
-};
-
-const deleteLands = (theLands) => {
-  if (debug)
-    console.log(
-      "islandData.js - deleteLands: deleting " + theLands.length + " lands"
-    );
-
-  try {
-    theLands.forEach((aLand) => {
-      deleteItem("land", aLand.id);
-    });
-  } catch (error) {
-    console.error("islandData.js - deleteLands: problem", error);
-  }
-};
-
-const deletePenguins = (thePenguins) => {
-  if (debug)
-    console.log(
-      "islandData.js - deletePenguins: deleting " +
-        thePenguins.length +
-        " penguins"
-    );
-
-  try {
-    thePenguins.forEach((aPenguin) => {
-      deleteItem("penguin", aPenguin.id);
-    });
-  } catch (error) {
-    console.error("islandData.js - deletePenguins: problem", error);
-  }
+  // Sanity check => are all land pieces present ?
+  // for (let i = 0; i < island.sizeH; i++) {
+  //   for (let j = 0; j < island.sizeL; j++) {
+  //     try {
+  //       island.territory[i][j].getType();
+  //     } catch (error) {
+  //       if (debug)
+  //         console.log(
+  //           "islandData.js - loadLands: missing land at " + i + "/" + j
+  //         );
+  //       island.territory[i][j] = new Land(i, j, false, island.id);
+  //     }
+  //   }
+  // }
 };
 
 // now we export the class, so other modules can create Penguin objects

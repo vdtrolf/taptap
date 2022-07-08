@@ -33,97 +33,74 @@ const getIslandData = async (
       console.log("islandWorker.js - getIslandData -- island -----------");
     }
 
-    let theLands = await getAsyncItems("land", "islandId", "=", islandData.id);
-    if (theLands) {
-      if (debug)
-        console.log(
-          "islandWorker.js - getIslandData: found " + theLands.length + " lands"
-        );
-
-      let thePenguins = await getAsyncItems(
-        "penguin",
-        "islandId",
-        "=",
-        islandData.id
-      );
-
-      if (debug)
-        console.log(
-          "islandWorker.js - getIslandData: found " +
-            thePenguins.length +
-            " penguins"
-        );
-
-      let territory = [];
-      for (let i = 0; i < islandData.sizeH; i++) {
-        let line = [];
-        for (let j = 0; j < islandData.sizeL; j++) {
-          line.push([]);
-        }
-        territory.push(line);
+    let territory = [];
+    for (let i = 0; i < islandData.sizeH; i++) {
+      let line = [];
+      for (let j = 0; j < islandData.sizeL; j++) {
+        line.push([]);
       }
+      territory.push(line);
+    }
 
-      theLands.forEach((land) => {
-        territory[land.hpos][land.lpos] = land;
-      });
+    islandData.lands.forEach((land) => {
+      territory[land.hpos][land.lpos] = land;
+    });
 
-      if (
-        tileHpos > 0 &&
-        tileLpos > 0 &&
-        tileHpos < islandData.sizeH - 1 &&
-        tileLpos < islandData.sizeL - 1
-      ) {
-        let land = territory[tileHpos][tileLpos];
-        let changed = false;
+    if (
+      tileHpos > 0 &&
+      tileLpos > 0 &&
+      tileHpos < islandData.sizeH - 1 &&
+      tileLpos < islandData.sizeL - 1
+    ) {
+      let land = territory[tileHpos][tileLpos];
+      let changed = false;
 
-        if (land) {
-          if (land.type === 0 && islandData.tiles > 0) {
-            if (land.hasSwim) {
-              land.hasSwim = false;
-              land.hasFish = true;
-            }
-            land.type = 1;
-            land.conf = 0;
-            land.changed = true;
-            islandData.tiles -= islandData.tiles > 0 ? 1 : 0;
-            changed = true;
-          } else if (land.type > 0 && islandData.fishes > 0) {
+      if (land) {
+        if (land.type === 0 && islandData.tiles > 0) {
+          if (land.hasSwim) {
+            land.hasSwim = false;
             land.hasFish = true;
-            land.changed = true;
-            islandData.fishes -= islandData.fishes > 0 ? 1 : 0;
-            changed = true;
           }
-
-          if (changed) {
-            putItem("land", land, land.id);
-            putItem("island", islandData, islandData.id);
-          }
+          land.type = 1;
+          land.conf = 0;
+          land.changed = true;
+          islandData.tiles -= islandData.tiles > 0 ? 1 : 0;
+          changed = true;
+        } else if (land.type > 0 && islandData.fishes > 0) {
+          land.hasFish = true;
+          land.changed = true;
+          islandData.fishes -= islandData.fishes > 0 ? 1 : 0;
+          changed = true;
         }
-      }
 
-      let penguins = [];
-      // thePenguins.forEach((penguin) => penguins.push({ Penguin: penguin }));
-      thePenguins.forEach((penguin) => penguins.push(penguin));
-
-      result = {
-        session: sessionId,
-        island: getImg(territory, islandData.sizeH, islandData.sizeL),
-        penguins: penguins,
-        weather: weathers[islandData.weather],
-        artifacts: getArtifacts(territory, islandData.sizeH, islandData.sizeL),
-        tiles: islandData.tiles,
-        fishes: islandData.fishes,
-        points: islandData.points,
-        islandName: islandData.name,
-        islandId: islandData.id,
-        islandSize: islandData.landSize,
-      };
-
-      if (theMoves) {
-        let moves = { moves: theMoves };
-        result = { ...result, ...moves };
+        if (changed) {
+          putItem("island", islandData, islandData.id);
+        }
       }
     }
+
+    let penguins = [];
+    islandData.penguins.forEach((penguin) => penguins.push(penguin));
+
+    result = {
+      session: sessionId,
+      island: getImg(territory, islandData.sizeH, islandData.sizeL),
+      penguins: penguins,
+      weather: weathers[islandData.weather],
+      artifacts: getArtifacts(territory, islandData.sizeH, islandData.sizeL),
+      tiles: islandData.tiles,
+      fishes: islandData.fishes,
+      points: islandData.points,
+      islandName: islandData.name,
+      islandId: islandData.id,
+      islandSize: islandData.landSize,
+    };
+
+    if (theMoves) {
+      let moves = { moves: theMoves };
+      result = { ...result, ...moves };
+    }
+    //   }
   } else {
     console.log("islandWorker.js - getIslandData: no island data found  ");
   }
