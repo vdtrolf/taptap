@@ -16,31 +16,31 @@ const islanddefs = {
   TableName: "island",
 };
 
-const penguindefs = {
-  AttributeDefinitions: [{ AttributeName: "id", AttributeType: "N" }],
-  KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
-  ProvisionedThroughput: {
-    ReadCapacityUnits: 1,
-    WriteCapacityUnits: 1,
-  },
-  TableName: "penguin",
-  StreamSpecification: {
-    StreamEnabled: false,
-  },
-};
+// const penguindefs = {
+//   AttributeDefinitions: [{ AttributeName: "id", AttributeType: "N" }],
+//   KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
+//   ProvisionedThroughput: {
+//     ReadCapacityUnits: 1,
+//     WriteCapacityUnits: 1,
+//   },
+//   TableName: "penguin",
+//   StreamSpecification: {
+//     StreamEnabled: false,
+//   },
+// };
 
-const landdefs = {
-  AttributeDefinitions: [{ AttributeName: "id", AttributeType: "N" }],
-  KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
-  ProvisionedThroughput: {
-    ReadCapacityUnits: 1,
-    WriteCapacityUnits: 1,
-  },
-  TableName: "land",
-  StreamSpecification: {
-    StreamEnabled: false,
-  },
-};
+// const landdefs = {
+//   AttributeDefinitions: [{ AttributeName: "id", AttributeType: "N" }],
+//   KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
+//   ProvisionedThroughput: {
+//     ReadCapacityUnits: 1,
+//     WriteCapacityUnits: 1,
+//   },
+//   TableName: "land",
+//   StreamSpecification: {
+//     StreamEnabled: false,
+//   },
+// };
 
 const sessiondefs = {
   AttributeDefinitions: [{ AttributeName: "id", AttributeType: "N" }],
@@ -81,41 +81,41 @@ const sessiondefs = {
         });
       }
 
-      if (data?.TableNames.includes("penguin")) {
-        dynamodb.deleteTable(penguindefs, function (err, data) {
-          console.log("Table penguin deleting");
-          dynamodb.waitFor("tableNotExists", penguindefs, function (err, data) {
-            dynamodb.createTable(penguindefs, function (err, data) {});
-            console.log("Table penguin created");
-          });
-        });
-      } else {
-        dynamodb.createTable(penguindefs, function (err, data) {
-          if (err) {
-            console.log("Error in creating table penguin ", err);
-          } else {
-            console.log("Table penguin created");
-          }
-        });
-      }
+      // if (data?.TableNames.includes("penguin")) {
+      //   dynamodb.deleteTable(penguindefs, function (err, data) {
+      //     console.log("Table penguin deleting");
+      //     dynamodb.waitFor("tableNotExists", penguindefs, function (err, data) {
+      //       dynamodb.createTable(penguindefs, function (err, data) {});
+      //       console.log("Table penguin created");
+      //     });
+      //   });
+      // } else {
+      //   dynamodb.createTable(penguindefs, function (err, data) {
+      //     if (err) {
+      //       console.log("Error in creating table penguin ", err);
+      //     } else {
+      //       console.log("Table penguin created");
+      //     }
+      //   });
+      // }
 
-      if (data?.TableNames.includes("land")) {
-        dynamodb.deleteTable(landdefs, function (err, data) {
-          console.log("Table land deleting");
-          dynamodb.waitFor("tableNotExists", landdefs, function (err, data) {
-            dynamodb.createTable(landdefs, function (err, data) {});
-            console.log("Table land created");
-          });
-        });
-      } else {
-        dynamodb.createTable(landdefs, function (err, data) {
-          if (err) {
-            console.log("Error in creating table land ", err);
-          } else {
-            console.log("Table land created");
-          }
-        });
-      }
+      // if (data?.TableNames.includes("land")) {
+      //   dynamodb.deleteTable(landdefs, function (err, data) {
+      //     console.log("Table land deleting");
+      //     dynamodb.waitFor("tableNotExists", landdefs, function (err, data) {
+      //       dynamodb.createTable(landdefs, function (err, data) {});
+      //       console.log("Table land created");
+      //     });
+      //   });
+      // } else {
+      //   dynamodb.createTable(landdefs, function (err, data) {
+      //     if (err) {
+      //       console.log("Error in creating table land ", err);
+      //     } else {
+      //       console.log("Table land created");
+      //     }
+      //   });
+      // }
 
       if (data?.TableNames.includes("session")) {
         dynamodb.deleteTable(sessiondefs, function (err, data) {

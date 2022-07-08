@@ -1,6 +1,4 @@
 const AWS = require("aws-sdk");
-AWS.config.update({ region: "us-east-1" });
-
 const debug = true;
 const deepdebug = false;
 let dynamodb = null;
@@ -12,6 +10,7 @@ const createDb = (local) => {
       endpoint: new AWS.Endpoint("http://localhost:8000"),
     });
   } else {
+    AWS.config.update({ region: "us-east-1" });
     console.log("dynamohelper.js - createDb : creating DB");
     dynamodb = new AWS.DynamoDB();
   }
