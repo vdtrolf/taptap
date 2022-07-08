@@ -210,25 +210,25 @@ const createResponse = async (url, params, sessionId) => {
 
 // Main interval loop - for each session triggers the penguin events
 
-let doAll = true;
+// let doAll = true;
 
-setInterval(() => {
-  getIslands().forEach((island) => {
-    if (island.running) {
-      island.calculateNeighbours();
-      island.movePenguins();
-      if (doAll) {
-        island.addSwims();
-        island.makePenguinsOlder();
-        island.smelt();
-        island.setWeather();
-        persistIsland(island);
-      }
-    }
-  });
-  persistSessions();
-  doAll = !doAll;
-}, intervalTime);
+// setInterval(() => {
+//   getIslands().forEach((island) => {
+//     if (island.running) {
+//       island.calculateNeighbours();
+//       island.movePenguins();
+//       if (doAll) {
+//         island.addSwims();
+//         island.makePenguinsOlder();
+//         island.smelt();
+//         island.setWeather();
+//         persistIsland(island);
+//       }
+//     }
+//   });
+//   persistSessions();
+//   doAll = !doAll;
+// }, intervalTime);
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
