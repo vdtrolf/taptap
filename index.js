@@ -89,7 +89,12 @@ exports.handler = async (event) => {
   let responseCode = 200;
   requestcounter += 1;
 
-  console.log("request " + requestcounter + " : " + JSON.stringify(event));
+  console.log(
+    "index.js - handler : request " +
+      requestcounter +
+      " : " +
+      JSON.stringify(event)
+  );
 
   if (event.queryStringParameters && event.queryStringParameters.sessionId) {
     console.log(
@@ -98,8 +103,8 @@ exports.handler = async (event) => {
     sessionId = event.queryStringParameters.sessionId;
   }
 
-  createResponse(event.path, event.queryStringParameters, sessionId).then(
-    (responseBody) => {
+  createResponse(event.path, event.queryStringParameters, sessionId)
+    .then((responseBody) => {
       let response = {
         statusCode: responseCode,
         headers: {
@@ -108,8 +113,10 @@ exports.handler = async (event) => {
         },
         body: JSON.stringify(responseBody),
       };
-      console.log("response: " + JSON.stringify(response));
+      console.log("index.js - response: " + JSON.stringify(response));
       return response;
-    }
-  );
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 };
