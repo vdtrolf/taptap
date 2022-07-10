@@ -1,8 +1,8 @@
 "use strict";
 
 const requestserverReq = require("./requestserver.js");
-const dbhelperReq = require("./dynamohelper.js");
-// const dbhelperReq = require("./acebasehelper.js");
+// const dbhelperReq = require("./dynamohelper.js");
+const dbhelperReq = require("./acebasehelper.js");
 const islandDataReq = require("./islandData.js");
 
 let createResponse = requestserverReq.createResponse;
@@ -11,13 +11,14 @@ let cleanDb = dbhelperReq.cleanDb;
 let initiateIslands = islandDataReq.initiateIslands;
 
 const args = process.argv.slice(2);
-let local = args[0] && args[0].toLowerCase() === "local";
+// let local = args[0] && args[0].toLowerCase() === "local";
+let local = true;
 
 let debug = false;
 let requestcounter = 0;
 
-// createDb();
-createDb(local);
+createDb();
+// createDb(local);
 // initiateIslands();
 
 // Starting the express server

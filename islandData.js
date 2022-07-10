@@ -1,8 +1,7 @@
 const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
-const dbhelperReq = require("./dynamohelper.js");
-
-// const dbhelperReq = require("./acebasehelper.js");
+// const dbhelperReq = require("./dynamohelper.js");
+const dbhelperReq = require("./acebasehelper.js");
 const sessionReq = require("./session.js");
 const islandReq = require("./island.js");
 const session = require("./session.js");
@@ -20,12 +19,13 @@ let addIsland = islandReq.addIsland;
 const islands = [];
 const debug = true;
 const maxAge = 3600000; // one hour
+let counter = 0;
 
-const persistIsland = (island, force = false) => {
-  if (debug)
-    console.log(
-      "islandData.js - persistIsland : persisting island " + island.id
-    );
+const persistIsland = async (island, force = false) => {
+  
+  counter++;
+  
+  if (debug) console.log( "islandData.js - persistIsland : persisting island " + island.id + " counter: " + counter);
 
   sessionsList = [];
   island.sessions.forEach((session) => sessionsList.push(session.id));
@@ -84,7 +84,7 @@ const persistIsland = (island, force = false) => {
     });
   });
 
-  putItem(
+  await putItem(
     "island",
     {
       id: island.id,
@@ -104,10 +104,44 @@ const persistIsland = (island, force = false) => {
       sessions: sessionsList,
       lands: lands,
       penguins: penguins,
+      counter: counter
     },
     island.id
   );
 };
+
+const persistIslandData = async (island) => {
+  
+  counter++;
+  
+  if (debug) console.log( "islandData.js - persistIslandData : persisting island " + island.id + " counter: " + counter);
+ 
+  await putItem(
+    "island",
+    {
+      id: island.id,
+      name: island.name,
+      sizeH: island.sizeH,
+      sizeL: island.sizeL,
+      weather: island.weather,
+      weatherCount: island.weatherCount,
+      numPeng: island.numPeng,
+      tiles: island.tiles,
+      landSize: island.landSize,
+      fishes: island.fishes,
+      points: island.points,
+      running: island.running,
+      lastInvocation: island.lastInvocation,
+      followId: island.followId,
+      sessions: island.sessions,
+      lands: island.lands,
+      penguins: island.penguins,
+      counter: counter
+    },
+    island.id
+  );
+};
+
 
 const initiateIslands = () => {
   if (debug)
@@ -262,5 +296,6 @@ const loadLands = (theLands) => {
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
   persistIsland: persistIsland,
+  persistIslandData: persistIslandData,
   initiateIslands: initiateIslands,
 };

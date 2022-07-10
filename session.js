@@ -1,5 +1,5 @@
-// const dbhelperReq = require("./acebasehelper.js");
-const dbhelperReq = require("./dynamohelper.js");
+const dbhelperReq = require("./acebasehelper.js");
+// const dbhelperReq = require("./dynamohelper.js");
 
 // const islandReq = require("./island.js");
 
@@ -225,7 +225,7 @@ const createSession = () => {
 
 // gets the session, either out of the local array or out of the NoSQL db
 
-const getSession = async (sessionId) => {
+const getSession = (sessionId) => {
   if (deepdebug)
     console.log(
       "session.js - getSession: looking for session with id " + sessionId
@@ -240,7 +240,8 @@ const getSession = async (sessionId) => {
     foundSession.lastInvocation = new Date().getTime();
     return foundSession;
   } else {
-    let sessionData = await getAsyncItem("session", sessionId);
+    //let sessionData = await getAsyncItem("session", sessionId);
+    let sessionData = getItem("session", sessionId);
     if (sessionData) {
       if (deepdebug) {
         console.log(
@@ -262,7 +263,7 @@ const getSession = async (sessionId) => {
         );
       }
       let session = new Session(sessionId);
-      await persistSessions(session);
+      persistSessions(session);
       return session;
     }
   }
@@ -270,7 +271,7 @@ const getSession = async (sessionId) => {
 
 // persists the session in the NoSQL db
 
-const persistSessions = async (asession = null) => {
+const persistSessions = (asession = null) => {
   if (!asession) {
     if (deepdebug) console.log("persisting sessions " + asession);
 

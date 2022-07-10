@@ -1,8 +1,7 @@
 const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
-const dbhelperReq = require("./dynamohelper.js");
-
-// const dbhelperReq = require("./acebasehelper.js");
+//const dbhelperReq = require("./dynamohelper.js");
+const dbhelperReq = require("./acebasehelper.js");
 const sessionReq = require("./session.js");
 const islandReq = require("./island.js");
 const session = require("./session.js");
@@ -21,7 +20,7 @@ const islands = [];
 const debug = false;
 const maxAge = 3600000; // one hour
 
-const persistIsland = (island, force = false) => {
+const persistIsland = async (island, force = false) => {
   if (debug)
     console.log(
       "islandData.js - persistIsland : persisting island " + island.id
@@ -30,7 +29,7 @@ const persistIsland = (island, force = false) => {
   sessionsList = [];
   island.sessions.forEach((session) => sessionsList.push(session.id));
 
-  putItem(
+  await putItem(
     "island",
     {
       id: island.id,

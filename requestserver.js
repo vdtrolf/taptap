@@ -3,7 +3,8 @@ const islandWorkerReq = require("./islandWorker.js");
 const islandDataReq = require("./islandData.js");
 const sessionReq = require("./session.js");
 const nameserverReq = require("./nameserver.js");
-const dbhelperReq = require("./dynamohelper.js");
+//const dbhelperReq = require("./dynamohelper.js");
+const dbhelperReq = require("./acebasehelper.js");
 const { resetPenguinsPos } = require("./islandWorker.js");
 
 let Island = islandReq.Island;
@@ -22,21 +23,25 @@ let connectIsland = islandWorkerReq.connectIsland;
 
 let NameServer = nameserverReq.NameServer;
 
-const intervalTime = 864; // 864; // 648;  // 1728; //864
+const intervalTime = 3456; // 864; // 648;  // 1728; //864
 let islandH = 12;
 let islandL = 12;
 const baseTime = new Date().getTime();
+let counter = 0;
 
-let debug = true;
+
+let debug = false;
 let deepDebug = false;
 
 let nameserver = new NameServer(30, 10, false);
 
-const createInitData = async (island, session, moves) => {
+const createInitData = (island, session, moves) => {
   // let data = await getIslandData(session.islandId, session.id, moves);
-  let data = await getInitData(island, session.id, moves);
+  let data = getInitData(island, session.id, moves);
 
-  if (deepDebug) {
+  if (debug) {
+    console.log("requestserver.js - createInitData: get data for session  " + session.id);
+  } else if (deepDebug) {
     console.log("requestserver.js - createInitData ----------");
     console.dir(data);
     console.log("requestserver.js - createInitData ----------");
@@ -54,7 +59,9 @@ const createIslandData = async (session, moves = [], tileHpos, tileLpos) => {
     tileLpos
   );
 
-  if (deepDebug) {
+  if (debug) {
+    console.log("requestserver.js - createIslandData : get data for session " + data.session);
+  } else if (deepDebug) {
     console.log("requestserver.js - createIslandData ----------");
     console.dir(data);
     console.log("requestserver.js - createIslandData ----------");
@@ -70,7 +77,9 @@ const createMovesData = async (session, moves, followId) => {
 
   let data = await getMovesData(session.islandId, session.id, moves);
 
-  if (deepDebug) {
+  if (debug) {
+    console.log("requestserver.js - createMovesData: moves = " + data.moves.length);
+  } else if (deepDebug) {
     console.log("requestserver.js - createMovesData ----------");
     console.dir(data.moves);
     console.log("requestserver.js - createMovesData ----------");
@@ -83,12 +92,10 @@ const createResponse = async (url, params, sessionId) => {
   let session = null;
 
   if (debug && url !== "/islands")
-    console.log(
-      "in createResponse url: >" + url + "< sessionId: >" + sessionId + "<"
-    );
+    console.log( "requestserver.js - createResponse: url= " + url + " sessionId= " + sessionId );
 
   if (sessionId > 0) {
-    session = await getSession(sessionId);
+    session = getSession(sessionId);
     switch (url) {
       case "/new-island": {
         // if (island) {
@@ -112,8 +119,8 @@ const createResponse = async (url, params, sessionId) => {
               island
           );
         }
-        await resetPenguinsPos(session);
-        return await createInitData(session, session.getMoveLog());
+        resetPenguinsPos(session);
+        return createInitData(session, session.getMoveLog());
       }
 
       case "/connect-island": {
@@ -132,8 +139,8 @@ const createResponse = async (url, params, sessionId) => {
           );
         }
 
-        await resetPenguinsPos(session);
-        return await createInitData(session, session.getMoveLog());
+        resetPenguinsPos(session);
+        return createInitData(session, session.getMoveLog());
       }
 
       // return the moves - is the renew parameter is on 1, then returns an initial move log
@@ -146,7 +153,7 @@ const createResponse = async (url, params, sessionId) => {
         // island.setFollowId(followId);
 
         if (renew !== 0) resetPenguinsPos(session);
-        return await createMovesData(session, session.getMoveLog());
+        return createMovesData(session, session.getMoveLog());
       }
 
       case "/islandmoves": {
@@ -156,18 +163,18 @@ const createResponse = async (url, params, sessionId) => {
         // island.setFollowId(followId);
 
         if (renew !== 0) resetPenguinsPos(session);
-        return await createIslandData(session, session.getMoveLog());
+        return createIslandData(session, session.getMoveLog());
       }
 
       case "/islands": {
-        let islands = await getAsyncIslands();
+        let islands = getAsyncIslands();
         return { islands: islands, session: session.id };
       }
 
       case "/setTile": {
         let hpos = Number.parseInt(params.hpos, 10);
         let lpos = Number.parseInt(params.lpos, 10);
-        return await createIslandData(session, [], hpos, lpos);
+        return createIslandData(session, [], hpos, lpos);
       }
 
       default: {
@@ -184,15 +191,15 @@ const createResponse = async (url, params, sessionId) => {
         let island = new Island(islandH, islandL, session, debug);
         session.setIsland(island.id);
         persistSessions(session);
-        await persistIsland(island, true);
+        persistIsland(island, true);
 
         if (debug) {
           console.log(
             "index.js - createResponse/island : Building an new island"
           );
         }
-        await resetPenguinsPos(session);
-        return await createInitData(
+        resetPenguinsPos(session);
+        return createInitData(
           island,
           session,
           session.getInitMoveLog(island)
@@ -203,7 +210,7 @@ const createResponse = async (url, params, sessionId) => {
         session = createSession();
         sessionId = session.id;
         persistSessions(session);
-        let islands = await getAsyncIslands();
+        let islands = getAsyncIslands();
         return { islands: islands, session: session.id };
       }
 
@@ -216,26 +223,27 @@ const createResponse = async (url, params, sessionId) => {
 
 // Main interval loop - for each session triggers the penguin events
 
-// let doAll = true;
+let doAll = true;
 
-// setInterval(() => {
-//   getIslands().forEach((island) => {
-//     if (island.running) {
-//       island.calculateNeighbours();
-//       island.movePenguins();
-//       if (doAll) {
-//         island.addSwims();
-//         island.makePenguinsOlder();
-//         island.smelt();
-//         island.setWeather();
-//         persistIsland(island);
-//       }
-//     }
-//   });
-//   persistSessions();
-//   doAll = !doAll;
-// }, intervalTime);
+setInterval(() => {
+  getIslands().forEach((island) => {
+    if (island.running) {
+      island.calculateNeighbours();
+      island.movePenguins();
+      if (doAll) {
+        island.addSwims();
+        island.makePenguinsOlder();
+        island.smelt();
+        island.setWeather();
+        persistIsland(island, false, counter++);
+      }
+    }
+  });
+  persistSessions();
+  doAll = !doAll;
+}, intervalTime);
 
+//
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
   createResponse: createResponse,
