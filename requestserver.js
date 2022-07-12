@@ -15,6 +15,7 @@ let getSession = sessionReq.getSession;
 let createSession = sessionReq.createSession;
 let persistSessions = sessionReq.persistSessions;
 let persistIsland = islandDataReq.persistIsland;
+let initiateIslands = islandDataReq.initiateIslands;
 let getInitData = islandWorkerReq.getInitData;
 let getIslandData = islandWorkerReq.getIslandData;
 let getMovesData = islandWorkerReq.getMovesData;
@@ -23,12 +24,11 @@ let connectIsland = islandWorkerReq.connectIsland;
 
 let NameServer = nameserverReq.NameServer;
 
-const intervalTime = 3456; // 864; // 648;  // 1728; //864
+const intervalTime = 864; // 648;  // 1728; //864
 let islandH = 12;
 let islandL = 12;
 const baseTime = new Date().getTime();
 let counter = 0;
-
 
 let debug = false;
 let deepDebug = false;
@@ -40,7 +40,9 @@ const createInitData = (island, session, moves) => {
   let data = getInitData(island, session.id, moves);
 
   if (debug) {
-    console.log("requestserver.js - createInitData: get data for session  " + session.id);
+    console.log(
+      "requestserver.js - createInitData: get data for session  " + session.id
+    );
   } else if (deepDebug) {
     console.log("requestserver.js - createInitData ----------");
     console.dir(data);
@@ -60,7 +62,10 @@ const createIslandData = async (session, moves = [], tileHpos, tileLpos) => {
   );
 
   if (debug) {
-    console.log("requestserver.js - createIslandData : get data for session " + data.session);
+    console.log(
+      "requestserver.js - createIslandData : get data for session " +
+        data.session
+    );
   } else if (deepDebug) {
     console.log("requestserver.js - createIslandData ----------");
     console.dir(data);
@@ -73,12 +78,12 @@ const createIslandData = async (session, moves = [], tileHpos, tileLpos) => {
 // the parameter followId indicates that penguin must be followed in the console
 
 const createMovesData = async (session, moves, followId) => {
-  let theMoves = moves ? moves : [];
-
   let data = await getMovesData(session.islandId, session.id, moves);
 
   if (debug) {
-    console.log("requestserver.js - createMovesData: moves = " + data.moves.length);
+    console.log(
+      "requestserver.js - createMovesData: moves = " + data.moves.length
+    );
   } else if (deepDebug) {
     console.log("requestserver.js - createMovesData ----------");
     console.dir(data.moves);
@@ -92,7 +97,12 @@ const createResponse = async (url, params, sessionId) => {
   let session = null;
 
   if (debug && url !== "/islands")
-    console.log( "requestserver.js - createResponse: url= " + url + " sessionId= " + sessionId );
+    console.log(
+      "requestserver.js - createResponse: url= " +
+        url +
+        " sessionId= " +
+        sessionId
+    );
 
   if (sessionId > 0) {
     session = getSession(sessionId);
@@ -188,7 +198,7 @@ const createResponse = async (url, params, sessionId) => {
       case "/island": {
         session = createSession();
         sessionId = session.id;
-        let island = new Island(islandH, islandL, session, debug);
+        let island = new Island(islandH, islandL, [session], debug);
         session.setIsland(island.id);
         persistSessions(session);
         persistIsland(island, true);
@@ -199,11 +209,7 @@ const createResponse = async (url, params, sessionId) => {
           );
         }
         resetPenguinsPos(session);
-        return createInitData(
-          island,
-          session,
-          session.getInitMoveLog(island)
-        );
+        return createInitData(island, session, session.getInitMoveLog(island));
       }
 
       case "/islands": {
@@ -226,6 +232,9 @@ const createResponse = async (url, params, sessionId) => {
 let doAll = true;
 
 setInterval(() => {
+  console.log("-----------");
+
+  initiateIslands();
   getIslands().forEach((island) => {
     if (island.running) {
       island.calculateNeighbours();

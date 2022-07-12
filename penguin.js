@@ -3,7 +3,7 @@ const strategicMapReq = require("./strategicmap.js");
 
 let StrategicMap = strategicMapReq.StrategicMap;
 
-const debug = true;
+const debug = false;
 
 class Penguin {
   constructor(

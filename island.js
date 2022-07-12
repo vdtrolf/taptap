@@ -6,11 +6,11 @@ const nameserverReq = require("./nameserver.js");
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
 let Session = sessionReq.Session;
-let initiateSessions = sessionReq.initiateSessions;
+// let initiateSessions = sessionReq.initiateSessions;
 
 let islands = [];
 
-let debug = false;
+let debug = true;
 
 const weathers = ["sun", "rain", "snow", "cold", "endgame"];
 
@@ -53,13 +53,20 @@ class Island {
       lastInvocation === 0 ? new Date().getTime() : lastInvocation;
     this.territory = [];
     this.penguins = [];
-    this.sessions = session ? [session] : [];
+    this.sessions = session;
 
     let matrix = [];
 
     if (debug) {
+      let sessionId = session ? session[0].id : "nvt";
       console.log(
-        "Island.js : new island : " + this.name + " with id " + this.id
+        "island.js : new island : " +
+          this.name +
+          " with id " +
+          this.id +
+          " (session = " +
+          sessionId +
+          ")"
       );
     }
 
@@ -186,7 +193,8 @@ class Island {
 
       // randomly add some penguins
 
-      let pengNum = Math.floor(Math.random() * 2) + 4;
+      let pengNum = 1;
+      Math.floor(Math.random() * 2) + 4;
       let pengCnt = 0;
 
       while (pengCnt < pengNum) {
@@ -209,7 +217,7 @@ class Island {
         }
       }
 
-      addIsland(this);
+      // addIsland(this);
     }
   } // constructor ()
 

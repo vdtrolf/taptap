@@ -5,15 +5,26 @@ const dbhelperReq = require("./acebasehelper.js");
 
 let putItem = dbhelperReq.putItem;
 let getItems = dbhelperReq.getItems;
+let getItem = dbhelperReq.getItem;
 let deleteItem = dbhelperReq.deleteItem;
 let getAsyncItem = dbhelperReq.getAsyncItem;
 // let getIsland = islandReq.getIsland;
 
-let debug = false;
+let debug = true;
 let deepdebug = false;
 let loaded = false;
 
 const sessions = [];
+const moveTypes = [
+  "init",
+  "move",
+  "grow",
+  "eat",
+  "love",
+  "die",
+  "still",
+  "fish",
+];
 
 class Session {
   constructor(
@@ -37,6 +48,8 @@ class Session {
           this.lastInvocation
       );
     }
+
+    sessions.push(this);
 
     let island = getIsland(this.islandId);
     if (island) island.registerSession(this);
@@ -78,9 +91,8 @@ class Session {
     newH = 0,
     newL = 0
   ) {
-    let moveTypes = ["init", "move", "grow", "eat", "love", "die", "still"];
     let moveid = this.moveCounter++;
-    if (debug) {
+    if ((debug && moveType !== 6) || deepdebug) {
       console.log(
         "session.js - addMoveLog : " +
           moveid +
@@ -242,11 +254,12 @@ const getSession = (sessionId) => {
   } else {
     //let sessionData = await getAsyncItem("session", sessionId);
     let sessionData = getItem("session", sessionId);
-    if (sessionData) {
+    if (sessionData && sessionData.id) {
       if (deepdebug) {
         console.log(
           "session.js - getSession:: found a DB session " + sessionData.id
         );
+        console.dir(sessionData);
       }
       let session = new Session(
         sessionData.id,
@@ -259,7 +272,7 @@ const getSession = (sessionId) => {
     } else {
       if (deepdebug) {
         console.log(
-          "session.js - getSession:: creatinf a session " + sessionId
+          "session.js - getSession:: creating a session " + sessionId
         );
       }
       let session = new Session(sessionId);
@@ -271,9 +284,9 @@ const getSession = (sessionId) => {
 
 // persists the session in the NoSQL db
 
-const persistSessions = (asession = null) => {
-  if (!asession) {
-    if (deepdebug) console.log("persisting sessions " + asession);
+const persistSessions = async (asession = null) => {
+  if (asession === null) {
+    if (deepdebug) console.log("persisting sessions (no id)");
 
     sessions.forEach((session) => {
       let currentTime = new Date().getTime();
@@ -306,7 +319,7 @@ const persistSessions = (asession = null) => {
     });
   } else {
     if (deepdebug) console.log("persisting session " + asession.id);
-    putItem(
+    await putItem(
       "session",
       {
         id: asession.id,
@@ -320,9 +333,10 @@ const persistSessions = (asession = null) => {
   }
 };
 
+// Session: Session,
+
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
-  Session: Session,
   getSession: getSession,
   createSession: createSession,
   persistSessions: persistSessions,

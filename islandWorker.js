@@ -1,10 +1,10 @@
 //const dbhelperReq = require("./dynamohelper.js");
 const dbhelperReq = require("./acebasehelper.js");
-const islandDataReq = require("./islandData.js")
+const islandDataReq = require("./islandData.js");
 
-let getItem= dbhelperReq.getItem;
+let getItem = dbhelperReq.getItem;
 let getItems = dbhelperReq.getItems;
-let getAsyncItem= dbhelperReq.getAsyncItem;
+let getAsyncItem = dbhelperReq.getAsyncItem;
 let getAsyncItems = dbhelperReq.getAsyncItems;
 let putItem = dbhelperReq.putItem;
 let persistIslandData = islandDataReq.persistIslandData;
@@ -24,23 +24,35 @@ const getIslandData = async (
   tileHpos = 0,
   tileLpos = 0
 ) => {
-  
-  console.log("islandWorker.js - getIslandData: island = " + islandId + " session = " + sessionId);
+  if (debug)
+    console.log(
+      "islandWorker.js - getIslandData: island = " +
+        islandId +
+        " session = " +
+        sessionId
+    );
 
   result = {};
 
   // let islandData = await getAsyncItem("island", islandId);
   let islandData = await getItem("island", islandId);
-  
+
   if (deepdebug) {
     console.log("islandWorker.js - getIslandData -- island -----------");
     console.dir(islandData);
     console.log("islandWorker.js - getIslandData -- island -----------");
   }
-  
+
   if (islandData) {
-    
-    if (debug) { console.log( "islandWorker.js - getIslandData: found island " + islandData.id + " (counter " + islandData.counter + ")" );}  
+    if (debug) {
+      console.log(
+        "islandWorker.js - getIslandData: found island " +
+          islandData.id +
+          " (counter " +
+          islandData.counter +
+          ")"
+      );
+    }
 
     let territory = [];
     for (let i = 0; i < islandData.sizeH; i++) {
@@ -116,8 +128,7 @@ const getIslandData = async (
       let moves = { moves: theMoves };
       result = { ...result, ...moves };
     }
-    
-    
+
     //   }
   } else {
     console.log("islandWorker.js - getIslandData: no island data found  ");
@@ -130,9 +141,14 @@ const getIslandData = async (
 // Creates a result set based on the island object
 
 const getInitData = (island, sessionId, theMoves = null) => {
-  
-  console.log("islandWorker.js - getinitData: island = " + island.id + " session=" + sessionId);
-  
+  if (debug)
+    console.log(
+      "islandWorker.js - getinitData: island = " +
+        island.id +
+        " session=" +
+        sessionId
+    );
+
   result = {
     session: sessionId,
     island: getImg(island.territory, island.sizeH, island.sizeL),
@@ -156,20 +172,25 @@ const getInitData = (island, sessionId, theMoves = null) => {
 };
 
 const getMovesData = async (islandId, sessionId, moves) => {
-  
-  console.log("islandWorker.js - getMovesData: island = " + islandId + " session=" + sessionId);
-  
+  if (debug)
+    console.log(
+      "islandWorker.js - getMovesData: island = " +
+        islandId +
+        " session=" +
+        sessionId
+    );
+
   result = {};
 
   // let islandData = await getAsyncItem("island", islandId);
   let islandData = await getItem("island", islandId);
-  
+
   if (deepdebug) {
     console.log("islandWorker.js - getMovesData -- island -----------");
     console.dir(islandData);
     console.log("islandWorker.js - getMovesData -- island -----------");
   }
-  
+
   if (islandData) {
     result = {
       session: sessionId,

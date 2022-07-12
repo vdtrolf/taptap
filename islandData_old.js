@@ -18,16 +18,19 @@ let addIsland = islandReq.addIsland;
 
 const islands = [];
 const debug = false;
-const maxAge = 3600000; // one hour
+const maxAge = 300000; // 5 minutes   3600000; // one hour
 
 const persistIsland = async (island, force = false) => {
+  let sessionsList = [];
+  island.sessions.forEach((session) => sessionsList.push(session.id));
+
   if (debug)
     console.log(
-      "islandData.js - persistIsland : persisting island " + island.id
+      "islandData.js - persistIsland : persisting island " +
+        island.id +
+        " with sessions " +
+        sessionsList.length
     );
-
-  sessionsList = [];
-  island.sessions.forEach((session) => sessionsList.push(session.id));
 
   await putItem(
     "island",
@@ -307,39 +310,7 @@ const loadPenguins = (thePenguins) => {
     );
 
   islands.forEach((island) => addIsland(island));
-  initiateSessions();
-};
-
-const deleteLands = (theLands) => {
-  if (debug)
-    console.log(
-      "islandData.js - deleteLands: deleting " + theLands.length + " lands"
-    );
-
-  try {
-    theLands.forEach((aLand) => {
-      deleteItem("land", aLand.id);
-    });
-  } catch (error) {
-    console.error("islandData.js - deleteLands: problem", error);
-  }
-};
-
-const deletePenguins = (thePenguins) => {
-  if (debug)
-    console.log(
-      "islandData.js - deletePenguins: deleting " +
-        thePenguins.length +
-        " penguins"
-    );
-
-  try {
-    thePenguins.forEach((aPenguin) => {
-      deleteItem("penguin", aPenguin.id);
-    });
-  } catch (error) {
-    console.error("islandData.js - deletePenguins: problem", error);
-  }
+  // initiateSessions();
 };
 
 // now we export the class, so other modules can create Penguin objects

@@ -4,7 +4,6 @@ const landReq = require("./land.js");
 const dbhelperReq = require("./acebasehelper.js");
 const sessionReq = require("./session.js");
 const islandReq = require("./island.js");
-const session = require("./session.js");
 
 let Island = islandReq.Island;
 let Penguin = penguinReq.Penguin;
@@ -15,20 +14,30 @@ let deleteItem = dbhelperReq.deleteItem;
 let getItems = dbhelperReq.getItems;
 let initiateSessions = sessionReq.initiateSessions;
 let addIsland = islandReq.addIsland;
+let getSession = sessionReq.getSession;
 
-const islands = [];
-const debug = true;
+// const islands = [];
+const debug = false;
 const maxAge = 3600000; // one hour
 let counter = 0;
 
 const persistIsland = async (island, force = false) => {
-  
   counter++;
-  
-  if (debug) console.log( "islandData.js - persistIsland : persisting island " + island.id + " counter: " + counter);
 
-  sessionsList = [];
+  if (debug)
+    console.log(
+      "islandData.js - persistIsland : persisting island " +
+        island.id +
+        " counter: " +
+        counter
+    );
+
+  let sessionsList = [];
   island.sessions.forEach((session) => sessionsList.push(session.id));
+
+  // console.log("islandData.js - persistIsland " + island.id + " ------------");
+  // console.dir(sessionsList);
+  // console.log("islandData.js - persistIsland --------------------------");
 
   let lands = [];
 
@@ -104,18 +113,30 @@ const persistIsland = async (island, force = false) => {
       sessions: sessionsList,
       lands: lands,
       penguins: penguins,
-      counter: counter
+      counter: counter,
     },
     island.id
   );
 };
 
 const persistIslandData = async (island) => {
-  
   counter++;
-  
-  if (debug) console.log( "islandData.js - persistIslandData : persisting island " + island.id + " counter: " + counter);
- 
+
+  if (debug)
+    console.log(
+      "islandData.js - persistIslandData : persisting island " +
+        island.id +
+        " counter: " +
+        counter
+    );
+
+  // let sessionsList = [];
+  // island.sessions.forEach((session) => sessionsList.push(session.id));
+
+  // console.log("islandData.js - persistIslandDat " + island.id + " --------");
+  // console.dir(island.sessions);
+  // console.log("islandData.js - persistIslandData ---------------");
+
   await putItem(
     "island",
     {
@@ -136,12 +157,11 @@ const persistIslandData = async (island) => {
       sessions: island.sessions,
       lands: island.lands,
       penguins: island.penguins,
-      counter: counter
+      counter: counter,
     },
     island.id
   );
 };
-
 
 const initiateIslands = () => {
   if (debug)
@@ -157,15 +177,22 @@ const loadIslands = (theIslands) => {
 
   let currentTime = new Date().getTime();
 
+  let islands = [];
+
   try {
     theIslands.forEach((anIsland) => {
       let age = currentTime - Number.parseInt(anIsland.lastInvocation);
+
+      let theSessions = [];
+      anIsland.sessions.forEach((sessionId) => {
+        theSessions.push(getSession(sessionId));
+      });
 
       if (anIsland.lastInvocation > 0 && (age < maxAge || anIsland.running)) {
         let island = new Island(
           anIsland.sizeH,
           anIsland.sizeL,
-          null, // anIsland.session ? anIsland.session : null,
+          theSessions,
           false,
           anIsland.id,
           anIsland.name,
@@ -243,7 +270,9 @@ const loadIslands = (theIslands) => {
 
         island.penguins = penguins;
 
-        islands.push(island);
+        addIsland(island);
+
+        // islands.push(island);
 
         if (debug) {
           console.log(
@@ -271,26 +300,11 @@ const loadIslands = (theIslands) => {
         deleteItem("island", anIsland.id);
       }
     });
+
+    // islands.forEach((island) => addIsland(island));
   } catch (error) {
     console.error("problem", error);
   }
-};
-
-const loadLands = (theLands) => {
-  // Sanity check => are all land pieces present ?
-  // for (let i = 0; i < island.sizeH; i++) {
-  //   for (let j = 0; j < island.sizeL; j++) {
-  //     try {
-  //       island.territory[i][j].getType();
-  //     } catch (error) {
-  //       if (debug)
-  //         console.log(
-  //           "islandData.js - loadLands: missing land at " + i + "/" + j
-  //         );
-  //       island.territory[i][j] = new Land(i, j, false, island.id);
-  //     }
-  //   }
-  // }
 };
 
 // now we export the class, so other modules can create Penguin objects
