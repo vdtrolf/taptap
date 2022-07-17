@@ -188,7 +188,7 @@ class Session {
   // returns the last version of the move log and reset the move log
 
   getMoveLog() {
-    if (debug) {
+    if (deepdebug || this.moveLog.length > 1) {
       console.log(
         "session.js - getMoveLog : number of moves = " + this.moveLog.length
       );

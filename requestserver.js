@@ -24,7 +24,7 @@ let connectIsland = islandWorkerReq.connectIsland;
 
 let NameServer = nameserverReq.NameServer;
 
-const intervalTime = 864; // 648;  // 1728; //864
+const intervalTime = 1728; // 648;  // 1728; //864
 let islandH = 12;
 let islandL = 12;
 const baseTime = new Date().getTime();
@@ -232,8 +232,7 @@ const createResponse = async (url, params, sessionId) => {
 let doAll = true;
 
 setInterval(() => {
-  console.log("-----------");
-
+  
   initiateIslands();
   getIslands().forEach((island) => {
     if (island.running) {
