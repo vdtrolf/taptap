@@ -1,7 +1,13 @@
 {
   "dependencies": {
-    "acebase": "^1.21.7",
+    "acebase-client": "^1.16.0",
+    "acebase-server": "^1.11.0",
     "cors": "^2.8.5",
-    "express": "^4.17.3"
+    "express": "^4.18.1"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "server": "node stateserver.js",
+    "DB": "node acebaseserver.js"
   }
 }

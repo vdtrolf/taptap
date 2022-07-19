@@ -8,13 +8,13 @@ const dbhelperReq = require("./acebasehelper.js");
 const { resetPenguinsPos } = require("./islandWorker.js");
 
 let Island = islandReq.Island;
-let getIslands = islandReq.getIslands;
+// let getIslands = islandReq.getIslands;
 
 let Session = sessionReq.Session;
 let getSession = sessionReq.getSession;
 let createSession = sessionReq.createSession;
-let persistSessions = sessionReq.persistSessions;
-let persistIsland = islandDataReq.persistIsland;
+// let persistSessions = sessionReq.persistSessions;
+// let persistIsland = islandDataReq.persistIsland;
 let initiateIslands = islandDataReq.initiateIslands;
 let getInitData = islandWorkerReq.getInitData;
 let getIslandData = islandWorkerReq.getIslandData;
@@ -229,30 +229,31 @@ const createResponse = async (url, params, sessionId) => {
 
 // Main interval loop - for each session triggers the penguin events
 
-let doAll = true;
-
-setInterval(() => {
-  
-  initiateIslands();
-  getIslands().forEach((island) => {
-    if (island.running) {
-      island.calculateNeighbours();
-      island.movePenguins();
-      if (doAll) {
-        island.addSwims();
-        island.makePenguinsOlder();
-        island.smelt();
-        island.setWeather();
-        persistIsland(island, false, counter++);
-      }
-    }
-  });
-  persistSessions();
-  doAll = !doAll;
-}, intervalTime);
+//let doAll = true;
+//
+//setInterval(() => {
+//  
+//  initiateIslands();
+//  getIslands().forEach((island) => {
+//    if (island.running) {
+//      island.calculateNeighbours();
+//      island.movePenguins();
+//      if (doAll) {
+//        island.addSwims();
+//        island.makePenguinsOlder();
+//        island.smelt();
+//        island.setWeather();
+//        persistIsland(island, false, counter++);
+//      }
+//    }
+//  });
+//  persistSessions();
+//  doAll = !doAll;
+//}, intervalTime);
 
 //
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
   createResponse: createResponse,
 };
+  

@@ -1,10 +1,19 @@
 let db = null;
 const debug = false;
 
+
+
 const createDb = () => {
-  const { AceBase } = require("acebase");
-  const options = { logLevel: "info" }; //   'verbose'};
-  db = new AceBase("my_db", options);
+  const { AceBaseClient } = require('acebase-client');
+  if (!)db = new AceBaseClient({ /* connection config */ });
+  db.ready(() => {
+    console.log("Connected!");
+  });
+  
+  
+  // const { AceBase } = require("acebase-client");
+  // nst options = { logLevel: "info" }; //   'verbose'};
+  // db = new AceBase("my_db", options);
 };
 
 const cleanDb = () => {

@@ -331,9 +331,9 @@ class Penguin {
   // makes the penguin fish
 
   wait(sessions) {
-    sessions.forEach((session) => {
-      session.addMoveLog(this.id, this.num, 6, this.cat, "still");
-    });
+    // sessions.forEach((session) => {
+    //   session.addMoveLog(this.id, this.num, 6, this.cat, "still");
+    // });
 
     // if (this.id === island.followId && this.alive) console.log("Hungry: " + this.hungry + " fatfactor: " + this.fat + " getting more hungry by : " + (Math.floor(this.fat / 2) + 1));
 
