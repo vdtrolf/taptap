@@ -50,11 +50,12 @@ const createInitData = (island, session, moves) => {
   return data;
 };
 
-const createIslandData = async (session, moves = [], tileHpos, tileLpos) => {
+const createIslandData = async (session, moves = [], followId,tileHpos, tileLpos) => {
   let data = await getIslandData(
     session.islandId,
     session.id,
     moves,
+    followId,
     tileHpos,
     tileLpos
   );
@@ -76,7 +77,7 @@ const createIslandData = async (session, moves = [], tileHpos, tileLpos) => {
 // the parameter followId indicates that penguin must be followed in the console
 
 const createMovesData = async (session, moves, followId) => {
-  let data = await getMovesData(session.islandId, session.id, moves);
+  let data = await getMovesData(session.islandId, session.id, moves, followId);
 
   if (debug) {
     console.log(
@@ -161,7 +162,7 @@ const createResponse = async (url, params, sessionId) => {
         // island.setFollowId(followId);
 
         if (renew !== 0) resetPenguinsPos(session);
-        return createMovesData(session, session.getMoveLog());
+        return createMovesData(session, session.getMoveLog(),followId);
       }
 
       case "/islandmoves": {
@@ -171,7 +172,7 @@ const createResponse = async (url, params, sessionId) => {
         // island.setFollowId(followId);
 
         if (renew !== 0) resetPenguinsPos(session);
-        return createIslandData(session, session.getMoveLog());
+        return createIslandData(session, session.getMoveLog(),followId);
       }
 
       case "/islands": {

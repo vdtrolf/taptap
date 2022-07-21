@@ -109,7 +109,7 @@ const persistIsland = async (island, force = false) => {
       points: island.points,
       running: island.running,
       lastInvocation: island.lastInvocation,
-      followId: island.followId,
+      followId: island.followId?island.followId:0,
       sessions: sessionsList,
       lands: lands,
       penguins: penguins,
@@ -125,7 +125,9 @@ const persistIslandData = async (island) => {
   if (debug)
     console.log(
       "islandData.js - persistIslandData : persisting island " +
-        island.id +
+        island.id + 
+        " followId " +
+        island.followId +
         " counter: " +
         counter
     );
@@ -153,7 +155,7 @@ const persistIslandData = async (island) => {
       points: island.points,
       running: island.running,
       lastInvocation: island.lastInvocation,
-      followId: island.followId,
+      followId: island.followId?island.followId:0,
       sessions: island.sessions,
       lands: island.lands,
       penguins: island.penguins,

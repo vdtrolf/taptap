@@ -9,7 +9,7 @@ let getAsyncItems = dbhelperReq.getAsyncItems;
 let putItem = dbhelperReq.putItem;
 let persistIslandData = islandDataReq.persistIslandData;
 
-let debug = false;
+let debug = true;
 let deepdebug = false;
 
 const weathers = ["sun", "rain", "snow", "cold", "endgame"];
@@ -21,6 +21,7 @@ const getIslandData = async (
   islandId,
   sessionId,
   theMoves = null,
+  followId,
   tileHpos = 0,
   tileLpos = 0
 ) => {
@@ -32,7 +33,8 @@ const getIslandData = async (
         sessionId
     );
 
-  result = {};
+  let result = {};
+  let changed = false;
 
   // let islandData = await getAsyncItem("island", islandId);
   let islandData = await getItem("island", islandId);
@@ -47,7 +49,9 @@ const getIslandData = async (
     if (debug) {
       console.log(
         "islandWorker.js - getIslandData: found island " +
-          islandData.id +
+          islandData.id + 
+          " followId = "
+          + followId +
           " (counter " +
           islandData.counter +
           ")"
@@ -74,7 +78,7 @@ const getIslandData = async (
       tileLpos < islandData.sizeL - 1
     ) {
       let land = territory[tileHpos][tileLpos];
-      let changed = false;
+      
 
       if (land) {
         if (land.type === 0 && islandData.tiles > 0) {
@@ -102,9 +106,16 @@ const getIslandData = async (
             }
           }
           islandData.lands = lands;
-          await persistIslandData(islandData);
         }
       }
+    }
+
+    if (followId && followId > 0) {
+      islandData.followId = followId;
+    }
+
+    if (changed) {
+      await persistIslandData(islandData);
     }
 
     let penguins = [];
@@ -140,6 +151,7 @@ const getIslandData = async (
 // To be used just after the island was created - while the island object is still in memory
 // Creates a result set based on the island object
 
+
 const getInitData = (island, sessionId, theMoves = null) => {
   if (debug)
     console.log(
@@ -171,7 +183,7 @@ const getInitData = (island, sessionId, theMoves = null) => {
   return result;
 };
 
-const getMovesData = async (islandId, sessionId, moves) => {
+const getMovesData = async (islandId, sessionId, moves,followId) => {
   if (debug)
     console.log(
       "islandWorker.js - getMovesData: island = " +
@@ -198,6 +210,12 @@ const getMovesData = async (islandId, sessionId, moves) => {
       islandSize: islandData.landSize,
       moves: moves,
     };
+
+    if (followId && followId > 0) {
+      islandData.followId = followId;
+      await persistIslandData(islandData);
+    }
+
   } else {
     console.log(
       "islandWorker.js - getMovesData: no island data found for " + islandId
