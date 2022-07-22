@@ -9,7 +9,7 @@ let getAsyncItems = dbhelperReq.getAsyncItems;
 let putItem = dbhelperReq.putItem;
 let persistIslandData = islandDataReq.persistIslandData;
 
-let debug = true;
+let debug = false;
 let deepdebug = false;
 
 const weathers = ["sun", "rain", "snow", "cold", "endgame"];
@@ -27,9 +27,11 @@ const getIslandData = async (
 ) => {
   if (debug)
     console.log(
-      "islandWorker.js - getIslandData: island = " +
+      "islandWorker.js - getIslandData: is=" +
         islandId +
-        " session = " +
+        " ti=" +
+        tileHpos + "/" + tileLpos +
+        " ss=" +
         sessionId
     );
 
@@ -48,11 +50,11 @@ const getIslandData = async (
   if (islandData) {
     if (debug) {
       console.log(
-        "islandWorker.js - getIslandData: found island " +
+        "islandWorker.js - getIslandData: found is=" +
           islandData.id + 
-          " followId = "
+          " fId="
           + followId +
-          " (counter " +
+          " (# " +
           islandData.counter +
           ")"
       );
@@ -153,11 +155,11 @@ const getIslandData = async (
 
 
 const getInitData = (island, sessionId, theMoves = null) => {
-  if (debug)
+  if (deepdebug)
     console.log(
-      "islandWorker.js - getinitData: island = " +
+      "islandWorker.js - getinitData: is=" +
         island.id +
-        " session=" +
+        " ss=" +
         sessionId
     );
 
@@ -184,11 +186,13 @@ const getInitData = (island, sessionId, theMoves = null) => {
 };
 
 const getMovesData = async (islandId, sessionId, moves,followId) => {
-  if (debug)
+  if (deepdebug)
     console.log(
-      "islandWorker.js - getMovesData: island = " +
+      "islandWorker.js - getMovesData: is=" +
         islandId +
-        " session=" +
+        " fId=" +
+        followId +
+        " ss=" +
         sessionId
     );
 
@@ -204,6 +208,17 @@ const getMovesData = async (islandId, sessionId, moves,followId) => {
   }
 
   if (islandData) {
+    
+    if (debug)
+    console.log(
+      "islandWorker.js - getMovesData: found is=" +
+        islandData.id +
+        " fId=" +
+        islandData.followId +        
+        " ss=" +
+        sessionId
+    );
+     
     result = {
       session: sessionId,
       points: islandData.points,

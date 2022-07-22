@@ -24,7 +24,7 @@ createDb();
 // Starting the express server
 
 if (local) {
-  const port = 3001;
+  const port = 8080;
   let app = null;
 
   const express = require("express");

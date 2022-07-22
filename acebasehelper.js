@@ -1,5 +1,5 @@
 let db = null;
-const debug = false;
+const debug = true;
 
 const createDb = () => {
   

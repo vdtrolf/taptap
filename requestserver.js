@@ -183,7 +183,7 @@ const createResponse = async (url, params, sessionId) => {
       case "/setTile": {
         let hpos = Number.parseInt(params.hpos, 10);
         let lpos = Number.parseInt(params.lpos, 10);
-        return createIslandData(session, [], hpos, lpos);
+        return createIslandData(session, [], 0,hpos, lpos);
       }
 
       default: {

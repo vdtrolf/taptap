@@ -12,12 +12,13 @@ let putItem = dbhelperReq.putItem;
 let putAsyncItem = dbhelperReq.putAsyncItem;
 let deleteItem = dbhelperReq.deleteItem;
 let getItems = dbhelperReq.getItems;
+let getAsyncItems = dbhelperReq.getAsyncItems;
 let initiateSessions = sessionReq.initiateSessions;
 let addIsland = islandReq.addIsland;
 let getSession = sessionReq.getSession;
 
 // const islands = [];
-const debug = false;
+const debug = true;
 const maxAge = 3600000; // one hour
 let counter = 0;
 
@@ -61,6 +62,15 @@ const persistIsland = async (island, force = false) => {
       });
     }
   }
+
+  lands.forEach(aLand => {
+    if (aLand.hpos === 1 && aLand.lpos === 1) {
+      console.log("islandData.js - persistIsland " + island.id + " --------");
+      console.dir(aLand);
+      console.log("islandData.js - persistIsland ---------------");
+    }
+  });
+
 
   let penguins = [];
 
@@ -135,9 +145,13 @@ const persistIslandData = async (island) => {
   // let sessionsList = [];
   // island.sessions.forEach((session) => sessionsList.push(session.id));
 
-  // console.log("islandData.js - persistIslandDat " + island.id + " --------");
-  // console.dir(island.sessions);
-  // console.log("islandData.js - persistIslandData ---------------");
+  island.lands.forEach(aLand => {
+    if (aLand.hpos === 1 && aLand.lpos === 1) {
+      console.log("islandData.js - persistIslandData " + island.id + " --------");
+      console.dir(aLand);
+      console.log("islandData.js - persistIslandData ---------------");
+    }
+  });
 
   await putItem(
     "island",
@@ -165,13 +179,15 @@ const persistIslandData = async (island) => {
   );
 };
 
-const initiateIslands = () => {
+const initiateIslands = async () => {
+  
   if (debug)
     console.log("islandData.js - initiateIslands: getting islands out of DB");
-  getItems("island", loadIslands);
-};
 
-const loadIslands = (theIslands) => {
+  let theIslands = await getAsyncItems("island", "id", ">", 0);
+  
+  console.dir(theIslands);
+
   if (debug)
     console.log(
       "islandData.js - loadIslands: found " + theIslands.length + " islands"
@@ -236,6 +252,15 @@ const loadIslands = (theIslands) => {
           );
           island.territory[aLand.hpos][aLand.lpos] = land;
         });
+
+        anIsland.lands.forEach(aLand => {
+          if (aLand.hpos === 1 && aLand.lpos === 1) {
+            console.log("islandData.js - loadIslands " + anIsland.id + " --------");
+            console.dir(aLand);
+            console.log("islandData.js - loadIslands ---------------");
+          }
+        });
+
 
         let penguins = [];
 

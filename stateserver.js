@@ -13,7 +13,7 @@ let initiateIslands = islandDataReq.initiateIslands;
 
 // If simulate = true, then there will be an incode "pulser" that will regularly call the state engine 
 // simulateRate tells how often that must happen
-let simulate = true;
+let simulate = false;
 let simulateRate = 3428;
 
 let debug = false;
@@ -26,7 +26,7 @@ http
     res.write("State updated !"); //write a response to the client
     res.end(); //end the response
   })
-  .listen(3002); //the server object listens on port 3002
+  .listen(3001); //the server object listens on port 3003
 
 // State engine = changes the state of all the running islands
 const setState = () => {
