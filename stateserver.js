@@ -11,17 +11,18 @@ let persistSessions = sessionReq.persistSessions;
 let persistIsland = islandDataReq.persistIsland;
 let initiateIslands = islandDataReq.initiateIslands;
 
-// If simulate = true, then there will be an incode "pulser" that will regularly call the state engine 
+// If simulate = true, then there will be an incode "pulser" that will regularly call the state engine
 // simulateRate tells how often that must happen
-let simulate = false;
+let simulate = true;
 let simulateRate = 3428;
 
 let debug = false;
+let deepdebug = false;
 let counter = 0;
 
 //create a server object:
 http
-  .createServer(function(req, res) {
+  .createServer(function (req, res) {
     setState();
     res.write("State updated !"); //write a response to the client
     res.end(); //end the response
@@ -30,14 +31,22 @@ http
 
 // State engine = changes the state of all the running islands
 const setState = () => {
-  
+  if (debug) console.log("stateserver.js - setState: starting");
   createDb();
-  initiateIslands();
+  initiateIslands(getRealState);
+};
+
+const getRealState = () => {
   getIslands().forEach((island) => {
-    
-    if (debug) console.log("stateserver.js - setState: island = " + island.id);
-    
+    if (debug)
+      console.log("stateserver.js - getRealState: island = " + island.id);
+
     if (island.running) {
+      if (deepdebug) {
+        let img = island.getAsciiImg();
+        img.forEach((line) => console.log(line));
+      }
+
       island.calculateNeighbours();
       island.movePenguins();
       island.addSwims();
@@ -48,17 +57,12 @@ const setState = () => {
     }
   });
   persistSessions();
-  
-}
+};
 
-// For test purpose - simulates a pulsar function 
-if (simulate ) {
-
+// For test purpose - simulates a pulsar function
+if (simulate) {
   setInterval(() => {
     if (debug) console.log("stateserver - simulates a state change request");
     setState();
   }, simulateRate);
-
 }
-
-

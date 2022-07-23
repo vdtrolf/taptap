@@ -1,11 +1,12 @@
 const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
-const sessionReq = require("./session.js");
+// const sessionReq = require("./session.js");
 const nameserverReq = require("./nameserver.js");
+const land = require("./land.js");
 
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
-let Session = sessionReq.Session;
+// let Session = sessionReq.Session;
 // let initiateSessions = sessionReq.initiateSessions;
 
 let islands = [];
@@ -282,14 +283,6 @@ class Island {
     this.fishes += 1;
   }
 
-  // decreaseTiles() {
-  //   this.tiles -= this.tiles > 0 ? 1 : 0;
-  // }
-
-  // decreaseFishes() {
-  //   this.fishes -= this.fishes > 0 ? 1 : 0;
-  // }
-
   addPoints(points) {
     this.points += points;
   }
@@ -331,56 +324,6 @@ class Island {
     return this.penguins;
   }
 
-  // getImg(mode, islandH, islandL) {
-  //   let result = [];
-  //   for (let i = 1; i < islandH - 1; i++) {
-  //     for (let j = 1; j < islandL - 1; j++) {
-  //       let id = i + "-" + j;
-  //       let tile =
-  //         this.territory[i][j].getType() +
-  //         "-" +
-  //         this.territory[i][j].getConf() +
-  //         "-" +
-  //         this.territory[i][j].getVar();
-  //       result.push({
-  //         li: i,
-  //         id: id,
-  //         ti: tile,
-  //       });
-  //     }
-  //   }
-  //   return result;
-  // }
-
-  // // returns the list of artifacts
-  // getArtifacts() {
-  //   let result = ``;
-  //   for (let i = 0; i < this.sizeH; i++) {
-  //     let h = i * 48 + 16; //  + 16;
-  //     for (let j = 0; j < this.sizeL; j++) {
-  //       let l = j * 48 + 16; // + 16 ;
-  //       let land = this.territory[i][j];
-  //       if (land) {
-  //         if (land.hasCross) {
-  //           if (land.type === 0) {
-  //             result += `<img class="cross" src="./tiles/wreath.gif" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
-  //           } else {
-  //             result += `<img class="cross" src="./tiles/cross.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
-  //           }
-  //         } else if (land.hasFish) {
-  //           result += `<img class="fish" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
-  //         } else if (land.hasSwim) {
-  //           let transp = 0.6; // ((Math.floor(Math.random() * 2) / 10))  + 0.3;
-  //           result += `<img class="swim" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute; opacity:${transp}" width="48" height="48" >\n`;
-  //         } else if (land.hasIce) {
-  //           result += `<img class="fish" src="./tiles/ice.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
-  //         }
-  //       }
-  //     }
-  //   }
-  //   return result + ``;
-  // }
-
   // elevate a plot os land - can be called recusrsively to elevate adjacent plots of land
   elev(land, hpos, lpos) {
     const height = land.getType() + 1;
@@ -416,31 +359,6 @@ class Island {
       console.log("island.js - reset : Session reset with id " + this.id);
     }
   }
-
-  // Set a tile at a given position
-
-  // setTile(hpos, lpos) {
-  //   let land = this.territory[hpos][lpos];
-  //   if (land) {
-  //     if (
-  //       land.getType() == 0 &&
-  //       hpos > 0 &&
-  //       lpos > 0 &&
-  //       hpos < this.sizeH - 1 &&
-  //       lpos < this.sizeL - 1 &&
-  //       this.tiles > 0
-  //     ) {
-  //       land.setIce();
-  //       this.decreaseTiles();
-  //       return true;
-  //     } else if (land.getType() > 0 && this.fishes > 0) {
-  //       land.setFish();
-  //       this.decreaseFishes();
-  //       return true;
-  //     }
-  //   }
-  //   return false;
-  // }
 
   // Decrease or increase the amount of ice
 
@@ -999,30 +917,57 @@ class Island {
 
     return exploredTiles;
   }
+
+  getAsciiImg() {
+    let lands = [".", "-", "=", "=", "=", "=", "=", "=", "="];
+    let top = "+" + "-------------------------".substring(0, this.sizeH) + "+";
+    let results = [];
+    results.push(top);
+    for (let h = 0; h < this.sizeH; h++) {
+      let line = "|";
+      for (let l = 0; l < this.sizeL; l++) {
+        let land = this.territory[h][l];
+        line += lands[land.type];
+      }
+      line += "|";
+      results.push(line);
+      // console.log(line);
+    }
+    results.push(top);
+    return results;
+  }
 }
 
-addIsland = (anIsland) => {
+const cleanIslands = () => {
+  // console.log(":::: cleaning the islands");
+  islands = [];
+};
+
+const addIsland = (anIsland) => {
+  // console.log(":::: adding an island " + anIsland.id);
+
   if (!islands.find((island) => island.id === anIsland.id)) {
     islands.push(anIsland);
   }
 };
 
-setIslands = (theIslands) => {
-  //  console.log("setting the islands " + theIslands.length);
+const setIslands = (theIslands) => {
+  // console.log(":::: setting the islands " + theIslands.length);
   islands = theIslands;
 };
 
-getIslands = () => {
+const getIslands = () => {
   return islands;
 };
 
-getIsland = (islandId) => {
+const getIsland = (islandId) => {
   return islands.find((island) => island.id === islandId);
 };
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
   Island: Island,
+  cleanIslands: cleanIslands,
   addIsland: addIsland,
   getIsland: getIsland,
   getIslands: getIslands,

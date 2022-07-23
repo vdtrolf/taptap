@@ -1,12 +1,17 @@
 let db = null;
-const debug = true;
+const debug = false;
 
 const createDb = () => {
-  
   if (db === null) {
-    const { AceBaseClient } = require('acebase-client');  
-    const dbname = 'my_db';
-    db = new AceBaseClient({ host: 'localhost', port: 5757, dbname: 'my_db', https: false,  logLevel: "info" });
+    const { AceBaseClient } = require("acebase-client");
+    const dbname = "my_db";
+    db = new AceBaseClient({
+      host: "localhost",
+      port: 5757,
+      dbname: "my_db",
+      https: false,
+      logLevel: "info",
+    });
     db.ready(() => {
       console.log("Connected!");
     });
@@ -77,7 +82,8 @@ const getItems = (
   callbackFunction,
   filterIdx = "id",
   filterComparator = ">",
-  filterVal = 0
+  filterVal = 0,
+  secondCallBack
 ) => {
   if (debug)
     console.log(
@@ -94,7 +100,7 @@ const getItems = (
       db.query(tableName)
         .filter(filterIdx, filterComparator, filterVal)
         .get((snapshots) => {
-          callbackFunction(snapshots.getValues());
+          callbackFunction(snapshots.getValues(), secondCallBack);
         });
     } catch (error) {
       console.error("acebasehelpers.js - getItems: ", error);
@@ -102,28 +108,34 @@ const getItems = (
   }
 };
 
-const getAsyncItems = async (
-  tableName,
-  filterIdx = "id",
-  filterComparator = ">",
-  filterVal = 0
-) => {
-  let result = null;
+// const getAsyncItems = (
+//   tableName,
+//   filterIdx = "id",
+//   filterComparator = ">",
+//   filterVal = 0
+// ) => {
+//   let result = null;
 
-  if (db && db.ready()) {
-    try {
-      db.query(tableName)
-        .filter(filterIdx, filterComparator, filterVal)
-        .get((snapshots) => {
-          result = snapshots.getValues();
-        });
-    } catch (error) {
-      console.error("acebasehelpers.js - getItems: ", error);
-    }
-  }
-
-  return result;
-};
+//   if (db && db.ready()) {
+//     try {
+//       db.query(tableName)
+//         .filter(filterIdx, filterComparator, filterVal)
+//         .get((snapshots) => {
+//           // console.dir(snapshots.getValues());
+//           console.log("------");
+//           if (snapshots.getValues()) {
+//             result = snapshots.getValues();
+//           } else {
+//             result = [];
+//           }
+//         });
+//     } catch (error) {
+//       console.error("acebasehelpers.js - getItems: ", error);
+//     }
+//   }
+//   console.dir(result);
+//   return result;
+// };
 
 const deleteItem = (tableName, uniqueId) => {
   if (db && db.ready()) {
@@ -137,7 +149,7 @@ const deleteItem = (tableName, uniqueId) => {
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
   getAsyncItem,
-  getAsyncItems,
+  // getAsyncItems,
   putItem,
   getItem,
   getItems,

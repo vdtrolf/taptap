@@ -1,14 +1,14 @@
 const dbhelperReq = require("./acebasehelper.js");
 // const dbhelperReq = require("./dynamohelper.js");
 
-// const islandReq = require("./island.js");
+const islandReq = require("./island.js");
 
 let putItem = dbhelperReq.putItem;
 let getItems = dbhelperReq.getItems;
 let getItem = dbhelperReq.getItem;
 let deleteItem = dbhelperReq.deleteItem;
 let getAsyncItem = dbhelperReq.getAsyncItem;
-// let getIsland = islandReq.getIsland;
+let getIsland = islandReq.getIsland;
 
 let debug = true;
 let deepdebug = false;
