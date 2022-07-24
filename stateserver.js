@@ -3,6 +3,7 @@ var http = require("http");
 const dbhelperReq = require("./acebasehelper.js");
 const islandReq = require("./island.js");
 const islandDataReq = require("./islandData.js");
+const { initiateSessions } = require("./session.js");
 const sessionReq = require("./session.js");
 
 let createDb = dbhelperReq.createDb;
@@ -16,8 +17,8 @@ let initiateIslands = islandDataReq.initiateIslands;
 let simulate = true;
 let simulateRate = 3428;
 
-let debug = false;
-let deepdebug = false;
+let debug = true;
+let deepdebug = true;
 let counter = 0;
 
 //create a server object:
@@ -33,10 +34,14 @@ http
 const setState = () => {
   if (debug) console.log("stateserver.js - setState: starting");
   createDb();
-  initiateIslands(getRealState);
+  initiateSessions(getTheSessions);
 };
 
-const getRealState = () => {
+const getTheSessions = () => {
+  initiateIslands(getTheIslands);
+};
+
+const getTheIslands = () => {
   getIslands().forEach((island) => {
     if (debug)
       console.log("stateserver.js - getRealState: island = " + island.id);

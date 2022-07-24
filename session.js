@@ -11,7 +11,7 @@ let getAsyncItem = dbhelperReq.getAsyncItem;
 let getIsland = islandReq.getIsland;
 
 let debug = true;
-let deepdebug = false;
+let deepdebug = true;
 let loaded = false;
 
 const sessions = [];
@@ -188,11 +188,11 @@ class Session {
   // returns the last version of the move log and reset the move log
 
   getMoveLog() {
-    if (deepdebug || this.moveLog.length > 1) {
-      console.log(
-        "session.js - getMoveLog : number of moves = " + this.moveLog.length
-      );
-    }
+    // if (deepdebug || this.moveLog.length > 1) {
+    console.log(
+      "session.js - getMoveLog : number of moves = " + this.moveLog.length
+    );
+    // }
 
     let lastMoves = [...this.moveLog];
     this.moveLog = [];
@@ -201,15 +201,15 @@ class Session {
   }
 }
 
-const initiateSessions = () => {
+const initiateSessions = (callBack) => {
   if (!loaded) {
     console.log("session.js - initiateSessions: getting sessions out of DB");
-    getItems("session", loadSessions);
+    getItems("session", loadSessions, "id", ">", 0, callBack);
   }
   loaded = true;
 };
 
-const loadSessions = (theSessions) => {
+const loadSessions = (theSessions, callBack) => {
   console.log(
     "session.js - loadSessions: found " + theSessions.length + " sessions"
   );
@@ -224,6 +224,7 @@ const loadSessions = (theSessions) => {
     );
     sessions.push(session);
   });
+  callBack();
 };
 
 // create a new session and directly returns it, in the mean time saves the session to the db
@@ -231,55 +232,54 @@ const loadSessions = (theSessions) => {
 const createSession = () => {
   let session = new Session();
   sessions.push(session);
-  // persistSessions(session);
+  persistSessions(session);
   return session;
 };
 
 // gets the session, either out of the local array or out of the NoSQL db
 
-const getSession = (sessionId) => {
+const getSession = async (sessionId) => {
   if (deepdebug)
     console.log(
       "session.js - getSession: looking for session with id " + sessionId
     );
 
-  let foundSession = sessions.find((session) => session.id === sessionId);
-  if (foundSession) {
-    if (deepdebug)
+  // let foundSession = sessions.find((session) => session.id === sessionId);
+  // if (foundSession) {
+  //   if (deepdebug)
+  //     console.log(
+  //       "session.js - getSession: found a session with id " + sessionId
+  //     );
+  //   foundSession.lastInvocation = new Date().getTime();
+  //   return foundSession;
+  // } else {
+  //let sessionData = await getAsyncItem("session", sessionId);
+  let sessionData = await getItem("session", sessionId);
+  console.log("==============");
+  if (sessionData && sessionData.id) {
+    if (deepdebug) {
       console.log(
-        "session.js - getSession: found a session with id " + sessionId
+        "session.js - getSession:: found a DB session " + sessionData.id
       );
-    foundSession.lastInvocation = new Date().getTime();
-    return foundSession;
-  } else {
-    //let sessionData = await getAsyncItem("session", sessionId);
-    let sessionData = getItem("session", sessionId);
-    if (sessionData && sessionData.id) {
-      if (deepdebug) {
-        console.log(
-          "session.js - getSession:: found a DB session " + sessionData.id
-        );
-        console.dir(sessionData);
-      }
-      let session = new Session(
-        sessionData.id,
-        sessionData.lastInvocation,
-        sessionData.islandId,
-        sessionData.moveCounter,
-        sessionData.moveLog
-      );
-      return session;
-    } else {
-      if (deepdebug) {
-        console.log(
-          "session.js - getSession:: creating a session " + sessionId
-        );
-      }
-      let session = new Session(sessionId);
-      persistSessions(session);
-      return session;
+      console.dir(sessionData);
     }
+    let session = new Session(
+      sessionData.id,
+      sessionData.lastInvocation,
+      sessionData.islandId,
+      sessionData.moveCounter,
+      sessionData.moveLog
+    );
+    return session;
+  } else {
+    if (deepdebug) {
+      console.log("session.js - getSession:: creating a session " + sessionId);
+    }
+    let session = new Session(sessionId);
+    persistSessions(session);
+    return session;
   }
+  // }
 };
 
 // persists the session in the NoSQL db
@@ -304,6 +304,7 @@ const persistSessions = async (asession = null) => {
         }
         deleteItem("session", session.id);
       } else {
+        if (deepdebug) console.log("persisting session in DB " + session.id);
         putItem(
           "session",
           {

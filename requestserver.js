@@ -50,7 +50,13 @@ const createInitData = (island, session, moves) => {
   return data;
 };
 
-const createIslandData = async (session, moves = [], followId,tileHpos, tileLpos) => {
+const createIslandData = async (
+  session,
+  moves = [],
+  followId,
+  tileHpos,
+  tileLpos
+) => {
   let data = await getIslandData(
     session.islandId,
     session.id,
@@ -104,7 +110,7 @@ const createResponse = async (url, params, sessionId) => {
     );
 
   if (sessionId > 0) {
-    session = getSession(sessionId);
+    session = await getSession(sessionId);
     switch (url) {
       case "/new-island": {
         // if (island) {
@@ -162,7 +168,7 @@ const createResponse = async (url, params, sessionId) => {
         // island.setFollowId(followId);
 
         if (renew !== 0) resetPenguinsPos(session);
-        return createMovesData(session, session.getMoveLog(),followId);
+        return createMovesData(session, session.getMoveLog(), followId);
       }
 
       case "/islandmoves": {
@@ -172,7 +178,7 @@ const createResponse = async (url, params, sessionId) => {
         // island.setFollowId(followId);
 
         if (renew !== 0) resetPenguinsPos(session);
-        return createIslandData(session, session.getMoveLog(),followId);
+        return createIslandData(session, session.getMoveLog(), followId);
       }
 
       case "/islands": {
@@ -183,7 +189,7 @@ const createResponse = async (url, params, sessionId) => {
       case "/setTile": {
         let hpos = Number.parseInt(params.hpos, 10);
         let lpos = Number.parseInt(params.lpos, 10);
-        return createIslandData(session, [], 0,hpos, lpos);
+        return createIslandData(session, [], 0, hpos, lpos);
       }
 
       default: {
@@ -230,4 +236,3 @@ const createResponse = async (url, params, sessionId) => {
 module.exports = {
   createResponse: createResponse,
 };
-  

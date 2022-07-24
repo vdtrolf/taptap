@@ -12,13 +12,14 @@ let putItem = dbhelperReq.putItem;
 let putAsyncItem = dbhelperReq.putAsyncItem;
 let deleteItem = dbhelperReq.deleteItem;
 let getItems = dbhelperReq.getItems;
+let getAsyncItems = dbhelperReq.getAsyncItems;
 let initiateSessions = sessionReq.initiateSessions;
 let cleanIslands = islandReq.cleanIslands;
 let addIsland = islandReq.addIsland;
 let getSession = sessionReq.getSession;
 
 // const islands = [];
-const debug = false;
+const debug = true;
 const maxAge = 3600000; // one hour
 let counter = 0;
 
@@ -34,7 +35,7 @@ const persistIsland = async (island, force = false) => {
     );
 
   let sessionsList = [];
-  island.sessions.forEach((session) => sessionsList.push(session.id));
+  // island.sessions.forEach((session) => sessionsList.push(session.id));
 
   // console.log("islandData.js - persistIsland " + island.id + " ------------");
   // console.dir(sessionsList);
@@ -186,7 +187,7 @@ const initiateIslands = (callBack) => {
   getItems("island", loadIslands, "id", ">", 0, callBack);
 };
 
-const loadIslands = (theIslands, callBack) => {
+const loadIslands = async (theIslands, callBack) => {
   if (theIslands) {
     cleanIslands();
 
