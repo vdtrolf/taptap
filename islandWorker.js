@@ -20,7 +20,7 @@ const weathers = ["sun", "rain", "snow", "cold", "endgame"];
 const getIslandData = async (
   islandId,
   sessionId,
-  theMoves = null,
+  counterId,
   followId,
   tileHpos = 0,
   tileLpos = 0
@@ -58,6 +58,13 @@ const getIslandData = async (
           islandData.counter +
           ")"
       );
+    }
+    
+    let theMoves = [];
+    
+    let movesData = await getItem("session", sessionId);
+    if (movesData) {
+      theMoves = movesData.filter(move => moveid > counterId)
     }
 
     let territory = [];
@@ -154,7 +161,7 @@ const getIslandData = async (
 // Creates a result set based on the island object
 
 
-const getInitData = (island, sessionId, theMoves = null) => {
+const getInitData = async (island, sessionId, counterId) => {
   if (deepdebug)
     console.log(
       "islandWorker.js - getinitData: is=" +
@@ -177,15 +184,20 @@ const getInitData = (island, sessionId, theMoves = null) => {
     islandSize: island.landSize,
   };
 
-  if (theMoves) {
-    let moves = { moves: theMoves };
-    result = { ...result, ...moves };
+  let theMoves = [];
+    
+  let movesData = await getItem("session", sessionId);
+  if (movesData) {
+    theMoves = movesData.filter(move => moveid > counterId)
   }
+
+  let moves = { moves: theMoves };
+  result = { ...result, ...moves };
 
   return result;
 };
 
-const getMovesData = async (islandId, sessionId, moves,followId) => {
+const getMovesData = async (islandId, sessionId, counterId,followId) => {
   if (deepdebug)
     console.log(
       "islandWorker.js - getMovesData: is=" +
@@ -198,7 +210,7 @@ const getMovesData = async (islandId, sessionId, moves,followId) => {
 
   result = {};
 
-  // let islandData = await getAsyncItem("island", islandId);
+
   let islandData = await getItem("island", islandId);
 
   if (deepdebug) {
@@ -208,6 +220,14 @@ const getMovesData = async (islandId, sessionId, moves,followId) => {
   }
 
   if (islandData) {
+    
+    
+    let moves = [];
+    
+    let movesData = await getItem("session", sessionId);
+    if (movesData) {
+      moves = movesData.filter(move => moveid > counterId)
+    }
     
     if (debug)
     console.log(

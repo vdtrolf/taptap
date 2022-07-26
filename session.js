@@ -14,7 +14,7 @@ let debug = true;
 let deepdebug = true;
 let loaded = false;
 
-const sessions = [];
+let sessions = [];
 const moveTypes = [
   "init",
   "move",
@@ -168,7 +168,7 @@ class Session {
   // Reinitiate the move log and ask the island to fill it with penguins
   // initial states
 
-  getInitMoveLog(island) {
+  getInitMoveLog = async (island) => {
     this.moveLog = [];
     if (island) island.resetPenguins(this);
 
@@ -181,13 +181,13 @@ class Session {
 
     let lastMoves = [...this.moveLog];
     this.moveLog = [];
-    persistSessions(this);
+    await persistSessions("1",this);
     return lastMoves;
   }
 
   // returns the last version of the move log and reset the move log
 
-  getMoveLog() {
+  getMoveLog = async () => {
     // if (deepdebug || this.moveLog.length > 1) {
     console.log(
       "session.js - getMoveLog : number of moves = " + this.moveLog.length
@@ -196,17 +196,18 @@ class Session {
 
     let lastMoves = [...this.moveLog];
     this.moveLog = [];
-    persistSessions(this);
+    await persistSessions("2", this);
     return lastMoves;
   }
 }
 
 const initiateSessions = (callBack) => {
-  if (!loaded) {
+  // if (!loaded) {
     console.log("session.js - initiateSessions: getting sessions out of DB");
+    sessions = [];
     getItems("session", loadSessions, "id", ">", 0, callBack);
-  }
-  loaded = true;
+  // }
+  // loaded = true;
 };
 
 const loadSessions = (theSessions, callBack) => {
@@ -232,7 +233,7 @@ const loadSessions = (theSessions, callBack) => {
 const createSession = () => {
   let session = new Session();
   sessions.push(session);
-  persistSessions(session);
+  persistSessions("3", session);
   return session;
 };
 
@@ -255,7 +256,7 @@ const getSession = async (sessionId) => {
   // } else {
   //let sessionData = await getAsyncItem("session", sessionId);
   let sessionData = await getItem("session", sessionId);
-  console.log("==============");
+  console.log("session.js - getSession : ==============");
   if (sessionData && sessionData.id) {
     if (deepdebug) {
       console.log(
@@ -276,7 +277,7 @@ const getSession = async (sessionId) => {
       console.log("session.js - getSession:: creating a session " + sessionId);
     }
     let session = new Session(sessionId);
-    persistSessions(session);
+    await persistSessions("4", session);
     return session;
   }
   // }
@@ -284,9 +285,12 @@ const getSession = async (sessionId) => {
 
 // persists the session in the NoSQL db
 
-const persistSessions = async (asession = null) => {
+const persistSessions = async (orig, asession = null) => {
+  
+  console.log("session.js - persistSessions : =======>" + orig);
+  
   if (asession === null) {
-    if (deepdebug) console.log("persisting sessions (no id)");
+    if (deepdebug) console.log("session.js - persistSessions : persisting sessions (no id)");
 
     sessions.forEach((session) => {
       let currentTime = new Date().getTime();
@@ -294,7 +298,7 @@ const persistSessions = async (asession = null) => {
       if (currentTime - session.lastInvocation > 300000) {
         if (deepdebug) {
           console.log(
-            "Going to delete session " +
+            "session.js - persistSessions : Going to delete session " +
               session.id +
               " " +
               session.lastInvocation +
@@ -304,7 +308,7 @@ const persistSessions = async (asession = null) => {
         }
         deleteItem("session", session.id);
       } else {
-        if (deepdebug) console.log("persisting session in DB " + session.id);
+        if (deepdebug) console.log("session.js - persistSessions : persisting session in DB " + session.id);
         putItem(
           "session",
           {
@@ -319,7 +323,7 @@ const persistSessions = async (asession = null) => {
       }
     });
   } else {
-    if (deepdebug) console.log("persisting session " + asession.id);
+    if (deepdebug) console.log("session.js - persistSessions : persisting session " + asession.id);
     await putItem(
       "session",
       {

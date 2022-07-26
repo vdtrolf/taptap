@@ -10,9 +10,9 @@ const { resetPenguinsPos } = require("./islandWorker.js");
 let Island = islandReq.Island;
 
 let Session = sessionReq.Session;
-let getSession = sessionReq.getSession;
+// let getSession = sessionReq.getSession;
 let createSession = sessionReq.createSession;
-let persistSessions = sessionReq.persistSessions;
+// let persistSessions = sessionReq.persistSessions;
 let persistIsland = islandDataReq.persistIsland;
 let getInitData = islandWorkerReq.getInitData;
 let getIslandData = islandWorkerReq.getIslandData;
@@ -22,7 +22,6 @@ let connectIsland = islandWorkerReq.connectIsland;
 
 let NameServer = nameserverReq.NameServer;
 
-const intervalTime = 1728; // 648;  // 1728; //864
 let islandH = 12;
 let islandL = 12;
 const baseTime = new Date().getTime();
@@ -33,9 +32,9 @@ let deepDebug = false;
 
 let nameserver = new NameServer(30, 10, false);
 
-const createInitData = (island, session, moves) => {
+const createInitData = (island, session, counterId) => {
   // let data = await getIslandData(session.islandId, session.id, moves);
-  let data = getInitData(island, session.id, moves);
+  let data = getInitData(island, session.id, counterId);
 
   if (debug) {
     console.log(
@@ -52,7 +51,7 @@ const createInitData = (island, session, moves) => {
 
 const createIslandData = async (
   session,
-  moves = [],
+  counterId,
   followId,
   tileHpos,
   tileLpos
@@ -60,7 +59,7 @@ const createIslandData = async (
   let data = await getIslandData(
     session.islandId,
     session.id,
-    moves,
+    counterId,
     followId,
     tileHpos,
     tileLpos
@@ -83,7 +82,7 @@ const createIslandData = async (
 // the parameter followId indicates that penguin must be followed in the console
 
 const createMovesData = async (session, moves, followId) => {
-  let data = await getMovesData(session.islandId, session.id, moves, followId);
+  let data = await getMovesData(session.islandId, session.id, counterId, followId);
 
   if (debug) {
     console.log(
@@ -98,7 +97,7 @@ const createMovesData = async (session, moves, followId) => {
   return data;
 };
 
-const createResponse = async (url, params, sessionId) => {
+const createResponse = async (url, params, sessionId, counterId = 0) => {
   let session = null;
 
   if (debug && url !== "/islands")
@@ -106,7 +105,9 @@ const createResponse = async (url, params, sessionId) => {
       "requestserver.js - createResponse: url= " +
         url +
         " sessionId= " +
-        sessionId
+        sessionId +
+        " counterId= " +
+        counterId
     );
 
   if (sessionId > 0) {
@@ -135,7 +136,7 @@ const createResponse = async (url, params, sessionId) => {
           );
         }
         resetPenguinsPos(session);
-        return createInitData(session, session.getMoveLog());
+        return createInitData(session, counterId);
       }
 
       case "/connect-island": {
@@ -155,7 +156,7 @@ const createResponse = async (url, params, sessionId) => {
         }
 
         resetPenguinsPos(session);
-        return createInitData(session, session.getMoveLog());
+        return createInitData(session, counterId);
       }
 
       // return the moves - is the renew parameter is on 1, then returns an initial move log
@@ -168,7 +169,7 @@ const createResponse = async (url, params, sessionId) => {
         // island.setFollowId(followId);
 
         if (renew !== 0) resetPenguinsPos(session);
-        return createMovesData(session, session.getMoveLog(), followId);
+        return createMovesData(session, counterId, followId);
       }
 
       case "/islandmoves": {
@@ -178,7 +179,7 @@ const createResponse = async (url, params, sessionId) => {
         // island.setFollowId(followId);
 
         if (renew !== 0) resetPenguinsPos(session);
-        return createIslandData(session, session.getMoveLog(), followId);
+        return createIslandData(session, counterId, followId);
       }
 
       case "/islands": {
@@ -189,7 +190,7 @@ const createResponse = async (url, params, sessionId) => {
       case "/setTile": {
         let hpos = Number.parseInt(params.hpos, 10);
         let lpos = Number.parseInt(params.lpos, 10);
-        return createIslandData(session, [], 0, hpos, lpos);
+        return createIslandData(session, counterId, 0, hpos, lpos);
       }
 
       default: {
@@ -205,7 +206,6 @@ const createResponse = async (url, params, sessionId) => {
         sessionId = session.id;
         let island = new Island(islandH, islandL, [session], debug);
         session.setIsland(island.id);
-        persistSessions(session);
         persistIsland(island, true);
 
         if (debug) {
@@ -214,13 +214,12 @@ const createResponse = async (url, params, sessionId) => {
           );
         }
         resetPenguinsPos(session);
-        return createInitData(island, session, session.getInitMoveLog(island));
+        return createInitData(island, session, counterId);
       }
 
       case "/islands": {
         session = createSession();
         sessionId = session.id;
-        persistSessions(session);
         let islands = getAsyncIslands();
         return { islands: islands, session: session.id };
       }

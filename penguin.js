@@ -75,20 +75,20 @@ class Penguin {
 
     // console.log("new penguin " + this.name + " " + this.gender);
 
-    sessions.forEach((session) => {
-      session.addMoveLog(
-        this.id,
-        this.num,
-        1,
-        this.cat,
-        "move",
-        0,
-        0,
-        0,
-        this.hpos,
-        this.lpos
-      );
-    });
+//    sessions.forEach((session) => {
+//      session.addMoveLog(
+//        this.id,
+//        this.num,
+//        1,
+//        this.cat,
+//        "move",
+//        0,
+//        0,
+//        0,
+//        this.hpos,
+//        this.lpos
+//      );
+//    });
     if (debug) {
       console.log(
         "penguin.js - constructor : new penguin " +

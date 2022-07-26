@@ -19,7 +19,7 @@ let addIsland = islandReq.addIsland;
 let getSession = sessionReq.getSession;
 
 // const islands = [];
-const debug = true;
+const debug = false;
 const maxAge = 3600000; // one hour
 let counter = 0;
 
@@ -205,7 +205,7 @@ const loadIslands = async (theIslands, callBack) => {
         let age = currentTime - Number.parseInt(anIsland.lastInvocation);
 
         let theSessions = [];
-        anIsland.sessions.forEach((sessionId) => {
+          anIsland.sessions.forEach((sessionId) => {
           theSessions.push(getSession(sessionId));
         });
 

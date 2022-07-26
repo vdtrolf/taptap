@@ -17,8 +17,8 @@ let initiateIslands = islandDataReq.initiateIslands;
 let simulate = true;
 let simulateRate = 3428;
 
-let debug = true;
-let deepdebug = true;
+let debug = false;
+let deepdebug = false;
 let counter = 0;
 
 //create a server object:
@@ -37,14 +37,18 @@ const setState = () => {
   initiateSessions(getTheSessions);
 };
 
+// Call-back after sessions have been loaded
 const getTheSessions = () => {
+  if (deepdebug) console.log("stateserver.js - getTheSessions");
   initiateIslands(getTheIslands);
 };
 
+// Call-back after the islands have been loaded
 const getTheIslands = () => {
-  getIslands().forEach((island) => {
-    if (debug)
-      console.log("stateserver.js - getRealState: island = " + island.id);
+ 
+ getIslands().forEach((island) => {
+    
+    if (debug)console.log("stateserver.js - getTheIslands: island = " + island.id);
 
     if (island.running) {
       if (deepdebug) {
@@ -61,7 +65,7 @@ const getTheIslands = () => {
       persistIsland(island, false, counter++);
     }
   });
-  persistSessions();
+  persistSessions("A");
 };
 
 // For test purpose - simulates a pulsar function
