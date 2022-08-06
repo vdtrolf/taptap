@@ -43,6 +43,7 @@ if (local) {
     app.get("/*", (req, res) => {
       let sessionId = Number.parseInt(req.query.sessionId, 10);
       let counterId = Number.parseInt(req.query.counterId, 10);
+      if (!counterId) counterId =0;
       
 
       if (debug) {
@@ -53,12 +54,12 @@ if (local) {
             sessionId +
             " renew = " +
             req.query.renew +
-            " counterIdId = " +
-            counter
+            " counterId = " +
+            counterId
         );
       }
 
-      createResponse(req.path, req.query, sessionId,counterId).then((responseBody) => {
+      createResponse(req.path, req.query, sessionId, counterId).then((responseBody) => {
         // if (debug) console.dir(responseBody);
         return res.json(responseBody);
       });
@@ -105,6 +106,7 @@ exports.handler = async (event) => {
     );
     sessionId = event.queryStringParameters.sessionId;
     counterId = event.queryStringParameters.counterId;
+    if (!counterId) counterId =0;
   }
 
   createResponse(event.path, event.queryStringParameters, sessionId, counterId)

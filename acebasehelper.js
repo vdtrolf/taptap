@@ -1,5 +1,6 @@
 let db = null;
-const debug = true;
+const debug = false;
+const deepdebug = false;
 
 const createDb = () => {
   if (db === null) {
@@ -31,9 +32,13 @@ const putItem = async (tableName, Item, uniqueId) => {
       "acebasehelper.js - putItem : " + tableName + " (" + uniqueId + ")"
     );
 
+  if (deepdebug && tableName === "session") {
+    logMoves(Item,"PUT ITEMS");
+  }
+
   try {
     if (db && db.ready()) {
-      db.ref(`${tableName}/${uniqueId}`).transaction((value) => {
+      await db.ref(`${tableName}/${uniqueId}`).transaction((value) => {
         return Item; // tableName/uniqueId will be set to return value
       });
     }
@@ -104,8 +109,14 @@ const getItems = (
       db.query(tableName)
         .filter(filterIdx, filterComparator, filterVal)
         .get((snapshots) => {
-          callbackFunction(snapshots.getValues(), secondCallBack);
-        });
+             
+           if (deepdebug && tableName === "session") {
+             let sessions = snapshots.getValues();
+             sessions.forEach(session => logMoves(session,"GET ITEMS"));
+           }
+          
+           callbackFunction(snapshots.getValues(), secondCallBack);
+         });
     } catch (error) {
       console.error("acebasehelpers.js - getItems: ", error);
     }
@@ -120,12 +131,18 @@ const getAsyncItems = async (
 ) => {
   let result = null;
 
+
   if (db && db.ready()) {
     let data = await db
       .query(tableName)
       .filter(filterIdx, filterComparator, filterVal)
       .get();
     if (data) {
+
+      // console.log("==========> > > 1")
+      // console.dir(data.getValues());
+      // console.log("==========> > > 1")
+      
       result = data.getValues();
     } else {
       console.log(
@@ -137,25 +154,14 @@ const getAsyncItems = async (
   } else {
     console.log("acebasehelper.js - getAsyncItems: no db");
   }
+
+      // console.log("==========> > > 2")
+      // console.dir(result);
+      // console.log("==========> > > 2")
+
+
   return result;
-  //   try {
-  //     db.query(tableName)
-  //       .filter(filterIdx, filterComparator, filterVal)
-  //       .get((snapshots) => {
-  //         // console.dir(snapshots.getValues());
-  //         console.log("------");
-  //         if (snapshots.getValues()) {
-  //           result = snapshots.getValues();
-  //         } else {
-  //           result = [];
-  //         }
-  //       });
-  //   } catch (error) {
-  //     console.error("acebasehelpers.js - getItems: ", error);
-  //   }
-  // }
-  // console.dir(result);
-  // return result;
+  
 };
 
 const deleteItem = (tableName, uniqueId) => {
@@ -166,6 +172,38 @@ const deleteItem = (tableName, uniqueId) => {
     return false;
   }
 };
+
+// Creates a readable log of the moveLog 
+
+const logMoves = (session, origin) => {
+  if (session.moveLog && session.moveLog.length > 0) {
+    console.log("============== " + origin + " =====================================");
+    aSession.moveLog.forEach(move => {
+      console.log("move " +
+      move.moveid +
+      " id= " +
+      move.id +
+      " type= " +
+      move.moveType +
+      " (" +
+      move.state +
+      ")");
+      if (move.movements && move.movements.length > 0 ) {
+        move.movements.forEach(movmt => console.log (
+          "-> id " + movmt. movmtid + 
+          " dir: " + movmt.moveDir +
+          " orig: " + movmt.origH +
+          "/" + movmt.origL +
+          " new: " + movmt.newH +
+          "/" + movmt.newL
+        ));
+      }
+    });
+    console.log("============== " + origin +" =====================================");
+  }
+}
+
+
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {

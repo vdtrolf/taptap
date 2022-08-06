@@ -3,7 +3,6 @@ var http = require("http");
 const dbhelperReq = require("./acebasehelper.js");
 const islandReq = require("./island.js");
 const islandDataReq = require("./islandData.js");
-const { initiateSessions } = require("./session.js");
 const sessionReq = require("./session.js");
 
 let createDb = dbhelperReq.createDb;
@@ -11,14 +10,16 @@ let getIslands = islandReq.getIslands;
 let persistSessions = sessionReq.persistSessions;
 let persistIsland = islandDataReq.persistIsland;
 let initiateIslands = islandDataReq.initiateIslands;
+let initiateSessions = sessionReq.initiateSessions;
+let registerSessions = sessionReq.registerSessions;
 
 // If simulate = true, then there will be an incode "pulser" that will regularly call the state engine
 // simulateRate tells how often that must happen
 let simulate = true;
-let simulateRate = 3428;
+let simulateRate = 1728; // 864; // 3428;
 
 let debug = false;
-let deepdebug = false;
+let deepdebug = true;
 let counter = 0;
 
 //create a server object:
@@ -32,24 +33,21 @@ http
 
 // State engine = changes the state of all the running islands
 const setState = () => {
-  if (debug) console.log("stateserver.js - setState: starting");
   createDb();
   initiateSessions(getTheSessions);
 };
 
 // Call-back after sessions have been loaded
 const getTheSessions = () => {
-  if (deepdebug) console.log("stateserver.js - getTheSessions");
   initiateIslands(getTheIslands);
 };
 
 // Call-back after the islands have been loaded
 const getTheIslands = () => {
  
+ registerSessions();
  getIslands().forEach((island) => {
     
-    if (debug)console.log("stateserver.js - getTheIslands: island = " + island.id);
-
     if (island.running) {
       if (deepdebug) {
         let img = island.getAsciiImg();
