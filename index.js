@@ -1,8 +1,8 @@
 "use strict";
 
 const requestserverReq = require("./requestserver.js");
-const dbhelperReq = require("./dynamohelper.js");
-// const dbhelperReq = require("./acebasehelper.js");
+// const dbhelperReq = require("./dynamohelper.js");
+const dbhelperReq = require("./acebasehelper.js");
 const islandDataReq = require("./islandData.js");
 
 let createResponse = requestserverReq.createResponse;
@@ -11,19 +11,20 @@ let cleanDb = dbhelperReq.cleanDb;
 let initiateIslands = islandDataReq.initiateIslands;
 
 const args = process.argv.slice(2);
-let local = args[0] && args[0].toLowerCase() === "local";
+// let local = args[0] && args[0].toLowerCase() === "local";
+let local = true;
 
 let debug = false;
 let requestcounter = 0;
 
-// createDb();
-createDb(local);
+createDb();
+// createDb(local);
 // initiateIslands();
 
 // Starting the express server
 
 if (local) {
-  const port = 3001;
+  const port = 8080;
   let app = null;
 
   const express = require("express");
@@ -41,7 +42,9 @@ if (local) {
   try {
     app.get("/*", (req, res) => {
       let sessionId = Number.parseInt(req.query.sessionId, 10);
-      let counter = Number.parseInt(req.query.counter, 10);
+      let counterId = Number.parseInt(req.query.counterId, 10);
+      if (!counterId) counterId =0;
+      
 
       if (debug) {
         console.log(
@@ -51,12 +54,12 @@ if (local) {
             sessionId +
             " renew = " +
             req.query.renew +
-            " counter = " +
-            counter
+            " counterId = " +
+            counterId
         );
       }
 
-      createResponse(req.path, req.query, sessionId).then((responseBody) => {
+      createResponse(req.path, req.query, sessionId, counterId).then((responseBody) => {
         // if (debug) console.dir(responseBody);
         return res.json(responseBody);
       });
@@ -86,6 +89,7 @@ if (local) {
 
 exports.handler = async (event) => {
   let sessionId = "";
+  let counterId = "";""
   let responseCode = 200;
   requestcounter += 1;
 
@@ -101,9 +105,11 @@ exports.handler = async (event) => {
       "index.js : Received sessionId: " + event.queryStringParameters.sessionId
     );
     sessionId = event.queryStringParameters.sessionId;
+    counterId = event.queryStringParameters.counterId;
+    if (!counterId) counterId =0;
   }
 
-  createResponse(event.path, event.queryStringParameters, sessionId)
+  createResponse(event.path, event.queryStringParameters, sessionId, counterId)
     .then((responseBody) => {
       console.log("=== === == == = =>" + responseBody);
       let response = {

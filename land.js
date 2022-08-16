@@ -1,5 +1,3 @@
-
-
 let debug = true;
 
 class Land {
@@ -19,20 +17,19 @@ class Land {
     hasIce = false,
     swimAge = 0
   ) {
-
     this.id = id === 0 ? Math.floor(Math.random() * 999999) : id;
     this.islandId = islandId;
     this.hpos = h;
     this.lpos = l;
     this.type = atype;
     this.conf = conf;
-    this.var = avar === 0 ? (Math.floor(Math.random() * 2) === 1 ? "a" : "b") : avar;
+    this.var =
+      avar === 0 ? (Math.floor(Math.random() * 2) === 1 ? "a" : "b") : avar;
     this.hasCross = hasCross;
     this.crossAge = crossAge;
     this.hasFish = hasFish;
     this.hasSwim = hasSwim;
-    this.hasIce = hasIce,
-    this.swimAge = swimAge;
+    (this.hasIce = hasIce), (this.swimAge = swimAge);
 
     this.changed = true;
     this.isTarget = false;
@@ -120,7 +117,6 @@ class Land {
   increaseConf() {
     this.conf = this.conf + 1;
     this.changed = true;
-
   }
 
   decreaseConf() {
@@ -151,7 +147,6 @@ class Land {
   removeSwim() {
     this.hasSwim = false;
     this.changed = true;
-
   }
 
   // remove a swimming fish

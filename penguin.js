@@ -3,7 +3,7 @@ const strategicMapReq = require("./strategicmap.js");
 
 let StrategicMap = strategicMapReq.StrategicMap;
 
-const debug = true;
+const debug = false;
 
 class Penguin {
   constructor(
@@ -75,20 +75,20 @@ class Penguin {
 
     // console.log("new penguin " + this.name + " " + this.gender);
 
-    sessions.forEach((session) => {
-      session.addMoveLog(
-        this.id,
-        this.num,
-        1,
-        this.cat,
-        "move",
-        0,
-        0,
-        0,
-        this.hpos,
-        this.lpos
-      );
-    });
+//    sessions.forEach((session) => {
+//      session.addMoveLog(
+//        this.id,
+//        this.num,
+//        1,
+//        this.cat,
+//        "move",
+//        0,
+//        0,
+//        0,
+//        this.hpos,
+//        this.lpos
+//      );
+//    });
     if (debug) {
       console.log(
         "penguin.js - constructor : new penguin " +
@@ -331,9 +331,9 @@ class Penguin {
   // makes the penguin fish
 
   wait(sessions) {
-    sessions.forEach((session) => {
-      session.addMoveLog(this.id, this.num, 6, this.cat, "still");
-    });
+    // sessions.forEach((session) => {
+    //   session.addMoveLog(this.id, this.num, 6, this.cat, "still");
+    // });
 
     // if (this.id === island.followId && this.alive) console.log("Hungry: " + this.hungry + " fatfactor: " + this.fat + " getting more hungry by : " + (Math.floor(this.fat / 2) + 1));
 
