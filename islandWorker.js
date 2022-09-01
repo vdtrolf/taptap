@@ -6,7 +6,7 @@ let getItem = dbhelperReq.getItem;
 let getAsyncItems = dbhelperReq.getAsyncItems;
 let persistIslandData = islandDataReq.persistIslandData;
 
-let debug = false;
+let debug = true;
 let deepdebug = false;
 
 const weathers = ["sun", "rain", "snow", "cold", "endgame"];

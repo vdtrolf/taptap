@@ -2,6 +2,7 @@ const AWS = require("aws-sdk");
 AWS.config.update({ region: "us-east-1" });
 
 const debug = true;
+const deepdebug = false;
 let dynamodb = null;
 
 const createDb = (local) => {
@@ -9,19 +10,21 @@ const createDb = (local) => {
     dynamodb = new AWS.DynamoDB({
       endpoint: new AWS.Endpoint("http://localhost:8000"),
     });
-    if (debug) {
+    if (deepdebug) {
       console.log("dynamohelper.js - createDb - connected to local");
       dynamodb.listTables({ Limit: 10 }, (err, data) => {
         if (err) {
           console.log("dynamohelper.js : Could not list tables", err);
         } else {
+          console.log("------------TABLES------>");
           console.log(data.TableNames);
+          console.log("------------TABLES------>");
         }
       });
     }
   } else {
     dynamodb = new AWS.DynamoDB();
-    if (debug) {
+    if (deepdebug) {
       console.log("dynamohelper.js - createDb - connected");
       dynamodb.listTables({ Limit: 10 }, (err, data) => {
         if (err) {
