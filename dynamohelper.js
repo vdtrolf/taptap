@@ -9,10 +9,28 @@ const createDb = (local) => {
     dynamodb = new AWS.DynamoDB({
       endpoint: new AWS.Endpoint("http://localhost:8000"),
     });
-    if (debug) console.log("dynamohelper.js - createDb - connected to local");
+    if (debug) {
+      console.log("dynamohelper.js - createDb - connected to local");
+      dynamodb.listTables({ Limit: 10 }, (err, data) => {
+        if (err) {
+          console.log("dynamohelper.js : Could not list tables", err);
+        } else {
+          console.log(data.TableNames);
+        }
+      });
+    }
   } else {
     dynamodb = new AWS.DynamoDB();
-    if (debug) console.log("dynamohelper.js - createDb - connected");
+    if (debug) {
+      console.log("dynamohelper.js - createDb - connected");
+      dynamodb.listTables({ Limit: 10 }, (err, data) => {
+        if (err) {
+          console.log("dynamohelper.js : Could not list tables", err);
+        } else {
+          console.log(data.TableNames);
+        }
+      });
+    }
   }
 };
 
