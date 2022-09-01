@@ -134,7 +134,7 @@ exports.handler = async (event) => {
         },
         body: JSON.stringify(responseBody),
       };
-      console.log("index.js - response: " + response);
+      console.log("index.js - response: " + JSON.stringify(responseBody));
       return response;
     })
     .catch((error) => {
