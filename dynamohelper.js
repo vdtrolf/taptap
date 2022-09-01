@@ -27,7 +27,9 @@ const createDb = (local) => {
         if (err) {
           console.log("dynamohelper.js : Could not list tables", err);
         } else {
+          console.log("------------TABLES------>");
           console.log(data.TableNames);
+          console.log("------------TABLES------>");
         }
       });
     }
