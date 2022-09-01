@@ -24,7 +24,7 @@ const putItem = (TableName, anItem, uniqueId) => {
   };
 
   if (debug) {
-    console.log("-- putItem ----->");
+    console.log("dynamohelper.js -- putItem ----->");
     console.log(params);
     console.log("---------------->");
   }
@@ -61,7 +61,7 @@ const getItem = async (tableName, uniqueId) => {
   };
 
   if (debug) {
-    console.log("-- getItem -----> " + id + "<---");
+    console.log("dynamohelper.js -- getItem -----> " + id + "<---");
     console.log(queryparams);
     console.log("---------------->");
   }
@@ -72,7 +72,7 @@ const getItem = async (tableName, uniqueId) => {
   let cleanItem = AWS.DynamoDB.Converter.unmarshall(result.Items[0]);
 
   if (debug) {
-    console.log("-- getItem result  -----> " + id + "<---");
+    console.log("dynamohelper.js -- getItem result  -----> " + id + "<---");
     console.dir(cleanItem);
     console.log("---------------->");
   }
@@ -123,8 +123,9 @@ const getItems = async (
         let cleanItem = AWS.DynamoDB.Converter.unmarshall(item);
 
         if (debug) {
-          console.log("===== " + tableName + " ====================");
+          console.log("dynamohelper.js getItems " + tableName + " ----> ");
           console.dir(cleanItem);
+          console.log("---------------->");
         }
 
         // small check to avoid old dirt in the island table
