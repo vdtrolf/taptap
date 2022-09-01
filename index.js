@@ -1,27 +1,23 @@
 "use strict";
 
-const requestserverReq = require("./requestserver.js");
 const dbhelperReq = require("./dynamohelper.js");
 // const dbhelperReq = require("./acebasehelper.js");
-const islandDataReq = require("./islandData.js");
+const requestserverReq = require("./requestserver.js");
 
 let createResponse = requestserverReq.createResponse;
 let createDb = dbhelperReq.createDb;
-let cleanDb = dbhelperReq.cleanDb;
-let initiateIslands = islandDataReq.initiateIslands;
 
 const args = process.argv.slice(2);
-// let local = args[0] && args[0].toLowerCase() === "local";
-let local = false;
+let local = args[0] && args[0].toLowerCase() === "local";
 
 let debug = false;
 let requestcounter = 0;
 
-createDb(local);
-// createDb(local);
-// initiateIslands();
+// initiate the DB - local means a local DB for dynamo. Acebase is always local
 
-// Starting the express server
+createDb(local);
+
+// Starting the express server for handling of local requests
 
 if (local) {
   const port = 3001;
@@ -64,8 +60,6 @@ if (local) {
           return res.json(responseBody);
         }
       );
-
-      // return res.json(createResponse(req.path, req.query, sessionId));
     });
 
     app.listen(port, () => {
@@ -113,7 +107,6 @@ exports.handler = async (event) => {
 
   createResponse(event.path, event.queryStringParameters, sessionId, counterId)
     .then((responseBody) => {
-      console.log("=== === == == = =>" + responseBody);
       let response = {
         statusCode: responseCode,
         headers: {

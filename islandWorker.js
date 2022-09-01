@@ -3,13 +3,10 @@ const dbhelperReq = require("./dynamohelper.js");
 const islandDataReq = require("./islandData.js");
 
 let getItem = dbhelperReq.getItem;
-let getItems = dbhelperReq.getItems;
-let getAsyncItem = dbhelperReq.getAsyncItem;
 let getAsyncItems = dbhelperReq.getAsyncItems;
-let putItem = dbhelperReq.putItem;
 let persistIslandData = islandDataReq.persistIslandData;
 
-let debug = true;
+let debug = false;
 let deepdebug = false;
 
 const weathers = ["sun", "rain", "snow", "cold", "endgame"];
@@ -106,18 +103,6 @@ const getIslandData = async (
     let moves = sessionData.moveLog.filter(
       (move) => move.moveid > movesCounterId
     );
-
-    //    if (moves.length > 0) {
-    //      moves.forEach(move => console.log("Worker IslandData : " +
-    //        move.moveid +
-    //        " : Penguin " +
-    //        move.id +
-    //        " type " +
-    //        move.moveType +
-    //        " (" +
-    //        move.state +
-    //        ")"));
-    //    }
 
     let territory = [];
     for (let i = 0; i < islandData.sizeH; i++) {
@@ -242,19 +227,6 @@ const getMovesData = async (
       (move) => move.moveid > movesCounterId
     );
 
-    //    if (moves.length > 0) {
-    //      moves.forEach(move => console.log("Worker MovesData : " +
-    //          move.moveid +
-    //          " : Penguin " +
-    //          move.id +
-    //          " type " +
-    //          move.moveType +
-    //          " (" +
-    //          move.state +
-    //          ")"
-    //      ));
-    //    }
-
     if (debug)
       console.log(
         "islandWorker.js - getMovesData: found is=" +
@@ -319,9 +291,6 @@ const connectIsland = (sessionId, islandId) => {
     theIslands.forEach((island) => {
       let sessions = island.sessions;
       console.dir(sesssions);
-
-      //if (sessions.some(sessionid => sessionId == ))
-      // island.sessions = sessions.map(session => sessionId !== sessionId);
     });
   }
 };
@@ -352,13 +321,10 @@ const resetPenguinsPos = (session, island) => {
     }
   });
 
-  //  let lastMoves = [...session.moveLog];
-  //  session.moveLog = [];
-  //  return lastMoves;
-
   return session.moveLog;
 };
 
+// returns an 'image' of the isalnd in the form of an array of objects
 const getImg = (territory, islandH, islandL) => {
   let result = [];
   for (let i = 1; i < islandH - 1; i++) {
