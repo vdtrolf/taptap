@@ -106,20 +106,20 @@ exports.handler = async (event) => {
     if (!counterId) counterId = 0;
   }
 
-  // createResponse(event.path, event.queryStringParameters, sessionId, counterId)
-  //   .then((responseBody) => {
-  //     let response = {
-  //       statusCode: responseCode,
-  //       headers: {
-  //         "x-custom-header": "little island",
-  //         "Access-Control-Allow-Origin": "*",
-  //       },
-  //       body: JSON.stringify(responseBody),
-  //     };
-  //     console.log("index.js - response: " + JSON.stringify(response));
-  //     return response;
-  //   })
-  //   .catch((error) => {
-  //     console.log(error);
-  //   });
+  createResponse(event.path, event.queryStringParameters, sessionId, counterId)
+    .then((responseBody) => {
+      let response = {
+        statusCode: responseCode,
+        headers: {
+          "x-custom-header": "little island",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify(responseBody),
+      };
+      console.log("index.js - response: " + JSON.stringify(response));
+      return response;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 };
