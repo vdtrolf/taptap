@@ -1,8 +1,8 @@
 "use strict";
 
 const requestserverReq = require("./requestserver.js");
-// const dbhelperReq = require("./dynamohelper.js");
-const dbhelperReq = require("./acebasehelper.js");
+const dbhelperReq = require("./dynamohelper.js");
+// const dbhelperReq = require("./acebasehelper.js");
 const islandDataReq = require("./islandData.js");
 
 let createResponse = requestserverReq.createResponse;
@@ -17,14 +17,14 @@ let local = true;
 let debug = false;
 let requestcounter = 0;
 
-createDb();
+createDb(local);
 // createDb(local);
 // initiateIslands();
 
 // Starting the express server
 
 if (local) {
-  const port = 8080;
+  const port = 3001;
   let app = null;
 
   const express = require("express");
@@ -43,8 +43,7 @@ if (local) {
     app.get("/*", (req, res) => {
       let sessionId = Number.parseInt(req.query.sessionId, 10);
       let counterId = Number.parseInt(req.query.counterId, 10);
-      if (!counterId) counterId =0;
-      
+      if (!counterId) counterId = 0;
 
       if (debug) {
         console.log(
@@ -59,10 +58,12 @@ if (local) {
         );
       }
 
-      createResponse(req.path, req.query, sessionId, counterId).then((responseBody) => {
-        // if (debug) console.dir(responseBody);
-        return res.json(responseBody);
-      });
+      createResponse(req.path, req.query, sessionId, counterId).then(
+        (responseBody) => {
+          // if (debug) console.dir(responseBody);
+          return res.json(responseBody);
+        }
+      );
 
       // return res.json(createResponse(req.path, req.query, sessionId));
     });
@@ -89,7 +90,8 @@ if (local) {
 
 exports.handler = async (event) => {
   let sessionId = "";
-  let counterId = "";""
+  let counterId = "";
+  ("");
   let responseCode = 200;
   requestcounter += 1;
 
@@ -106,7 +108,7 @@ exports.handler = async (event) => {
     );
     sessionId = event.queryStringParameters.sessionId;
     counterId = event.queryStringParameters.counterId;
-    if (!counterId) counterId =0;
+    if (!counterId) counterId = 0;
   }
 
   createResponse(event.path, event.queryStringParameters, sessionId, counterId)

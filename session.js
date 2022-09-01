@@ -1,12 +1,11 @@
-const dbhelperReq = require("./acebasehelper.js");
-// const dbhelperReq = require("./dynamohelper.js");
+// const dbhelperReq = require("./acebasehelper.js");
+const dbhelperReq = require("./dynamohelper.js");
 const islandReq = require("./island.js");
 
 let putItem = dbhelperReq.putItem;
 let getItems = dbhelperReq.getItems;
 let getItem = dbhelperReq.getItem;
 let deleteItem = dbhelperReq.deleteItem;
-let getAsyncItem = dbhelperReq.getAsyncItem;
 let getIsland = islandReq.getIsland;
 let registerSession = islandReq.registerSession;
 
@@ -51,8 +50,6 @@ class Session {
 
     sessions.push(this);
 
-    // let island = getIsland(this.islandId);
-    // if (island) island.registerSession(this);
   }
 
   // resets the session - that is set the moveCounter to 0
@@ -91,8 +88,8 @@ class Session {
     newH = 0,
     newL = 0
   ) {
-    let baseDate = new Date("8/1/22")
-    let moveTimer = Math.floor((new Date().getTime() - baseDate)/100);
+    let baseDate = new Date("8/1/22");
+    let moveTimer = Math.floor((new Date().getTime() - baseDate) / 100);
     if ((debug && moveType !== 6) || deepdebug) {
       console.log(
         "session.js - addMoveLog : " +
@@ -128,63 +125,47 @@ class Session {
         cat: cat,
         state: state,
       });
-    } else {  // ==========================
-//      let amove = this.moveLog.find((move) => {
-//        return move.id === id && move.moveType === 1;
-//      });
-//      if (amove) {
-//        let newMove = {
-//          movmtid: moveTimer,
-//          moveDir: moveDir,
-//          origH: origH,
-//          origL: origL,
-//          newH: newH,
-//          newL: newL,
-//        };
-//        amove.movements.push(newMove);
-//      } else {
-        this.moveLog.push({
-          moveid: moveTimer,
-          id: id,
-          num: num,
-          moveType: moveType, // 1 = move
-          direction: moveDir, // necessary for fishing direction
-          movements: [
-            {
-              movmtid: moveTimer,
-              moveDir: moveDir,
-              origH: origH,
-              origL: origL,
-              newH: newH,
-              newL: newL,
-            },
-          ],
-          cat: cat,
-          state: state,
-        });
-//      }
+    } else {
+      this.moveLog.push({
+        moveid: moveTimer,
+        id: id,
+        num: num,
+        moveType: moveType, // 1 = move
+        direction: moveDir, // necessary for fishing direction
+        movements: [
+          {
+            movmtid: moveTimer,
+            moveDir: moveDir,
+            origH: origH,
+            origL: origL,
+            newH: newH,
+            newL: newL,
+          },
+        ],
+        cat: cat,
+        state: state,
+      });
+      //      }
     }
   }
 }
-  
+
 const initiateSessions = (callBack) => {
-  
   if (deepdebug) {
     console.log("session.js - initiateSessions: getting sessions out of DB");
   }
-  
+
   sessions = [];
   getItems("session", loadSessions, "id", ">", 0, callBack);
-
 };
 
 const loadSessions = (theSessions, callBack) => {
-  
   if (deepdebug) {
     console.log(
-    "session.js - loadSessions: found " + theSessions.length + " sessions");
+      "session.js - loadSessions: found " + theSessions.length + " sessions"
+    );
   }
-  
+
   theSessions.forEach((asession) => {
     let session = new Session(
       asession.id,
@@ -197,27 +178,24 @@ const loadSessions = (theSessions, callBack) => {
   });
 
   callBack();
-
 };
 
-
 const registerSessions = () => {
-  
-  sessions.forEach(session => {
-    
+  sessions.forEach((session) => {
     if (deepdebug) {
       console.log("session.js registerSession : island " + session.islandId);
     }
-    
+
     let island = getIsland(session.islandId);
     if (island) {
       island.registerSession(session);
     } else {
-      console.log("session.js registerSession : could not find island " + session.islandId)
+      console.log(
+        "session.js registerSession : could not find island " + session.islandId
+      );
     }
   });
-  
-}
+};
 
 // create a new session and directly returns it, in the mean time saves the session to the db
 
@@ -229,9 +207,10 @@ const createSession = () => {
 // gets the session, either out of the local array or out of the NoSQL db
 
 const getSession = async (sessionId) => {
-  
   if (deepdebug) {
-    console.log("session.js - getSession: looking for session with id " + sessionId);
+    console.log(
+      "session.js - getSession: looking for session with id " + sessionId
+    );
   }
 
   let sessionData = await getItem("session", sessionId);
@@ -250,14 +229,17 @@ const getSession = async (sessionId) => {
     await persistSessions("4", session);
     return session;
   }
-}
+};
 
 // persists the session in the NoSQL db
 
 const persistSessions = async (orig, asession = null) => {
-  
   if (asession === null) {
-    if (deepdebug) console.log("session.js - persistSessions : persisting sessions (no id) " + sessions.length);
+    if (deepdebug)
+      console.log(
+        "session.js - persistSessions(1) : persisting sessions (no id) " +
+          sessions.length
+      );
 
     sessions.forEach((session) => {
       let currentTime = new Date().getTime();
@@ -265,7 +247,7 @@ const persistSessions = async (orig, asession = null) => {
       if (currentTime - session.lastInvocation > 300000) {
         if (deepdebug) {
           console.log(
-            "session.js - persistSessions : Going to delete session " +
+            "session.js - persistSessions(2) : Going to delete session " +
               session.id +
               " " +
               session.lastInvocation +
@@ -275,7 +257,13 @@ const persistSessions = async (orig, asession = null) => {
         }
         deleteItem("session", session.id);
       } else {
-        if (deepdebug) console.log("session.js - persistSessions : persisting session in DB " + session.id);
+        if (deepdebug)
+          console.log(
+            "session.js - persistSessions(3) : persisting session in DB " +
+              session.id +
+              " island: " +
+              session.islandId
+          );
         putItem(
           "session",
           {
@@ -290,7 +278,13 @@ const persistSessions = async (orig, asession = null) => {
       }
     });
   } else {
-    if (deepdebug) console.log("session.js - persistSessions : persisting session " + asession.id);
+    if (deepdebug)
+      console.log(
+        "session.js - persistSessions(4) : persisting session " +
+          asession.id +
+          " island: " +
+          asession.islandId
+      );
     await putItem(
       "session",
       {
@@ -307,11 +301,11 @@ const persistSessions = async (orig, asession = null) => {
 
 // Session: Session,
 
-// now we export the class, so other modules can create Penguin objects
+// now we export the class, so other modules can interact with the session objects
 module.exports = {
   getSession: getSession,
   createSession: createSession,
   persistSessions: persistSessions,
   initiateSessions: initiateSessions,
-  registerSessions: registerSessions
+  registerSessions: registerSessions,
 };

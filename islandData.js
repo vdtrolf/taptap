@@ -1,7 +1,7 @@
 const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
-// const dbhelperReq = require("./dynamohelper.js");
-const dbhelperReq = require("./acebasehelper.js");
+const dbhelperReq = require("./dynamohelper.js");
+// const dbhelperReq = require("./acebasehelper.js");
 const sessionReq = require("./session.js");
 const islandReq = require("./island.js");
 
@@ -9,11 +9,8 @@ let Island = islandReq.Island;
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
 let putItem = dbhelperReq.putItem;
-let putAsyncItem = dbhelperReq.putAsyncItem;
 let deleteItem = dbhelperReq.deleteItem;
 let getItems = dbhelperReq.getItems;
-let getAsyncItems = dbhelperReq.getAsyncItems;
-let initiateSessions = sessionReq.initiateSessions;
 let cleanIslands = islandReq.cleanIslands;
 let addIsland = islandReq.addIsland;
 let getSession = sessionReq.getSession;
@@ -205,7 +202,7 @@ const loadIslands = async (theIslands, callBack) => {
         let age = currentTime - Number.parseInt(anIsland.lastInvocation);
 
         let theSessions = [];
-          anIsland.sessions.forEach((sessionId) => {
+        anIsland.sessions.forEach((sessionId) => {
           theSessions.push(getSession(sessionId));
         });
 
