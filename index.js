@@ -118,7 +118,7 @@ exports.handler = async (event) => {
         body: responseBody,
       };
       console.log("index.js - response: " + JSON.stringify(response));
-      return response;
+      return JSON.stringify(response);
     })
     .catch((error) => {
       console.log(error);
