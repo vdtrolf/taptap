@@ -12,7 +12,7 @@ let initiateIslands = islandDataReq.initiateIslands;
 
 const args = process.argv.slice(2);
 // let local = args[0] && args[0].toLowerCase() === "local";
-let local = true;
+let local = false;
 
 let debug = false;
 let requestcounter = 0;
