@@ -1,13 +1,10 @@
 const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
-// const sessionReq = require("./session.js");
 const nameserverReq = require("./nameserver.js");
 const land = require("./land.js");
 
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
-// let Session = sessionReq.Session;
-// let initiateSessions = sessionReq.initiateSessions;
 
 let islands = [];
 
@@ -429,11 +426,10 @@ class Island {
 
   movePenguins() {
     // check if there are still alive penguins
-    
+
     // console.log("islannd.js - movePenguins =======================");
-    // console.dir(this.sessions[0].id);  
+    // console.dir(this.sessions[0].id);
     // console.log("islannd.js - movePenguins =======================");
-    
 
     let cntPenguins = this.penguins.filter((penguin) => penguin.alive).length;
 
@@ -471,7 +467,6 @@ class Island {
     this.penguins.forEach((penguin) => {
       // First check if the penguin is alive
       if (penguin.alive) {
-        
         let pengH = penguin.hpos;
         let pengL = penguin.lpos;
 
@@ -488,7 +483,8 @@ class Island {
 
           // Is the penguin hungry ? Lets see if it can eat or fish
 
-          if (penguin.hungry >= 0) { //  30) {
+          if (penguin.hungry >= 0) {
+            //  30) {
             // Gonna Eat ?
 
             if (this.territory[penguin.hpos][penguin.lpos].hasFish) {
@@ -650,7 +646,11 @@ class Island {
             // No move => wait
 
             if (move === 0) {
-              if (debug) {console.log(`island.js movePenguin : ${penguin.name} Staying still`)};
+              if (debug) {
+                console.log(
+                  `island.js movePenguin : ${penguin.name} Staying still`
+                );
+              }
               penguin.wait(this.sessions);
               this.territory[pengH][pengL].setTarget(true);
             } else {
@@ -729,8 +729,6 @@ class Island {
   // if status is 2 and the penguin gender is female, then there is a baby
 
   makePenguinsOlder() {
-    
-    
     if (!this.running) {
       return;
     }
@@ -739,13 +737,16 @@ class Island {
       h = 0;
 
     this.penguins.forEach((penguin) => {
-    
-    
       if (penguin.alive) {
         let status = penguin.makeOlder(this.sessions);
 
-        if (debug)console.log("island.js - makePenguinsOlder : is = " + this.id + " penguin=" + penguin.id)
-    
+        if (debug)
+          console.log(
+            "island.js - makePenguinsOlder : is = " +
+              this.id +
+              " penguin=" +
+              penguin.id
+          );
 
         switch (status.returncode) {
           case 1: // died
@@ -932,44 +933,92 @@ class Island {
   }
 
   getAsciiImg() {
-
     let penguinpos = [];
     for (let h = 0; h < this.sizeH; h++) {
-      let line =[]
+      let line = [];
       for (let l = 0; l < this.sizeL; l++) {
         line.push[0];
       }
       penguinpos.push(line);
     }
 
-    let top = "+" + "-------------------------------------------------------------------------------".substring(0, this.sizeH * 4) + "+";
+    let top =
+      "+" +
+      "-------------------------------------------------------------------------------".substring(
+        0,
+        this.sizeH * 4
+      ) +
+      "+";
     let results = [];
     results.push(top);
-      
+
     let cnt = 1;
-    this.penguins.forEach(penguin => {
+    this.penguins.forEach((penguin) => {
       if (penguin.alive) {
         penguinpos[penguin.hpos][penguin.lpos] = cnt;
-        results.push(`| ${cnt++} ${penguin.name} (${penguin.id}) a=${penguin.age} w=${penguin.wealth} h=${penguin.hungry}`)
-      }              
-    });  
+        results.push(
+          `| ${cnt++} ${penguin.name} (${penguin.id}) a=${penguin.age} w=${
+            penguin.wealth
+          } h=${penguin.hungry}`
+        );
+      }
+    });
     results.push(top);
 
-    let lands1 = ["    ", "....", "####", "####", "####", "####", "####", "####", "####"];
-    let lands2 = ["    ", "....", "####", "####", "####", "####", "####", "####", "####"];
-    
-    let ice1 = ["====", "=-=-", "=-=-", "--=-","----","- - ","- - ","- - ","- - "]
-    let ice2 = ["====", "====", "-=-=", "-=--","----","----","-- -"," - -"," -  "]
-    
-    
+    let lands1 = [
+      "    ",
+      "....",
+      "####",
+      "####",
+      "####",
+      "####",
+      "####",
+      "####",
+      "####",
+    ];
+    let lands2 = [
+      "    ",
+      "....",
+      "####",
+      "####",
+      "####",
+      "####",
+      "####",
+      "####",
+      "####",
+    ];
+
+    let ice1 = [
+      "====",
+      "=-=-",
+      "=-=-",
+      "--=-",
+      "----",
+      "- - ",
+      "- - ",
+      "- - ",
+      "- - ",
+    ];
+    let ice2 = [
+      "====",
+      "====",
+      "-=-=",
+      "-=--",
+      "----",
+      "----",
+      "-- -",
+      " - -",
+      " -  ",
+    ];
+
     for (let h = 0; h < this.sizeH; h++) {
       let line1 = "|";
       let line2 = "|";
       for (let l = 0; l < this.sizeL; l++) {
         if (penguinpos[h][l] > 0) {
-          line1 += `/oo\\`; 
-          line2 += `\\${penguinpos[h][l]} /`; 
-        } else { 
+          line1 += `/oo\\`;
+          line2 += `\\${penguinpos[h][l]} /`;
+        } else {
           let land = this.territory[h][l];
           if (land.hasSwim) {
             line1 += "><o>";
@@ -977,11 +1026,11 @@ class Island {
           } else if (land.hasCross) {
             line1 += "/++\\";
             line2 += "\\--/";
-          } else {  
+          } else {
             if (land.type === 1) {
-              let ice = Math.floor(land.conf/2);
-              line1 += ice1[ice];  
-              line2 += ice2[ice];  
+              let ice = Math.floor(land.conf / 2);
+              line1 += ice1[ice];
+              line2 += ice2[ice];
             } else {
               line1 += lands1[land.type];
               line2 += lands2[land.type];
@@ -1013,7 +1062,7 @@ const addIsland = (anIsland) => {
   }
 };
 
-const setIslands = (theIslands) =>  {
+const setIslands = (theIslands) => {
   // console.log(":::: setting the islands " + theIslands.length);
   islands = theIslands;
 };

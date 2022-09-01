@@ -3,8 +3,6 @@ const islandWorkerReq = require("./islandWorker.js");
 const islandDataReq = require("./islandData.js");
 const sessionReq = require("./session.js");
 const nameserverReq = require("./nameserver.js");
-//const dbhelperReq = require("./dynamohelper.js");
-const dbhelperReq = require("./acebasehelper.js");
 
 let Island = islandReq.Island;
 
@@ -25,7 +23,7 @@ let islandH = 12;
 let islandL = 12;
 let counter = 0;
 
-let debug = false;
+let debug = true;
 let deepDebug = false;
 
 let nameserver = new NameServer(30, 10, false);
@@ -45,7 +43,7 @@ const createResponse = async (url, params, sessionId, counterId) => {
 
   if (sessionId > 0) {
     session = await getSession(sessionId);
-    
+
     switch (url) {
       case "/new-island": {
         // if (island) {
@@ -111,9 +109,9 @@ const createResponse = async (url, params, sessionId, counterId) => {
 
       case "/islands": {
         let islands = await getIslandsList();
-        
+
         // console.dir(islands);
-        
+
         return { islands: islands, session: session.id };
       }
 
@@ -128,7 +126,6 @@ const createResponse = async (url, params, sessionId, counterId) => {
       }
     }
   } else {
-    
     // No session
 
     switch (url) {
@@ -138,24 +135,25 @@ const createResponse = async (url, params, sessionId, counterId) => {
         let island = new Island(islandH, islandL, [session], debug);
         session.setIsland(island.id);
         island.registerSession(session);
-        
+
         persistIsland(island, true);
         persistSessions(session);
 
         if (debug) {
           console.log(
-            "index.js - createResponse/island : Building an new island for session " + sessionId
+            "index.js - createResponse/island : Building an new island for session " +
+              sessionId
           );
         }
-        
+
         return await getInitData(island, session, counterId);
       }
 
       case "/islands": {
         let islands = await getIslandsList();
-        
+
         // console.dir(islands);
-        
+
         return { islands: islands, session: 0 };
       }
 

@@ -1,6 +1,7 @@
 var http = require("http");
 
-const dbhelperReq = require("./acebasehelper.js");
+// const dbhelperReq = require("./acebasehelper.js");
+const dbhelperReq = require("./dynamohelper.js");
 const islandReq = require("./island.js");
 const islandDataReq = require("./islandData.js");
 const sessionReq = require("./session.js");
@@ -21,6 +22,7 @@ let simulateRate = 1728; // 864; // 3428;
 let debug = false;
 let deepdebug = true;
 let counter = 0;
+let local = true;
 
 //create a server object:
 http
@@ -29,11 +31,11 @@ http
     res.write("State updated !"); //write a response to the client
     res.end(); //end the response
   })
-  .listen(3001); //the server object listens on port 3003
+  .listen(3003); //the server object listens on port 3003
 
 // State engine = changes the state of all the running islands
 const setState = () => {
-  createDb();
+  createDb(local);
   initiateSessions(getTheSessions);
 };
 
@@ -44,10 +46,8 @@ const getTheSessions = () => {
 
 // Call-back after the islands have been loaded
 const getTheIslands = () => {
- 
- registerSessions();
- getIslands().forEach((island) => {
-    
+  registerSessions();
+  getIslands().forEach((island) => {
     if (island.running) {
       if (deepdebug) {
         let img = island.getAsciiImg();
