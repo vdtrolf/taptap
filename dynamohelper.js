@@ -1,7 +1,7 @@
 const AWS = require("aws-sdk");
 AWS.config.update({ region: "us-east-1" });
 
-const debug = false;
+const debug = true;
 let dynamodb = null;
 
 const createDb = (local) => {
@@ -9,8 +9,10 @@ const createDb = (local) => {
     dynamodb = new AWS.DynamoDB({
       endpoint: new AWS.Endpoint("http://localhost:8000"),
     });
+    if (debug) console.log("dynamohelper.js - createDb - connected to local");
   } else {
     dynamodb = new AWS.DynamoDB();
+    if (debug) console.log("dynamohelper.js - createDb - connected");
   }
 };
 
