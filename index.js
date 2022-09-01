@@ -109,12 +109,12 @@ exports.handler = async (event) => {
   createResponse(event.path, event.queryStringParameters, sessionId, counterId)
     .then((responseBody) => {
       let response = {
+        isBase64Encoded: false,
         statusCode: responseCode,
         headers: {
           "x-custom-header": "little island",
           "Access-Control-Allow-Origin": "*",
         },
-        // body: JSON.stringify(responseBody),
         body: responseBody,
       };
       console.log("index.js - response: " + JSON.stringify(response));
