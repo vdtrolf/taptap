@@ -1,6 +1,11 @@
 const AWS = require("aws-sdk");
 AWS.config.update({ region: "us-east-1" });
 
+const https = require("https");
+const agent = new https.Agent({
+  keepAlive: true,
+});
+
 const debug = true;
 const deepdebug = false;
 let dynamodb = null;
@@ -23,7 +28,11 @@ const createDb = (local) => {
       });
     }
   } else {
-    dynamodb = new AWS.DynamoDB();
+    dynamodb = new AWS.DynamoDB({
+      httpOptions: {
+        agent,
+      },
+    });
     if (deepdebug) {
       console.log("dynamohelper.js - createDb - connected");
       dynamodb.listTables({ Limit: 10 }, (err, data) => {

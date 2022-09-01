@@ -73,3 +73,7 @@ if (simulate) {
     setState();
   }, simulateRate);
 }
+
+module.exports = {
+  setState: setState,
+};
