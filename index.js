@@ -115,10 +115,10 @@ exports.handler = async (event) => {
           "x-custom-header": "little island",
           "Access-Control-Allow-Origin": "*",
         },
-        body: responseBody,
+        body: JSON.stringify(responseBody),
       };
-      console.log("index.js - response: " + JSON.stringify(response));
-      return JSON.stringify(response);
+      console.log("index.js - response: " + response);
+      return response;
     })
     .catch((error) => {
       console.log(error);
