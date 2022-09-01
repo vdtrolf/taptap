@@ -23,7 +23,7 @@ let islandH = 12;
 let islandL = 12;
 let counter = 0;
 
-let debug = false;
+let debug = true;
 let deepDebug = false;
 
 let nameserver = new NameServer(30, 10, false);
