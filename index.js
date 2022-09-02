@@ -106,7 +106,7 @@ exports.handler = async (event) => {
     if (!counterId) counterId = 0;
   }
 
-  const responseBody = {
+  const responseExample = {
     key3: "value3",
     key2: "value2",
     key1: "value1",
@@ -132,9 +132,12 @@ exports.handler = async (event) => {
           //x-custom-header: "little island",
           //Access-Control-Allow-Origin : "*",
         },
-        body: JSON.stringify(responseBody),
+        body: JSON.stringify(responseExample),
       };
       console.log("index.js - response: " + JSON.stringify(responseBody));
+      console.log(
+        "index.js - response example: " + JSON.stringify(responseExample)
+      );
       return response;
     })
     .catch((error) => {

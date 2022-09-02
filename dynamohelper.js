@@ -6,7 +6,7 @@ const agent = new https.Agent({
   keepAlive: true,
 });
 
-const debug = false;
+const debug = true;
 const deepdebug = false;
 let dynamodb = null;
 
