@@ -129,12 +129,12 @@ exports.handler = async (event) => {
       //x-custom-header: "little island",
       //Access-Control-Allow-Origin : "*",
     },
-    body: JSON.stringify(responseExample),
+    body: JSON.stringify(responseBody),
     isBase64Encoded: false,
   };
 
-  console.log("index.js - responsebody: " + JSON.stringify(responseBody));
-  console.log("index.js - response example: " + JSON.stringify(aresponse));
+  console.log("index.js - responsebody : " + JSON.stringify(responseBody));
+  console.log("index.js - response : " + JSON.stringify(aresponse));
   return aresponse;
 
   // const aresponse = {
