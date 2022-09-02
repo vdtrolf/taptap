@@ -115,25 +115,27 @@ exports.handler = async (event) => {
     key1: "value1",
   };
 
-  createResponse(event.path, event.queryStringParameters, sessionId, counterId)
-    .then((responseBody) => {
-      const aresponse = {
-        statusCode: 200,
-        headers: {
-          my_header: "my_value",
-          //x-custom-header: "little island",
-          //Access-Control-Allow-Origin : "*",
-        },
-        body: JSON.stringify(responseExample),
-        isBase64Encoded: false,
-      };
+  const responseBody = await createResponse(
+    event.path,
+    event.queryStringParameters,
+    sessionId,
+    counterId
+  );
 
-      console.log("index.js - response: " + JSON.stringify(aresponse));
-      return aresponse;
-    })
-    .catch((error) => {
-      console.log(error);
-    });
+  const aresponse = {
+    statusCode: 200,
+    headers: {
+      my_header: "my_value",
+      //x-custom-header: "little island",
+      //Access-Control-Allow-Origin : "*",
+    },
+    body: JSON.stringify(responseExample),
+    isBase64Encoded: false,
+  };
+
+  console.log("index.js - responsebody: " + JSON.stringify(responseBody));
+  console.log("index.js - response example: " + JSON.stringify(aresponse));
+  return aresponse;
 
   // const aresponse = {
   //   statusCode: 200,
