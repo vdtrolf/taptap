@@ -107,7 +107,10 @@ exports.handler = async (event) => {
   }
 
   const responseExample = {
-    key3: "value3",
+    key3: [
+      { val1: tata, val2: 1 },
+      { val1: toto, val2: 2 },
+    ],
     key2: "value2",
     key1: "value1",
   };
