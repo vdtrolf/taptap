@@ -106,7 +106,7 @@ exports.handler = async (event) => {
     if (!counterId) counterId = 0;
   }
 
-  const responseBody = {
+  const responseExample = {
     key3: "value3",
     key2: "value2",
     key1: "value1",
@@ -121,23 +121,26 @@ exports.handler = async (event) => {
     isBase64Encoded: false,
   };
 
-  return response;
+  createResponse(event.path, event.queryStringParameters, sessionId, counterId)
+    .then((responseBody) => {
+      let response = {
+        isBase64Encoded: false,
+        statusCode: 200,
+        headers: {
+          my_header: "my_value",
 
-  // createResponse(event.path, event.queryStringParameters, sessionId, counterId)
-  //   .then((responseBody) => {
-  //     let response = {
-  //       isBase64Encoded: false,
-  //       statusCode: responseCode,
-  //       headers: {
-  //         "x-custom-header": "little island",
-  //         "Access-Control-Allow-Origin": "*",
-  //       },
-  //       body: JSON.stringify(responseBody),
-  //     };
-  //     console.log("index.js - response: " + response);
-  //     return response;
-  //   })
-  //   .catch((error) => {
-  //     console.log(error);
-  //   });
+          //x-custom-header: "little island",
+          //Access-Control-Allow-Origin : "*",
+        },
+        body: JSON.stringify(responseExample),
+      };
+      console.log("index.js - response: " + JSON.stringify(responseBody));
+      console.log(
+        "index.js - response example: " + JSON.stringify(responseExample)
+      );
+      return response;
+    })
+    .catch((error) => {
+      console.log(error);
+    });
 };
