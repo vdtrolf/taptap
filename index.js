@@ -11,7 +11,7 @@ let local = false;
 const args = process.argv.slice(2);
 local = args[0] && args[0].toLowerCase() === "local";
 
-let debug = false;
+const debug = true;
 let requestcounter = 0;
 
 // initiate the DB - local means a local DB for dynamo. Acebase is always local
@@ -111,6 +111,9 @@ exports.handler = async (event) => {
     sessionId,
     counterId
   );
+
+  if (debug)
+    console.log("index.js - responseBody : " + JSON.stringify(responseBody));
 
   const aresponse = {
     statusCode: 200,
