@@ -112,14 +112,14 @@ exports.handler = async (event) => {
     key1: "value1",
   };
 
-  const response = {
-    statusCode: 200,
-    headers: {
-      my_header: "my_value",
-    },
-    body: JSON.stringify(responseBody),
-    isBase64Encoded: false,
-  };
+  // const response = {
+  //   statusCode: 200,
+  //   headers: {
+  //     my_header: "my_value",
+  //   },
+  //   body: JSON.stringify(responseBody),
+  //   isBase64Encoded: false,
+  // };
 
   createResponse(event.path, event.queryStringParameters, sessionId, counterId)
     .then((responseBody) => {
