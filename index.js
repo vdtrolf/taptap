@@ -125,26 +125,12 @@ exports.handler = async (event) => {
   const aresponse = {
     statusCode: 200,
     headers: {
-      my_header: "my_value",
-      //x-custom-header: "little island",
-      //Access-Control-Allow-Origin : "*",
+      "x-custom-header": "little island",
+      "Access-Control-Allow-Origin": "*",
     },
     body: JSON.stringify(responseBody),
     isBase64Encoded: false,
   };
-
-  console.log("index.js - responsebody : " + JSON.stringify(responseBody));
-  console.log("index.js - response : " + JSON.stringify(aresponse));
+  if (debug) console.log("index.js - response : " + JSON.stringify(aresponse));
   return aresponse;
-
-  // const aresponse = {
-  //   statusCode: 200,
-  //   headers: {
-  //     my_header: "my_value",
-  //   },
-  //   body: JSON.stringify(responseExample),
-  //   isBase64Encoded: false,
-  // };
-
-  // console.log("index.js - response example: " + JSON.stringify(aresponse));
 };
