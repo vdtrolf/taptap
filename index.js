@@ -84,36 +84,26 @@ if (local) {
 // Handler for the Lambda
 
 exports.handler = async (event) => {
-  let sessionId = "";
-  let counterId = "";
-  ("");
+  let sessionId = 0;
+  let counterId = 0;
   let responseCode = 200;
   requestcounter += 1;
 
-  console.log(
-    "index.js - handler : request " +
-      requestcounter +
-      " : " +
-      JSON.stringify(event)
-  );
+  if (debug)
+    console.log(
+      "index.js - handler : request " +
+        requestcounter +
+        " : " +
+        JSON.stringify(event)
+    );
 
   if (event.queryStringParameters && event.queryStringParameters.sessionId) {
-    console.log(
-      "index.js : Received sessionId: " + event.queryStringParameters.sessionId
-    );
     sessionId = event.queryStringParameters.sessionId;
-    counterId = event.queryStringParameters.counterId;
-    if (!counterId) counterId = 0;
   }
 
-  const responseExample = {
-    key3: [
-      { val1: "tata", val2: 1 },
-      { val1: "toto", val2: 2 },
-    ],
-    key2: "value2",
-    key1: "value1",
-  };
+  if (event.queryStringParameters && event.queryStringParameters.counterId) {
+    counterId = event.queryStringParameters.counterId;
+  }
 
   const responseBody = await createResponse(
     event.path,
@@ -131,6 +121,8 @@ exports.handler = async (event) => {
     body: JSON.stringify(responseBody),
     isBase64Encoded: false,
   };
+
   if (debug) console.log("index.js - response : " + JSON.stringify(aresponse));
+
   return aresponse;
 };
