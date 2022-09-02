@@ -112,15 +112,6 @@ exports.handler = async (event) => {
     key1: "value1",
   };
 
-  // const response = {
-  //   statusCode: 200,
-  //   headers: {
-  //     my_header: "my_value",
-  //   },
-  //   body: JSON.stringify(responseBody),
-  //   isBase64Encoded: false,
-  // };
-
   createResponse(event.path, event.queryStringParameters, sessionId, counterId)
     .then((responseBody) => {
       let response = {
@@ -132,15 +123,26 @@ exports.handler = async (event) => {
           //x-custom-header: "little island",
           //Access-Control-Allow-Origin : "*",
         },
-        body: JSON.stringify(responseExample),
+        body: JSON.stringify(responseBody),
       };
-      console.log("index.js - response: " + JSON.stringify(responseBody));
-      console.log(
-        "index.js - response example: " + JSON.stringify(responseExample)
-      );
-      return response;
+      console.log("index.js - response: " + JSON.stringify(response));
+
+      // return response;
     })
     .catch((error) => {
       console.log(error);
     });
+
+  const aresponse = {
+    statusCode: 200,
+    headers: {
+      my_header: "my_value",
+    },
+    body: JSON.stringify(responseExample),
+    isBase64Encoded: false,
+  };
+
+  console.log("index.js - response example: " + JSON.stringify(aresponse));
+
+  return aresponse;
 };
