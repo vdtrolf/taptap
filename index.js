@@ -11,7 +11,7 @@ let local = false;
 const args = process.argv.slice(2);
 local = args[0] && args[0].toLowerCase() === "local";
 
-const debug = true;
+const debug = false;
 
 // initiate the DB - local means a local DB for dynamo. Acebase is always local
 

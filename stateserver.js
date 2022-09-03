@@ -21,33 +21,10 @@ local = args[0] && args[0].toLowerCase() === "local";
 // simulateRate tells how often that must happen
 let simulateRate = 1728; // 864; // 3428;
 
+// debug variables
 let debug = true;
 let deepdebug = true;
 let counter = 0;
-
-// if (local) {
-//   //create a server object:
-//   http
-//     .createServer(function (req, res) {
-//       setState();
-//       res.write("State updated !"); //write a response to the client
-//       res.end(); //end the response
-//     })
-//     .listen(3003); //the server object listens on port 3003
-// } else {
-//   console.log("Loading function");
-
-//   exports.handler = function (event, context, callback) {
-//     console.log("Received event:", JSON.stringify(event, null, 4));
-
-//     var message = event.Records[0].Sns.Message;
-//     console.log("Message received from SNS:", message);
-
-//     setState();
-
-//     callback(null, "Success");
-//   };
-// }
 
 // State engine = changes the state of all the running islands
 const setState = () => {
