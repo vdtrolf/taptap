@@ -178,20 +178,24 @@ const persistIslandData = async (island) => {
   );
 };
 
+// Loads the list of islands and returns them to the callback function (loadIslands)
 const initiateIslands = (callBack) => {
   if (debug)
     console.log("islandData.js - initiateIslands: getting islands out of DB");
   getItems("island", loadIslands, "id", ">", 0, callBack);
 };
 
+// Loads the data into the various objects
 const loadIslands = async (theIslands, callBack) => {
-  if (theIslands) {
+  if (theIslands && theIslands.length > 0) {
     cleanIslands();
 
-    if (debug)
+    if (debug) {
       console.log(
         "islandData.js - loadIslands: found " + theIslands.length + " islands"
       );
+      console.dir(theIslands);
+    }
 
     let currentTime = new Date().getTime();
 
@@ -202,9 +206,11 @@ const loadIslands = async (theIslands, callBack) => {
         let age = currentTime - Number.parseInt(anIsland.lastInvocation);
 
         let theSessions = [];
-        anIsland.sessions.forEach((sessionId) => {
-          theSessions.push(getSession(sessionId));
-        });
+        if (anIsland.sessions) {
+          anIsland.sessions.forEach((sessionId) => {
+            theSessions.push(getSession(sessionId));
+          });
+        }
 
         if (anIsland.lastInvocation > 0 && (age < maxAge || anIsland.running)) {
           let island = new Island(
@@ -234,24 +240,26 @@ const loadIslands = async (theIslands, callBack) => {
             island.territory.push(line);
           }
 
-          anIsland.lands.forEach((aLand) => {
-            let land = new Land(
-              aLand.hpos,
-              aLand.lpos,
-              false,
-              island.id,
-              aLand.id,
-              aLand.type,
-              aLand.conf,
-              aLand.var,
-              aLand.hasCross,
-              aLand.crossAge,
-              aLand.hasFish,
-              aLand.hasSwim,
-              aLand.swimAge
-            );
-            island.territory[aLand.hpos][aLand.lpos] = land;
-          });
+          if (anIsland.lands) {
+            anIsland.lands.forEach((aLand) => {
+              let land = new Land(
+                aLand.hpos,
+                aLand.lpos,
+                false,
+                island.id,
+                aLand.id,
+                aLand.type,
+                aLand.conf,
+                aLand.var,
+                aLand.hasCross,
+                aLand.crossAge,
+                aLand.hasFish,
+                aLand.hasSwim,
+                aLand.swimAge
+              );
+              island.territory[aLand.hpos][aLand.lpos] = land;
+            });
+          }
 
           // anIsland.lands.forEach((aLand) => {
           //   if (aLand.hpos === 1 && aLand.lpos === 1) {
@@ -265,37 +273,38 @@ const loadIslands = async (theIslands, callBack) => {
 
           let penguins = [];
 
-          anIsland.penguins.forEach((aPenguin) => {
-            let penguin = new Penguin(
-              aPenguin.num,
-              aPenguin.hpos,
-              aPenguin.lpos,
-              [],
-              island.id,
-              aPenguin.fatherId,
-              aPenguin.motherId,
-              aPenguin.id,
-              aPenguin.age,
-              aPenguin.fat,
-              aPenguin.maxcnt,
-              aPenguin.vision,
-              aPenguin.wealth,
-              aPenguin.hungry,
-              aPenguin.alive,
-              aPenguin.gender,
-              aPenguin.cat,
-              aPenguin.name,
-              aPenguin.loving,
-              aPenguin.waiting,
-              aPenguin.fishTime,
-              aPenguin.fishDirection,
-              aPenguin.moving,
-              aPenguin.hasLoved,
-              aPenguin.partnerId
-            );
-            penguins.push(penguin);
-          });
-
+          if (anIsland.penguins) {
+            anIsland.penguins.forEach((aPenguin) => {
+              let penguin = new Penguin(
+                aPenguin.num,
+                aPenguin.hpos,
+                aPenguin.lpos,
+                [],
+                island.id,
+                aPenguin.fatherId,
+                aPenguin.motherId,
+                aPenguin.id,
+                aPenguin.age,
+                aPenguin.fat,
+                aPenguin.maxcnt,
+                aPenguin.vision,
+                aPenguin.wealth,
+                aPenguin.hungry,
+                aPenguin.alive,
+                aPenguin.gender,
+                aPenguin.cat,
+                aPenguin.name,
+                aPenguin.loving,
+                aPenguin.waiting,
+                aPenguin.fishTime,
+                aPenguin.fishDirection,
+                aPenguin.moving,
+                aPenguin.hasLoved,
+                aPenguin.partnerId
+              );
+              penguins.push(penguin);
+            });
+          }
           island.penguins = penguins;
 
           addIsland(island);
@@ -328,8 +337,6 @@ const loadIslands = async (theIslands, callBack) => {
       });
 
       callBack();
-
-      // islands.forEach((island) => addIsland(island));
     } catch (error) {
       console.error("problem", error);
     }

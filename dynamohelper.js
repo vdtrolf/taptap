@@ -199,33 +199,49 @@ const getAsyncItems = async (
   };
 
   if (debug) {
-    console.log("-- getAsyncItems ----->");
+    console.log("dynamohelper.js getAsyncItems: params ->");
     console.dir(scanparams);
     console.log("---------------->");
   }
 
-  dynamodb.scan(scanparams, function (err, data) {
-    if (err) {
-      console.log("Error", err);
-    } else {
-      const cleanItems = [];
-      data.Items.forEach(function (item, index, array) {
-        let cleanItem = AWS.DynamoDB.Converter.unmarshall(item);
+  const awsRequest = await dynamodb.scan(scanparams);
+  const result = await awsRequest.promise();
 
-        if (debug) {
-          console.log("===== " + tableName + " ====================");
-          console.dir(cleanItem);
-        }
+  let cleanItems = [];
+  for (let i = 0; i < result.Items.length; i++) {
+    cleanItems.push(AWS.DynamoDB.Converter.unmarshall(result.Items[i]));
+  }
 
-        // small check to avoid old dirt in the island table
+  if (debug) {
+    console.log("dynamohelper.js getAsyncItems: results -> ");
+    console.dir(cleanItems);
+    console.log("---------------->");
+  }
 
-        if (tableName !== "island" || cleanItem.sizeH) {
-          cleanItems.push(cleanItem);
-        }
-      });
-      return cleanItems;
-    }
-  });
+  return cleanItems;
+
+  // dynamodb.scan(scanparams, function (err, data) {
+  //   if (err) {
+  //     console.log("Error", err);
+  //   } else {
+  //     const cleanItems = [];
+  //     data.Items.forEach(function (item, index, array) {
+  //       let cleanItem = AWS.DynamoDB.Converter.unmarshall(item);
+
+  //       if (debug) {
+  //         console.log("===== " + tableName + " ====================");
+  //         console.dir(cleanItem);
+  //       }
+
+  //       // small check to avoid old dirt in the island table
+
+  //       if (tableName !== "island" || cleanItem.sizeH) {
+  //         cleanItems.push(cleanItem);
+  //       }
+  //     });
+  //     return cleanItems;
+  //   }
+  // });
 };
 
 const deleteItem = (tableName, uniqueId) => {

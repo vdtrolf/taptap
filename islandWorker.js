@@ -269,9 +269,9 @@ const getMovesData = async (
 const getIslandsList = async () => {
   let islands = [];
 
-  let fullIslands = await getAsyncItems("island", "id", ">", 0);
+  let fullIslands = [...(await getAsyncItems("island", "id", ">", 0))];
 
-  if (fullIslands) {
+  if (fullIslands && fullIslands.length > 0) {
     fullIslands.forEach((island) => {
       islands.push({
         id: island.id,
@@ -286,7 +286,7 @@ const getIslandsList = async () => {
 };
 
 const connectIsland = (sessionId, islandId) => {
-  let theIslands = getAsyncItems("island", "id", ">", 0);
+  let theIslands = [...getAsyncItems("island", "id", ">", 0)];
   if (theIslands) {
     theIslands.forEach((island) => {
       let sessions = island.sessions;

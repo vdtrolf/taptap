@@ -12,7 +12,6 @@ const args = process.argv.slice(2);
 local = args[0] && args[0].toLowerCase() === "local";
 
 const debug = true;
-let requestcounter = 0;
 
 // initiate the DB - local means a local DB for dynamo. Acebase is always local
 
@@ -79,53 +78,68 @@ if (local) {
   }
 } else {
   console.log("index.js : Little island function listening on Lambda");
-}
 
-// Handler for the Lambda
+  const stateserverReq = require("./stateserver.js");
+  let setState = stateserverReq.setState;
 
-exports.handler = async (event) => {
-  let sessionId = 0;
-  let counterId = 0;
-  let responseCode = 200;
-  requestcounter += 1;
+  // Handler for the Lambda - it may be either
+  // - a SNS event - in which case the state is updated
+  // - a message originated from the API gateway in which case the request is processed
 
-  if (debug)
-    console.log(
-      "index.js - handler : request " +
-        requestcounter +
-        " : " +
-        JSON.stringify(event)
-    );
+  exports.handler = async (event, context, callback) => {
+    if (debug)
+      console.log("index.js - handler : request : " + JSON.stringify(event));
 
-  if (event.queryStringParameters && event.queryStringParameters.sessionId) {
-    sessionId = event.queryStringParameters.sessionId;
-  }
+    if (event.Records && event.Records[0]) {
+      var message = event.Records[0].Sns.Message;
+      console.log("Message received from SNS:", message);
+      setState();
+      callback(null, "Success");
+    } else {
+      let sessionId = 0;
+      let counterId = 0;
+      let responseCode = 200;
 
-  if (event.queryStringParameters && event.queryStringParameters.counterId) {
-    counterId = event.queryStringParameters.counterId;
-  }
+      if (
+        event.queryStringParameters &&
+        event.queryStringParameters.sessionId
+      ) {
+        sessionId = event.queryStringParameters.sessionId;
+      }
 
-  const responseBody = await createResponse(
-    event.path,
-    event.queryStringParameters,
-    sessionId,
-    counterId
-  );
+      if (
+        event.queryStringParameters &&
+        event.queryStringParameters.counterId
+      ) {
+        counterId = event.queryStringParameters.counterId;
+      }
 
-  if (debug)
-    console.log("index.js - responseBody : " + JSON.stringify(responseBody));
+      const responseBody = await createResponse(
+        event.path,
+        event.queryStringParameters,
+        sessionId,
+        counterId
+      );
 
-  const aresponse = {
-    statusCode: 200,
-    headers: {
-      "x-custom-header": "little island",
-      "Access-Control-Allow-Origin": "*",
-    },
-    body: JSON.stringify(responseBody),
-    isBase64Encoded: false,
+      if (debug)
+        console.log(
+          "index.js - responseBody : " + JSON.stringify(responseBody)
+        );
+
+      const aresponse = {
+        statusCode: 200,
+        headers: {
+          "x-custom-header": "little island",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify(responseBody),
+        isBase64Encoded: false,
+      };
+
+      if (debug)
+        console.log("index.js - response : " + JSON.stringify(aresponse));
+
+      return aresponse;
+    }
   };
-
-  if (debug) console.log("index.js - response : " + JSON.stringify(aresponse));
-
-  return aresponse;
-};
+}
