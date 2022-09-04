@@ -1,7 +1,18 @@
+// DB stuff
+const dbhelperReq = require("./dynamohelper.js"); // require("./acebasehelper.js");
+
+// logger stuff
+const loggerReq = require("./logger.js");
+let log = loggerReq.log;
+const LOGVERB = loggerReq.LOGVERB;
+const LOGERR = loggerReq.LOGERR;
+const LOGDATA = loggerReq.LOGDATA;
+
+const realm = "data";
+const source = "islandData.js";
+
 const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
-const dbhelperReq = require("./dynamohelper.js");
-// const dbhelperReq = require("./acebasehelper.js");
 const sessionReq = require("./session.js");
 const islandReq = require("./island.js");
 
@@ -15,28 +26,23 @@ let cleanIslands = islandReq.cleanIslands;
 let addIsland = islandReq.addIsland;
 let getSession = sessionReq.getSession;
 
-// const islands = [];
-const debug = false;
 const maxAge = 3600000; // one hour
 let counter = 0;
 
 const persistIsland = async (island, force = false) => {
   counter++;
 
-  if (debug)
-    console.log(
-      "islandData.js - persistIsland : persisting island " +
-        island.id +
-        " counter: " +
-        counter
-    );
+  log(
+    realm,
+    source,
+    "persistIsland",
+    "persisting island " + island.id + " counter: " + counter
+  );
 
   let sessionsList = [];
   // island.sessions.forEach((session) => sessionsList.push(session.id));
 
-  // console.log("islandData.js - persistIsland " + island.id + " ------------");
-  // console.dir(sessionsList);
-  // console.log("islandData.js - persistIsland --------------------------");
+  // log(realm,source,"persistIsland",sessionsList,LOGVERB,LOGDATA);
 
   let lands = [];
 
@@ -63,9 +69,7 @@ const persistIsland = async (island, force = false) => {
 
   // lands.forEach((aLand) => {
   //   if (aLand.hpos === 1 && aLand.lpos === 1) {
-  //     console.log("islandData.js - persistIsland " + island.id + " --------");
-  //     console.dir(aLand);
-  //     console.log("islandData.js - persistIsland ---------------");
+  //     log(realm,source,"persistIsland - land",aLand,LOGVERB,LOGDATA);
   //   }
   // });
 
@@ -129,26 +133,24 @@ const persistIsland = async (island, force = false) => {
 const persistIslandData = async (island) => {
   counter++;
 
-  if (debug)
-    console.log(
-      "islandData.js - persistIslandData : persisting island " +
-        island.id +
-        " followId " +
-        island.followId +
-        " counter: " +
-        counter
-    );
+  log(
+    realm,
+    source,
+    "persistIslandData",
+    "persisting island " +
+      island.id +
+      " followId " +
+      island.followId +
+      " counter: " +
+      counter
+  );
 
   // let sessionsList = [];
   // island.sessions.forEach((session) => sessionsList.push(session.id));
 
   // island.lands.forEach((aLand) => {
   //   if (aLand.hpos === 1 && aLand.lpos === 1) {
-  //     console.log(
-  //       "islandData.js - persistIslandData " + island.id + " --------"
-  //     );
-  //     console.dir(aLand);
-  //     console.log("islandData.js - persistIslandData ---------------");
+  //     log(realm,source,"persistIslandData - land",aLand,LOGVERB,LOGDATA);
   //   }
   // });
 
@@ -180,8 +182,7 @@ const persistIslandData = async (island) => {
 
 // Loads the list of islands and returns them to the callback function (loadIslands)
 const initiateIslands = (callBack) => {
-  if (debug)
-    console.log("islandData.js - initiateIslands: getting islands out of DB");
+  log(realm, source, "initiateIslands", "getting islands out of DB");
   getItems("island", loadIslands, "id", ">", 0, callBack);
 };
 
@@ -190,12 +191,13 @@ const loadIslands = async (theIslands, callBack) => {
   if (theIslands && theIslands.length > 0) {
     cleanIslands();
 
-    if (debug) {
-      console.log(
-        "islandData.js - loadIslands: found " + theIslands.length + " islands"
-      );
-      console.dir(theIslands);
-    }
+    log(
+      realm,
+      source,
+      "loadIslands",
+      "found " + theIslands.length + " islands"
+    );
+    log(realm, source, "loadIslands", theIslands, LOGVERB, LOGDATA);
 
     let currentTime = new Date().getTime();
 
@@ -263,11 +265,7 @@ const loadIslands = async (theIslands, callBack) => {
 
           // anIsland.lands.forEach((aLand) => {
           //   if (aLand.hpos === 1 && aLand.lpos === 1) {
-          //     console.log(
-          //       "islandData.js - loadIslands " + anIsland.id + " --------"
-          //     );
-          //     console.dir(aLand);
-          //     console.log("islandData.js - loadIslands ---------------");
+          //     log(realm,source,"loadIslands - land",aLand,LOGVERB,LOGDATA);
           //   }
           // });
 
@@ -309,36 +307,39 @@ const loadIslands = async (theIslands, callBack) => {
 
           addIsland(island);
 
-          if (debug) {
-            console.log(
-              "islandData.js - loadIslands: Loaded island " +
-                anIsland.name +
-                "-" +
-                anIsland.id +
-                " age " +
-                age +
-                " runnning " +
-                anIsland.running
-            );
-          }
+          log(
+            realm,
+            source,
+            "loadIslands",
+            "Loaded island " +
+              anIsland.name +
+              "-" +
+              anIsland.id +
+              " age " +
+              age +
+              " runnning " +
+              anIsland.running
+          );
         } else {
-          if (debug) {
-            console.log(
-              "islandData.js - loadIslands: Could not load island " +
-                anIsland.id +
-                " age " +
-                age +
-                " runnning " +
-                anIsland.running
-            );
-          }
+          log(
+            realm,
+            source,
+            "loadIslands",
+            "Could not load island " +
+              anIsland.id +
+              " age " +
+              age +
+              " runnning " +
+              anIsland.running
+          );
+
           deleteItem("island", anIsland.id);
         }
       });
 
       callBack();
     } catch (error) {
-      console.error("problem", error);
+      log(realm, source, "loadIslands", error, LOGERR);
     }
   }
 };

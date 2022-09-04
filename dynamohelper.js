@@ -1,6 +1,16 @@
 const AWS = require("aws-sdk");
 AWS.config.update({ region: "us-east-1" });
 
+// logger stuff
+const loggerReq = require("./logger.js");
+let log = loggerReq.log;
+const LOGINFO = loggerReq.LOGINFO;
+const LOGERR = loggerReq.LOGERR;
+const LOGDATA = loggerReq.LOGDATA;
+
+const realm = "db";
+const source = "dynamohelper.js";
+
 const https = require("https");
 const agent = new https.Agent({
   keepAlive: true,
@@ -15,15 +25,13 @@ const createDb = (local) => {
     dynamodb = new AWS.DynamoDB({
       endpoint: new AWS.Endpoint("http://localhost:8000"),
     });
+    log(realm, source, "createDb", "connected to local");
     if (deepdebug) {
-      console.log("dynamohelper.js - createDb - connected to local");
       dynamodb.listTables({ Limit: 10 }, (err, data) => {
         if (err) {
-          console.log("dynamohelper.js : Could not list tables", err);
+          log(realm, source, "createDb", "Could not list tables" + err, LOGERR);
         } else {
-          console.log("------------TABLES------>");
-          console.log(data.TableNames);
-          console.log("------------TABLES------>");
+          log(realm, source, "createDb", data.TableNames, LOGINFO, LOGDATA);
         }
       });
     }
@@ -33,15 +41,13 @@ const createDb = (local) => {
         agent,
       },
     });
+    log(realm, source, "createDb", "connected");
     if (deepdebug) {
-      console.log("dynamohelper.js - createDb - connected");
       dynamodb.listTables({ Limit: 10 }, (err, data) => {
         if (err) {
-          console.log("dynamohelper.js : Could not list tables", err);
+          log(realm, source, "createDb", "Could not list tables" + err, LOGERR);
         } else {
-          console.log("------------TABLES------>");
-          console.log(data.TableNames);
-          console.log("------------TABLES------>");
+          log(realm, source, "createDb", data.TableNames, LOGINFO, LOGDATA);
         }
       });
     }
@@ -57,25 +63,20 @@ const putItem = (TableName, anItem, uniqueId) => {
     TableName,
   };
 
-  if (debug) {
-    console.log("dynamohelper.js -- putItem ----->");
-    console.log(params);
-    console.log("---------------->");
-  }
+  log(realm, source, "putItem", params, LOGINFO, LOGDATA);
 
   dynamodb.putItem(params, (err, data) => {
     if (err) {
-      console.log("dynamohelper.js : Could not put data in " + TableName, err);
-      if (debug) {
-        console.dir(params);
-      }
+      log(
+        realm,
+        source,
+        "putItem Could not put data in " + TableName,
+        err,
+        LOGERR
+      );
       return false;
     } else {
-      if (debug)
-        console.log(
-          "dynamohelper.js : Success with puting data in " + TableName,
-          data
-        );
+      log(realm, source, "putItem", "Success with puting data in " + TableName);
       return true;
     }
   });
@@ -94,22 +95,14 @@ const getItem = async (tableName, uniqueId) => {
     TableName: tableName,
   };
 
-  if (debug) {
-    console.log("dynamohelper.js -- getItem -----> " + id + "<---");
-    console.log(queryparams);
-    console.log("---------------->");
-  }
+  log(realm, source, "getItem params", queryparams, LOGINFO, LOGDATA);
 
   const awsRequest = await dynamodb.scan(queryparams);
   const result = await awsRequest.promise();
 
   let cleanItem = AWS.DynamoDB.Converter.unmarshall(result.Items[0]);
 
-  if (debug) {
-    console.log("dynamohelper.js -- getItem result  -----> " + id + "<---");
-    console.dir(cleanItem);
-    console.log("---------------->");
-  }
+  log(realm, source, "getItem result", cleanItem, LOGINFO, LOGDATA);
 
   return cleanItem; // <<--- Your results are here
 };
@@ -126,16 +119,12 @@ const getItems = async (
   filterVal = 0,
   secondCallBack
 ) => {
-  if (debug) {
-    console.log(
-      "dynamohelper.js - getItems: table=" +
-        tableName +
-        " filter=" +
-        filterIdx +
-        filterComparator +
-        filterVal
-    );
-  }
+  log(
+    realm,
+    source,
+    "getItems",
+    "table=" + tableName + " filter=" + filterIdx + filterComparator + filterVal
+  );
 
   const fval = `${filterVal}`;
   const scanparams = {
@@ -146,21 +135,17 @@ const getItems = async (
     TableName: tableName,
   };
 
-  if (debug) console.dir(scanparams);
+  log(realm, source, "getItems", scanparams, LOGINFO, LOGDATA);
 
   dynamodb.scan(scanparams, function (err, data) {
     if (err) {
-      console.log("Error", err);
+      log(realm, source, "getItems", err, LOGERR);
     } else {
       const cleanItems = [];
       data.Items.forEach(function (item, index, array) {
         let cleanItem = AWS.DynamoDB.Converter.unmarshall(item);
 
-        if (debug) {
-          console.log("dynamohelper.js getItems " + tableName + " ----> ");
-          console.dir(cleanItem);
-          console.log("---------------->");
-        }
+        log(realm, source, "getItems", cleanItem, LOGINFO, LOGDATA);
 
         // small check to avoid old dirt in the island table
 
@@ -179,16 +164,13 @@ const getAsyncItems = async (
   filterComparator = ">",
   filterVal = 0
 ) => {
-  if (debug) {
-    console.log(
-      "dynamohelper.js - getAsyncItems: table=" +
-        tableName +
-        " filter=" +
-        filterIdx +
-        filterComparator +
-        filterVal
-    );
-  }
+  log(
+    realm,
+    source,
+    "getAsyncItems",
+    "table=" + tableName + " filter=" + filterIdx + filterComparator + filterVal
+  );
+
   const fval = `${filterVal}`;
   const scanparams = {
     ExpressionAttributeValues: {
@@ -198,11 +180,7 @@ const getAsyncItems = async (
     TableName: tableName,
   };
 
-  if (debug) {
-    console.log("dynamohelper.js getAsyncItems: params ->");
-    console.dir(scanparams);
-    console.log("---------------->");
-  }
+  log(realm, source, "getAsyncItems params", scanparams, LOGINFO, LOGDATA);
 
   const awsRequest = await dynamodb.scan(scanparams);
   const result = await awsRequest.promise();
@@ -212,36 +190,9 @@ const getAsyncItems = async (
     cleanItems.push(AWS.DynamoDB.Converter.unmarshall(result.Items[i]));
   }
 
-  if (debug) {
-    console.log("dynamohelper.js getAsyncItems: results -> ");
-    console.dir(cleanItems);
-    console.log("---------------->");
-  }
+  log(realm, source, "getAsyncItems results", cleanItems, LOGINFO, LOGDATA);
 
   return cleanItems;
-
-  // dynamodb.scan(scanparams, function (err, data) {
-  //   if (err) {
-  //     console.log("Error", err);
-  //   } else {
-  //     const cleanItems = [];
-  //     data.Items.forEach(function (item, index, array) {
-  //       let cleanItem = AWS.DynamoDB.Converter.unmarshall(item);
-
-  //       if (debug) {
-  //         console.log("===== " + tableName + " ====================");
-  //         console.dir(cleanItem);
-  //       }
-
-  //       // small check to avoid old dirt in the island table
-
-  //       if (tableName !== "island" || cleanItem.sizeH) {
-  //         cleanItems.push(cleanItem);
-  //       }
-  //     });
-  //     return cleanItems;
-  //   }
-  // });
 };
 
 const deleteItem = (tableName, uniqueId) => {
@@ -255,7 +206,7 @@ const deleteItem = (tableName, uniqueId) => {
 
   dynamodb.deleteItem(deleteparams, function (err, data) {
     if (err) {
-      console.log("Error", err);
+      log(realm, source, "deleteItem", err, LOGERR);
       return null;
     } else {
       return data;

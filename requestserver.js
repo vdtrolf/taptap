@@ -1,3 +1,11 @@
+// logger stuff
+const loggerReq = require("./logger.js");
+let log = loggerReq.log;
+
+const realm = "req";
+const source = "requestserver.js";
+
+// imports
 const islandReq = require("./island.js");
 const islandWorkerReq = require("./islandWorker.js");
 const islandDataReq = require("./islandData.js");
@@ -23,23 +31,30 @@ let islandH = 12;
 let islandL = 12;
 let counter = 0;
 
-let debug = false;
-let deepDebug = false;
-
 let nameserver = new NameServer(30, 10, false);
 
-const createResponse = async (url, params, sessionId, counterId) => {
+const createResponse = async (
+  url,
+  params,
+  sessionId,
+  counterId,
+  islandId = 0
+) => {
   let session = null;
 
-  if (debug)
-    console.log(
-      "requestserver.js - createResponse: url= " +
-        url +
-        " sessionId= " +
-        sessionId +
-        " counterId= " +
-        counterId
-    );
+  log(
+    realm,
+    source,
+    "createResponse",
+    ": url= " +
+      url +
+      " sessionId= " +
+      sessionId +
+      " counterId= " +
+      counterId +
+      " islandId= " +
+      islandId
+  );
 
   if (sessionId > 0) {
     session = await getSession(sessionId);
@@ -50,45 +65,50 @@ const createResponse = async (url, params, sessionId, counterId) => {
         //   island.unregisterSession(session);
         // }
 
-        // island = new Island(islandH, islandL, session, debug);
+        // island = new Island(islandH, islandL, session);
         // // islands.push(island);
         // session.reset();
         // session.setIsland(island.id);
         // persistSessions(session);
         // persistIsland(island);
 
-        if (debug) {
-          timeTag = new Date().getTime() - baseTime;
-          console.log(
-            timeTag +
-              "index.js - createResponse/new-island : Renewing an island of size " +
-              islandH +
-              " * " +
-              island
-          );
-        }
+        log(
+          realm,
+          source,
+          "createResponse/new-island",
+          "Renewing an island of size " + islandH + " * " + island
+        );
+
         // resetPenguinsPos(session);
         return createInitData(session, counterId);
       }
 
       case "/connect-island": {
-        // getIslands().forEach((island) => island.unregisterSession(session));
+        let islands = getIslands();
 
-        connectIsland(sessionId, Number.parseInt(params.islandId, 10));
+        // connectIsland(sessionId, Number.parseInt(params.islandId, 10));
 
         // let islandId = Number.parseInt(params.islandId, 10);
-        // island = islands.find((island) => island.id === islandId);
-        // island.registerSession(session);
+        let island = islands.find((island) => island.id === islandId);
+        if (island) {
+          islands.forEach((island) => island.unregisterSession(session));
+          island.registerSession(session);
 
-        if (debug) {
-          console.log(
-            "index.js - createResponse/connect-island : Connecting to island  " +
-              Number.parseInt(params.islandId, 10)
+          session.setIsland(island.id);
+          island.registerSession(session);
+
+          persistIsland(island, true);
+          persistSessions(session);
+
+          log(
+            realm,
+            source,
+            "createResponse/connect island",
+            "Connecting an island for session " + sessionId
           );
-        }
 
-        // resetPenguinsPos(session);
-        return createInitData(session, counterId);
+          return await getInitData(island, session, counterId);
+        }
       }
 
       case "/moves": {
@@ -132,20 +152,19 @@ const createResponse = async (url, params, sessionId, counterId) => {
       case "/island": {
         session = createSession();
         sessionId = session.id;
-        let island = new Island(islandH, islandL, [session], debug);
+        let island = new Island(islandH, islandL, [session]);
         session.setIsland(island.id);
         island.registerSession(session);
 
         persistIsland(island, true);
         persistSessions(session);
 
-        if (debug) {
-          console.log(
-            "index.js - createResponse/island : Building an new island for session " +
-              sessionId
-          );
-        }
-
+        log(
+          realm,
+          source,
+          "createResponse/island",
+          "Building an new island for session " + sessionId
+        );
         return await getInitData(island, session, counterId);
       }
 

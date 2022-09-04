@@ -1,4 +1,10 @@
-// const axios = require("axios");
+// logger stuff
+const loggerReq = require("./logger.js");
+let log = loggerReq.log;
+const LOGVERB = loggerReq.LOGVERB;
+
+const realm = "name";
+const source = "nameserver.js";
 
 const penguinsNames = [];
 const islandsNames = [];
@@ -23,7 +29,7 @@ const genders = [
   "male",
   "female",
   "male",
-  "female"
+  "female",
 ];
 
 const names = [
@@ -46,7 +52,7 @@ const names = [
   "Titeuf",
   "Marie",
   "Auguste",
-  "Sophie"
+  "Sophie",
 ];
 const islands = [
   "Iswell",
@@ -90,9 +96,7 @@ class NameServer {
     this.islandsSize = islandsQty;
     debug = debugit;
 
-    if (debug) {
-      console.log("nameserver.js - constructor : starting nameserver");
-    }
+    log(realm, source, "constructor", "starting nameserver");
     this.startInterval();
   }
 
@@ -101,7 +105,6 @@ class NameServer {
       let penguinName = { name: "toto", gender: "male" };
       getFakePenguinName(penguinName);
       penguinsNames.push(penguinName);
-      //console.log("Another name");
     }
   }
 
@@ -115,21 +118,23 @@ class NameServer {
 const getPenguinName = () => {
   if (penguinsNames.length > 0) {
     let aPenguinName = penguinsNames.shift();
-    if (debug) {
-      console.log(
-        "nameserver.js - getPenguinName : returning the name " +
-          aPenguinName.name
-      );
-    }
+    log(
+      realm,
+      source,
+      "getPenguinName",
+      "returning the name " + aPenguinName.name
+    );
+
     return aPenguinName;
   } else {
     let gdname = Math.floor(Math.random() * 10);
-    if (debug) {
-      console.log(
-        "nameserver.js - getPenguinName : returning a fake name " +
-          names[gdname]
-      );
-    }
+    log(
+      realm,
+      source,
+      "getPenguinName",
+      "returning a fake name " + names[gdname]
+    );
+
     return { name: names[gdname], gender: genders[gdname] };
   }
 };
@@ -139,12 +144,13 @@ const getIslandName = () => {
     return islandsNames.shift();
   } else {
     let isname = Math.floor(Math.random() * 30);
-    if (debug) {
-      console.log(
-        "nameserver.js - getIslandName : returning a fake name " +
-          islands[isname]
-      );
-    }
+    log(
+      realm,
+      source,
+      "getIslandName",
+      "returning a fake name " + islands[isname]
+    );
+
     return islands[isname];
   }
 };
@@ -153,7 +159,7 @@ const getFakePenguinName = async (aPenguin) => {
   let random = Math.floor(Math.random() * 20);
   aPenguin.name = names[random];
   aPenguin.gender = genders[random];
-}
+};
 
 // Gets a name from a name server
 

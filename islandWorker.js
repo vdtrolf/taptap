@@ -1,5 +1,16 @@
-const dbhelperReq = require("./dynamohelper.js");
-// const dbhelperReq = require("./acebasehelper.js");
+// DB stuff
+const dbhelperReq = require("./dynamohelper.js"); // require("./acebasehelper.js");
+
+// logger stuff
+const loggerReq = require("./logger.js");
+let log = loggerReq.log;
+const LOGVERB = loggerReq.LOGVERB;
+const LOGERR = loggerReq.LOGERR;
+const LOGDATA = loggerReq.LOGDATA;
+
+const realm = "worker";
+const source = "islandWorker.js";
+
 const islandDataReq = require("./islandData.js");
 
 let getItem = dbhelperReq.getItem;
@@ -15,15 +26,13 @@ const weathers = ["sun", "rain", "snow", "cold", "endgame"];
 // Creates a result set based on the island object
 
 const getInitData = async (island, session, movesCounterId) => {
-  if (deepdebug)
-    console.log(
-      "islandWorker.js - getinitData: is=" +
-        island.id +
-        " ss=" +
-        session.id +
-        " ct=" +
-        movesCounterId
-    );
+  log(
+    realm,
+    source,
+    "getinitData",
+    "is=" + island.id + " ss=" + session.id + " ct=" + movesCounterId,
+    LOGVERB
+  );
 
   let result = {
     session: session.id,
@@ -44,11 +53,7 @@ const getInitData = async (island, session, movesCounterId) => {
   let moves = { moves: theMoves };
   result = { ...result, ...moves };
 
-  if (deepdebug) {
-    console.log("islandWorker.js - getInitData -- result ----------");
-    console.dir(result);
-    console.log("islandWorker.js - getInitData -- result ----------");
-  }
+  log(realm, source, "getInitData", result, LOGVERB, LOGDATA);
 
   return result;
 };
@@ -64,23 +69,25 @@ const getIslandData = async (
   tileHpos = 0,
   tileLpos = 0
 ) => {
-  if (debug)
-    console.log(
-      "islandWorker.js - getIslandData: is=" +
-        sessionData.islandId +
-        " sid=" +
-        sessionData.id +
-        " cid=" +
-        movesCounterId +
-        " fId=" +
-        penguinFollowId +
-        " rw=" +
-        renewMoves +
-        " ti=" +
-        tileHpos +
-        "/" +
-        tileLpos
-    );
+  log(
+    realm,
+    source,
+    "getIslandData",
+    "is=" +
+      sessionData.islandId +
+      " sid=" +
+      sessionData.id +
+      " cid=" +
+      movesCounterId +
+      " fId=" +
+      penguinFollowId +
+      " rw=" +
+      renewMoves +
+      " ti=" +
+      tileHpos +
+      "/" +
+      tileLpos
+  );
 
   let result = {};
   let changed = false;
@@ -88,17 +95,18 @@ const getIslandData = async (
   let islandData = await getItem("island", sessionData.islandId);
 
   if (islandData) {
-    if (debug) {
-      console.log(
-        "islandWorker.js - getIslandData: found is=" +
-          islandData.id +
-          " fId=" +
-          penguinFollowId +
-          " (# " +
-          islandData.counter +
-          ")"
-      );
-    }
+    log(
+      realm,
+      source,
+      "getIslandData",
+      "found is=" +
+        islandData.id +
+        " fId=" +
+        penguinFollowId +
+        " (# " +
+        islandData.counter +
+        ")"
+    );
 
     let moves = sessionData.moveLog.filter(
       (move) => move.moveid > movesCounterId
@@ -181,13 +189,9 @@ const getIslandData = async (
       moves: moves,
     };
 
-    if (deepdebug) {
-      console.log("islandWorker.js - getIslandData -- result --------");
-      console.dir(result);
-      console.log("islandWorker.js - getIslandData -- result --------");
-    }
+    log(realm, source, "getIslandData", result, LOGVERB, LOGDATA);
   } else {
-    console.log("islandWorker.js - getIslandData: no island data found  ");
+    log(realm, source, "getIslandData", "no island data found  ", LOGERR);
   }
 
   return result;
@@ -203,20 +207,22 @@ const getMovesData = async (
   penguinFollowId,
   renewMoves
 ) => {
-  if (deepdebug)
-    console.log(
-      "islandWorker.js - getMovesData: is=" +
-        "islandWorker.js - getIslandData: is=" +
-        sessionData.islandId +
-        " sid=" +
-        sessionData.id +
-        " cid=" +
-        movesCounterId +
-        " fId=" +
-        penguinFollowId +
-        " rw=" +
-        renewMoves
-    );
+  log(
+    realm,
+    source,
+    "getMovesData",
+    "is=" +
+      sessionData.islandId +
+      " sid=" +
+      sessionData.id +
+      " cid=" +
+      movesCounterId +
+      " fId=" +
+      penguinFollowId +
+      " rw=" +
+      renewMoves,
+    LOGVERB
+  );
 
   result = {};
 
@@ -227,15 +233,17 @@ const getMovesData = async (
       (move) => move.moveid > movesCounterId
     );
 
-    if (debug)
-      console.log(
-        "islandWorker.js - getMovesData: found is=" +
-          islandData.id +
-          " fId=" +
-          islandData.penguinFollowId +
-          " ss=" +
-          sessionData.id
-      );
+    log(
+      realm,
+      source,
+      "getMovesData",
+      "found is=" +
+        islandData.id +
+        " fId=" +
+        islandData.penguinFollowId +
+        " ss=" +
+        sessionData.id
+    );
 
     result = {
       session: sessionData.id,
@@ -244,20 +252,19 @@ const getMovesData = async (
       moves: moves,
     };
 
-    if (deepdebug) {
-      console.log("islandWorker.js - getMovesData -- result ----------");
-      console.dir(result);
-      console.log("islandWorker.js - getMovesData -- result ----------");
-    }
+    log(realm, source, "getMovesData", result, LOGVERB, LOGDATA);
 
     if (penguinFollowId && penguinFollowId > 0) {
       islandData.penguinFollowId = penguinFollowId;
       await persistIslandData(islandData);
     }
   } else {
-    console.log(
-      "islandWorker.js - getMovesData: no island data found for " +
-        sessionData.islandId
+    log(
+      realm,
+      source,
+      "getMovesData",
+      "no island data found for " + sessionData.islandId,
+      LOGERR
     );
   }
 
