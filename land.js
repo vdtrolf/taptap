@@ -1,10 +1,19 @@
-let debug = true;
+// logger stuff
+const loggerReq = require("./logger.js");
+let log = loggerReq.log;
+const LOGVERB = loggerReq.LOGVERB;
+const LOGINFO = loggerReq.LOGINFO;
+const LOGERR = loggerReq.LOGERR;
+const LOGTEXT = loggerReq.LOGTEXT;
+const LOGDATA = loggerReq.LOGDATA;
+const LOGDUMP = loggerReq.LOGDUMP;
 
+const realm = "island";
+const source = "land.js";
 class Land {
   constructor(
     h,
     l,
-    debugit,
     islandId,
     id = 0,
     atype = 0,
@@ -35,8 +44,6 @@ class Land {
     this.isTarget = false;
     this.islandSize = 0;
     this.islandPopulation = 0;
-
-    debug = false;
   }
 
   setTarget(isTarget) {
@@ -70,11 +77,12 @@ class Land {
   }
 
   setCross() {
-    if (debug) {
-      console.log(
-        "land.js - setCross : setting cross at " + this.hpos + "/" + this.lpos
-      );
-    }
+    log(
+      realm,
+      source,
+      "setCross",
+      "setting cross at " + this.hpos + "/" + this.lpos
+    );
     this.hasCross = true;
     this.crossAge = 10;
   }
@@ -83,11 +91,6 @@ class Land {
     this.hasFish = false;
   }
 
-  // setFish() {
-  //   this.hasFish = true;
-  //   this.changed = true;
-  // }
-
   canFish() {
     return this.hasSwim;
   }
@@ -95,20 +98,6 @@ class Land {
   setRandomSmeltLevel(waterBorders) {
     this.conf = waterBorders * 2 + Math.floor(Math.random() * 7);
   }
-
-  // converting a water tile to ice - if there is a fish swimming into the water,
-  // then put it on the ice
-
-  // setIce() {
-  //   if (this.hasSwim) {
-  //     this.hasSwim = false;
-  //     this.hasFish = true;
-  //   }
-  //   this.type = 1;
-  //   this.conf = 0;
-  //   this.changed = true;
-
-  // }
 
   resetConf() {
     this.conf = 0;

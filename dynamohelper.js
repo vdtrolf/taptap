@@ -82,6 +82,36 @@ const putItem = (TableName, anItem, uniqueId) => {
   });
 };
 
+const updateItem = (TableName, uniqueId, attributeName, attributeValue) => {
+  const fid = `${uniqueId}`;
+  var queryparams = {
+    FilterExpression: "#tagname = :id",
+    ExpressionAttributeNames: { "#tagname": "id" },
+    ExpressionAttributeValues: {
+      ":id": { N: fid },
+    },
+    TableName: tableName,
+  };
+
+  log(realm, source, "updateItem", queryparams, LOGINFO, LOGDATA);
+
+  dynamodb.updateItem(params, (err, data) => {
+    if (err) {
+      log(
+        realm,
+        source,
+        "updateItem Could not update data in " + TableName,
+        err,
+        LOGERR
+      );
+      return false;
+    } else {
+      log(realm, source, "updateItem", "Success in " + TableName);
+      return true;
+    }
+  });
+};
+
 const getItem = async (tableName, uniqueId) => {
   let id = new Date().getTime() % 100;
   const fid = `${uniqueId}`;
@@ -224,4 +254,5 @@ module.exports = {
   deleteItem,
   createDb,
   cleanDb,
+  updateItem,
 };

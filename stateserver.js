@@ -1,5 +1,15 @@
-// const dbhelperReq = require("./acebasehelper.js");
-const dbhelperReq = require("./dynamohelper.js");
+// DB stuff
+const dbhelperReq = require("./dynamohelper.js"); // require("./acebasehelper.js");
+
+// logger stuff
+const loggerReq = require("./logger.js");
+let log = loggerReq.log;
+const LOGALL = loggerReq.LOGALL;
+const LOGDUMP = loggerREq.LOGDUMP;
+
+const realm = "state";
+const source = "stateserver.js";
+
 const islandReq = require("./island.js");
 const islandDataReq = require("./islandData.js");
 const sessionReq = require("./session.js");
@@ -22,7 +32,6 @@ local = args[0] && args[0].toLowerCase() === "local";
 let simulateRate = 1728; // 864; // 3428;
 
 // debug variables
-let debug = true;
 let deepdebug = true;
 let counter = 0;
 
@@ -44,7 +53,7 @@ const getTheIslands = () => {
     if (island.running) {
       if (deepdebug) {
         let img = island.getAsciiImg();
-        img.forEach((line) => console.log(line));
+        img.forEach((line) => log(realm, source, "", line, LOGALL, LOGDUMP));
       }
 
       island.calculateNeighbours();
@@ -62,7 +71,7 @@ const getTheIslands = () => {
 // For test purpose - simulates a pulsar function if the state server is running locally
 if (local) {
   setInterval(() => {
-    if (debug) console.log("stateserver - simulates a state change request");
+    log(realm, source, "", "simulates a state change request");
     setState();
   }, simulateRate);
 }

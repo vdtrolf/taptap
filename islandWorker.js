@@ -15,6 +15,7 @@ const islandDataReq = require("./islandData.js");
 
 let getItem = dbhelperReq.getItem;
 let getAsyncItems = dbhelperReq.getAsyncItems;
+let updateItem = dbhelperReq.updateItem;
 let persistIslandData = islandDataReq.persistIslandData;
 
 let debug = false;
@@ -292,12 +293,19 @@ const getIslandsList = async () => {
   return islands;
 };
 
-const connectIsland = (sessionId, islandId) => {
+const connectIsland = (sessionId, newIslandId, oldIslandId = 0) => {
   let theIslands = [...getAsyncItems("island", "id", ">", 0)];
+  let island = null;
   if (theIslands) {
     theIslands.forEach((island) => {
       let sessions = island.sessions;
-      console.dir(sesssions);
+      if (island.id === oldIslandId) {
+        console.log("==========> old");
+        console.log(sessions);
+      } else if (island.id === newIslandId) {
+        console.log("==========> new");
+        console.log(sessions);
+      }
     });
   }
 };

@@ -12,7 +12,7 @@ const LOGINFO = loggerReq.LOGINFO;
 const LOGERR = loggerReq.LOGERR;
 const LOGTEXT = loggerReq.LOGTEXT;
 const LOGDATA = loggerReq.LOGDATA;
-const LOGDUMP = loggerREq.LOGDUMP;
+const LOGDUMP = loggerReq.LOGDUMP;
 
 const realm = "req";
 const source = "index.js";
@@ -66,6 +66,7 @@ if (local) {
       let sessionId = Number.parseInt(req.query.sessionId, 10);
       let counterId = Number.parseInt(req.query.counterId, 10);
       let islandId = Number.parseInt(req.query.islandId, 10);
+      let oldIslandId = Number.parseInt(req.query.oldIslandId, 10);
       if (!counterId) counterId = 0;
       log(
         realm,
@@ -79,15 +80,22 @@ if (local) {
           " counterId = " +
           counterId +
           " islandId = " +
-          islandId
+          islandId +
+          " old islandId = " +
+          oldIslandId
       );
 
-      createResponse(req.path, req.query, sessionId, counterId, islandId).then(
-        (responseBody) => {
-          // if (debug) console.dir(responseBody);
-          return res.json(responseBody);
-        }
-      );
+      createResponse(
+        req.path,
+        req.query,
+        sessionId,
+        counterId,
+        islandId,
+        oldIslandId
+      ).then((responseBody) => {
+        // if (debug) console.dir(responseBody);
+        return res.json(responseBody);
+      });
     });
     app.listen(port, () => {
       log(realm, source, "Express", `Little island listening at port: ${port}`);
@@ -124,7 +132,7 @@ if (local) {
       let sessionId = 0;
       let counterId = 0;
       let islandId = 0;
-      let responseCode = 200;
+      let oldIslandId = 0;
 
       if (
         event.queryStringParameters &&
@@ -144,12 +152,20 @@ if (local) {
         islandId = event.queryStringParameters.islandId;
       }
 
+      if (
+        event.queryStringParameters &&
+        event.queryStringParameters.oldIslandId
+      ) {
+        oldIslandId = event.queryStringParameters.oldIslandId;
+      }
+
       const responseBody = await createResponse(
         event.path,
         event.queryStringParameters,
         sessionId,
         counterId,
-        islandId
+        islandId,
+        oldIslandId
       );
 
       log(

@@ -38,7 +38,8 @@ const createResponse = async (
   params,
   sessionId,
   counterId,
-  islandId = 0
+  islandId = 0,
+  oldIslandId = 0
 ) => {
   let session = null;
 
@@ -53,7 +54,9 @@ const createResponse = async (
       " counterId= " +
       counterId +
       " islandId= " +
-      islandId
+      islandId +
+      " old islandId= " +
+      oldIslandId
   );
 
   if (sessionId > 0) {
@@ -84,16 +87,11 @@ const createResponse = async (
       }
 
       case "/connect-island": {
-        let islands = getIslands();
-
-        // connectIsland(sessionId, Number.parseInt(params.islandId, 10));
+        let island = connectIsland(sessionId, islandId, oldIslandId);
 
         // let islandId = Number.parseInt(params.islandId, 10);
-        let island = islands.find((island) => island.id === islandId);
-        if (island) {
-          islands.forEach((island) => island.unregisterSession(session));
-          island.registerSession(session);
 
+        if (island) {
           session.setIsland(island.id);
           island.registerSession(session);
 
