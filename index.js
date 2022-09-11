@@ -48,7 +48,7 @@ setLogLevel("req", LOGINFO);
 const debug = false;
 
 // initiate the DB - local means a local DB for dynamo. Acebase is always local
-createDb(local;);
+createDb(local);
 
 // Starting the express server for handling of local requests
 if (local) {
