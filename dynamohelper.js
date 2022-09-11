@@ -17,7 +17,7 @@ const agent = new https.Agent({
 });
 
 const debug = false;
-const deepdebug = false;
+const deepdebug = true;
 let dynamodb = null;
 
 const createDb = (local) => {
