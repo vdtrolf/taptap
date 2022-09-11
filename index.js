@@ -42,6 +42,9 @@ args.forEach((arg) => {
   }
 });
 
+setLogLevel("db", LOGINFO);
+setLogLevel("req", LOGINFO);
+
 const debug = false;
 
 // initiate the DB - local means a local DB for dynamo. Acebase is always local
