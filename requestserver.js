@@ -15,15 +15,15 @@ const nameserverReq = require("./nameserver.js");
 let Island = islandReq.Island;
 
 let Session = sessionReq.Session;
-let getSession = sessionReq.getSession;
+let getSessionData = sessionReq.getSessionData;
 let createSession = sessionReq.createSession;
-let persistSessions = sessionReq.persistSessions;
 let persistIsland = islandDataReq.persistIsland;
 let getInitData = islandWorkerReq.getInitData;
+let getResetData = islandWorkerReq.getResetData;
+let getRenewData = islandWorkerReq.getRenewData;
 let getIslandData = islandWorkerReq.getIslandData;
 let getMovesData = islandWorkerReq.getMovesData;
 let getIslandsList = islandWorkerReq.getIslandsList;
-let connectIsland = islandWorkerReq.connectIsland;
 
 let NameServer = nameserverReq.NameServer;
 
@@ -41,7 +41,7 @@ const createResponse = async (
   islandId = 0,
   oldIslandId = 0
 ) => {
-  let session = null;
+  let sessionData = null;
 
   log(
     realm,
@@ -60,83 +60,84 @@ const createResponse = async (
   );
 
   if (sessionId > 0) {
-    session = await getSession(sessionId);
+    sessionData = await getSessionData(sessionId);
 
     switch (url) {
       case "/new-island": {
-        // if (island) {
-        //   island.unregisterSession(session);
-        // }
-
-        // island = new Island(islandH, islandL, session);
-        // // islands.push(island);
-        // session.reset();
-        // session.setIsland(island.id);
-        // persistSessions(session);
-        // persistIsland(island);
-
         log(
           realm,
           source,
           "createResponse/new-island",
-          "Renewing an island of size " + islandH + " * " + island
+          "Renewing an island of size " + islandH + " * " + islandL
         );
-
-        // resetPenguinsPos(session);
-        return createInitData(session, counterId);
+        return await getRenewData(
+          islandId,
+          oldIslandId,
+          sessionId,
+          counterId,
+          islandH,
+          islandL
+        );
       }
 
       case "/connect-island": {
-        let island = connectIsland(sessionId, islandId, oldIslandId);
-
-        // let islandId = Number.parseInt(params.islandId, 10);
-
-        if (island) {
-          session.setIsland(island.id);
-          island.registerSession(session);
-
-          persistIsland(island, true);
-          persistSessions(session);
-
+        if (islandId > 0 && oldIslandId > 0) {
           log(
             realm,
             source,
             "createResponse/connect island",
-            "Connecting an island for session " + sessionId
+            "Connecting island " + islandId + " to session " + sessionId
           );
-
-          return await getInitData(island, session, counterId);
+          return await getResetData(
+            islandId,
+            oldIslandId,
+            sessionId,
+            counterId
+          );
         }
       }
 
       case "/moves": {
         let renew = Number.parseInt(params.renew, 10);
         let followId = Number.parseInt(params.followId, 10);
-
-        if (renew !== 0) resetPenguinsPos(session);
-        return await getMovesData(session, counterId, followId, renew);
+        return await getMovesData(
+          islandId,
+          sessionId,
+          counterId,
+          followId,
+          renew
+        );
       }
 
       case "/islandmoves": {
         let renew = Number.parseInt(params.renew, 10);
         let followId = Number.parseInt(params.followId, 10);
-
-        if (renew !== 0) resetPenguinsPos(session);
-        return await getIslandData(session, counterId, followId, renew);
+        return await getIslandData(
+          islandId,
+          sessionId,
+          counterId,
+          followId,
+          renew
+        );
       }
 
       case "/islands": {
         let islands = await getIslandsList();
-
-        // console.dir(islands);
-
-        return { islands: islands, session: session.id };
+        return { islands: islands, session: sessionId };
       }
 
       case "/setTile": {
         let hpos = Number.parseInt(params.hpos, 10);
         let lpos = Number.parseInt(params.lpos, 10);
-        return await getIslandData(session, counterId, 0, 0, hpos, lpos);
+        return await getIslandData(
+          islandId,
+          sessionId,
+          counterId,
+          0,
+          0,
+          hpos,
+          lpos
+        );
       }
 
       default: {
@@ -148,14 +149,10 @@ const createResponse = async (
 
     switch (url) {
       case "/island": {
-        session = createSession();
+        let session = createSession();
         sessionId = session.id;
         let island = new Island(islandH, islandL, [session]);
-        session.setIsland(island.id);
-        island.registerSession(session);
-
         persistIsland(island, true);
-        persistSessions(session);
 
         log(
           realm,
@@ -163,13 +160,11 @@ const createResponse = async (
           "createResponse/island",
           "Building an new island for session " + sessionId
         );
-        return await getInitData(island, session, counterId);
+        return await getInitData(island, sessionId, counterId);
       }
 
       case "/islands": {
         let islands = await getIslandsList();
-
-        // console.dir(islands);
 
         return { islands: islands, session: 0 };
       }

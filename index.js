@@ -66,7 +66,7 @@ if (local) {
       let sessionId = Number.parseInt(req.query.sessionId, 10);
       let counterId = Number.parseInt(req.query.counterId, 10);
       let islandId = Number.parseInt(req.query.islandId, 10);
-      let oldIslandId = Number.parseInt(req.query.oldIslandId, 10);
+      let oldIslandId = Number.parseInt(req.query.oldislandId, 10);
       if (!counterId) counterId = 0;
       log(
         realm,
@@ -154,9 +154,9 @@ if (local) {
 
       if (
         event.queryStringParameters &&
-        event.queryStringParameters.oldIslandId
+        event.queryStringParameters.oldislandId
       ) {
-        oldIslandId = event.queryStringParameters.oldIslandId;
+        oldIslandId = event.queryStringParameters.oldislandId;
       }
 
       const responseBody = await createResponse(

@@ -5,6 +5,7 @@ const dbhelperReq = require("./dynamohelper.js"); // require("./acebasehelper.js
 const loggerReq = require("./logger.js");
 let log = loggerReq.log;
 const LOGVERB = loggerReq.LOGVERB;
+const LOGINFO = loggerReq.LOGINFO;
 const LOGERR = loggerReq.LOGERR;
 const LOGDATA = loggerReq.LOGDATA;
 
@@ -19,17 +20,18 @@ const islandReq = require("./island.js");
 let Island = islandReq.Island;
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
+let Session = sessionReq.Session;
 let putItem = dbhelperReq.putItem;
 let deleteItem = dbhelperReq.deleteItem;
 let getItems = dbhelperReq.getItems;
+let getAsyncItems = dbhelperReq.getAsyncItems;
 let cleanIslands = islandReq.cleanIslands;
 let addIsland = islandReq.addIsland;
-let getSession = sessionReq.getSession;
 
 const maxAge = 3600000; // one hour
 let counter = 0;
 
-const persistIsland = async (island, force = false) => {
+const persistIsland = async (island) => {
   counter++;
 
   log(
@@ -38,11 +40,6 @@ const persistIsland = async (island, force = false) => {
     "persistIsland",
     "persisting island " + island.id + " counter: " + counter
   );
-
-  let sessionsList = [];
-  // island.sessions.forEach((session) => sessionsList.push(session.id));
-
-  // log(realm,source,"persistIsland",sessionsList,LOGVERB,LOGDATA);
 
   let lands = [];
 
@@ -66,12 +63,6 @@ const persistIsland = async (island, force = false) => {
       });
     }
   }
-
-  // lands.forEach((aLand) => {
-  //   if (aLand.hpos === 1 && aLand.lpos === 1) {
-  //     log(realm,source,"persistIsland - land",aLand,LOGVERB,LOGDATA);
-  //   }
-  // });
 
   let penguins = [];
 
@@ -104,6 +95,17 @@ const persistIsland = async (island, force = false) => {
     });
   });
 
+  let sessions = [];
+
+  island.sessions.forEach((session) => {
+    sessions.push({
+      id: session.id,
+      lastInvocation: session.lastInvocation,
+      moveCounter: session.moveCounter,
+      moveLog: session.moveLog,
+    });
+  });
+
   await putItem(
     "island",
     {
@@ -121,7 +123,7 @@ const persistIsland = async (island, force = false) => {
       running: island.running,
       lastInvocation: island.lastInvocation,
       followId: island.followId ? island.followId : 0,
-      sessions: sessionsList,
+      sessions: sessions,
       lands: lands,
       penguins: penguins,
       counter: counter,
@@ -144,15 +146,6 @@ const persistIslandData = async (island) => {
       " counter: " +
       counter
   );
-
-  // let sessionsList = [];
-  // island.sessions.forEach((session) => sessionsList.push(session.id));
-
-  // island.lands.forEach((aLand) => {
-  //   if (aLand.hpos === 1 && aLand.lpos === 1) {
-  //     log(realm,source,"persistIslandData - land",aLand,LOGVERB,LOGDATA);
-  //   }
-  // });
 
   await putItem(
     "island",
@@ -201,25 +194,15 @@ const loadIslands = async (theIslands, callBack) => {
 
     let currentTime = new Date().getTime();
 
-    let islands = [];
-
     try {
       theIslands.forEach((anIsland) => {
         let age = currentTime - Number.parseInt(anIsland.lastInvocation);
-
-        let theSessions = [];
-        if (anIsland.sessions) {
-          anIsland.sessions.forEach((sessionId) => {
-            theSessions.push(getSession(sessionId));
-          });
-        }
 
         if (anIsland.lastInvocation > 0 && (age < maxAge || anIsland.running)) {
           let island = new Island(
             anIsland.sizeH,
             anIsland.sizeL,
-            theSessions,
-            false,
+            [],
             anIsland.id,
             anIsland.name,
             anIsland.weather,
@@ -247,7 +230,6 @@ const loadIslands = async (theIslands, callBack) => {
               let land = new Land(
                 aLand.hpos,
                 aLand.lpos,
-                false,
                 island.id,
                 aLand.id,
                 aLand.type,
@@ -304,6 +286,22 @@ const loadIslands = async (theIslands, callBack) => {
             });
           }
           island.penguins = penguins;
+
+          let sessions = [];
+
+          if (anIsland.sessions) {
+            anIsland.sessions.forEach((aSession) => {
+              let session = new Session(
+                aSession.id,
+                aSession.lastInvocation,
+                island.id,
+                aSession.moveCounter,
+                aSession.moveLog
+              );
+              sessions.push(session);
+            });
+          }
+          island.sessions = sessions;
 
           addIsland(island);
 

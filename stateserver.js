@@ -4,8 +4,11 @@ const dbhelperReq = require("./dynamohelper.js"); // require("./acebasehelper.js
 // logger stuff
 const loggerReq = require("./logger.js");
 let log = loggerReq.log;
+let setLogLevel = loggerReq.setLogLevel;
+const LOGVERB = loggerReq.LOGVERB;
+const LOGINFO = loggerReq.LOGINFO;
 const LOGALL = loggerReq.LOGALL;
-const LOGDUMP = loggerREq.LOGDUMP;
+const LOGDUMP = loggerReq.LOGDUMP;
 
 const realm = "state";
 const source = "stateserver.js";
@@ -16,39 +19,48 @@ const sessionReq = require("./session.js");
 
 let createDb = dbhelperReq.createDb;
 let getIslands = islandReq.getIslands;
-let persistSessions = sessionReq.persistSessions;
 let persistIsland = islandDataReq.persistIsland;
 let initiateIslands = islandDataReq.initiateIslands;
-let initiateSessions = sessionReq.initiateSessions;
-let registerSessions = sessionReq.registerSessions;
+// let registerSessions = sessionReq.registerSessions;
 
 // If it receives 'local' as argument, it runs in local mode
 // which means, then there will be an incode "pulser" that will regularly call the state engine
 let local = false;
+
+// read the command-line arguments - is it local and which debug level ?
 const args = process.argv.slice(2);
-local = args[0] && args[0].toLowerCase() === "local";
+args.forEach((arg) => {
+  switch (arg.toLowerCase()) {
+    case "local":
+      local = true;
+      break;
+    case "debug":
+      setLogLevel("all", LOGINFO);
+      break;
+    case "verbose":
+      setLogLevel("all", LOGVERB);
+      break;
+    default:
+      setLogLevel(arg.toLowerCase(), LOGINFO);
+      break;
+  }
+});
 
 // simulateRate tells how often that must happen
 let simulateRate = 1728; // 864; // 3428;
 
 // debug variables
-let deepdebug = true;
+let deepdebug = false;
 let counter = 0;
 
 // State engine = changes the state of all the running islands
 const setState = () => {
   createDb(local);
-  initiateSessions(getTheSessions);
-};
-
-// Call-back after sessions have been loaded
-const getTheSessions = () => {
   initiateIslands(getTheIslands);
 };
 
 // Call-back after the islands have been loaded
 const getTheIslands = () => {
-  registerSessions();
   getIslands().forEach((island) => {
     if (island.running) {
       if (deepdebug) {
@@ -65,7 +77,6 @@ const getTheIslands = () => {
       persistIsland(island, false, counter++);
     }
   });
-  persistSessions("A");
 };
 
 // For test purpose - simulates a pulsar function if the state server is running locally

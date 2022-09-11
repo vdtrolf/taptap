@@ -65,13 +65,7 @@ class Island {
 
     let matrix = [];
 
-    let sessionId = session ? session[0].id : "nvt";
-    log(
-      realm,
-      source,
-      "new island",
-      this.name + " with id " + this.id + " (session = " + sessionId + ")"
-    );
+    log(realm, source, "new island", this.name + " with id " + this.id);
 
     if (newIsland) {
       // creating a matrix of land objects with a value of 0
@@ -225,61 +219,61 @@ class Island {
 
   // Adds a session to the list of listening sessions
 
-  registerSession(session) {
-    if (!this.sessions.find((aSession) => aSession.id === session.id)) {
-      this.sessions.push(session);
-      log(
-        realm,
-        source,
-        "registerSession",
-        "session " +
-          session.id +
-          " registered to island " +
-          this.name +
-          "/" +
-          this.id
-      );
-    } else {
-      log(
-        realm,
-        source,
-        "registerSession",
-        "session " +
-          session.id +
-          " already registered to island " +
-          this.name +
-          "/" +
-          this.id
-      );
-    }
-  }
+  // registerSession(session) {
+  //   if (!this.sessions.find((aSession) => aSession.id === session.id)) {
+  //     this.sessions.push(session);
+  //     log(
+  //       realm,
+  //       source,
+  //       "registerSession",
+  //       "session " +
+  //         session.id +
+  //         " registered to island " +
+  //         this.name +
+  //         "/" +
+  //         this.id
+  //     );
+  //   } else {
+  //     log(
+  //       realm,
+  //       source,
+  //       "registerSession",
+  //       "session " +
+  //         session.id +
+  //         " already registered to island " +
+  //         this.name +
+  //         "/" +
+  //         this.id
+  //     );
+  //   }
+  // }
 
-  // Remove a session from the list of listening sessions
+  // // Remove a session from the list of listening sessions
 
-  unregisterSession(session) {
-    this.sessions = this.sessions.filter(
-      (aSession) => aSession.id !== session.id
-    );
-    log(
-      realm,
-      source,
-      "unregisterSession",
-      "session " +
-        session.id +
-        " unregistered from island " +
-        this.name +
-        "/" +
-        this.id
-    );
-  }
+  // unregisterSession(session) {
+  //   this.sessions = this.sessions.filter(
+  //     (aSession) => aSession.id !== session.id
+  //   );
+  //   log(
+  //     realm,
+  //     source,
+  //     "unregisterSession",
+  //     "session " +
+  //       session.id +
+  //       " unregistered from island " +
+  //       this.name +
+  //       "/" +
+  //       this.id
+  //   );
+  // }
 
-  hasSession(sessionId) {
-    let foundSession = this.sessions.find(
-      (session) => session.id === sessionId
-    );
-    // probably not necessary
-    return foundSession ? true : false;
-  }
+  // hasSession(sessionId) {
+  //   let foundSession = this.sessions.find(
+  //     (session) => session.id === sessionId
+  //   );
+  //   // probably not necessary
+  //   return foundSession ? true : false;
+  // }
 
   addTile() {
     this.tiles += 1;
