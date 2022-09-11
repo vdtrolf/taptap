@@ -1,5 +1,18 @@
-// const dbhelperReq = require("./acebasehelper.js");
-const dbhelperReq = require("./dynamohelper.js");
+// DB stuff
+const dbhelperReq = require("./dynamohelper.js"); // require("./acebasehelper.js");
+
+// logger stuff
+const loggerReq = require("./logger.js");
+let log = loggerReq.log;
+const LOGINFO = loggerReq.LOGINFO;
+const LOGVERB = loggerReq.LOGVERB;
+const LOGERR = loggerReq.LOGERR;
+
+const realm = "session";
+const source = "session.js";
+const deepdebug = true;
+
+// imports
 const islandReq = require("./island.js");
 
 let putItem = dbhelperReq.putItem;
@@ -7,11 +20,6 @@ let getItems = dbhelperReq.getItems;
 let getItem = dbhelperReq.getItem;
 let deleteItem = dbhelperReq.deleteItem;
 let getIsland = islandReq.getIsland;
-let registerSession = islandReq.registerSession;
-
-let debug = false;
-let deepdebug = false;
-let loaded = false;
 
 let sessions = [];
 const moveTypes = [
@@ -26,43 +34,28 @@ const moveTypes = [
 ];
 
 class Session {
-  constructor(
-    id = 0,
-    lastInvocation = 0,
-    islandId = 0,
-    moveCounter = 0,
-    moveLog = []
-  ) {
+  constructor(id = 0, lastInvocation = 0, moveCounter = 0, moveLog = []) {
     this.id = id === 0 ? Math.floor(Math.random() * 99999999999) : id;
     this.lastInvocation =
       lastInvocation === 0 ? new Date().getTime() : lastInvocation;
-    this.islandId = islandId;
     this.moveCounter = moveCounter;
-    this.moveLog = moveLog;
-    if (deepdebug) {
-      console.log(
-        "session.js - constructor : New session with id " +
-          this.id +
-          " last " +
-          this.lastInvocation
-      );
-    }
+    this.moveLog = [moveLog];
+    log(
+      realm,
+      source,
+      "constructor",
+      "New session with id " + this.id + " last " + this.lastInvocation,
+      LOGVERB
+    );
 
     sessions.push(this);
-
   }
 
   // resets the session - that is set the moveCounter to 0
 
   reset() {
     this.moveCounter = 0;
-    if (debug) {
-      console.log("session.js - reset : Session reset with id " + this.id);
-    }
-  }
-
-  setIsland(islandId) {
-    this.islandId = islandId;
+    log(realm, source, "reset", "Session reset with id " + this.id);
   }
 
   // Add a move log record
@@ -90,10 +83,12 @@ class Session {
   ) {
     let baseDate = new Date("8/1/22");
     let moveTimer = Math.floor((new Date().getTime() - baseDate) / 100);
-    if ((debug && moveType !== 6) || deepdebug) {
-      console.log(
-        "session.js - addMoveLog : " +
-          moveTimer +
+    if (moveType !== 6 || deepdebug) {
+      log(
+        realm,
+        source,
+        "addMoveLog",
+        moveTimer +
           " : Penguin " +
           id +
           " " +
@@ -111,7 +106,8 @@ class Session {
           " -> " +
           newH +
           "/" +
-          newL
+          newL,
+        LOGINFO
       );
     }
     if (moveType !== 1) {
@@ -150,162 +146,164 @@ class Session {
   }
 }
 
-const initiateSessions = (callBack) => {
-  if (deepdebug) {
-    console.log("session.js - initiateSessions: getting sessions out of DB");
-  }
+// const registerSessions = () => {
+//   sessions.forEach((session) => {
+//     log(
+//       realm,
+//       source,
+//       "registerSession",
+//       "island " + session.islandId,
+//       LOGVERB
+//     );
 
-  sessions = [];
-  getItems("session", loadSessions, "id", ">", 0, callBack);
-};
-
-const loadSessions = (theSessions, callBack) => {
-  if (deepdebug) {
-    console.log(
-      "session.js - loadSessions: found " + theSessions.length + " sessions"
-    );
-  }
-
-  theSessions.forEach((asession) => {
-    let session = new Session(
-      asession.id,
-      asession.lastInvocation,
-      asession.islandId,
-      asession.moveCounter,
-      asession.moveLog
-    );
-    // sessions.push(session);
-  });
-
-  callBack();
-};
-
-const registerSessions = () => {
-  sessions.forEach((session) => {
-    if (deepdebug) {
-      console.log("session.js registerSession : island " + session.islandId);
-    }
-
-    let island = getIsland(session.islandId);
-    if (island) {
-      island.registerSession(session);
-    } else {
-      console.log(
-        "session.js registerSession : could not find island " + session.islandId
-      );
-    }
-  });
-};
+//     let island = getIsland(session.islandId);
+//     if (island) {
+//       island.registerSession(session);
+//     } else {
+//       log(
+//         realm,
+//         source,
+//         "registerSession",
+//         "could not find island " + session.islandId,
+//         LOGERR
+//       );
+//     }
+//   });
+// };
 
 // create a new session and directly returns it, in the mean time saves the session to the db
 
 const createSession = () => {
+  log(realm, source, "createSession", "creating a new session", LOGINFO);
   let session = new Session();
   return session;
 };
 
-// gets the session, either out of the local array or out of the NoSQL db
+// gets the session out of the NoSQL db
 
-const getSession = async (sessionId) => {
-  if (deepdebug) {
-    console.log(
-      "session.js - getSession: looking for session with id " + sessionId
-    );
-  }
+const getSessionData = async (sessionId) => {
+  log(
+    realm,
+    source,
+    "getSessionData",
+    "looking for session with id " + sessionId,
+    LOGINFO
+  );
 
   let sessionData = await getItem("session", sessionId);
   if (sessionData && sessionData.id) {
-    if (deepdebug) {
-      console.log(
-        "session.js - getSession:: found a DB session " + sessionData.id
-      );
-    }
+    log(
+      realm,
+      source,
+      "getSession",
+      "found a DB session " + sessionData.id,
+      LOGINFO
+    );
+
     return sessionData;
-  } else {
-    if (deepdebug) {
-      console.log("session.js - getSession:: creating a session " + sessionId);
-    }
-    let session = new Session(sessionId);
-    await persistSessions("4", session);
-    return session;
   }
+};
+
+// gets a new session - if there is an islandId it means it's requested fron a resetData function,
+// which will take care of persisting it
+
+const getSession = async (
+  sessionId,
+  lastInvocation = 0,
+  moveCounter = 0,
+  moveLog = []
+) => {
+  log(realm, source, "getSession", "creating a session " + sessionId, LOGINFO);
+
+  let session = new Session(sessionId, lastInvocation, moveCounter, moveLog);
+  // if (islandId === 0) await persistSessions(session);
+  return session;
 };
 
 // persists the session in the NoSQL db
 
-const persistSessions = async (orig, asession = null) => {
-  if (asession === null) {
-    if (deepdebug)
-      console.log(
-        "session.js - persistSessions(1) : persisting sessions (no id) " +
-          sessions.length
-      );
+// const persistSessions = async (asession = null) => {
+//   if (asession === null) {
+//     log(
+//       realm,
+//       source,
+//       "persistSessions",
+//       "persisting sessions (no id)",
+//       LOGINFO
+//     );
 
-    sessions.forEach((session) => {
-      let currentTime = new Date().getTime();
+//     sessions.forEach((session) => {
+//       let currentTime = new Date().getTime();
 
-      if (currentTime - session.lastInvocation > 300000) {
-        if (deepdebug) {
-          console.log(
-            "session.js - persistSessions(2) : Going to delete session " +
-              session.id +
-              " " +
-              session.lastInvocation +
-              " now:" +
-              currentTime
-          );
-        }
-        deleteItem("session", session.id);
-      } else {
-        if (deepdebug)
-          console.log(
-            "session.js - persistSessions(3) : persisting session in DB " +
-              session.id +
-              " island: " +
-              session.islandId
-          );
-        putItem(
-          "session",
-          {
-            id: session.id,
-            moveLog: session.moveLog,
-            moveCounter: session.moveCounter,
-            lastInvocation: session.lastInvocation,
-            islandId: session.islandId,
-          },
-          session.id
-        );
-      }
-    });
-  } else {
-    if (deepdebug)
-      console.log(
-        "session.js - persistSessions(4) : persisting session " +
-          asession.id +
-          " island: " +
-          asession.islandId
-      );
-    await putItem(
-      "session",
-      {
-        id: asession.id,
-        moveLog: asession.moveLog,
-        moveCounter: asession.moveCounter,
-        lastInvocation: asession.lastInvocation,
-        islandId: asession.islandId,
-      },
-      asession.id
-    );
-  }
-};
+//       // if (currentTime - session.lastInvocation > 300000) {
+//       //   log(
+//       //     realm,
+//       //     source,
+//       //     "persistSessions",
+//       //     "Going to delete session " +
+//       //       session.id +
+//       //       " " +
+//       //       session.lastInvocation +
+//       //       " now:" +
+//       //       currentTime,
+//       //     LOGINFO
+//       //   );
+
+//       //   deleteItem("session", session.id);
+//       // } else {
+//       log(
+//         realm,
+//         source,
+//         "persistSessions",
+//         "persisting session in DB " +
+//           session.id +
+//           " island: " +
+//           session.islandId,
+//         LOGINFO
+//       );
+
+//       putItem(
+//         "session",
+//         {
+//           id: session.id,
+//           moveLog: session.moveLog,
+//           moveCounter: session.moveCounter,
+//           lastInvocation: session.lastInvocation,
+//           islandId: session.islandId,
+//         },
+//         session.id
+//       );
+//       // }
+//     });
+//   } else {
+//     log(
+//       realm,
+//       source,
+//       "persistSessions",
+//       "persisting session " + asession.id + " island: " + asession.islandId,
+//       LOGVERB
+//     );
+
+//     await putItem(
+//       "session",
+//       {
+//         id: asession.id,
+//         moveLog: asession.moveLog,
+//         moveCounter: asession.moveCounter,
+//         lastInvocation: asession.lastInvocation,
+//         islandId: asession.islandId,
+//       },
+//       asession.id
+//     );
+//   }
+// };
 
 // Session: Session,
 
 // now we export the class, so other modules can interact with the session objects
 module.exports = {
+  Session: Session,
   getSession: getSession,
+  getSessionData: getSessionData,
   createSession: createSession,
-  persistSessions: persistSessions,
-  initiateSessions: initiateSessions,
-  registerSessions: registerSessions,
 };

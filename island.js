@@ -1,3 +1,17 @@
+// logger stuff
+const loggerReq = require("./logger.js");
+let log = loggerReq.log;
+const LOGVERB = loggerReq.LOGVERB;
+const LOGINFO = loggerReq.LOGINFO;
+const LOGERR = loggerReq.LOGERR;
+const LOGTEXT = loggerReq.LOGTEXT;
+const LOGDATA = loggerReq.LOGDATA;
+const LOGDUMP = loggerReq.LOGDUMP;
+
+const realm = "island";
+const source = "island.js";
+
+// imports
 const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
 const nameserverReq = require("./nameserver.js");
@@ -8,8 +22,6 @@ let Land = landReq.Land;
 
 let islands = [];
 
-let debug = false;
-
 const weathers = ["sun", "rain", "snow", "cold", "endgame"];
 
 class Island {
@@ -17,7 +29,6 @@ class Island {
     sizeH,
     sizeL,
     session,
-    debugit,
     id = 0,
     name = "",
     weather = 0,
@@ -31,7 +42,6 @@ class Island {
     lastInvocation = 0,
     followId = 0
   ) {
-    debug = debugit;
     let newIsland = id === 0;
 
     this.id = id === 0 ? Math.floor(Math.random() * 999999) : id;
@@ -55,18 +65,7 @@ class Island {
 
     let matrix = [];
 
-    if (debug) {
-      let sessionId = session ? session[0].id : "nvt";
-      console.log(
-        "island.js : new island : " +
-          this.name +
-          " with id " +
-          this.id +
-          " (session = " +
-          sessionId +
-          ")"
-      );
-    }
+    log(realm, source, "new island", this.name + " with id " + this.id);
 
     if (newIsland) {
       // creating a matrix of land objects with a value of 0
@@ -74,7 +73,7 @@ class Island {
         let line = [];
         let lineNum = [];
         for (let l = 0; l < sizeL; l++) {
-          line.push(new Land(h, l, debug, this.id));
+          line.push(new Land(h, l, this.id));
           lineNum.push(0);
         }
         this.territory.push(line);
@@ -220,56 +219,61 @@ class Island {
 
   // Adds a session to the list of listening sessions
 
-  registerSession(session) {
-    if (!this.sessions.find((aSession) => aSession.id === session.id)) {
-      this.sessions.push(session);
-      if (debug) {
-        console.log(
-          "island.js - registerSession : session " +
-            session.id +
-            " registered to island " +
-            this.name +
-            "/" +
-            this.id
-        );
-      }
-    } else {
-      console.log(
-        "island.js - registerSession : session " +
-          session.id +
-          " already registered to island " +
-          this.name +
-          "/" +
-          this.id
-      );
-    }
-  }
+  // registerSession(session) {
+  //   if (!this.sessions.find((aSession) => aSession.id === session.id)) {
+  //     this.sessions.push(session);
+  //     log(
+  //       realm,
+  //       source,
+  //       "registerSession",
+  //       "session " +
+  //         session.id +
+  //         " registered to island " +
+  //         this.name +
+  //         "/" +
+  //         this.id
+  //     );
+  //   } else {
+  //     log(
+  //       realm,
+  //       source,
+  //       "registerSession",
+  //       "session " +
+  //         session.id +
+  //         " already registered to island " +
+  //         this.name +
+  //         "/" +
+  //         this.id
+  //     );
+  //   }
+  // }
 
-  // Remove a session from the list of listening sessions
+  // // Remove a session from the list of listening sessions
 
-  unregisterSession(session) {
-    this.sessions = this.sessions.filter(
-      (aSession) => aSession.id !== session.id
-    );
-    if (debug) {
-      console.log(
-        "island.js - unregisterSession : session " +
-          session.id +
-          " unregistered from island " +
-          this.name +
-          "/" +
-          this.id
-      );
-    }
-  }
+  // unregisterSession(session) {
+  //   this.sessions = this.sessions.filter(
+  //     (aSession) => aSession.id !== session.id
+  //   );
+  //   log(
+  //     realm,
+  //     source,
+  //     "unregisterSession",
+  //     "session " +
+  //       session.id +
+  //       " unregistered from island " +
+  //       this.name +
+  //       "/" +
+  //       this.id
+  //   );
+  // }
 
-  hasSession(sessionId) {
-    let foundSession = this.sessions.find(
-      (session) => session.id === sessionId
-    );
-    // probably not necessary
-    return foundSession ? true : false;
-  }
+  // hasSession(sessionId) {
+  //   let foundSession = this.sessions.find(
+  //     (session) => session.id === sessionId
+  //   );
+  //   // probably not necessary
+  //   return foundSession ? true : false;
+  // }
 
   addTile() {
     this.tiles += 1;
@@ -351,9 +355,8 @@ class Island {
     this.tiles = 5;
     this.fishes = 5;
     this.points = 0;
-    if (debug) {
-      console.log("island.js - reset : Session reset with id " + this.id);
-    }
+
+    log(realm, source, "reset", "Session reset with id " + this.id);
   }
 
   // Decrease or increase the amount of ice
@@ -369,7 +372,6 @@ class Island {
       let lpos = Math.floor(Math.random() * (this.sizeL - 1)) + 1;
       let land = this.territory[hpos][lpos];
 
-      //console.log("checking " + hpos + "/" + lpos);
       let hasWaterBorders =
         this.territory[hpos - 1][lpos].getType() === 0 ||
         hpos === 11 ||
@@ -389,11 +391,12 @@ class Island {
             );
             if (sinkingPenguins.length > 0) {
               sinkingPenguins.forEach((penguin) => {
-                if (debug) {
-                  console.log(
-                    `islands.js - smelt : penguin ${penguin.name} sinking at ${hpos}/${lpos}`
-                  );
-                }
+                log(
+                  realm,
+                  source,
+                  "smelt",
+                  `penguin ${penguin.name} sinking at ${hpos}/${lpos}`
+                );
                 penguin.letDie(this.sessions);
               });
               this.territory[hpos][lpos].setCross();
@@ -427,18 +430,13 @@ class Island {
   movePenguins() {
     // check if there are still alive penguins
 
-    // console.log("islannd.js - movePenguins =======================");
-    // console.dir(this.sessions[0].id);
-    // console.log("islannd.js - movePenguins =======================");
-
     let cntPenguins = this.penguins.filter((penguin) => penguin.alive).length;
 
     if (cntPenguins < 1) {
       this.running = false;
       this.weather = 4;
-      if (debug) {
-        console.log("island.js - movePenguins : endgame");
-      }
+
+      log(realm, source, "movePenguins", "endgame");
     }
 
     // Remove all istarget flags from the lands
@@ -507,11 +505,12 @@ class Island {
             if (fishmoves.length > 0) {
               let fishmove =
                 fishmoves[Math.floor(Math.random() * fishmoves.length)];
-              if (debug) {
-                console.log(
-                  `insland.js movePenguins : ${penguin.name} is going to fish at direction ${fishmove}`
-                );
-              }
+              log(
+                realm,
+                source,
+                "movePenguins",
+                `${penguin.name} is going to fish at direction ${fishmove}`
+              );
 
               penguin.fish(this.sessions, fishmove);
 
@@ -535,14 +534,20 @@ class Island {
           let lover = this.getLover(penguin.gender, pengH, pengL);
           if (lover && penguin.canLove(lover.id)) {
             if (islandPopulation / islandSize > 0.5) {
-              console.log(
-                `island.js - movePenguins : can't love : sub-island population: ${islandPopulation} size: ${islandSize} = ${
+              log(
+                realm,
+                source,
+                "movePenguins",
+                `can't love : sub-island population: ${islandPopulation} size: ${islandSize} = ${
                   islandPopulation / islandSize
                 }`
               );
             } else if (alivePenguins >= this.landSize / 5) {
-              console.log(
-                `island.js - movePenguins : can't love : population: ${alivePenguins} tiles : ${this.landSize}`
+              log(
+                realm,
+                source,
+                "movePenguins",
+                `can't love : population: ${alivePenguins} tiles : ${this.landSize}`
               );
             } else {
               penguin.love(this.sessions, lover.id);
@@ -563,15 +568,16 @@ class Island {
           if (islandPopulation / islandSize > 0.79) {
             penguin.wait(this.sessions);
             this.territory[pengH][pengL].setTarget(true);
-            if (debug) {
-              console.log(
-                `island.js - movePenguins : on ${this.name} island for ${
-                  penguin.name
-                } is too crowded (size: ${islandSize} and population: ${islandPopulation} = ${
-                  islandPopulation / islandSize
-                })`
-              );
-            }
+            log(
+              realm,
+              source,
+              "movePenguins",
+              `on ${this.name} island for ${
+                penguin.name
+              } is too crowded (size: ${islandSize} and population: ${islandPopulation} = ${
+                islandPopulation / islandSize
+              })`
+            );
           } else {
             let move = 0;
 
@@ -584,20 +590,21 @@ class Island {
             if (penguin.hasTarget()) {
               let directions = penguin.getDirections();
 
-              if (debug) {
-                console.log(
-                  "island.js movePenguins penguin " +
-                    penguin.id +
-                    " at  " +
-                    penguin.hpos +
-                    "/" +
-                    penguin.lpos +
-                    " hasTarget : " +
-                    directions[0] +
-                    "-" +
-                    directions[1]
-                );
-              }
+              log(
+                realm,
+                source,
+                "movePenguins",
+                "penguin " +
+                  penguin.id +
+                  " at  " +
+                  penguin.hpos +
+                  "/" +
+                  penguin.lpos +
+                  " hasTarget : " +
+                  directions[0] +
+                  "-" +
+                  directions[1]
+              );
 
               for (
                 let curDir = 0;
@@ -625,8 +632,6 @@ class Island {
                 other.lpos === penguin.lpos
             );
 
-            // if (hasOther) console.log("has other on " + penguin.hpos + "/" + penguin.lpos);
-
             if (penguin.wantsSearch() || hasOther) {
               let posmoves = [];
               if (this.territory[pengH][pengL - 1].canMove()) posmoves.push(1);
@@ -646,11 +651,13 @@ class Island {
             // No move => wait
 
             if (move === 0) {
-              if (debug) {
-                console.log(
-                  `island.js movePenguin : ${penguin.name} Staying still`
-                );
-              }
+              log(
+                realm,
+                source,
+                "movePenguin",
+                `${penguin.name} Staying still`
+              );
+
               penguin.wait(this.sessions);
               this.territory[pengH][pengL].setTarget(true);
             } else {
@@ -740,13 +747,12 @@ class Island {
       if (penguin.alive) {
         let status = penguin.makeOlder(this.sessions);
 
-        if (debug)
-          console.log(
-            "island.js - makePenguinsOlder : is = " +
-              this.id +
-              " penguin=" +
-              penguin.id
-          );
+        log(
+          realm,
+          source,
+          "makePenguinsOlder",
+          "is = " + this.id + " penguin=" + penguin.id
+        );
 
         switch (status.returncode) {
           case 1: // died
@@ -811,15 +817,17 @@ class Island {
       }
       this.weather = newWeather;
 
-      if (debug) {
-        console.log(
-          "island.js setWeather : Changing weather to " +
-            this.weather +
-            " (" +
-            weathers[this.weather] +
-            ")"
-        );
-      }
+      log(
+        realm,
+        source,
+        "setWeather",
+        "Changing weather to " +
+          this.weather +
+          " (" +
+          weathers[this.weather] +
+          ")"
+      );
+
       this.weatherCount = 0;
     }
   }
@@ -1042,7 +1050,6 @@ class Island {
       line2 += "|";
       results.push(line1);
       results.push(line2);
-      // console.log(line);
     }
     results.push(top);
     return results;
@@ -1050,20 +1057,16 @@ class Island {
 }
 
 const cleanIslands = () => {
-  // console.log(":::: cleaning the islands");
   islands = [];
 };
 
 const addIsland = (anIsland) => {
-  // console.log(":::: adding an island " + anIsland.id);
-
   if (!islands.find((island) => island.id === anIsland.id)) {
     islands.push(anIsland);
   }
 };
 
 const setIslands = (theIslands) => {
-  // console.log(":::: setting the islands " + theIslands.length);
   islands = theIslands;
 };
 

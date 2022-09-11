@@ -1,3 +1,10 @@
+// logger stuff
+const loggerReq = require("./logger.js");
+let log = loggerReq.log;
+
+const realm = "penguin";
+const source = "penguin.js";
+
 const nameserverReq = require("./nameserver.js");
 const strategicMapReq = require("./strategicmap.js");
 
@@ -73,32 +80,17 @@ class Penguin {
       this.gender = aPenguinName.gender;
     }
 
-    // console.log("new penguin " + this.name + " " + this.gender);
-
-//    sessions.forEach((session) => {
-//      session.addMoveLog(
-//        this.id,
-//        this.num,
-//        1,
-//        this.cat,
-//        "move",
-//        0,
-//        0,
-//        0,
-//        this.hpos,
-//        this.lpos
-//      );
-//    });
-    if (debug) {
-      console.log(
-        "penguin.js - constructor : new penguin " +
-          this.id +
-          " at " +
-          this.hpos +
-          "/" +
-          this.lpos
-      );
-    }
+    log(
+      realm,
+      source,
+      "constructor" +
+        "new penguin " +
+        this.id +
+        " at " +
+        this.hpos +
+        "/" +
+        this.lpos
+    );
   }
 
   // returns teh category of the penguin - y,m,f,o (old man), e (eldery woman)
@@ -141,9 +133,6 @@ class Penguin {
         this.id
       );
       this.wealth += warmth * weatherFactor;
-
-      // if (this.id === island.followId && this.alive) console.log("Warmth: " + warmth + " fatfactor: " + this.fat + " weatherfactor: " + weatherFactor);
-
       if (this.wealth > 99) this.wealth = 100;
       if (this.wealth < 1) this.wealth = 0;
     }
@@ -181,27 +170,30 @@ class Penguin {
 
   canLove(partnerId) {
     if (partnerId === this.fatherId) {
-      if (debug) {
-        console.log(
-          `penguin.js - canLove : ${this.id}-${this.name} love not possible with father ${this.fatherId}`
-        );
-      }
+      log(
+        realm,
+        source,
+        "canLove",
+        `${this.id}-${this.name} love not possible with father ${this.fatherId}`
+      );
       return false;
     }
     if (partnerId === this.motherId) {
-      if (debug) {
-        console.log(
-          `penguin.js - canLove : ${this.id}-${this.name} love not possible with mother ${this.motherId}`
-        );
-      }
+      log(
+        realm,
+        source,
+        "canLove",
+        `${this.id}-${this.name} love not possible with mother ${this.motherId}`
+      );
       return false;
     }
     if (this.age < 6 || this.age > 30) {
-      if (debug) {
-        console.log(
-          `penguin.js - canLove : ${this.id}-${this.name} too yong or old for all this (i am ${this.age})`
-        );
-      }
+      log(
+        realm,
+        source,
+        "canLove",
+        `${this.id}-${this.name} too yong or old for all this (i am ${this.age})`
+      );
       return false;
     }
 
@@ -253,16 +245,13 @@ class Penguin {
         this.lpos
       );
     });
-    if (debug) {
-      console.log(
-        "penguin.js - resetPos : reset penguin " +
-          this.id +
-          " at " +
-          this.hpos +
-          "/" +
-          this.lpos
-      );
-    }
+    log(
+      realm,
+      source,
+      "resetPos",
+      "reset penguin " + this.id + " at " + this.hpos + "/" + this.lpos
+    );
+
     if (this.loving > 0) {
       sessions.forEach((session) => {
         session.addMoveLog(this.id, this.num, 4, this.cat, "love");
@@ -328,15 +317,9 @@ class Penguin {
     return this.fishTime > 0;
   }
 
-  // makes the penguin fish
+  // makes the penguin more hungry
 
   wait(sessions) {
-    // sessions.forEach((session) => {
-    //   session.addMoveLog(this.id, this.num, 6, this.cat, "still");
-    // });
-
-    // if (this.id === island.followId && this.alive) console.log("Hungry: " + this.hungry + " fatfactor: " + this.fat + " getting more hungry by : " + (Math.floor(this.fat / 2) + 1));
-
     this.hungry += Math.floor((this.fat - 1) / 2) + 1;
   }
 
@@ -409,8 +392,8 @@ class Penguin {
     }
 
     if (this.age > 30 || this.hungry > 99 || this.wealth < 1) {
-      if (debug && this.alive) {
-        console.log("penguin.js - makeOlder : " + this.name + " just died !");
+      if (this.alive) {
+        log(realm, source, "makeOlder", this.name + " just died !");
       }
       this.alive = false;
       sessions.forEach((session) => {
