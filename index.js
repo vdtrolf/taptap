@@ -42,8 +42,8 @@ args.forEach((arg) => {
   }
 });
 
-setLogLevel("db", LOGINFO);
-setLogLevel("req", LOGINFO);
+// setLogLevel("db", LOGINFO);
+// setLogLevel("req", LOGINFO);
 
 const debug = false;
 
@@ -96,7 +96,8 @@ if (local) {
         islandId,
         oldIslandId
       ).then((responseBody) => {
-        // if (debug) console.dir(responseBody);
+        console.dir(responseBody);
+
         return res.json(responseBody);
       });
     });
