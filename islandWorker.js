@@ -118,7 +118,7 @@ const getIslandData = async (
       (session) => session.id === sessionId
     );
 
-    let moves = session.moveLog.filter((move) => move.moveid > movesCounterId);
+    let moves = session.movelog?session.moveLog.filter((move) => move.moveid > movesCounterId):[];
 
     let territory = [];
     for (let i = 0; i < islandData.sizeH; i++) {
