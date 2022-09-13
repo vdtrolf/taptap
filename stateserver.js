@@ -26,6 +26,7 @@ let initiateIslands = islandDataReq.initiateIslands;
 // If it receives 'local' as argument, it runs in local mode
 // which means, then there will be an incode "pulser" that will regularly call the state engine
 let local = false;
+let cleandb = false;
 
 // read the command-line arguments - is it local and which debug level ?
 const args = process.argv.slice(2);
@@ -34,6 +35,9 @@ args.forEach((arg) => {
     case "local":
       local = true;
       break;
+    case "cleandb":
+      cleandb = true;
+      break;
     case "debug":
       setLogLevel("all", LOGINFO);
       break;
@@ -41,7 +45,16 @@ args.forEach((arg) => {
       setLogLevel("all", LOGVERB);
       break;
     default:
-      setLogLevel(arg.toLowerCase(), LOGINFO);
+      if (arg.includes("=")) {
+        const logargs = arg.toLowerCase().split("=");
+        if (logargs[1] === "info") {
+          setLogLevel(logargs[0], LOGINFO);
+        } else if (logargs[1] === "verbose") {
+          setLogLevel(logargs[0], LOGVERB);
+        }
+      } else {
+        setLogLevel(arg.toLowerCase(), LOGINFO);
+      }
       break;
   }
 });
@@ -63,10 +76,10 @@ const setState = () => {
 const getTheIslands = () => {
   getIslands().forEach((island) => {
     if (island.running) {
-      if (deepdebug) {
-        let img = island.getAsciiImg();
-        img.forEach((line) => log(realm, source, "", line, LOGALL, LOGDUMP));
-      }
+      // if (deepdebug) {
+      let img = island.getAsciiImg();
+      img.forEach((line) => log(realm, source, "", line, LOGVERB, LOGDUMP));
+      // }
 
       island.calculateNeighbours();
       island.movePenguins();

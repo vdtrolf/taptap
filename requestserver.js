@@ -15,7 +15,6 @@ const nameserverReq = require("./nameserver.js");
 let Island = islandReq.Island;
 
 let Session = sessionReq.Session;
-let getSessionData = sessionReq.getSessionData;
 let createSession = sessionReq.createSession;
 let persistIsland = islandDataReq.persistIsland;
 let getInitData = islandWorkerReq.getInitData;
@@ -41,8 +40,6 @@ const createResponse = async (
   islandId = 0,
   oldIslandId = 0
 ) => {
-  let sessionData = null;
-
   log(
     realm,
     source,
@@ -60,8 +57,6 @@ const createResponse = async (
   );
 
   if (sessionId > 0) {
-    sessionData = await getSessionData(sessionId);
-
     switch (url) {
       case "/new-island": {
         log(

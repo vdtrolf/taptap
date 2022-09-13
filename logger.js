@@ -6,19 +6,36 @@ const LOGTEXT = 0;
 const LOGDATA = 1;
 const LOGDUMP = 2;
 
-const realms = [];
-let allRealms = false;
+const infoRealms = [];
+const verbRealms = [];
+let allInfoRealms = false;
+let allVerbRealms = false;
+
+// default loglevel
 let loglevel = LOGERR;
 
+// sets the log level either for all realms or a specific realm 
+// log level can be INFO or VERBOSE (ERROR is always displayed)
 const setLogLevel = (realm, level = LOGERR) => {
-  if (realm === "all") {
-    allRealms = true;
+  if (realm === "all" && level === LOGINFO) {
+    allInfoRealms = true;
+    console.log("logger.js - setLogLevel - adding all to info mode");
+  } else if (realm === "all" && level === LOGVERB) {
+    allVerbRealms = true;
+    console.log("logger.js - setLogLevel - adding all to verbose mode");
   } else {
-    realms.push(realm);
+    if (level === LOGVERB) {
+      verbRealms.push(realm);
+      console.log("logger.js - setLogLevel - adding " + realm + " to verbose mode");
+    } else {
+      infoRealms.push(realm);
+      console.log("ogger.js - setLogLevel - adding " + realm + " to info mode");
+    }
   }
-  loglevel = level;
+  if (level < loglevel) loglevel = level;
 };
 
+// Log function - based on the realm and the loglevel decides if the log is to be displayed
 const log = (
   realm,
   origclass,
@@ -31,7 +48,10 @@ const log = (
     if (level === LOGERR) {
       console.error(origclass + "-" + origfunction + "\n", logtext);
     } else {
-      if (allRealms || realms.includes(realm)) {
+      if (
+        (level === LOGINFO && (allInfoRealms || infoRealms.includes(realm))) ||
+        (level === LOGVERB && (allVerbRealms || verbRealms.includes(realm)))
+      ) {
         if (logtype === LOGTEXT) {
           console.log(origclass + "-" + origfunction + ": " + logtext);
         } else if (logtype === LOGDATA) {

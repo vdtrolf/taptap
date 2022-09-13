@@ -20,8 +20,10 @@ const source = "index.js";
 const requestserverReq = require("./requestserver.js");
 let createResponse = requestserverReq.createResponse;
 let createDb = dbhelperReq.createDb;
+let cleanDb = dbhelperReq.cleanDb;
 
 let local = false;
+let cleandb = false;
 
 // read the command-line arguments - is it local and which debug level ?
 const args = process.argv.slice(2);
@@ -30,6 +32,9 @@ args.forEach((arg) => {
     case "local":
       local = true;
       break;
+    case "cleandb":
+      cleandb = true;
+      break;
     case "debug":
       setLogLevel("all", LOGINFO);
       break;
@@ -37,7 +42,16 @@ args.forEach((arg) => {
       setLogLevel("all", LOGVERB);
       break;
     default:
-      setLogLevel(arg.toLowerCase(), LOGINFO);
+      if (arg.includes("=")) {
+        const logargs = arg.toLowerCase().split("=");
+        if (logargs[1] === "info") {
+          setLogLevel(logargs[0], LOGINFO);
+        } else if (logargs[1] === "verbose") {
+          setLogLevel(logargs[0], LOGVERB);
+        }
+      } else {
+        setLogLevel(arg.toLowerCase(), LOGINFO);
+      }
       break;
   }
 });
@@ -48,7 +62,9 @@ args.forEach((arg) => {
 const debug = false;
 
 // initiate the DB - local means a local DB for dynamo. Acebase is always local
+// if the argument 'cleandb' was given, then the island dataset will be (re)created
 createDb(local);
+if (cleandb) cleanDb();
 
 // Starting the express server for handling of local requests
 if (local) {

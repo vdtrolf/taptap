@@ -20,6 +20,16 @@ const debug = false;
 const deepdebug = true;
 let dynamodb = null;
 
+const islanddefs = {
+  AttributeDefinitions: [{ AttributeName: "id", AttributeType: "N" }],
+  KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
+  ProvisionedThroughput: {
+    ReadCapacityUnits: 1,
+    WriteCapacityUnits: 1,
+  },
+  TableName: "island",
+};
+
 const createDb = (local) => {
   if (local) {
     dynamodb = new AWS.DynamoDB({
@@ -54,7 +64,40 @@ const createDb = (local) => {
   }
 };
 
-const cleanDb = () => {};
+const cleanDb = () => {
+  let tableNames = [];
+
+  dynamodb.listTables({ Limit: 10 }, (err, data) => {
+    if (err) {
+      log(realm, source, "cleanDb", "Could not list tables" + err, LOGERR);
+    } else {
+      log(realm, source, "cleanDb", data.TableNames);
+      if (data?.TableNames.includes("island")) {
+        dynamodb.deleteTable(islanddefs, function (err, data) {
+          log(realm, source, "cleanDb", "Table island deleting");
+          dynamodb.waitFor("tableNotExists", islanddefs, function (err, data) {
+            dynamodb.createTable(islanddefs, function (err, data) {});
+            log(realm, source, "cleanDb", "Table island created");
+          });
+        });
+      } else {
+        dynamodb.createTable(islanddefs, function (err, data) {
+          if (err) {
+            log(
+              realm,
+              source,
+              "cleanDb",
+              "Error in creating table island " + err,
+              LOGERR
+            );
+          } else {
+            log(realm, source, "cleanDb", "Table island created");
+          }
+        });
+      }
+    }
+  });
+};
 
 const putItem = (TableName, anItem, uniqueId) => {
   let Item = AWS.DynamoDB.Converter.marshall(anItem);
