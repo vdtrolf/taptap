@@ -14,6 +14,7 @@ const source = "dynamohelper.js";
 const https = require("https");
 const agent = new https.Agent({
   keepAlive: true,
+  keepAliveMsecs: 10000,
 });
 
 const debug = false;
