@@ -18,9 +18,10 @@ const islandReq = require("./island.js");
 let Island = islandReq.Island;
 let getItem = dbhelperReq.getItem;
 let getAsyncItems = dbhelperReq.getAsyncItems;
+let persistIsland = islandDataReq.persistIsland;
 let persistIslandData = islandDataReq.persistIslandData;
 let getSession = sessionReq.getSession;
-let persistSessions = sessionReq.persistSessions;
+// let persistSessions = sessionReq.persistSessions;
 
 const weathers = ["sun", "rain", "snow", "cold", "endgame"];
 
@@ -118,7 +119,14 @@ const getIslandData = async (
       (session) => session.id === sessionId
     );
 
-    let moves = session.moveLog.filter((move) => move.moveid > movesCounterId);
+    let moves = [];
+    if (session) {
+      moves = session.moveLog
+        ? session.moveLog.filter((move) => move.moveid > movesCounterId)
+        : [];
+    } else {
+      console.log("++++ No session found for " + islandData.id);
+    }
 
     let territory = [];
     for (let i = 0; i < islandData.sizeH; i++) {
@@ -292,13 +300,13 @@ const getResetData = async (
     let moves = { moves: theMoves };
     result = { ...result, ...moves };
 
-    session = { ...session, ...moves };
-
-    console.dir(session);
+    session.moveLog = theMoves;
 
     islandData.sessions.map((aSession) =>
       aSession.id === session.id ? session : aSession
     );
+
+    // console.dir(islandData);
 
     await persistIslandData(islandData);
     await persistIslandData(oldIslandData);
@@ -385,12 +393,12 @@ const getRenewData = async (
     session = { ...session, ...moves };
     island.sessions.push(session);
 
-    await persistIslandData(island);
+    await persistIsland(island);
     await persistIslandData(oldIslandData);
 
-    log(realm, source, "getResetData", result, LOGVERB, LOGDATA);
+    log(realm, source, "getRenewData", result, LOGVERB, LOGDATA);
   } else {
-    log(realm, source, "getResetData", "no island data found  ", LOGERR);
+    log(realm, source, "getRenewData", "no island data found  ", LOGERR);
   }
 
   return result;
@@ -499,7 +507,7 @@ const getIslandsList = async () => {
 const resetPenguinsPos = (session, island) => {
   // let session = island.sessions.find((session) => session.id === sessionId);
 
-  console.dir(session);
+  // console.dir(session);
 
   session.moveLog = [];
 

@@ -6,7 +6,6 @@ const loggerReq = require("./logger.js");
 let log = loggerReq.log;
 const LOGINFO = loggerReq.LOGINFO;
 const LOGVERB = loggerReq.LOGVERB;
-const LOGERR = loggerReq.LOGERR;
 
 const realm = "session";
 const source = "session.js";
@@ -39,7 +38,7 @@ class Session {
     this.lastInvocation =
       lastInvocation === 0 ? new Date().getTime() : lastInvocation;
     this.moveCounter = moveCounter;
-    this.moveLog = [moveLog];
+    this.moveLog = moveLog;
     log(
       realm,
       source,
@@ -146,62 +145,12 @@ class Session {
   }
 }
 
-// const registerSessions = () => {
-//   sessions.forEach((session) => {
-//     log(
-//       realm,
-//       source,
-//       "registerSession",
-//       "island " + session.islandId,
-//       LOGVERB
-//     );
-
-//     let island = getIsland(session.islandId);
-//     if (island) {
-//       island.registerSession(session);
-//     } else {
-//       log(
-//         realm,
-//         source,
-//         "registerSession",
-//         "could not find island " + session.islandId,
-//         LOGERR
-//       );
-//     }
-//   });
-// };
-
 // create a new session and directly returns it, in the mean time saves the session to the db
 
 const createSession = () => {
   log(realm, source, "createSession", "creating a new session", LOGINFO);
   let session = new Session();
   return session;
-};
-
-// gets the session out of the NoSQL db
-
-const getSessionData = async (sessionId) => {
-  log(
-    realm,
-    source,
-    "getSessionData",
-    "looking for session with id " + sessionId,
-    LOGINFO
-  );
-
-  let sessionData = await getItem("session", sessionId);
-  if (sessionData && sessionData.id) {
-    log(
-      realm,
-      source,
-      "getSession",
-      "found a DB session " + sessionData.id,
-      LOGINFO
-    );
-
-    return sessionData;
-  }
 };
 
 // gets a new session - if there is an islandId it means it's requested fron a resetData function,
@@ -216,94 +165,12 @@ const getSession = async (
   log(realm, source, "getSession", "creating a session " + sessionId, LOGINFO);
 
   let session = new Session(sessionId, lastInvocation, moveCounter, moveLog);
-  // if (islandId === 0) await persistSessions(session);
   return session;
 };
-
-// persists the session in the NoSQL db
-
-// const persistSessions = async (asession = null) => {
-//   if (asession === null) {
-//     log(
-//       realm,
-//       source,
-//       "persistSessions",
-//       "persisting sessions (no id)",
-//       LOGINFO
-//     );
-
-//     sessions.forEach((session) => {
-//       let currentTime = new Date().getTime();
-
-//       // if (currentTime - session.lastInvocation > 300000) {
-//       //   log(
-//       //     realm,
-//       //     source,
-//       //     "persistSessions",
-//       //     "Going to delete session " +
-//       //       session.id +
-//       //       " " +
-//       //       session.lastInvocation +
-//       //       " now:" +
-//       //       currentTime,
-//       //     LOGINFO
-//       //   );
-
-//       //   deleteItem("session", session.id);
-//       // } else {
-//       log(
-//         realm,
-//         source,
-//         "persistSessions",
-//         "persisting session in DB " +
-//           session.id +
-//           " island: " +
-//           session.islandId,
-//         LOGINFO
-//       );
-
-//       putItem(
-//         "session",
-//         {
-//           id: session.id,
-//           moveLog: session.moveLog,
-//           moveCounter: session.moveCounter,
-//           lastInvocation: session.lastInvocation,
-//           islandId: session.islandId,
-//         },
-//         session.id
-//       );
-//       // }
-//     });
-//   } else {
-//     log(
-//       realm,
-//       source,
-//       "persistSessions",
-//       "persisting session " + asession.id + " island: " + asession.islandId,
-//       LOGVERB
-//     );
-
-//     await putItem(
-//       "session",
-//       {
-//         id: asession.id,
-//         moveLog: asession.moveLog,
-//         moveCounter: asession.moveCounter,
-//         lastInvocation: asession.lastInvocation,
-//         islandId: asession.islandId,
-//       },
-//       asession.id
-//     );
-//   }
-// };
-
-// Session: Session,
 
 // now we export the class, so other modules can interact with the session objects
 module.exports = {
   Session: Session,
   getSession: getSession,
-  getSessionData: getSessionData,
   createSession: createSession,
 };
