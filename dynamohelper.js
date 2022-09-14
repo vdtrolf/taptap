@@ -14,6 +14,7 @@ const source = "dynamohelper.js";
 const https = require("https");
 const agent = new https.Agent({
   keepAlive: true,
+  keepAliveMsecs: 10000,
 });
 
 const debug = false;
@@ -99,6 +100,8 @@ const cleanDb = () => {
   });
 };
 
+// adds an item in the DB based on the table name and the unique id
+
 const putItem = (TableName, anItem, uniqueId) => {
   let Item = AWS.DynamoDB.Converter.marshall(anItem);
   let params = {
@@ -125,35 +128,7 @@ const putItem = (TableName, anItem, uniqueId) => {
   });
 };
 
-const updateItem = (TableName, uniqueId, attributeName, attributeValue) => {
-  const fid = `${uniqueId}`;
-  var queryparams = {
-    FilterExpression: "#tagname = :id",
-    ExpressionAttributeNames: { "#tagname": "id" },
-    ExpressionAttributeValues: {
-      ":id": { N: fid },
-    },
-    TableName: tableName,
-  };
-
-  log(realm, source, "updateItem", queryparams, LOGINFO, LOGDATA);
-
-  dynamodb.updateItem(params, (err, data) => {
-    if (err) {
-      log(
-        realm,
-        source,
-        "updateItem Could not update data in " + TableName,
-        err,
-        LOGERR
-      );
-      return false;
-    } else {
-      log(realm, source, "updateItem", "Success in " + TableName);
-      return true;
-    }
-  });
-};
+// get a specific item out od the Db based on an unique id
 
 const getItem = async (tableName, uniqueId) => {
   let id = new Date().getTime() % 100;
@@ -180,9 +155,8 @@ const getItem = async (tableName, uniqueId) => {
   return cleanItem; // <<--- Your results are here
 };
 
-const getAsyncItem = async (tableName, uniqueId) => {
-  return getItem(tableName, uniqueId);
-};
+// gets items on an asynchronous way - based on a set of parameters and returns them
+// in a callbasck method
 
 const getItems = async (
   tableName,
@@ -231,6 +205,8 @@ const getItems = async (
   });
 };
 
+// directly gets items on an asynchronous way - based on a set of parameters
+
 const getAsyncItems = async (
   tableName,
   filterIdx = "id",
@@ -268,6 +244,8 @@ const getAsyncItems = async (
   return cleanItems;
 };
 
+// Delete an item based on an unique id
+
 const deleteItem = (tableName, uniqueId) => {
   const fval = `${uniqueId}`;
   var deleteparams = {
@@ -289,7 +267,6 @@ const deleteItem = (tableName, uniqueId) => {
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
-  getAsyncItem,
   getAsyncItems,
   putItem,
   getItem,
@@ -297,5 +274,4 @@ module.exports = {
   deleteItem,
   createDb,
   cleanDb,
-  updateItem,
 };
