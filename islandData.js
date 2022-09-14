@@ -110,30 +110,26 @@ const persistIsland = async (island) => {
     });
   });
 
-  await putItem(
-    "island",
-    {
-      id: island.id,
-      name: island.name,
-      sizeH: island.sizeH,
-      sizeL: island.sizeL,
-      weather: island.weather,
-      weatherCount: island.weatherCount,
-      numPeng: island.numPeng,
-      tiles: island.tiles,
-      landSize: island.landSize,
-      fishes: island.fishes,
-      points: island.points,
-      running: island.running,
-      lastInvocation: island.lastInvocation,
-      followId: island.followId ? island.followId : 0,
-      sessions: sessions,
-      lands: lands,
-      penguins: penguins,
-      counter: counter,
-    },
-    island.id
-  );
+  await putItem("island", {
+    id: island.id,
+    name: island.name,
+    sizeH: island.sizeH,
+    sizeL: island.sizeL,
+    weather: island.weather,
+    weatherCount: island.weatherCount,
+    numPeng: island.numPeng,
+    tiles: island.tiles,
+    landSize: island.landSize,
+    fishes: island.fishes,
+    points: island.points,
+    running: island.running,
+    lastInvocation: island.lastInvocation,
+    followId: island.followId ? island.followId : 0,
+    sessions: sessions,
+    lands: lands,
+    penguins: penguins,
+    counter: counter,
+  });
 };
 
 const persistIslandData = async (island) => {
@@ -151,30 +147,26 @@ const persistIslandData = async (island) => {
       counter
   );
 
-  await putItem(
-    "island",
-    {
-      id: island.id,
-      name: island.name,
-      sizeH: island.sizeH,
-      sizeL: island.sizeL,
-      weather: island.weather,
-      weatherCount: island.weatherCount,
-      numPeng: island.numPeng,
-      tiles: island.tiles,
-      landSize: island.landSize,
-      fishes: island.fishes,
-      points: island.points,
-      running: island.running,
-      lastInvocation: island.lastInvocation,
-      followId: island.followId ? island.followId : 0,
-      sessions: island.sessions,
-      lands: island.lands,
-      penguins: island.penguins,
-      counter: counter,
-    },
-    island.id
-  );
+  await putItem("island", {
+    id: island.id,
+    name: island.name,
+    sizeH: island.sizeH,
+    sizeL: island.sizeL,
+    weather: island.weather,
+    weatherCount: island.weatherCount,
+    numPeng: island.numPeng,
+    tiles: island.tiles,
+    landSize: island.landSize,
+    fishes: island.fishes,
+    points: island.points,
+    running: island.running,
+    lastInvocation: island.lastInvocation,
+    followId: island.followId ? island.followId : 0,
+    sessions: island.sessions,
+    lands: island.lands,
+    penguins: island.penguins,
+    counter: counter,
+  });
 };
 
 // Loads the list of islands and returns them to the callback function (loadIslands)

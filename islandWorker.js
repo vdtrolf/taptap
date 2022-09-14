@@ -21,7 +21,6 @@ let getAsyncItems = dbhelperReq.getAsyncItems;
 let persistIsland = islandDataReq.persistIsland;
 let persistIslandData = islandDataReq.persistIslandData;
 let getSession = sessionReq.getSession;
-// let persistSessions = sessionReq.persistSessions;
 
 const weathers = ["sun", "rain", "snow", "cold", "endgame"];
 

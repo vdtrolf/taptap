@@ -1,6 +1,3 @@
-// DB stuff
-const dbhelperReq = require("./dynamohelper.js"); // require("./acebasehelper.js");
-
 // logger stuff
 const loggerReq = require("./logger.js");
 let log = loggerReq.log;
@@ -13,12 +10,6 @@ const deepdebug = true;
 
 // imports
 const islandReq = require("./island.js");
-
-let putItem = dbhelperReq.putItem;
-let getItems = dbhelperReq.getItems;
-let getItem = dbhelperReq.getItem;
-let deleteItem = dbhelperReq.deleteItem;
-let getIsland = islandReq.getIsland;
 
 let sessions = [];
 const moveTypes = [
