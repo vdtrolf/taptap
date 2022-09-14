@@ -38,7 +38,7 @@ class Session {
     this.lastInvocation =
       lastInvocation === 0 ? new Date().getTime() : lastInvocation;
     this.moveCounter = moveCounter;
-    this.moveLog = [moveLog];
+    this.moveLog = moveLog;
     log(
       realm,
       source,

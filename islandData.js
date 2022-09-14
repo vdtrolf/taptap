@@ -98,6 +98,10 @@ const persistIsland = async (island) => {
   let sessions = [];
 
   island.sessions.forEach((session) => {
+    // console.log("------------------ SAVE -----");
+    // console.dir(session);
+    // console.log("------------------ SAVE -----");
+
     sessions.push({
       id: session.id,
       lastInvocation: session.lastInvocation,
@@ -291,10 +295,13 @@ const loadIslands = async (theIslands, callBack) => {
 
           if (anIsland.sessions) {
             anIsland.sessions.forEach((aSession) => {
+              // console.log("------------------ LOAD -----");
+              // console.dir(aSession);
+              // console.log("------------------ LOAD -----");
+
               let session = new Session(
                 aSession.id,
                 aSession.lastInvocation,
-                island.id,
                 aSession.moveCounter,
                 aSession.moveLog
               );

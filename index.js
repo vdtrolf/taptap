@@ -112,7 +112,7 @@ if (local) {
         islandId,
         oldIslandId
       ).then((responseBody) => {
-        console.dir(responseBody);
+        // console.dir(responseBody);
 
         return res.json(responseBody);
       });
