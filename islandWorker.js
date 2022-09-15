@@ -41,7 +41,6 @@ const getInitData = async (island, sessionId, movesCounterId) => {
     island: getImg(island.territory, island.sizeH, island.sizeL),
     penguins: island.getPenguins(),
     weather: weathers[island.weather],
-    artifacts: getArtifacts(island.territory, island.sizeH, island.sizeL),
     tiles: island.tiles,
     fishes: island.fishes,
     points: island.points,
@@ -194,7 +193,6 @@ const getIslandData = async (
       island: getImg(territory, islandData.sizeH, islandData.sizeL),
       penguins: penguins,
       weather: weathers[islandData.weather],
-      artifacts: getArtifacts(territory, islandData.sizeH, islandData.sizeL),
       tiles: islandData.tiles,
       fishes: islandData.fishes,
       points: islandData.points,
@@ -280,7 +278,6 @@ const getResetData = async (
       island: getImg(territory, islandData.sizeH, islandData.sizeL),
       penguins: penguins,
       weather: weathers[islandData.weather],
-      artifacts: getArtifacts(territory, islandData.sizeH, islandData.sizeL),
       tiles: islandData.tiles,
       fishes: islandData.fishes,
       points: islandData.points,
@@ -376,7 +373,6 @@ const getRenewData = async (
       island: getImg(island.territory, island.sizeH, island.sizeL),
       penguins: island.penguins,
       weather: weathers[island.weather],
-      artifacts: getArtifacts(island.territory, island.sizeH, island.sizeL),
       tiles: island.tiles,
       fishes: island.fishes,
       points: island.points,
@@ -539,7 +535,23 @@ const getImg = (territory, islandH, islandL) => {
   let result = [];
   for (let i = 1; i < islandH - 1; i++) {
     for (let j = 1; j < islandL - 1; j++) {
-      let id = i + "-" + j;
+      let land = territory[i][j];
+      let artifact = 0;
+      if (land) {
+        if (land.hasCross) {
+          if (land.type === 0) {
+            artifact = 1;
+          } else {
+            artifact = 2;
+          }
+        } else if (land.hasFish) {
+          artifact = 3;
+        } else if (land.hasSwim) {
+          artifact = 4;
+        } else if (land.hasIce) {
+          artifact = 5;
+        }
+      }
       let tile =
         territory[i][j].type +
         "-" +
@@ -548,8 +560,9 @@ const getImg = (territory, islandH, islandL) => {
         territory[i][j].var;
       result.push({
         li: i,
-        id: id,
+        col: j,
         ti: tile,
+        art: artifact,
       });
     }
   }
@@ -557,33 +570,33 @@ const getImg = (territory, islandH, islandL) => {
 };
 
 // returns the list of artifacts
-const getArtifacts = (territory, islandH, islandL) => {
-  let result = ``;
-  for (let i = 0; i < islandH; i++) {
-    let h = i * 48 + 16; //  + 16;
-    for (let j = 0; j < islandL; j++) {
-      let l = j * 48 + 16; // + 16 ;
-      let land = territory[i][j];
-      if (land) {
-        if (land.hasCross) {
-          if (land.type === 0) {
-            result += `<img class="cross" src="./tiles/wreath.gif" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
-          } else {
-            result += `<img class="cross" src="./tiles/cross.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
-          }
-        } else if (land.hasFish) {
-          result += `<img class="fish" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
-        } else if (land.hasSwim) {
-          let transp = 0.6; // ((Math.floor(Math.random() * 2) / 10))  + 0.3;
-          result += `<img class="swim" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute; opacity:${transp}" width="48" height="48" >\n`;
-        } else if (land.hasIce) {
-          result += `<img class="fish" src="./tiles/ice.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
-        }
-      }
-    }
-  }
-  return result + ``;
-};
+// const getArtifacts = (territory, islandH, islandL) => {
+//   let result = ``;
+//   for (let i = 0; i < islandH; i++) {
+//     let h = i * 48 + 16; //  + 16;
+//     for (let j = 0; j < islandL; j++) {
+//       let l = j * 48 + 16; // + 16 ;
+//       let land = territory[i][j];
+//       if (land) {
+//         if (land.hasCross) {
+//           if (land.type === 0) {
+//             result += `<img class="cross" src="./tiles/wreath.gif" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
+//           } else {
+//             result += `<img class="cross" src="./tiles/cross.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
+//           }
+//         } else if (land.hasFish) {
+//           result += `<img class="fish" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
+//         } else if (land.hasSwim) {
+//           let transp = 0.6; // ((Math.floor(Math.random() * 2) / 10))  + 0.3;
+//           result += `<img class="swim" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute; opacity:${transp}" width="48" height="48" >\n`;
+//         } else if (land.hasIce) {
+//           result += `<img class="fish" src="./tiles/ice.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
+//         }
+//       }
+//     }
+//   }
+//   return result + ``;
+// };
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {

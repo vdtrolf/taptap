@@ -1,5 +1,3 @@
-"use strict";
-
 // DB stuff
 const dbhelperReq = require("./dynamohelper.js"); // require("./acebasehelper.js");
 

@@ -155,34 +155,36 @@ const getIslandName = () => {
   }
 };
 
-const getFakePenguinName = async (aPenguin) => {
-  let random = Math.floor(Math.random() * 20);
-  aPenguin.name = names[random];
-  aPenguin.gender = genders[random];
-};
+// const getFakePenguinName = async (aPenguin) => {
+//   let random = Math.floor(Math.random() * 20);
+//   aPenguin.name = names[random];
+//   aPenguin.gender = genders[random];
+// };
 
 // Gets a name from a name server
 
-// const getFakePenguinName = async (aPenguin) => {
-//   axios
-//     .get("https://randomuser.me/api/?inc=gender,name&nat=fr")
-//     .then((response) => {
-//       aPenguin.name = response.data.results[0].name.first;
-//       aPenguin.gender = response.data.results[0].gender;
-//       if (debug) {
-//         console.log(
-//           "nameserver.js - getFakeName : getting another penguin name"
-//         );
-//       }
-//     })
-//     .catch((error) => {
-//       if (debug) {
-//         console.log(
-//           "nameserver.js - getFakeName : error in getting a penguin name"
-//         );
-//       }
-//     });
-// };
+const getFakePenguinName = async (aPenguin) => {
+  const axios = require("axios");
+
+  axios
+    .get("https://randomuser.me/api/?inc=gender,name&nat=fr")
+    .then((response) => {
+      aPenguin.name = response.data.results[0].name.first;
+      aPenguin.gender = response.data.results[0].gender;
+      if (debug) {
+        console.log(
+          "nameserver.js - getFakeName : getting another penguin name"
+        );
+      }
+    })
+    .catch((error) => {
+      if (debug) {
+        console.log(
+          "nameserver.js - getFakeName : error in getting a penguin name"
+        );
+      }
+    });
+};
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
