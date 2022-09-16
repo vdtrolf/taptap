@@ -449,7 +449,7 @@ const getMovesData = async (
     console.log("========_____________");
 
     let session = islandData.sessions.find(
-      (session) => session.id === sessionId
+      (session) => Number.parseInt(session.id) === Number.parseInt(sessionId)
     );
 
     if (session) {
