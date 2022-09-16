@@ -441,8 +441,12 @@ const getMovesData = async (
         " fId=" +
         islandData.penguinFollowId +
         " ss=" +
-        islandData.sessions
+        sessionId
     );
+
+    console.log("========_____________";)
+    console.dir(islandData.sessions);
+    console.log("========_____________";)
 
     let session = islandData.sessions.find(
       (session) => session.id === sessionId
