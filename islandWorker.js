@@ -444,9 +444,9 @@ const getMovesData = async (
         sessionId
     );
 
-    console.log("========_____________";)
+    console.log("========_____________");
     console.dir(islandData.sessions);
-    console.log("========_____________";)
+    console.log("========_____________");
 
     let session = islandData.sessions.find(
       (session) => session.id === sessionId
