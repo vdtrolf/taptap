@@ -25,8 +25,8 @@ const islanddefs = {
   AttributeDefinitions: [{ AttributeName: "id", AttributeType: "N" }],
   KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
   ProvisionedThroughput: {
-    ReadCapacityUnits: 1,
-    WriteCapacityUnits: 1,
+    ReadCapacityUnits: 5,
+    WriteCapacityUnits: 5,
   },
   TableName: "island",
 };

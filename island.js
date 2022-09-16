@@ -443,7 +443,9 @@ class Island {
 
     for (let i = 0; i < this.sizeH; i++) {
       for (let j = 0; j < this.sizeL; j++) {
-        if (this.territory[i][j]) this.territory[i][j].setTarget(false);
+        if (this.territory[i][j]) {
+          this.territory[i][j].isTarget = false;
+        }
       }
     }
 

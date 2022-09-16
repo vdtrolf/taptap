@@ -54,8 +54,8 @@ args.forEach((arg) => {
   }
 });
 
-// setLogLevel("db", LOGINFO);
-// setLogLevel("req", LOGINFO);
+setLogLevel("db", LOGINFO);
+setLogLevel("req", LOGINFO);
 
 const debug = false;
 
@@ -66,65 +66,65 @@ if (cleandb) cleanDb();
 
 // Starting the express server for handling of local requests
 if (local) {
-  // const port = 3001;
-  // let app = null;
-  // const express = require("express");
-  // const cors = require("cors");
-  // app = express();
-  // app.use(cors());
-  // app.use(express.json());
-  // app.use(
-  //   express.urlencoded({
-  //     extended: true,
-  //   })
-  // );
-  // try {
-  //   app.get("/*", (req, res) => {
-  //     let sessionId = Number.parseInt(req.query.sessionId, 10);
-  //     let counterId = Number.parseInt(req.query.counterId, 10);
-  //     let islandId = Number.parseInt(req.query.islandId, 10);
-  //     let oldIslandId = Number.parseInt(req.query.oldislandId, 10);
-  //     if (!counterId) counterId = 0;
-  //     log(
-  //       realm,
-  //       source,
-  //       "Express",
-  //       req.path +
-  //         " for session " +
-  //         sessionId +
-  //         " renew = " +
-  //         req.query.renew +
-  //         " counterId = " +
-  //         counterId +
-  //         " islandId = " +
-  //         islandId +
-  //         " old islandId = " +
-  //         oldIslandId
-  //     );
-  //     createResponse(
-  //       req.path,
-  //       req.query,
-  //       sessionId,
-  //       counterId,
-  //       islandId,
-  //       oldIslandId
-  //     ).then((responseBody) => {
-  //       // console.dir(responseBody);
-  //       return res.json(responseBody);
-  //     });
-  //   });
-  //   app.listen(port, () => {
-  //     log(realm, source, "Express", `Little island listening at port: ${port}`);
-  //   });
-  //   app.on("error", (e) => {
-  //     log(realm, source, "Express", "app error " + e.code, LOGERR);
-  //   });
-  //   process.on("error", (e) => {
-  //     log(realm, source, "Express", "process error " + e.code, LOGERR);
-  //   });
-  // } catch (error) {
-  //   log(realm, source, "Express", " problem " + error, LOGERR);
-  // }
+  const port = 3001;
+  let app = null;
+  const express = require("express");
+  const cors = require("cors");
+  app = express();
+  app.use(cors());
+  app.use(express.json());
+  app.use(
+    express.urlencoded({
+      extended: true,
+    })
+  );
+  try {
+    app.get("/*", (req, res) => {
+      let sessionId = Number.parseInt(req.query.sessionId, 10);
+      let counterId = Number.parseInt(req.query.counterId, 10);
+      let islandId = Number.parseInt(req.query.islandId, 10);
+      let oldIslandId = Number.parseInt(req.query.oldislandId, 10);
+      if (!counterId) counterId = 0;
+      log(
+        realm,
+        source,
+        "Express",
+        req.path +
+          " for session " +
+          sessionId +
+          " renew = " +
+          req.query.renew +
+          " counterId = " +
+          counterId +
+          " islandId = " +
+          islandId +
+          " old islandId = " +
+          oldIslandId
+      );
+      createResponse(
+        req.path,
+        req.query,
+        sessionId,
+        counterId,
+        islandId,
+        oldIslandId
+      ).then((responseBody) => {
+        // console.dir(responseBody);
+        return res.json(responseBody);
+      });
+    });
+    app.listen(port, () => {
+      log(realm, source, "Express", `Little island listening at port: ${port}`);
+    });
+    app.on("error", (e) => {
+      log(realm, source, "Express", "app error " + e.code, LOGERR);
+    });
+    process.on("error", (e) => {
+      log(realm, source, "Express", "process error " + e.code, LOGERR);
+    });
+  } catch (error) {
+    log(realm, source, "Express", " problem " + error, LOGERR);
+  }
 } else {
   // Starting the handler for handling of lambda requests
   log(realm, source, "Handler", "Little island function listening on Lambda");
@@ -144,6 +144,24 @@ if (local) {
       log(realm, source, "Handler", "Message received from SNS:" + message);
       setState();
       callback(null, "Success");
+    } else if ((event.path = "/state")) {
+      log(realm, source, "Handler", "/state event received ");
+      setState();
+      // callback(null, "Success");
+
+      const aresponse = {
+        statusCode: 200,
+        headers: {
+          "x-custom-header": "little island",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({}),
+        isBase64Encoded: false,
+      };
+
+      log(realm, source, "Handler", "response : " + JSON.stringify(aresponse));
+
+      return aresponse;
     } else {
       let sessionId = 0;
       let counterId = 0;

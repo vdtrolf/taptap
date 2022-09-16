@@ -29,7 +29,7 @@ const setLogLevel = (realm, level = LOGERR) => {
       console.log("logger.js - setLogLevel - adding " + realm + " to verbose mode");
     } else {
       infoRealms.push(realm);
-      console.log("ogger.js - setLogLevel - adding " + realm + " to info mode");
+      console.log("logger.js - setLogLevel - adding " + realm + " to info mode");
     }
   }
   if (level < loglevel) loglevel = level;
