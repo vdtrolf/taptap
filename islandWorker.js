@@ -432,6 +432,18 @@ const getMovesData = async (
   let islandData = await getItem("island", islandId);
 
   if (islandData) {
+    log(
+      realm,
+      source,
+      "getMovesData",
+      "found is=" +
+        islandData.id +
+        " fId=" +
+        islandData.penguinFollowId +
+        " ss=" +
+        islandData.sessions
+    );
+
     let session = islandData.sessions.find(
       (session) => session.id === sessionId
     );
@@ -440,18 +452,6 @@ const getMovesData = async (
       if (session.moveLog) {
         let moves = session.moveLog.filter(
           (move) => move.moveid > movesCounterId
-        );
-
-        log(
-          realm,
-          source,
-          "getMovesData",
-          "found is=" +
-            islandData.id +
-            " fId=" +
-            islandData.penguinFollowId +
-            " ss=" +
-            session.id
         );
 
         result = {
