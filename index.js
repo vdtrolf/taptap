@@ -55,7 +55,8 @@ args.forEach((arg) => {
 });
 
 // setLogLevel("db", LOGINFO);
-// setLogLevel("req", LOGINFO);
+setLogLevel("req", LOGINFO);
+setLogLevel("state", LOGINFO);
 
 const debug = false;
 
@@ -144,6 +145,23 @@ if (local) {
       log(realm, source, "Handler", "Message received from SNS:" + message);
       setState();
       callback(null, "Success");
+    } else if (event.path === "/state") {
+      log(realm, source, "Handler", "/state event received ");
+      setState();
+
+      const aresponse = {
+        statusCode: 200,
+        headers: {
+          "x-custom-header": "little island",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: JSON.stringify({}),
+        isBase64Encoded: false,
+      };
+
+      log(realm, source, "Handler", "response : " + JSON.stringify(aresponse));
+
+      return aresponse;
     } else {
       let sessionId = 0;
       let counterId = 0;

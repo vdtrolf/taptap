@@ -31,7 +31,7 @@ let addIsland = islandReq.addIsland;
 const maxAge = 3600000; // one hour
 let counter = 0;
 
-const persistIsland = async (island) => {
+const persistIsland = (island) => {
   counter++;
 
   log(
@@ -110,7 +110,7 @@ const persistIsland = async (island) => {
     });
   });
 
-  await putItem("island", {
+  putItem("island", {
     id: island.id,
     name: island.name,
     sizeH: island.sizeH,
