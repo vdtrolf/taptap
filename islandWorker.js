@@ -436,32 +436,52 @@ const getMovesData = async (
       (session) => session.id === sessionId
     );
 
-    let moves = session.moveLog.filter((move) => move.moveid > movesCounterId);
+    if (session) {
+      if (session.moveLog) {
+        let moves = session.moveLog.filter(
+          (move) => move.moveid > movesCounterId
+        );
 
-    log(
-      realm,
-      source,
-      "getMovesData",
-      "found is=" +
-        islandData.id +
-        " fId=" +
-        islandData.penguinFollowId +
-        " ss=" +
-        session.id
-    );
+        log(
+          realm,
+          source,
+          "getMovesData",
+          "found is=" +
+            islandData.id +
+            " fId=" +
+            islandData.penguinFollowId +
+            " ss=" +
+            session.id
+        );
 
-    result = {
-      session: session.id,
-      points: islandData.points,
-      islandSize: islandData.landSize,
-      moves: moves,
-    };
+        result = {
+          session: session.id,
+          points: islandData.points,
+          islandSize: islandData.landSize,
+          moves: moves,
+        };
 
-    log(realm, source, "getMovesData", result, LOGVERB, LOGDATA);
+        log(realm, source, "getMovesData", result, LOGVERB, LOGDATA);
 
-    if (penguinFollowId && penguinFollowId > 0) {
-      islandData.penguinFollowId = penguinFollowId;
-      await persistIslandData(islandData);
+        if (penguinFollowId && penguinFollowId > 0) {
+          islandData.penguinFollowId = penguinFollowId;
+          await persistIslandData(islandData);
+        }
+      } else {
+        log(
+          realm,
+          source,
+          "getMovesData",
+          "No moveLog found found is=" + islandData.id
+        );
+      }
+    } else {
+      log(
+        realm,
+        source,
+        "getMovesData",
+        "No session found found is=" + islandData.id
+      );
     }
   } else {
     log(
