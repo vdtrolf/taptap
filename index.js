@@ -167,7 +167,7 @@ if (local) {
         "response is now : " + JSON.stringify(aresponse)
       );
 
-      return { running: running }; // aresponse;
+      return JSON.parse({ running: running }); // aresponse;
     } else {
       let sessionId = 0;
       let counterId = 0;
