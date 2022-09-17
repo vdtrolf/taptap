@@ -160,9 +160,14 @@ if (local) {
         isBase64Encoded: false,
       };
 
-      log(realm, source, "Handler", "response : " + JSON.stringify(aresponse));
+      log(
+        realm,
+        source,
+        "Handler",
+        "response is now : " + JSON.stringify(aresponse)
+      );
 
-      return aresponse;
+      return JSON.stringify(aresponse);
     } else {
       let sessionId = 0;
       let counterId = 0;
