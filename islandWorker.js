@@ -123,7 +123,12 @@ const getIslandData = async (
         ? session.moveLog.filter((move) => move.moveid > movesCounterId)
         : [];
     } else {
-      console.log("++++ No session found for " + islandData.id);
+      log(
+        realm,
+        source,
+        "getIslandData",
+        "Session " + sessionId + " not found for " + islandData.id
+      );
     }
 
     let territory = [];
@@ -147,6 +152,10 @@ const getIslandData = async (
     ) {
       let land = territory[tileHpos][tileLpos];
 
+      console.log("================ land ======");
+      console.dir(land);
+      console.log("================ land ======");
+
       if (land) {
         if (land.type === 0 && islandData.tiles > 0) {
           if (land.hasSwim) {
@@ -166,7 +175,7 @@ const getIslandData = async (
         }
 
         if (changed) {
-          lands = [];
+          let lands = [];
           for (let i = 0; i < islandData.sizeH; i++) {
             for (let j = 0; j < islandData.sizeL; j++) {
               lands.push(territory[i][j]);
@@ -213,7 +222,7 @@ const getIslandData = async (
 // To be used when the island has been persisted
 // Creates a result set based on the island data in the DB
 
-const getResetData = async (
+const getConnectData = async (
   islandId,
   oldIslandId,
   sessionId,
@@ -222,8 +231,15 @@ const getResetData = async (
   log(
     realm,
     source,
-    "getResetData",
-    "is=" + islandId + " sid=" + sessionId + " cid=" + movesCounterId
+    "getConnectData",
+    "is=" +
+      islandId +
+      "old is=" +
+      oldIslandId +
+      " sid=" +
+      sessionId +
+      " cid=" +
+      movesCounterId
   );
 
   let result = {};
@@ -234,7 +250,7 @@ const getResetData = async (
   let oldIslandData = await getItem("island", oldIslandId);
 
   if (oldIslandData) {
-    log(realm, source, "getResetData", "found old is=" + oldIslandData.id);
+    log(realm, source, "getConnectData", "found old is=" + oldIslandData.id);
 
     session = oldIslandData.sessions.find(
       (aSession) => aSession.id === sessionId
@@ -250,12 +266,7 @@ const getResetData = async (
   let islandData = await getItem("island", islandId);
 
   if (islandData) {
-    log(
-      realm,
-      source,
-      "getResetData",
-      "found is=" + islandData.id + " (# " + islandData.counter + ")"
-    );
+    log(realm, source, "getConnectData", "found is=" + islandData.id);
 
     let territory = [];
     for (let i = 0; i < islandData.sizeH; i++) {
@@ -298,18 +309,20 @@ const getResetData = async (
 
     session.moveLog = theMoves;
 
-    islandData.sessions.map((aSession) =>
-      aSession.id === session.id ? session : aSession
-    );
+    // islandData.sessions.map((aSession) =>
+    //   aSession.id === session.id ? session : aSession
+    // );
+
+    islandData.sessions.push(session);
 
     // console.dir(islandData);
 
     await persistIslandData(islandData);
     await persistIslandData(oldIslandData);
 
-    log(realm, source, "getResetData", result, LOGVERB, LOGDATA);
+    log(realm, source, "getConnectData", result, LOGVERB, LOGDATA);
   } else {
-    log(realm, source, "getResetData", "no island data found  ", LOGERR);
+    log(realm, source, "getConnectData", "no island data found  ", LOGERR);
   }
 
   return result;
@@ -337,8 +350,6 @@ const getRenewData = async (
 
   // First go to the "old island", get the session and remove the reference to it
 
-  console.log("======>>> 00");
-
   let oldIslandData = await getItem("island", islandId);
 
   if (oldIslandData) {
@@ -349,16 +360,11 @@ const getRenewData = async (
     );
   }
 
-  console.log("======>>> 0");
-
   let session = await getSession(sessionId, 0, 0);
 
   // Create a new island and construct a new moveLog
 
-  console.log("======>>> 1");
-
   let island = new Island(islandH, islandL, [session]);
-  console.log("======>>> 2");
 
   if (island) {
     log(
@@ -444,9 +450,9 @@ const getMovesData = async (
         sessionId
     );
 
-    console.log("========_____________");
-    console.dir(islandData.sessions);
-    console.log("========_____________");
+    // console.log("========_____________");
+    // console.dir(islandData.sessions);
+    // console.log("========_____________");
 
     let session = islandData.sessions.find(
       (session) => Number.parseInt(session.id) === Number.parseInt(sessionId)
@@ -626,7 +632,7 @@ const getImg = (territory, islandH, islandL) => {
 module.exports = {
   getIslandData: getIslandData,
   getInitData: getInitData,
-  getResetData: getResetData,
+  getConnectData: getConnectData,
   getRenewData: getRenewData,
   getMovesData: getMovesData,
   getIslandsList: getIslandsList,

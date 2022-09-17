@@ -18,7 +18,7 @@ let Session = sessionReq.Session;
 let createSession = sessionReq.createSession;
 let persistIsland = islandDataReq.persistIsland;
 let getInitData = islandWorkerReq.getInitData;
-let getResetData = islandWorkerReq.getResetData;
+let getConnectData = islandWorkerReq.getConnectData;
 let getRenewData = islandWorkerReq.getRenewData;
 let getIslandData = islandWorkerReq.getIslandData;
 let getMovesData = islandWorkerReq.getMovesData;
@@ -83,7 +83,7 @@ const createResponse = async (
             "createResponse/connect island",
             "Connecting island " + islandId + " to session " + sessionId
           );
-          return await getResetData(
+          return await getConnectData(
             islandId,
             oldIslandId,
             sessionId,
