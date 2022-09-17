@@ -143,11 +143,11 @@ if (local) {
     if (event.Records && event.Records[0]) {
       var message = event.Records[0].Sns.Message;
       log(realm, source, "Handler", "Message received from SNS:" + message);
-      setState();
-      callback(null, "Success");
+      let running = setState();
+      callback(null, { running: running });
     } else if (event.path === "/state") {
       log(realm, source, "Handler", "/state event received ");
-      setState();
+      let running = setState();
 
       const aresponse = {
         statusCode: 200,
@@ -155,7 +155,7 @@ if (local) {
           "x-custom-header": "little island",
           "Access-Control-Allow-Origin": "*",
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ running: running }),
         isBase64Encoded: false,
       };
 

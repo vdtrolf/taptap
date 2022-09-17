@@ -67,36 +67,40 @@ let deepdebug = false;
 let counter = 0;
 
 // State engine = changes the state of all the running islands
-const setState = () => {
+const setState = async () => {
   createDb(local);
-  initiateIslands(getTheIslands);
-};
+  let running = await initiateIslands(); // (getTheIslands);
+  if (running) {
+    // Call-back after the islands have been loaded
+    // const getTheIslands = () => {
 
-// Call-back after the islands have been loaded
-const getTheIslands = () => {
-  getIslands().forEach((island) => {
-    if (island.running) {
-      // if (deepdebug) {
-      let img = island.getAsciiImg();
-      img.forEach((line) => log(realm, source, "", line, LOGVERB, LOGDUMP));
-      // }
+    getIslands().forEach((island) => {
+      if (island.running) {
+        if (deepdebug) {
+          let img = island.getAsciiImg();
+          img.forEach((line) => log(realm, source, "", line, LOGVERB, LOGDUMP));
+        }
 
-      island.calculateNeighbours();
-      island.movePenguins();
-      island.addSwims();
-      island.makePenguinsOlder();
-      island.smelt();
-      island.setWeather();
-      persistIsland(island, false, counter++);
-    }
-  });
+        island.calculateNeighbours();
+        island.movePenguins();
+        island.addSwims();
+        island.makePenguinsOlder();
+        island.smelt();
+        island.setWeather();
+        persistIsland(island, false, counter++);
+      }
+    });
+    return true;
+  } else {
+    return false;
+  }
 };
 
 // For test purpose - simulates a pulsar function if the state server is running locally
 if (local) {
   setInterval(() => {
     log(realm, source, "", "simulates a state change request");
-    setState();
+    let running = setState();
   }, simulateRate);
 }
 
