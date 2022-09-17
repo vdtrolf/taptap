@@ -156,7 +156,7 @@ if (local) {
           "x-custom-header": "little island",
           "Access-Control-Allow-Origin": "*",
         },
-        body: JSON.stringify({ running: running }),
+        body: { running: running },
         isBase64Encoded: false,
       };
 
