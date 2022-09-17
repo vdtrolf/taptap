@@ -169,24 +169,22 @@ const persistIslandData = async (island) => {
   });
 };
 
-// Loads the list of islands and returns them to the callback function (loadIslands)
-const initiateIslands = (callBack) => {
-  log(realm, source, "initiateIslands", "getting islands out of DB");
-  getItems("island", loadIslands, "id", ">", 0, callBack);
-};
+const initiateIslands = async () => {
+  let running = false;
 
-// Loads the data into the various objects
-const loadIslands = async (theIslands, callBack) => {
+  log(realm, source, "initiateIslands", "getting islands out of DB");
+  let theIslands = await getAsyncItems("island", "id", ">", 0);
+
   if (theIslands && theIslands.length > 0) {
     cleanIslands();
 
     log(
       realm,
       source,
-      "loadIslands",
+      "initiatieIslands",
       "found " + theIslands.length + " islands"
     );
-    log(realm, source, "loadIslands", theIslands, LOGVERB, LOGDATA);
+    log(realm, source, "initiateIslands", theIslands, LOGVERB, LOGDATA);
 
     let currentTime = new Date().getTime();
 
@@ -195,6 +193,8 @@ const loadIslands = async (theIslands, callBack) => {
         let age = currentTime - Number.parseInt(anIsland.lastInvocation);
 
         if (anIsland.lastInvocation > 0 && (age < maxAge || anIsland.running)) {
+          running = true;
+
           let island = new Island(
             anIsland.sizeH,
             anIsland.sizeL,
@@ -240,12 +240,6 @@ const loadIslands = async (theIslands, callBack) => {
               island.territory[aLand.hpos][aLand.lpos] = land;
             });
           }
-
-          // anIsland.lands.forEach((aLand) => {
-          //   if (aLand.hpos === 1 && aLand.lpos === 1) {
-          //     log(realm,source,"loadIslands - land",aLand,LOGVERB,LOGDATA);
-          //   }
-          // });
 
           let penguins = [];
 
@@ -307,7 +301,7 @@ const loadIslands = async (theIslands, callBack) => {
           log(
             realm,
             source,
-            "loadIslands",
+            "initiateIslands",
             "Loaded island " +
               anIsland.name +
               "-" +
@@ -321,7 +315,7 @@ const loadIslands = async (theIslands, callBack) => {
           log(
             realm,
             source,
-            "loadIslands",
+            "initiateIslands",
             "Could not load island " +
               anIsland.id +
               " age " +
@@ -333,13 +327,185 @@ const loadIslands = async (theIslands, callBack) => {
           deleteItem("island", anIsland.id);
         }
       });
-
-      callBack();
     } catch (error) {
-      log(realm, source, "loadIslands", error, LOGERR);
+      log(realm, source, "initiateIslands", error, LOGERR);
     }
   }
+
+  return running;
 };
+
+// Loads the list of islands and returns them to the callback function (loadIslands)
+// const initiateIslands = (callBack) => {
+//   log(realm, source, "initiateIslands", "getting islands out of DB");
+//   getItems("island", loadIslands, "id", ">", 0, callBack);
+// };
+
+// // Loads the data into the various objects
+// const loadIslands = async (theIslands, callBack) => {
+//   if (theIslands && theIslands.length > 0) {
+//     cleanIslands();
+
+//     log(
+//       realm,
+//       source,
+//       "loadIslands",
+//       "found " + theIslands.length + " islands"
+//     );
+//     log(realm, source, "loadIslands", theIslands, LOGVERB, LOGDATA);
+
+//     let currentTime = new Date().getTime();
+
+//     try {
+//       theIslands.forEach((anIsland) => {
+//         let age = currentTime - Number.parseInt(anIsland.lastInvocation);
+
+//         if (anIsland.lastInvocation > 0 && (age < maxAge || anIsland.running)) {
+//           let island = new Island(
+//             anIsland.sizeH,
+//             anIsland.sizeL,
+//             [],
+//             anIsland.id,
+//             anIsland.name,
+//             anIsland.weather,
+//             anIsland.weatherCount,
+//             anIsland.numPeng,
+//             anIsland.tiles,
+//             anIsland.landSize,
+//             anIsland.fishes,
+//             anIsland.points,
+//             anIsland.running,
+//             anIsland.lastInvocation,
+//             anIsland.followId
+//           );
+
+//           for (let i = 0; i < island.sizeH; i++) {
+//             let line = [];
+//             for (let j = 0; j < island.sizeL; j++) {
+//               line.push([]);
+//             }
+//             island.territory.push(line);
+//           }
+
+//           if (anIsland.lands) {
+//             anIsland.lands.forEach((aLand) => {
+//               let land = new Land(
+//                 aLand.hpos,
+//                 aLand.lpos,
+//                 island.id,
+//                 aLand.id,
+//                 aLand.type,
+//                 aLand.conf,
+//                 aLand.var,
+//                 aLand.hasCross,
+//                 aLand.crossAge,
+//                 aLand.hasFish,
+//                 aLand.hasSwim,
+//                 aLand.swimAge
+//               );
+//               island.territory[aLand.hpos][aLand.lpos] = land;
+//             });
+//           }
+
+//           // anIsland.lands.forEach((aLand) => {
+//           //   if (aLand.hpos === 1 && aLand.lpos === 1) {
+//           //     log(realm,source,"loadIslands - land",aLand,LOGVERB,LOGDATA);
+//           //   }
+//           // });
+
+//           let penguins = [];
+
+//           if (anIsland.penguins) {
+//             anIsland.penguins.forEach((aPenguin) => {
+//               let penguin = new Penguin(
+//                 aPenguin.num,
+//                 aPenguin.hpos,
+//                 aPenguin.lpos,
+//                 [],
+//                 island.id,
+//                 aPenguin.fatherId,
+//                 aPenguin.motherId,
+//                 aPenguin.id,
+//                 aPenguin.age,
+//                 aPenguin.fat,
+//                 aPenguin.maxcnt,
+//                 aPenguin.vision,
+//                 aPenguin.wealth,
+//                 aPenguin.hungry,
+//                 aPenguin.alive,
+//                 aPenguin.gender,
+//                 aPenguin.cat,
+//                 aPenguin.name,
+//                 aPenguin.loving,
+//                 aPenguin.waiting,
+//                 aPenguin.fishTime,
+//                 aPenguin.fishDirection,
+//                 aPenguin.moving,
+//                 aPenguin.hasLoved,
+//                 aPenguin.partnerId
+//               );
+//               penguins.push(penguin);
+//             });
+//           }
+//           island.penguins = penguins;
+
+//           let sessions = [];
+
+//           if (anIsland.sessions) {
+//             anIsland.sessions.forEach((aSession) => {
+//               // console.log("------------------ LOAD -----");
+//               // console.dir(aSession);
+//               // console.log("------------------ LOAD -----");
+
+//               let session = new Session(
+//                 aSession.id,
+//                 aSession.lastInvocation,
+//                 aSession.moveCounter,
+//                 aSession.moveLog
+//               );
+//               sessions.push(session);
+//             });
+//           }
+//           island.sessions = sessions;
+
+//           addIsland(island);
+
+//           log(
+//             realm,
+//             source,
+//             "loadIslands",
+//             "Loaded island " +
+//               anIsland.name +
+//               "-" +
+//               anIsland.id +
+//               " age " +
+//               age +
+//               " runnning " +
+//               anIsland.running
+//           );
+//         } else {
+//           log(
+//             realm,
+//             source,
+//             "loadIslands",
+//             "Could not load island " +
+//               anIsland.id +
+//               " age " +
+//               age +
+//               " runnning " +
+//               anIsland.running
+//           );
+
+//           deleteItem("island", anIsland.id);
+//         }
+//       });
+
+//       callBack();
+//     } catch (error) {
+//       log(realm, source, "loadIslands", error, LOGERR);
+//     }
+//   }
+// };
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
