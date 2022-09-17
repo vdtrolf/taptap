@@ -144,11 +144,11 @@ if (local) {
     if (event.Records && event.Records[0]) {
       var message = event.Records[0].Sns.Message;
       log(realm, source, "Handler", "Message received from SNS:" + message);
-      let running = setState();
+      let running = await setState();
       callback(null, { running: running });
     } else if (event.path === "/state") {
       log(realm, source, "Handler", "/state event received ");
-      let running = setState();
+      let running = await setState();
 
       const aresponse = {
         statusCode: 200,
