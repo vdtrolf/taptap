@@ -55,8 +55,8 @@ args.forEach((arg) => {
 });
 
 // setLogLevel("db", LOGINFO);
-setLogLevel("req", LOGINFO);
-setLogLevel("worker", LOGINFO);
+// setLogLevel("req", LOGINFO);
+// setLogLevel("worker", LOGINFO);
 
 const debug = false;
 
