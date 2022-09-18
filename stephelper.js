@@ -9,6 +9,8 @@ const startStateSteps = () => {
     name: "execution lambda",
   };
 
+  console.log("==========> Going to start engine");
+
   stepFunctions.startExecution(params, (err, data) => {
     if (err) {
       console.log(err);
