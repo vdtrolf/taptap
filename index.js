@@ -157,7 +157,7 @@ if (local) {
           "x-custom-header": "little island",
           "Access-Control-Allow-Origin": "*",
         },
-        body{running: running},
+        body: { running: running },
         isBase64Encoded: false,
       };
 
