@@ -148,7 +148,7 @@ if (local) {
       callback(null, { running: running });
     } else if (event.path === "/state") {
       log(realm, source, "Handler", "/state event received ");
-      let running = await setState();
+      let isRunning = await setState();
       let statusCode = running ? 200 : 201;
 
       const aresponse = {
@@ -157,7 +157,7 @@ if (local) {
           "x-custom-header": "little island",
           "Access-Control-Allow-Origin": "*",
         },
-        body: { running: running },
+        body: { running: isRrunning },
         isBase64Encoded: false,
       };
 

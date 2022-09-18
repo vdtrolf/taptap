@@ -11,6 +11,7 @@ const islandWorkerReq = require("./islandWorker.js");
 const islandDataReq = require("./islandData.js");
 const sessionReq = require("./session.js");
 const nameserverReq = require("./nameserver.js");
+const stephelperReq = require("./stephelper.js");
 
 let Island = islandReq.Island;
 
@@ -23,6 +24,7 @@ let getRenewData = islandWorkerReq.getRenewData;
 let getIslandData = islandWorkerReq.getIslandData;
 let getMovesData = islandWorkerReq.getMovesData;
 let getIslandsList = islandWorkerReq.getIslandsList;
+let startStateSteps = stephelperReq.startStateSteps;
 
 let NameServer = nameserverReq.NameServer;
 
@@ -155,6 +157,7 @@ const createResponse = async (
           "createResponse/island",
           "Building an new island for session " + sessionId
         );
+        startStateSteps();
         return await getInitData(island, sessionId, counterId);
       }
 
