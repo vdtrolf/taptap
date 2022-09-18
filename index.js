@@ -152,7 +152,7 @@ if (local) {
       let statusCode = running ? 200 : 201;
 
       const aresponse = {
-        statusCode: statusCode,
+        StatusCode: statusCode,
         headers: {
           "x-custom-header": "little island",
           "Access-Control-Allow-Origin": "*",
