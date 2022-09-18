@@ -69,13 +69,16 @@ let counter = 0;
 // State engine = changes the state of all the running islands
 const setState = async () => {
   createDb(local);
-  let running = await initiateIslands(); // (getTheIslands);
-  if (running) {
+  let initiate = await initiateIslands(); // (getTheIslands);
+  let running = false;
+
+  if (initiate) {
     // Call-back after the islands have been loaded
     // const getTheIslands = () => {
 
     getIslands().forEach((island) => {
       if (island.running) {
+        running = true;
         if (deepdebug) {
           let img = island.getAsciiImg();
           img.forEach((line) => log(realm, source, "", line, LOGVERB, LOGDUMP));
@@ -90,10 +93,8 @@ const setState = async () => {
         persistIsland(island, false, counter++);
       }
     });
-    return true;
-  } else {
-    return false;
   }
+  return running;
 };
 
 // For test purpose - simulates a pulsar function if the state server is running locally
