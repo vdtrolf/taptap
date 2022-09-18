@@ -104,13 +104,7 @@ const getIslandData = async (
       realm,
       source,
       "getIslandData",
-      "found is=" +
-        islandData.id +
-        " fId=" +
-        penguinFollowId +
-        " (#lands " +
-        islandData.lands.length +
-        ")"
+      "found is=" + islandData.id + " fId=" + penguinFollowId
     );
 
     let session = islandData.sessions.find(
