@@ -156,7 +156,7 @@ if (local) {
           "x-custom-header": "little island",
           "Access-Control-Allow-Origin": "*",
         },
-        body: { running: isRrunning },
+        body: { running: isRunning },
         isBase64Encoded: false,
       };
 
