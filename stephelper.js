@@ -6,7 +6,7 @@ const startStateSteps = () => {
     stateMachineArn:
       "arn:aws:states:us-east-1:778787439795:stateMachine:Taptap_state_engine",
     input: "",
-    name: "execution lambda",
+    name: "ExecutionLambda",
   };
 
   console.log("==========> Going to start engine");
@@ -21,7 +21,7 @@ const startStateSteps = () => {
           message: "There was an error",
         }),
       };
-      callback(null, response);
+      // callback(null, response);
     } else {
       console.log(data);
 
@@ -31,7 +31,7 @@ const startStateSteps = () => {
           message: "Step function worked",
         }),
       };
-      callback(null, response);
+      // callback(null, response);
     }
   });
 };
