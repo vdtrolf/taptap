@@ -167,6 +167,11 @@ const createResponse = async (
         return { islands: islands, session: 0 };
       }
 
+      case "/stateengine": {
+        startStateSteps();
+        return { result: "state engine started" };
+      }
+
       default: {
         return {};
       }

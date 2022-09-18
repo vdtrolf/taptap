@@ -11,29 +11,38 @@ const startStateSteps = () => {
 
   console.log("==========> Going to start engine");
 
-  stepFunctions.startExecution(params, (err, data) => {
-    if (err) {
-      console.log(err);
+  try {
+    stepFunctions.startExecution(params, (err, data) => {
+      if (err) {
+        console.log(err);
 
-      const response = {
-        statusCode: 500,
-        body: JSON.stringify({
-          message: "There was an error",
-        }),
-      };
-      // callback(null, response);
-    } else {
-      console.log(data);
+        const response = {
+          statusCode: 500,
+          body: JSON.stringify({
+            message: "There was an error",
+          }),
+        };
 
-      const response = {
-        statusCode: 200,
-        body: JSON.stringify({
-          message: "Step function worked",
-        }),
-      };
-      // callback(null, response);
-    }
-  });
+        return response;
+        // callback(null, response);
+      } else {
+        console.log(data);
+
+        const response = {
+          statusCode: 200,
+          body: JSON.stringify({
+            message: "Step function worked",
+          }),
+        };
+
+        return response;
+
+        // callback(null, response);
+      }
+    });
+  } catch {
+    console.err("Error while starting step", err);
+  }
 };
 
 // now we export the class, so other modules can create Penguin objects
