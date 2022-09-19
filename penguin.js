@@ -462,9 +462,9 @@ class Penguin {
     }
     if (moveType !== 1) {
       
-      console.log("============= 1 ===");
-      console.dir(this.moveLog)
-      console.log("============ 1 ====");
+      // console.log("============= 1 ===");
+      // console.dir(this.moveLog)
+      // console.log("============ 1 ====");
 
       this.moveLog.push({
         moveid: moveTimer,
@@ -477,9 +477,9 @@ class Penguin {
       });
     } else {
 
-      console.log("============= 2 ===");
-      console.dir(this.moveLog)
-      console.log("============ 2 ====");
+      // console.log("============= 2 ===");
+      // console.dir(this.moveLog)
+      // console.log("============ 2 ====");
 
 
       this.moveLog.push({

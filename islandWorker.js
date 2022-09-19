@@ -531,6 +531,12 @@ const resetPenguinsPos = (session, island) => {
   session.moveLog = [];
 
   island.penguins.forEach((penguin) => {
+
+    console.log("--------------==---------------")
+    console.dir(penguin)
+    console.log("--------------==---------------")
+
+
     penguin.addMoveLog(
       [session],
       1,
