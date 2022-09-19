@@ -531,9 +531,8 @@ const resetPenguinsPos = (session, island) => {
   session.moveLog = [];
 
   island.penguins.forEach((penguin) => {
-    session.addMoveLog(
-      penguin.id,
-      penguin.num,
+    penguin.addMoveLog(
+      [session],
       1,
       penguin.cat,
       "move",
@@ -544,10 +543,10 @@ const resetPenguinsPos = (session, island) => {
       penguin.lpos
     );
     if (penguin.loving > 0) {
-      session.addMoveLog(penguin.id, penguin.num, 4, penguin.cat, "love");
+      penguin.addMoveLog([session], 4, penguin.cat, "love");
     }
     if (penguin.eating > 0) {
-      session.addMoveLog(penguin.id, penguin.num, 3, penguin.cat, "eat");
+      penguin.addMoveLog([session], 3, penguin.cat, "eat");
     }
   });
 

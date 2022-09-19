@@ -205,7 +205,8 @@ class Island {
             hpos,
             lpos,
             this.sessions,
-            this.id
+            this.id,
+            []
           );
 
           this.penguins.push(penguin);
@@ -775,6 +776,8 @@ class Island {
                 h,
                 l,
                 this.sessions,
+                this.id,
+                [],
                 fatherId,
                 motherId
               );
