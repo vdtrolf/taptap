@@ -70,6 +70,7 @@ const persistIsland = (island) => {
     penguins.push({
       id: penguin.id,
       islandId: penguin.islandId,
+      moveLog: penguin.moveLog,
       num: penguin.num,
       hpos: penguin.hpos,
       lpos: penguin.lpos,
@@ -87,6 +88,7 @@ const persistIsland = (island) => {
       waiting: penguin.waiting,
       fishTime: penguin.fishTime,
       fishDirection: penguin.fishDirection,
+      eating: penguin.eating,
       moving: penguin.moving,
       hasLoved: penguin.hasLoved,
       fatherId: penguin.fatherId,
@@ -251,6 +253,7 @@ const initiateIslands = async () => {
                 aPenguin.lpos,
                 [],
                 island.id,
+                aPenguin.moveLog,
                 aPenguin.fatherId,
                 aPenguin.motherId,
                 aPenguin.id,
@@ -268,6 +271,7 @@ const initiateIslands = async () => {
                 aPenguin.waiting,
                 aPenguin.fishTime,
                 aPenguin.fishDirection,
+                aPenguin.eating,
                 aPenguin.moving,
                 aPenguin.hasLoved,
                 aPenguin.partnerId

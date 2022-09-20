@@ -1,5 +1,8 @@
 let executionName = "taptap_run_" + new Date().getTime();
 
+
+// starts the steps function
+
 function startStateSteps() {
   var AWS = require('aws-sdk');
 

@@ -19,8 +19,8 @@ let Session = sessionReq.Session;
 let createSession = sessionReq.createSession;
 let persistIsland = islandDataReq.persistIsland;
 let getInitData = islandWorkerReq.getInitData;
-let getConnectData = islandWorkerReq.getConnectData;
-let getRenewData = islandWorkerReq.getRenewData;
+// let getConnectData = islandWorkerReq.getConnectData;
+// let getRenewData = islandWorkerReq.getRenewData;
 let getIslandData = islandWorkerReq.getIslandData;
 let getMovesData = islandWorkerReq.getMovesData;
 let getIslandsList = islandWorkerReq.getIslandsList;
@@ -40,7 +40,8 @@ const createResponse = async (
   sessionId,
   counterId,
   islandId = 0,
-  oldIslandId = 0
+  oldIslandId = 0,
+  local = true
 ) => {
   log(
     realm,
@@ -61,60 +62,36 @@ const createResponse = async (
   if (sessionId > 0) {
     switch (url) {
       case "/new-island": {
+        let island = new Island(islandH, islandL, []);
+        persistIsland(island, true);
+
         log(
           realm,
           source,
           "createResponse/new-island",
           "Renewing an island of size " + islandH + " * " + islandL
         );
-        return await getRenewData(
-          islandId,
-          oldIslandId,
-          sessionId,
-          counterId,
-          islandH,
-          islandL
-        );
-      }
-
-      case "/connect-island": {
-        if (islandId > 0 && oldIslandId > 0) {
-          log(
-            realm,
-            source,
-            "createResponse/connect island",
-            "Connecting island " + islandId + " to session " + sessionId
-          );
-          return await getConnectData(
-            islandId,
-            oldIslandId,
-            sessionId,
-            counterId
-          );
-        }
+       
+        return await getInitData(island, sessionId, counterId);
       }
 
       case "/moves": {
-        let renew = Number.parseInt(params.renew, 10);
         let followId = Number.parseInt(params.followId, 10);
         return await getMovesData(
           islandId,
           sessionId,
           counterId,
-          followId,
-          renew
+          followId
         );
       }
 
       case "/islandmoves": {
-        let renew = Number.parseInt(params.renew, 10);
         let followId = Number.parseInt(params.followId, 10);
         return await getIslandData(
           islandId,
           sessionId,
           counterId,
-          followId,
-          renew
+          followId
         );
       }
 
@@ -130,7 +107,6 @@ const createResponse = async (
           islandId,
           sessionId,
           counterId,
-          0,
           0,
           hpos,
           lpos
@@ -157,7 +133,9 @@ const createResponse = async (
           "createResponse/island",
           "Building an new island for session " + sessionId
         );
-        startStateSteps();
+        if (!local) {
+          startStateSteps();
+        }
         return await getInitData(island, sessionId, counterId);
       }
 

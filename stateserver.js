@@ -60,7 +60,7 @@ args.forEach((arg) => {
 });
 
 // simulateRate tells how often that must happen
-let simulateRate = 1728; // 864; // 3428;
+let simulateRate = 1000; // 864; // 3428;
 
 // debug variables
 let deepdebug = false;

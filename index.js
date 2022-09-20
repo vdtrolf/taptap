@@ -109,7 +109,8 @@ if (local) {
         sessionId,
         counterId,
         islandId,
-        oldIslandId
+        oldIslandId,
+        local
       ).then((responseBody) => {
         // console.dir(responseBody);
         return res.json(responseBody);
@@ -205,7 +206,8 @@ if (local) {
         sessionId,
         counterId,
         islandId,
-        oldIslandId
+        oldIslandId,
+        local
       );
 
       log(

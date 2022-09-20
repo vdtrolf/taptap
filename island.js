@@ -201,11 +201,12 @@ class Island {
         if (land && land.getType() !== 0) {
           // && this.penguins.length < 1) {
           let penguin = new Penguin(
-            this.numPeng++,
+            0, // this.numPeng++,
             hpos,
             lpos,
             this.sessions,
-            this.id
+            this.id,
+            []
           );
 
           this.penguins.push(penguin);
@@ -771,10 +772,12 @@ class Island {
               let motherId =
                 penguin.gender === "male" ? penguin.partnerId : penguin.id;
               let child = new Penguin(
-                this.numPeng++,
+                0, // this.numPeng++,
                 h,
                 l,
                 this.sessions,
+                this.id,
+                [],
                 fatherId,
                 motherId
               );
