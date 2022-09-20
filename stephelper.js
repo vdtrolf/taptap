@@ -11,7 +11,7 @@ function startStateSteps() {
     stateMachineArn:
       "arn:aws:states:us-east-1:778787439795:stateMachine:TapTap_steps_functions",
     input: '{"Dummy":666}',
-    name: "taptap_steps",
+    name: executionName,
   };
 
   stepfunctions.startExecution(params, function (err, data) {
