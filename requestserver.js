@@ -37,7 +37,6 @@ let nameserver = new NameServer(30, 10, false);
 const createResponse = async (
   url,
   params,
-  sessionId,
   counterId,
   islandId = 0,
   oldIslandId = 0,
@@ -49,8 +48,6 @@ const createResponse = async (
     "createResponse",
     ": url= " +
       url +
-      " sessionId= " +
-      sessionId +
       " counterId= " +
       counterId +
       " islandId= " +
@@ -59,7 +56,7 @@ const createResponse = async (
       oldIslandId
   );
 
-  if (sessionId > 0) {
+  if (islandId > 0) {
     switch (url) {
       case "/new-island": {
         let island = new Island(islandH, islandL, []);
@@ -71,46 +68,29 @@ const createResponse = async (
           "createResponse/new-island",
           "Renewing an island of size " + islandH + " * " + islandL
         );
-       
-        return await getInitData(island, sessionId, counterId);
+
+        return await getInitData(island, counterId);
       }
 
       case "/moves": {
         let followId = Number.parseInt(params.followId, 10);
-        return await getMovesData(
-          islandId,
-          sessionId,
-          counterId,
-          followId
-        );
+        return await getMovesData(islandId, counterId, followId);
       }
 
       case "/islandmoves": {
         let followId = Number.parseInt(params.followId, 10);
-        return await getIslandData(
-          islandId,
-          sessionId,
-          counterId,
-          followId
-        );
+        return await getIslandData(islandId, counterId, followId);
       }
 
       case "/islands": {
         let islands = await getIslandsList();
-        return { islands: islands, session: sessionId };
+        return { islands: islands };
       }
 
       case "/setTile": {
         let hpos = Number.parseInt(params.hpos, 10);
         let lpos = Number.parseInt(params.lpos, 10);
-        return await getIslandData(
-          islandId,
-          sessionId,
-          counterId,
-          0,
-          hpos,
-          lpos
-        );
+        return await getIslandData(islandId, counterId, 0, hpos, lpos);
       }
 
       default: {
@@ -122,27 +102,20 @@ const createResponse = async (
 
     switch (url) {
       case "/island": {
-        let session = createSession();
-        sessionId = session.id;
-        let island = new Island(islandH, islandL, [session]);
+        let island = new Island(islandH, islandL);
         persistIsland(island, true);
 
-        log(
-          realm,
-          source,
-          "createResponse/island",
-          "Building an new island for session " + sessionId
-        );
+        log(realm, source, "createResponse/island", "Building an new island");
         if (!local) {
           startStateSteps();
         }
-        return await getInitData(island, sessionId, counterId);
+        return await getInitData(island, counterId);
       }
 
       case "/islands": {
         let islands = await getIslandsList();
 
-        return { islands: islands, session: 0 };
+        return { islands: islands };
       }
 
       case "/stateengine": {

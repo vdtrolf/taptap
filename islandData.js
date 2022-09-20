@@ -97,20 +97,20 @@ const persistIsland = (island) => {
     });
   });
 
-  let sessions = [];
+  // let sessions = [];
 
-  island.sessions.forEach((session) => {
-    // console.log("------------------ SAVE -----");
-    // console.dir(session);
-    // console.log("------------------ SAVE -----");
+  // island.sessions.forEach((session) => {
+  //   // console.log("------------------ SAVE -----");
+  //   // console.dir(session);
+  //   // console.log("------------------ SAVE -----");
 
-    sessions.push({
-      id: session.id,
-      lastInvocation: session.lastInvocation,
-      moveCounter: session.moveCounter,
-      moveLog: session.moveLog,
-    });
-  });
+  //   sessions.push({
+  //     id: session.id,
+  //     lastInvocation: session.lastInvocation,
+  //     moveCounter: session.moveCounter,
+  //     moveLog: session.moveLog,
+  //   });
+  // });
 
   putItem("island", {
     id: island.id,
@@ -127,7 +127,6 @@ const persistIsland = (island) => {
     running: island.running,
     lastInvocation: island.lastInvocation,
     followId: island.followId ? island.followId : 0,
-    sessions: sessions,
     lands: lands,
     penguins: penguins,
     counter: counter,
@@ -164,7 +163,6 @@ const persistIslandData = async (island) => {
     running: island.running,
     lastInvocation: island.lastInvocation,
     followId: island.followId ? island.followId : 0,
-    sessions: island.sessions,
     lands: island.lands,
     penguins: island.penguins,
     counter: counter,
@@ -281,24 +279,24 @@ const initiateIslands = async () => {
           }
           island.penguins = penguins;
 
-          let sessions = [];
+          // let sessions = [];
 
-          if (anIsland.sessions) {
-            anIsland.sessions.forEach((aSession) => {
-              // console.log("------------------ LOAD -----");
-              // console.dir(aSession);
-              // console.log("------------------ LOAD -----");
+          // if (anIsland.sessions) {
+          //   anIsland.sessions.forEach((aSession) => {
+          //     // console.log("------------------ LOAD -----");
+          //     // console.dir(aSession);
+          //     // console.log("------------------ LOAD -----");
 
-              let session = new Session(
-                aSession.id,
-                aSession.lastInvocation,
-                aSession.moveCounter,
-                aSession.moveLog
-              );
-              sessions.push(session);
-            });
-          }
-          island.sessions = sessions;
+          //     let session = new Session(
+          //       aSession.id,
+          //       aSession.lastInvocation,
+          //       aSession.moveCounter,
+          //       aSession.moveLog
+          //     );
+          //     sessions.push(session);
+          //   });
+          // }
+          // island.sessions = sessions;
 
           addIsland(island);
 
