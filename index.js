@@ -56,8 +56,8 @@ args.forEach((arg) => {
 
 // setLogLevel("db", LOGINFO);
 setLogLevel("req", LOGINFO);
-setLogLevel("worker", LOGINFO);
-setLogLevel("data", LOGINFO);
+// setLogLevel("worker", LOGINFO);
+// setLogLevel("data", LOGINFO);
 
 const debug = false;
 
@@ -82,7 +82,6 @@ if (local) {
   );
   try {
     app.get("/*", (req, res) => {
-      let sessionId = Number.parseInt(req.query.sessionId, 10);
       let counterId = Number.parseInt(req.query.counterId, 10);
       let islandId = Number.parseInt(req.query.islandId, 10);
       let oldIslandId = Number.parseInt(req.query.oldislandId, 10);
@@ -92,8 +91,6 @@ if (local) {
         source,
         "Express",
         req.path +
-          " for session " +
-          sessionId +
           " renew = " +
           req.query.renew +
           " counterId = " +
@@ -106,7 +103,6 @@ if (local) {
       createResponse(
         req.path,
         req.query,
-        sessionId,
         counterId,
         islandId,
         oldIslandId,
@@ -170,17 +166,9 @@ if (local) {
 
       return aresponse;
     } else {
-      let sessionId = 0;
       let counterId = 0;
       let islandId = 0;
       let oldIslandId = 0;
-
-      if (
-        event.queryStringParameters &&
-        event.queryStringParameters.sessionId
-      ) {
-        sessionId = event.queryStringParameters.sessionId;
-      }
 
       if (
         event.queryStringParameters &&
@@ -203,7 +191,6 @@ if (local) {
       const responseBody = await createResponse(
         event.path,
         event.queryStringParameters,
-        sessionId,
         counterId,
         islandId,
         oldIslandId,
