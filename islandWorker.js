@@ -50,10 +50,6 @@ const getInitData = async (island, sessionId, movesCounterId) => {
   };
 
   let session = island.sessions.find((session) => session.id === sessionId);
-  let theMoves = resetPenguinsPos(session, island);
-
-  let moves = { moves: theMoves };
-  result = { ...result, ...moves };
 
   log(realm, source, "getInitData", result, LOGVERB, LOGDATA);
 
@@ -68,7 +64,6 @@ const getIslandData = async (
   sessionId,
   movesCounterId,
   penguinFollowId,
-  renewMoves,
   tileHpos = 0,
   tileLpos = 0
 ) => {
@@ -84,8 +79,6 @@ const getIslandData = async (
       movesCounterId +
       " fId=" +
       penguinFollowId +
-      " rw=" +
-      renewMoves +
       " ti=" +
       tileHpos +
       "/" +
@@ -98,8 +91,6 @@ const getIslandData = async (
   let islandData = await getItem("island", islandId);
 
   if (islandData) {
-    // console.dir(islandData);
-
     log(
       realm,
       source,
@@ -110,20 +101,6 @@ const getIslandData = async (
     let session = islandData.sessions.find(
       (session) => session.id === sessionId
     );
-
-    let moves = [];
-    if (session) {
-      moves = session.moveLog
-        ? session.moveLog.filter((move) => move.moveid > movesCounterId)
-        : [];
-    } else {
-      log(
-        realm,
-        source,
-        "getIslandData",
-        "Session " + sessionId + " not found for " + islandData.id
-      );
-    }
 
     let territory = [];
     for (let i = 0; i < islandData.sizeH; i++) {
@@ -202,198 +179,12 @@ const getIslandData = async (
       islandName: islandData.name,
       islandId: islandData.id,
       islandSize: islandData.landSize,
-      moves: moves,
+      // moves: moves,
     };
 
     log(realm, source, "getIslandData", result, LOGVERB, LOGDATA);
   } else {
     log(realm, source, "getIslandData", "no island data found  ", LOGERR);
-  }
-
-  return result;
-};
-
-// To be used when the island has been persisted
-// Creates a result set based on the island data in the DB
-
-const getConnectData = async (
-  islandId,
-  oldIslandId,
-  sessionId,
-  movesCounterId
-) => {
-  log(
-    realm,
-    source,
-    "getConnectData",
-    "is=" +
-      islandId +
-      "old is=" +
-      oldIslandId +
-      " sid=" +
-      sessionId +
-      " cid=" +
-      movesCounterId
-  );
-
-  let result = {};
-  let session = {};
-
-  // First go to the "old island", get the session and remove the reference to it
-
-  let oldIslandData = await getItem("island", oldIslandId);
-
-  if (oldIslandData) {
-    log(realm, source, "getConnectData", "found old is=" + oldIslandData.id);
-
-    session = oldIslandData.sessions.find(
-      (aSession) => aSession.id === sessionId
-    );
-
-    oldIslandData.sessions = oldIslandData.sessions.filter(
-      (aSession) => aSession.id !== sessionId
-    );
-  }
-
-  // Go to the new island and construct a new moveLog
-
-  let islandData = await getItem("island", islandId);
-
-  if (islandData) {
-    log(realm, source, "getConnectData", "found is=" + islandData.id);
-
-    let territory = [];
-    for (let i = 0; i < islandData.sizeH; i++) {
-      let line = [];
-      for (let j = 0; j < islandData.sizeL; j++) {
-        line.push([]);
-      }
-      territory.push(line);
-    }
-
-    islandData.lands.forEach((land) => {
-      territory[land.hpos][land.lpos] = land;
-    });
-
-    let penguins = [];
-    islandData.penguins.forEach((penguin) => penguins.push(penguin));
-
-    result = {
-      session: sessionId,
-      island: getImg(territory, islandData.sizeH, islandData.sizeL),
-      penguins: penguins,
-      weather: weathers[islandData.weather],
-      tiles: islandData.tiles,
-      fishes: islandData.fishes,
-      points: islandData.points,
-      islandName: islandData.name,
-      islandId: islandData.id,
-      islandSize: islandData.landSize,
-    };
-
-    let tempSession = await getSession(
-      sessionId,
-      session.lastInvocation,
-      session.moveCounter
-    );
-
-    let theMoves = resetPenguinsPos(tempSession, islandData);
-    let moves = { moves: theMoves };
-    result = { ...result, ...moves };
-
-    session.moveLog = theMoves;
-
-    // islandData.sessions.map((aSession) =>
-    //   aSession.id === session.id ? session : aSession
-    // );
-
-    islandData.sessions.push(session);
-
-    // console.dir(islandData);
-
-    await persistIslandData(islandData);
-    await persistIslandData(oldIslandData);
-
-    log(realm, source, "getConnectData", result, LOGVERB, LOGDATA);
-  } else {
-    log(realm, source, "getConnectData", "no island data found  ", LOGERR);
-  }
-
-  return result;
-};
-
-// To be used when a new island is created for an existing session
-// Creates a result set based on the the new island
-
-const getRenewData = async (
-  islandId,
-  oldIslandId,
-  sessionId,
-  movesCounterId,
-  islandH,
-  islandL
-) => {
-  log(
-    realm,
-    source,
-    "getRenewData",
-    "is=" + islandId + " sid=" + sessionId + " cid=" + movesCounterId
-  );
-
-  let result = {};
-
-  // First go to the "old island", get the session and remove the reference to it
-
-  let oldIslandData = await getItem("island", islandId);
-
-  if (oldIslandData) {
-    log(realm, source, "getResetData", "found old is=" + oldIslandData.id);
-
-    oldIslandData.sessions = oldIslandData.sessions.filter(
-      (aSession) => aSession.id !== sessionId
-    );
-  }
-
-  let session = await getSession(sessionId, 0, 0);
-
-  // Create a new island and construct a new moveLog
-
-  let island = new Island(islandH, islandL, [session]);
-
-  if (island) {
-    log(
-      realm,
-      source,
-      "getRenewData",
-      "found is=" + island.id + " (# " + island.counter + ")"
-    );
-
-    result = {
-      session: sessionId,
-      island: getImg(island.territory, island.sizeH, island.sizeL),
-      penguins: island.penguins,
-      weather: weathers[island.weather],
-      tiles: island.tiles,
-      fishes: island.fishes,
-      points: island.points,
-      islandName: island.name,
-      islandId: island.id,
-      islandSize: island.landSize,
-    };
-
-    let theMoves = resetPenguinsPos(session, island);
-    let moves = { moves: theMoves };
-    result = { ...result, ...moves };
-
-    session = { ...session, ...moves };
-    island.sessions.push(session);
-
-    await persistIsland(island);
-    await persistIslandData(oldIslandData);
-
-    log(realm, source, "getRenewData", result, LOGVERB, LOGDATA);
-  } else {
-    log(realm, source, "getRenewData", "no island data found  ", LOGERR);
   }
 
   return result;
@@ -407,8 +198,7 @@ const getMovesData = async (
   islandId,
   sessionId,
   movesCounterId,
-  penguinFollowId,
-  renewMoves
+  penguinFollowId
 ) => {
   log(
     realm,
@@ -421,9 +211,7 @@ const getMovesData = async (
       " cid=" +
       movesCounterId +
       " fId=" +
-      penguinFollowId +
-      " rw=" +
-      renewMoves,
+      penguinFollowId,
     LOGVERB
   );
 
@@ -453,32 +241,33 @@ const getMovesData = async (
     );
 
     if (session) {
-      if (session.moveLog) {
-        let moves = session.moveLog.filter(
-          (move) => move.moveid > movesCounterId
-        );
+      // if (session.moveLog) {
+      //   let moves = session.moveLog.filter(
+      //     (move) => move.moveid > movesCounterId
+      //   );
 
-        result = {
-          session: session.id,
-          points: islandData.points,
-          islandSize: islandData.landSize,
-          moves: moves,
-        };
+      result = {
+        session: session.id,
+        points: islandData.points,
+        islandSize: islandData.landSize,
+        penguins: islandData.penguins,
+        // moves: moves,
+      };
 
-        log(realm, source, "getMovesData", result, LOGVERB, LOGDATA);
+      log(realm, source, "getMovesData", result, LOGVERB, LOGDATA);
 
-        if (penguinFollowId && penguinFollowId > 0) {
-          islandData.penguinFollowId = penguinFollowId;
-          await persistIslandData(islandData);
-        }
-      } else {
-        log(
-          realm,
-          source,
-          "getMovesData",
-          "No moveLog found found is=" + islandData.id
-        );
+      if (penguinFollowId && penguinFollowId > 0) {
+        islandData.penguinFollowId = penguinFollowId;
+        await persistIslandData(islandData);
       }
+      // } else {
+      //   log(
+      //     realm,
+      //     source,
+      //     "getMovesData",
+      //     "No moveLog found found is=" + islandData.id
+      //   );
+      // }
     } else {
       log(
         realm,
@@ -519,44 +308,6 @@ const getIslandsList = async () => {
   }
 
   return islands;
-};
-
-// calculate and returns the initial moves
-
-const resetPenguinsPos = (session, island) => {
-  // let session = island.sessions.find((session) => session.id === sessionId);
-
-  // console.dir(session);
-
-  session.moveLog = [];
-
-  island.penguins.forEach((penguin) => {
-
-    console.log("--------------==---------------")
-    console.dir(penguin)
-    console.log("--------------==---------------")
-
-
-    penguin.addMoveLog(
-      [session],
-      1,
-      penguin.cat,
-      "move",
-      0,
-      0,
-      0,
-      penguin.hpos,
-      penguin.lpos
-    );
-    if (penguin.loving > 0) {
-      penguin.addMoveLog([session], 4, penguin.cat, "love");
-    }
-    if (penguin.eating > 0) {
-      penguin.addMoveLog([session], 3, penguin.cat, "eat");
-    }
-  });
-
-  return session.moveLog;
 };
 
 // returns an 'image' of the isalnd in the form of an array of objects
@@ -631,9 +382,6 @@ const getImg = (territory, islandH, islandL) => {
 module.exports = {
   getIslandData: getIslandData,
   getInitData: getInitData,
-  getConnectData: getConnectData,
-  getRenewData: getRenewData,
   getMovesData: getMovesData,
   getIslandsList: getIslandsList,
-  resetPenguinsPos: resetPenguinsPos,
 };
