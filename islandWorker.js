@@ -174,6 +174,7 @@ const getIslandData = async (
       islandName: islandData.name,
       islandId: islandData.id,
       islandSize: islandData.landSize,
+      counter: islandData.counter,
       // moves: moves,
     };
 
@@ -228,6 +229,7 @@ const getMovesData = async (islandId, movesCounterId, penguinFollowId) => {
       points: islandData.points,
       islandSize: islandData.landSize,
       penguins: islandData.penguins,
+      counter: islandData.counter,
     };
 
     log(realm, source, "getMovesData", result, LOGVERB, LOGDATA);
