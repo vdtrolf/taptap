@@ -16,6 +16,8 @@ const realm = "req";
 const source = "index.js";
 
 const requestserverReq = require("./requestserver.js");
+const stateserverReq = require("./stateserver.js");
+let setState = stateserverReq.setState;
 let createResponse = requestserverReq.createResponse;
 let createDb = dbhelperReq.createDb;
 let cleanDb = dbhelperReq.cleanDb;
@@ -127,9 +129,6 @@ if (local) {
 } else {
   // Starting the handler for handling of lambda requests
   log(realm, source, "Handler", "Little island function listening on Lambda");
-
-  const stateserverReq = require("./stateserver.js");
-  let setState = stateserverReq.setState;
 
   // Handler for the Lambda - it may be either
   // - a SNS event - in which case the state is updated
