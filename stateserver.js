@@ -21,7 +21,6 @@ let createDb = dbhelperReq.createDb;
 let getIslands = islandReq.getIslands;
 let persistIsland = islandDataReq.persistIsland;
 let initiateIslands = islandDataReq.initiateIslands;
-// let registerSessions = sessionReq.registerSessions;
 
 // If it receives 'local' as argument, it runs in local mode
 // which means, then there will be an incode "pulser" that will regularly call the state engine
@@ -79,6 +78,7 @@ const setState = async () => {
     getIslands().forEach((island) => {
       if (island.running) {
         running = true;
+
         if (deepdebug) {
           let img = island.getAsciiImg();
           img.forEach((line) => log(realm, source, "", line, LOGVERB, LOGDUMP));
@@ -93,6 +93,7 @@ const setState = async () => {
         persistIsland(island, false, counter++);
       }
     });
+    s;
   }
   return running;
 };

@@ -18,9 +18,9 @@ const islandReq = require("./island.js");
 let Island = islandReq.Island;
 let getItem = dbhelperReq.getItem;
 let getAsyncItems = dbhelperReq.getAsyncItems;
-let persistIsland = islandDataReq.persistIsland;
+// let persistIsland = islandDataReq.persistIsland;
 let persistIslandData = islandDataReq.persistIslandData;
-let getSession = sessionReq.getSession;
+// let getSession = sessionReq.getSession;
 
 const weathers = ["sun", "rain", "snow", "cold", "endgame"];
 
@@ -175,7 +175,6 @@ const getIslandData = async (
       islandId: islandData.id,
       islandSize: islandData.landSize,
       counter: islandData.counter,
-      // moves: moves,
     };
 
     log(realm, source, "getIslandData", result, LOGVERB, LOGDATA);
@@ -238,22 +237,6 @@ const getMovesData = async (islandId, movesCounterId, penguinFollowId) => {
       islandData.penguinFollowId = penguinFollowId;
       await persistIslandData(islandData);
     }
-    // } else {
-    //   log(
-    //     realm,
-    //     source,
-    //     "getMovesData",
-    //     "No moveLog found found is=" + islandData.id
-    //   );
-    // }
-    // } else {
-    //   log(
-    //     realm,
-    //     source,
-    //     "getMovesData",
-    //     "No session found found is=" + islandData.id
-    //   );
-    // }
   } else {
     log(
       realm,
