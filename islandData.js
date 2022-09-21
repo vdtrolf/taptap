@@ -29,16 +29,15 @@ let cleanIslands = islandReq.cleanIslands;
 let addIsland = islandReq.addIsland;
 
 const maxAge = 3600000; // one hour
-let counter = 0;
 
 const persistIsland = (island) => {
-  counter++;
+  island.counter += 1;
 
   log(
     realm,
     source,
     "persistIsland",
-    "persisting island " + island.id + " counter: " + counter
+    "persisting island " + island.id + " counter: " + island.counter
   );
 
   let lands = [];
@@ -114,12 +113,12 @@ const persistIsland = (island) => {
     followId: island.followId ? island.followId : 0,
     lands: lands,
     penguins: penguins,
-    counter: counter,
+    counter: island.counter,
   });
 };
 
 const persistIslandData = async (island) => {
-  counter++;
+  island.counter += 1;
 
   log(
     realm,
@@ -130,7 +129,7 @@ const persistIslandData = async (island) => {
       " followId " +
       island.followId +
       " counter: " +
-      counter
+      island.counter
   );
 
   await putItem("island", {
@@ -150,7 +149,7 @@ const persistIslandData = async (island) => {
     followId: island.followId ? island.followId : 0,
     lands: island.lands,
     penguins: island.penguins,
-    counter: counter,
+    counter: island.counter,
   });
 };
 
@@ -158,6 +157,7 @@ const initiateIslands = async () => {
   let running = false;
 
   log(realm, source, "initiateIslands", "getting islands out of DB");
+
   let theIslands = await getAsyncItems("island", "id", ">", 0);
 
   if (theIslands && theIslands.length > 0) {

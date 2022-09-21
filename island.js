@@ -376,7 +376,7 @@ class Island {
   movePenguins() {
     // check if there are still alive penguins
 
-    this.counter += 1;
+    console.log("@@@@@@@@@@ count " + this.id + " = " + this.counter);
 
     let cntPenguins = this.penguins.filter((penguin) => penguin.alive).length;
 

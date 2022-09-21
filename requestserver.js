@@ -74,7 +74,7 @@ const createResponse = async (
 
       case "/state": {
         log(realm, source, "Handler", "/state event received ");
-        let isRunning = await setState();
+        let isRunning = await setState(1);
         return { running: isRunning };
       }
 

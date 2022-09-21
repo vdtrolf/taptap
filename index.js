@@ -18,6 +18,7 @@ const source = "index.js";
 const requestserverReq = require("./requestserver.js");
 const stateserverReq = require("./stateserver.js");
 let setState = stateserverReq.setState;
+let startLocalStateEngine = stateserverReq.startLocalStateEngine;
 let createResponse = requestserverReq.createResponse;
 let createDb = dbhelperReq.createDb;
 let cleanDb = dbhelperReq.cleanDb;
@@ -67,6 +68,11 @@ const debug = false;
 // if the argument 'cleandb' was given, then the island dataset will be (re)created
 createDb(local);
 if (cleandb) cleanDb();
+
+if (local) {
+  console.log("????????????");
+  startLocalStateEngine();
+}
 
 // Starting the express server for handling of local requests
 if (local) {
@@ -140,7 +146,7 @@ if (local) {
     if (event.Records && event.Records[0]) {
       var message = event.Records[0].Sns.Message;
       log(realm, source, "Handler", "Message received from SNS:" + message);
-      let running = await setState();
+      let running = await setState(1);
       callback(null, { running: running });
     } else if (event.path === "/state") {
       log(realm, source, "Handler", "/state event received ");
