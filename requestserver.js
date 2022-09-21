@@ -12,15 +12,15 @@ const islandDataReq = require("./islandData.js");
 const sessionReq = require("./session.js");
 const nameserverReq = require("./nameserver.js");
 const stephelperReq = require("./stephelper.js");
+const stateserverReq = require("./stateserver.js");
 
+let setState = stateserverReq.setState;
 let Island = islandReq.Island;
 
 let Session = sessionReq.Session;
 let createSession = sessionReq.createSession;
 let persistIsland = islandDataReq.persistIsland;
 let getInitData = islandWorkerReq.getInitData;
-// let getConnectData = islandWorkerReq.getConnectData;
-// let getRenewData = islandWorkerReq.getRenewData;
 let getIslandData = islandWorkerReq.getIslandData;
 let getMovesData = islandWorkerReq.getMovesData;
 let getIslandsList = islandWorkerReq.getIslandsList;
@@ -70,6 +70,12 @@ const createResponse = async (
         );
 
         return await getInitData(island, counterId);
+      }
+
+      case "/state": {
+        log(realm, source, "Handler", "/state event received ");
+        let isRunning = await setState();
+        return { running: isRunning };
       }
 
       case "/moves": {
