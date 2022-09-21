@@ -134,9 +134,10 @@ const getItem = async (tableName, uniqueId) => {
   let id = new Date().getTime() % 100;
   const fid = `${uniqueId}`;
 
+  // ExpressionAttributeNames: { "#tagname": "id" },
+
   var queryparams = {
-    FilterExpression: "#tagname = :id",
-    ExpressionAttributeNames: { "#tagname": "id" },
+    KeyConditionExpression: "id = :id",
     ExpressionAttributeValues: {
       ":id": { N: fid },
     },
@@ -145,7 +146,7 @@ const getItem = async (tableName, uniqueId) => {
 
   log(realm, source, "getItem params", queryparams, LOGINFO, LOGDATA);
 
-  const awsRequest = await dynamodb.scan(queryparams);
+  const awsRequest = await dynamodb.query(queryparams);
   const result = await awsRequest.promise();
 
   let cleanItem = AWS.DynamoDB.Converter.unmarshall(result.Items[0]);
