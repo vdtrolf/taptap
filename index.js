@@ -70,7 +70,7 @@ createDb(local);
 if (cleandb) cleanDb();
 
 if (local) {
-  startLocalStateEngine();
+  startLocalStateEngine(local);
 }
 
 // Starting the express server for handling of local requests

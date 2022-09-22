@@ -32,35 +32,49 @@ const islanddefs = {
 };
 
 const createDb = (local) => {
-  if (local) {
-    dynamodb = new AWS.DynamoDB({
-      endpoint: new AWS.Endpoint("http://localhost:8000"),
-    });
-    log(realm, source, "createDb", "connected to local");
-    if (deepdebug) {
-      dynamodb.listTables({ Limit: 10 }, (err, data) => {
-        if (err) {
-          log(realm, source, "createDb", "Could not list tables" + err, LOGERR);
-        } else {
-          log(realm, source, "createDb", data.TableNames, LOGINFO, LOGDATA);
-        }
+  if (!dynamodb) {
+    if (local) {
+      dynamodb = new AWS.DynamoDB({
+        endpoint: new AWS.Endpoint("http://localhost:8000"),
       });
-    }
-  } else {
-    dynamodb = new AWS.DynamoDB({
-      httpOptions: {
-        agent,
-      },
-    });
-    log(realm, source, "createDb", "connected");
-    if (deepdebug) {
-      dynamodb.listTables({ Limit: 10 }, (err, data) => {
-        if (err) {
-          log(realm, source, "createDb", "Could not list tables" + err, LOGERR);
-        } else {
-          log(realm, source, "createDb", data.TableNames, LOGINFO, LOGDATA);
-        }
+      log(realm, source, "createDb", "connected to local");
+      if (deepdebug) {
+        dynamodb.listTables({ Limit: 10 }, (err, data) => {
+          if (err) {
+            log(
+              realm,
+              source,
+              "createDb",
+              "Could not list tables" + err,
+              LOGERR
+            );
+          } else {
+            log(realm, source, "createDb", data.TableNames, LOGINFO, LOGDATA);
+          }
+        });
+      }
+    } else {
+      dynamodb = new AWS.DynamoDB({
+        httpOptions: {
+          agent,
+        },
       });
+      log(realm, source, "createDb", "connected");
+      if (deepdebug) {
+        dynamodb.listTables({ Limit: 10 }, (err, data) => {
+          if (err) {
+            log(
+              realm,
+              source,
+              "createDb",
+              "Could not list tables" + err,
+              LOGERR
+            );
+          } else {
+            log(realm, source, "createDb", data.TableNames, LOGINFO, LOGDATA);
+          }
+        });
+      }
     }
   }
 };
