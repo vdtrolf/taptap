@@ -389,6 +389,35 @@ class StrategicMap {
     }
     return 0;
   }
+
+  getKnownWorld() {
+    let knownWorld = [];
+    let lineNum = 0;
+
+    this.knownWorld.forEach((line) => {
+      lineNum++;
+      let colNum = 0;
+      line.forEach((cell) => {
+        colNum++;
+        let soil = cell.pos ? Math.floor(cell.smelt / 2) : 0;
+        let artifact = 0;
+        if (cell.stable) artifact = 1;
+        if (cell.swim) artifact = 2;
+        if (cell.fish) artifacr = 3;
+        let warm = cell.pos ? cell.warm : 0;
+
+        knownWorld.push({
+          line: lineNum,
+          col: colNum,
+          soil: soil,
+          art: artifact,
+          warm: warm,
+        });
+      });
+    });
+
+    return knownWorld;
+  }
 }
 
 //  setting directions

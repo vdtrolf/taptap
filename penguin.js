@@ -139,6 +139,11 @@ class Penguin {
       this.id === island.followId && this.alive,
       this.maxcnt
     );
+
+    this.knownWorld = this.strategicMap.getKnownWorld();
+    // console.log("%%%%%%==================");
+    // console.dir(this.knownWorld);
+    // console.log("%%%%%%==================");
   }
 
   // Wealth will decrease if the penguin is not surrended by other penguins - unless the sun is shinning
