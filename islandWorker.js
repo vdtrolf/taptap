@@ -11,30 +11,21 @@ const LOGDATA = loggerReq.LOGDATA;
 const realm = "worker";
 const source = "islandWorker.js";
 
-const sessionReq = require("./session.js");
 const islandDataReq = require("./islandData.js");
 const islandReq = require("./island.js");
 
 let Island = islandReq.Island;
 let getItem = dbhelperReq.getItem;
 let getAsyncItems = dbhelperReq.getAsyncItems;
-let persistIsland = islandDataReq.persistIsland;
 let persistIslandData = islandDataReq.persistIslandData;
-let getSession = sessionReq.getSession;
 
 const weathers = ["sun", "rain", "snow", "cold", "endgame"];
 
 // To be used just after the island was created - while the island object is still in memory
 // Creates a result set based on the island object
 
-const getInitData = async (island, movesCounterId) => {
-  log(
-    realm,
-    source,
-    "getinitData",
-    "is=" + island.id + " ct=" + movesCounterId,
-    LOGVERB
-  );
+const getInitData = async (island) => {
+  log(realm, source, "getinitData", "is=" + island.id, LOGVERB);
 
   let result = {
     island: getImg(island.territory, island.sizeH, island.sizeL),
@@ -60,7 +51,6 @@ const getInitData = async (island, movesCounterId) => {
 
 const getIslandData = async (
   islandId,
-  movesCounterId,
   penguinFollowId,
   tileHpos = 0,
   tileLpos = 0
@@ -71,8 +61,6 @@ const getIslandData = async (
     "getIslandData",
     "is=" +
       islandId +
-      " cid=" +
-      movesCounterId +
       " fId=" +
       penguinFollowId +
       " ti=" +
@@ -174,7 +162,7 @@ const getIslandData = async (
       islandName: islandData.name,
       islandId: islandData.id,
       islandSize: islandData.landSize,
-      // moves: moves,
+      counter: islandData.counter,
     };
 
     log(realm, source, "getIslandData", result, LOGVERB, LOGDATA);
@@ -189,12 +177,12 @@ const getIslandData = async (
 // To be used when the island has been persisted
 // Creates a result set based on the island data in the DB
 
-const getMovesData = async (islandId, movesCounterId, penguinFollowId) => {
+const getMovesData = async (islandId, penguinFollowId) => {
   log(
     realm,
     source,
     "getMovesData",
-    "is=" + islandId + " cid=" + movesCounterId + " fId=" + penguinFollowId,
+    "is=" + islandId + " fId=" + penguinFollowId,
     LOGVERB
   );
 
@@ -214,20 +202,11 @@ const getMovesData = async (islandId, movesCounterId, penguinFollowId) => {
     // console.dir(islandData.sessions);
     // console.log("========_____________");
 
-    // let session = islandData.sessions.find(
-    //   (session) => Number.parseInt(session.id) === Number.parseInt(sessionId)
-    // );
-
-    // if (session) {
-    // if (session.moveLog) {
-    //   let moves = session.moveLog.filter(
-    //     (move) => move.moveid > movesCounterId
-    //   );
-
     result = {
       points: islandData.points,
       islandSize: islandData.landSize,
       penguins: islandData.penguins,
+      counter: islandData.counter,
     };
 
     log(realm, source, "getMovesData", result, LOGVERB, LOGDATA);
@@ -236,22 +215,6 @@ const getMovesData = async (islandId, movesCounterId, penguinFollowId) => {
       islandData.penguinFollowId = penguinFollowId;
       await persistIslandData(islandData);
     }
-    // } else {
-    //   log(
-    //     realm,
-    //     source,
-    //     "getMovesData",
-    //     "No moveLog found found is=" + islandData.id
-    //   );
-    // }
-    // } else {
-    //   log(
-    //     realm,
-    //     source,
-    //     "getMovesData",
-    //     "No session found found is=" + islandData.id
-    //   );
-    // }
   } else {
     log(
       realm,

@@ -40,7 +40,8 @@ class Island {
     points = 0,
     running = true,
     lastInvocation = 0,
-    followId = 0
+    followId = 0,
+    counter = 0
   ) {
     let newIsland = id === 0;
 
@@ -57,6 +58,8 @@ class Island {
     this.points = points;
     this.running = running;
     this.followId = followId;
+    this.counter = counter;
+
     this.lastInvocation =
       lastInvocation === 0 ? new Date().getTime() : lastInvocation;
     this.territory = [];
@@ -218,64 +221,6 @@ class Island {
     }
   } // constructor ()
 
-  // Adds a session to the list of listening sessions
-
-  // registerSession(session) {
-  //   if (!this.sessions.find((aSession) => aSession.id === session.id)) {
-  //     this.sessions.push(session);
-  //     log(
-  //       realm,
-  //       source,
-  //       "registerSession",
-  //       "session " +
-  //         session.id +
-  //         " registered to island " +
-  //         this.name +
-  //         "/" +
-  //         this.id
-  //     );
-  //   } else {
-  //     log(
-  //       realm,
-  //       source,
-  //       "registerSession",
-  //       "session " +
-  //         session.id +
-  //         " already registered to island " +
-  //         this.name +
-  //         "/" +
-  //         this.id
-  //     );
-  //   }
-  // }
-
-  // // Remove a session from the list of listening sessions
-
-  // unregisterSession(session) {
-  //   this.sessions = this.sessions.filter(
-  //     (aSession) => aSession.id !== session.id
-  //   );
-  //   log(
-  //     realm,
-  //     source,
-  //     "unregisterSession",
-  //     "session " +
-  //       session.id +
-  //       " unregistered from island " +
-  //       this.name +
-  //       "/" +
-  //       this.id
-  //   );
-  // }
-
-  // hasSession(sessionId) {
-  //   let foundSession = this.sessions.find(
-  //     (session) => session.id === sessionId
-  //   );
-  //   // probably not necessary
-  //   return foundSession ? true : false;
-  // }
-
   addTile() {
     this.tiles += 1;
   }
@@ -430,6 +375,13 @@ class Island {
 
   movePenguins() {
     // check if there are still alive penguins
+
+    log(
+      realm,
+      source,
+      "movePenguins",
+      "count for island " + this.id + " = " + this.counter
+    );
 
     let cntPenguins = this.penguins.filter((penguin) => penguin.alive).length;
 

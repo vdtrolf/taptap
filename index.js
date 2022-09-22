@@ -12,12 +12,13 @@ const LOGTEXT = loggerReq.LOGTEXT;
 const LOGDATA = loggerReq.LOGDATA;
 const LOGDUMP = loggerReq.LOGDUMP;
 
-const realm = "req";
+const realm = "index";
 const source = "index.js";
 
 const requestserverReq = require("./requestserver.js");
 const stateserverReq = require("./stateserver.js");
 let setState = stateserverReq.setState;
+let startLocalStateEngine = stateserverReq.startLocalStateEngine;
 let createResponse = requestserverReq.createResponse;
 let createDb = dbhelperReq.createDb;
 let cleanDb = dbhelperReq.cleanDb;
@@ -68,6 +69,10 @@ const debug = false;
 createDb(local);
 if (cleandb) cleanDb();
 
+if (local) {
+  startLocalStateEngine();
+}
+
 // Starting the express server for handling of local requests
 if (local) {
   const port = 3001;
@@ -84,35 +89,15 @@ if (local) {
   );
   try {
     app.get("/*", (req, res) => {
-      let counterId = Number.parseInt(req.query.counterId, 10);
       let islandId = Number.parseInt(req.query.islandId, 10);
-      let oldIslandId = Number.parseInt(req.query.oldislandId, 10);
-      if (!counterId) counterId = 0;
-      log(
-        realm,
-        source,
-        "Express",
-        req.path +
-          " renew = " +
-          req.query.renew +
-          " counterId = " +
-          counterId +
-          " islandId = " +
-          islandId +
-          " old islandId = " +
-          oldIslandId
+
+      log(realm, source, "Express", req.path + " islandId = " + islandId);
+      createResponse(req.path, req.query, islandId, local).then(
+        (responseBody) => {
+          // console.dir(responseBody);
+          return res.json(responseBody);
+        }
       );
-      createResponse(
-        req.path,
-        req.query,
-        counterId,
-        islandId,
-        oldIslandId,
-        local
-      ).then((responseBody) => {
-        // console.dir(responseBody);
-        return res.json(responseBody);
-      });
     });
     app.listen(port, () => {
       log(realm, source, "Express", `Little island listening at port: ${port}`);
@@ -140,7 +125,7 @@ if (local) {
     if (event.Records && event.Records[0]) {
       var message = event.Records[0].Sns.Message;
       log(realm, source, "Handler", "Message received from SNS:" + message);
-      let running = await setState();
+      let running = await setState(1);
       callback(null, { running: running });
     } else if (event.path === "/state") {
       log(realm, source, "Handler", "/state event received ");
@@ -165,34 +150,16 @@ if (local) {
 
       return aresponse;
     } else {
-      let counterId = 0;
       let islandId = 0;
-      let oldIslandId = 0;
-
-      if (
-        event.queryStringParameters &&
-        event.queryStringParameters.counterId
-      ) {
-        counterId = event.queryStringParameters.counterId;
-      }
 
       if (event.queryStringParameters && event.queryStringParameters.islandId) {
         islandId = event.queryStringParameters.islandId;
       }
 
-      if (
-        event.queryStringParameters &&
-        event.queryStringParameters.oldislandId
-      ) {
-        oldIslandId = event.queryStringParameters.oldislandId;
-      }
-
       const responseBody = await createResponse(
         event.path,
         event.queryStringParameters,
-        counterId,
         islandId,
-        oldIslandId,
         local
       );
 

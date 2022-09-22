@@ -9,7 +9,6 @@ const source = "requestserver.js";
 const islandReq = require("./island.js");
 const islandWorkerReq = require("./islandWorker.js");
 const islandDataReq = require("./islandData.js");
-const sessionReq = require("./session.js");
 const nameserverReq = require("./nameserver.js");
 const stephelperReq = require("./stephelper.js");
 const stateserverReq = require("./stateserver.js");
@@ -17,8 +16,6 @@ const stateserverReq = require("./stateserver.js");
 let setState = stateserverReq.setState;
 let Island = islandReq.Island;
 
-let Session = sessionReq.Session;
-let createSession = sessionReq.createSession;
 let persistIsland = islandDataReq.persistIsland;
 let getInitData = islandWorkerReq.getInitData;
 let getIslandData = islandWorkerReq.getIslandData;
@@ -34,26 +31,12 @@ let counter = 0;
 
 let nameserver = new NameServer(30, 10, false);
 
-const createResponse = async (
-  url,
-  params,
-  counterId,
-  islandId = 0,
-  oldIslandId = 0,
-  local = true
-) => {
+const createResponse = async (url, params, islandId = 0, local = true) => {
   log(
     realm,
     source,
     "createResponse",
-    ": url= " +
-      url +
-      " counterId= " +
-      counterId +
-      " islandId= " +
-      islandId +
-      " old islandId= " +
-      oldIslandId
+    "path= " + url + " islandId= " + islandId
   );
 
   if (islandId > 0) {
@@ -65,27 +48,30 @@ const createResponse = async (
         log(
           realm,
           source,
-          "createResponse/new-island",
-          "Renewing an island of size " + islandH + " * " + islandL
+          "createResponse",
+          "case new-island - renewing an island of size " +
+            islandH +
+            " * " +
+            islandL
         );
 
-        return await getInitData(island, counterId);
+        return await getInitData(island);
       }
 
       case "/state": {
-        log(realm, source, "Handler", "/state event received ");
-        let isRunning = await setState();
+        log(realm, source, "createResponse", "case state - event received ");
+        let isRunning = await setState(1);
         return { running: isRunning };
       }
 
       case "/moves": {
         let followId = Number.parseInt(params.followId, 10);
-        return await getMovesData(islandId, counterId, followId);
+        return await getMovesData(islandId, followId);
       }
 
       case "/islandmoves": {
         let followId = Number.parseInt(params.followId, 10);
-        return await getIslandData(islandId, counterId, followId);
+        return await getIslandData(islandId, followId);
       }
 
       case "/islands": {
@@ -96,7 +82,7 @@ const createResponse = async (
       case "/setTile": {
         let hpos = Number.parseInt(params.hpos, 10);
         let lpos = Number.parseInt(params.lpos, 10);
-        return await getIslandData(islandId, counterId, 0, hpos, lpos);
+        return await getIslandData(islandId, 0, hpos, lpos);
       }
 
       default: {
@@ -104,18 +90,23 @@ const createResponse = async (
       }
     }
   } else {
-    // No session
+    // No island
 
     switch (url) {
       case "/island": {
         let island = new Island(islandH, islandL);
         persistIsland(island, true);
 
-        log(realm, source, "createResponse/island", "Building an new island");
+        log(
+          realm,
+          source,
+          "createResponse",
+          "case island - Building an new island"
+        );
         if (!local) {
           startStateSteps();
         }
-        return await getInitData(island, counterId);
+        return await getInitData(island);
       }
 
       case "/islands": {
