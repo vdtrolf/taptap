@@ -33,7 +33,7 @@ let deepdebug = false;
 let counter = 0;
 
 // State engine = changes the state of all the running islands
-const setState = async (orig) => {
+const setState = async () => {
   createDb(local);
 
   let initiate = await initiateIslands(); // (getTheIslands);
@@ -70,7 +70,7 @@ const startLocalStateEngine = () => {
   setInterval(() => {
     log(realm, source, "", "simulates a state change request " + counter);
     counter += 1;
-    let running = setState(2);
+    setState();
   }, simulateRate);
 };
 
