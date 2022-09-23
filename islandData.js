@@ -93,7 +93,7 @@ const persistIsland = (island) => {
       fatherId: penguin.fatherId,
       motherId: penguin.motherId,
       partnerId: penguin.partnerId,
-      knowWorld: penguin.knownWorld,
+      knownWorld: penguin.knownWorld,
     });
   });
 
