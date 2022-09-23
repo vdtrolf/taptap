@@ -184,7 +184,6 @@ const initiateIslands = async () => {
           let island = new Island(
             anIsland.sizeH,
             anIsland.sizeL,
-            [],
             anIsland.id,
             anIsland.name,
             anIsland.weather,
@@ -236,7 +235,6 @@ const initiateIslands = async () => {
                 aPenguin.num,
                 aPenguin.hpos,
                 aPenguin.lpos,
-                [],
                 island.id,
                 aPenguin.moveLog,
                 aPenguin.fatherId,

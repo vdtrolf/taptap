@@ -28,7 +28,6 @@ class Island {
   constructor(
     sizeH,
     sizeL,
-    session,
     id = 0,
     name = "",
     weather = 0,
@@ -64,7 +63,7 @@ class Island {
       lastInvocation === 0 ? new Date().getTime() : lastInvocation;
     this.territory = [];
     this.penguins = [];
-    this.sessions = session;
+    // this.sessions = session;
 
     let matrix = [];
 
@@ -207,7 +206,6 @@ class Island {
             0, // this.numPeng++,
             hpos,
             lpos,
-            this.sessions,
             this.id,
             []
           );
@@ -343,7 +341,7 @@ class Island {
                   "smelt",
                   `penguin ${penguin.name} sinking at ${hpos}/${lpos}`
                 );
-                penguin.letDie(this.sessions);
+                penguin.letDie();
               });
               this.territory[hpos][lpos].setCross();
             }
@@ -442,7 +440,7 @@ class Island {
 
             if (this.territory[penguin.hpos][penguin.lpos].hasFish) {
               this.territory[pengH][pengL].removeFish();
-              penguin.eat(this.sessions);
+              penguin.eat();
               this.territory[pengH][pengL].setTarget(true);
               this.addPoints(100);
             }
@@ -467,7 +465,7 @@ class Island {
                 `${penguin.name} is going to fish at direction ${fishmove}`
               );
 
-              penguin.fish(this.sessions, fishmove);
+              penguin.fish(fishmove);
 
               this.territory[pengH][pengL].setTarget(true);
 
@@ -505,8 +503,8 @@ class Island {
                 `can't love : population: ${alivePenguins} tiles : ${this.landSize}`
               );
             } else {
-              penguin.love(this.sessions, lover.id);
-              lover.love(this.sessions, this.id);
+              penguin.love(lover.id);
+              lover.love(this.id);
               this.territory[pengH][pengL].setTarget(true);
               this.addPoints(200);
             } // pop/size > 0.5
@@ -521,7 +519,7 @@ class Island {
           !penguin.isFishing()
         ) {
           if (islandPopulation / islandSize > 0.79) {
-            penguin.wait(this.sessions);
+            penguin.wait();
             this.territory[pengH][pengL].setTarget(true);
             log(
               realm,
@@ -613,7 +611,7 @@ class Island {
                 `${penguin.name} Staying still`
               );
 
-              penguin.wait(this.sessions);
+              penguin.wait();
               this.territory[pengH][pengL].setTarget(true);
             } else {
               this.addPoints(10);
@@ -622,10 +620,10 @@ class Island {
               let h = penguin.hpos + hmoves[move];
 
               if (this.territory[h][l].getType() > 0) {
-                penguin.setPos(this.sessions, move, h, l);
+                penguin.setPos(move, h, l);
                 this.territory[h][l].setTarget(true);
               } else {
-                penguin.wait(this.sessions);
+                penguin.wait();
                 this.territory[h][l].setTarget(true);
               }
             } // is territory > 0
@@ -700,7 +698,7 @@ class Island {
 
     this.penguins.forEach((penguin) => {
       if (penguin.alive) {
-        let status = penguin.makeOlder(this.sessions);
+        let status = penguin.makeOlder();
 
         log(
           realm,
@@ -727,7 +725,6 @@ class Island {
                 0, // this.numPeng++,
                 h,
                 l,
-                this.sessions,
                 this.id,
                 [],
                 fatherId,

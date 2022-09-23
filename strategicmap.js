@@ -403,7 +403,7 @@ class StrategicMap {
         let artifact = 0;
         if (cell.stable) artifact = 1;
         if (cell.swim) artifact = 2;
-        if (cell.fish) artifacr = 3;
+        if (cell.fish) artifact = 3;
         let warm = cell.pos ? cell.warm : 0;
 
         knownWorld.push({
