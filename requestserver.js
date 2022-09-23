@@ -42,7 +42,7 @@ const createResponse = async (url, params, islandId = 0, local = true) => {
   if (islandId > 0) {
     switch (url) {
       case "/new-island": {
-        let island = new Island(islandH, islandL, []);
+        let island = new Island(islandH, islandL);
         persistIsland(island, true);
 
         log(
