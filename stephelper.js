@@ -7,6 +7,8 @@ function startStateSteps() {
 
   var stepfunctions = new AWS.StepFunctions();
 
+  console.log("@@@@@@@@@@ Starting steps");
+
   var params = {
     stateMachineArn:
       "arn:aws:states:us-east-1:778787439795:stateMachine:TapTap_steps_functions",
