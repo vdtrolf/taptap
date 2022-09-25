@@ -131,6 +131,18 @@ if (local) {
       log(realm, source, "Handler", "/stateapi event received ");
       let isRunning = await setState();
       callback(null, { running: isRunning });
+
+      const aresponse = {
+        StatusCode: 200,
+        headers: {
+          "x-custom-header": "little island",
+          "Access-Control-Allow-Origin": "*",
+        },
+        body: { running: isRunning },
+        isBase64Encoded: false,
+      };
+
+      return aresponse;
     } else if (event.path === "/state") {
       log(realm, source, "Handler", "/state event received ");
       let isRunning = await setState();
