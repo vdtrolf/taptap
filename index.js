@@ -137,9 +137,11 @@ if (local) {
           "x-custom-header": "little island",
           "Access-Control-Allow-Origin": "*",
         },
-        body: { running: isRunning },
+        body: JSON.stringify({ running: isRunning }),
         isBase64Encoded: false,
       };
+
+      // tata
 
       log(
         realm,
