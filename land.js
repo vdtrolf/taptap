@@ -38,7 +38,8 @@ class Land {
     this.crossAge = crossAge;
     this.hasFish = hasFish;
     this.hasSwim = hasSwim;
-    (this.hasIce = hasIce), (this.swimAge = swimAge);
+    this.hasIce = hasIce;
+    this.swimAge = swimAge;
 
     this.changed = true;
     this.isTarget = false;
@@ -73,6 +74,8 @@ class Land {
     }
     if (this.swimAge > 0) {
       this.swimAge -= 1;
+    } else {
+      this.hasSwim = false;
     }
   }
 
@@ -140,7 +143,7 @@ class Land {
 
   // remove a swimming fish
   fishSwim() {
-    this.hasSwim = false;
+    this.hasSwim = true;
     this.swimAge = 12;
     this.changed = true;
   }
