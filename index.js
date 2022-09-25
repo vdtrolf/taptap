@@ -127,6 +127,10 @@ if (local) {
       log(realm, source, "Handler", "Message received from SNS:" + message);
       let running = await setState();
       callback(null, { running: running });
+    } else if (event.path === "/stateapi") {
+      log(realm, source, "Handler", "/stateapi event received ");
+      let isRunning = await setState();
+      callback(null, { running: isRunning });
     } else if (event.path === "/state") {
       log(realm, source, "Handler", "/state event received ");
       let isRunning = await setState();
@@ -137,7 +141,7 @@ if (local) {
           "x-custom-header": "little island",
           "Access-Control-Allow-Origin": "*",
         },
-        body: JSON.stringify({ running: isRunning }),
+        body: { running: isRunning },
         isBase64Encoded: false,
       };
 
