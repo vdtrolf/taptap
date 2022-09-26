@@ -74,7 +74,7 @@ const getIslandData = async (
 
   let islandData = await getItem("island", islandId);
 
-  if (islandData) {
+  if (islandData && islandData.lands) {
     log(
       realm,
       source,

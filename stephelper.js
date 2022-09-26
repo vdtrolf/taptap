@@ -7,7 +7,7 @@ function startStateSteps() {
 
   var stepfunctions = new AWS.StepFunctions();
 
-  console.log("@@@@@@@@@@ Starting steps");
+  console.log("setphelper.js - startStateSterps :  Starting steps");
 
   var params = {
     stateMachineArn:
