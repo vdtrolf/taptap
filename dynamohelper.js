@@ -170,56 +170,6 @@ const getItem = async (tableName, uniqueId) => {
   return cleanItem; // <<--- Your results are here
 };
 
-// gets items on an asynchronous way - based on a set of parameters and returns them
-// in a callbasck method
-
-const getItems = async (
-  tableName,
-  callbackFunction,
-  filterIdx = "id",
-  filterComparator = ">",
-  filterVal = 0,
-  secondCallBack
-) => {
-  log(
-    realm,
-    source,
-    "getItems",
-    "table=" + tableName + " filter=" + filterIdx + filterComparator + filterVal
-  );
-
-  const fval = `${filterVal}`;
-  const scanparams = {
-    ExpressionAttributeValues: {
-      ":id": { N: fval },
-    },
-    FilterExpression: `${filterIdx} ${filterComparator} :id`,
-    TableName: tableName,
-  };
-
-  log(realm, source, "getItems", scanparams, LOGINFO, LOGDATA);
-
-  dynamodb.scan(scanparams, function (err, data) {
-    if (err) {
-      log(realm, source, "getItems", err, LOGERR);
-    } else {
-      const cleanItems = [];
-      data.Items.forEach(function (item, index, array) {
-        let cleanItem = AWS.DynamoDB.Converter.unmarshall(item);
-
-        log(realm, source, "getItems", cleanItem, LOGINFO, LOGDATA);
-
-        // small check to avoid old dirt in the island table
-
-        if (tableName !== "island" || cleanItem.sizeH) {
-          cleanItems.push(cleanItem);
-        }
-      });
-      callbackFunction(cleanItems, secondCallBack);
-    }
-  });
-};
-
 // directly gets items on an asynchronous way - based on a set of parameters
 
 const getAsyncItems = async (
@@ -285,7 +235,6 @@ module.exports = {
   getAsyncItems,
   putItem,
   getItem,
-  getItems,
   deleteItem,
   createDb,
   cleanDb,

@@ -1,5 +1,6 @@
 // DB stuff
-const dbhelperReq = require("./dynamohelper.js"); // require("./acebasehelper.js");
+// const dbhelperReq = require("./dynamohelper.js"); 
+const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -23,7 +24,6 @@ let Land = landReq.Land;
 let Session = sessionReq.Session;
 let putItem = dbhelperReq.putItem;
 let deleteItem = dbhelperReq.deleteItem;
-let getItems = dbhelperReq.getItems;
 let getAsyncItems = dbhelperReq.getAsyncItems;
 let cleanIslands = islandReq.cleanIslands;
 let addIsland = islandReq.addIsland;
