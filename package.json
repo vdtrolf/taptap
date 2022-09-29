@@ -1,12 +1,12 @@
 {
   "dependencies": {
-    "aws-sdk": "^2.1206.0",
+    "acebase": "^1.24.4",
     "axios": "^0.27.2",
     "cors": "^2.8.5",
     "express": "^4.18.1"
   },
   "scripts": {
-    "start": "node index.js local",
+    "start": "node index.js local req",
     "server": "node stateserver.js local",
     "DB": "node acebaseserver.js"
   }

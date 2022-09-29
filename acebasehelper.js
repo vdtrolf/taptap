@@ -4,8 +4,10 @@ let db = null;
 const debug = true;
 
 const createDb = () => {
-  const options = { logLevel: "err" }; //   'verbose'};
-  db = new AceBase("my_db", options);
+  if (db === null) {
+    const options = { logLevel: "err" }; //   'verbose'};
+    db = new AceBase("my_db", options);
+  }
 };
 
 const cleanDb = () => {
@@ -17,6 +19,11 @@ const cleanDb = () => {
 const putItem = (tableName, Item, uniqueId) => {
   if (db && db.ready()) {
     db.ref(`${tableName}/${uniqueId}`).set(Item);
+    
+    console.log("================ put ======");
+    console.dir(Item);
+    console.log("================ land ======");
+
     return true;
   } else {
     return false;
@@ -50,7 +57,7 @@ const getItem = (tableName, uniqueId) => {
   }
 };
 
-const getAsyncItems = (
+const getAsyncItems = async (
     tableName,
     filterIdx = "id",
     filterComparator = ">",
@@ -69,11 +76,15 @@ const getAsyncItems = (
     if (db && db.ready()) {
       try {
 
-        const request = await db.query(tableName)
+        const snapshots = await db.query(tableName)
           .filter(filterIdx, filterComparator, filterVal)
           .get()
-        const result = await request.promise();
-        return (result.getValues());
+          
+        console.log("-------------------");  
+        console.dir(snapshots.getValues());
+        console.log("-------------------");  
+        
+        return snapshots.getValues();
 
       } catch (error) {
         console.error("acebasehelpers.js - getAsyncItems: ", error);
