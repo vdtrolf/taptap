@@ -1,6 +1,6 @@
 // DB stuff
-// const dbhelperReq = require("./dynamohelper.js"); 
-const dbhelperReq = require("./acebasehelper.js");
+const dbhelperReq = require("./dynamohelper.js"); 
+// const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -273,17 +273,29 @@ const getImg = (territory, islandH, islandL) => {
         }
       }
       let tile =
-        territory[i][j].type +
-        "-" +
-        territory[i][j].conf +
-        "-" +
-        territory[i][j].var;
+         territory[i][j].type +
+         "-" +
+         territory[i][j].conf +
+         "-" +
+         territory[i][j].var;
+      // result.push({
+      //   li: i,
+      //   col: j,
+      //   ti: tile,
+      //   art: artifact,
+      // });
+
       result.push({
         li: i,
         col: j,
         ti: tile,
+        type: territory[i][j].type,
+        num: territory[i][j].conf,
+        var: territory[i][j].var,
         art: artifact,
       });
+
+
     }
   }
   return result;
