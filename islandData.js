@@ -93,6 +93,8 @@ const persistIsland = (island) => {
       fatherId: penguin.fatherId,
       motherId: penguin.motherId,
       partnerId: penguin.partnerId,
+      moveDirection: penguin.moveDirection,
+      strategyShort: penguin.strategyShort,
       knownWorld: penguin.knownWorld,
     });
   });
@@ -257,7 +259,9 @@ const initiateIslands = async () => {
                 aPenguin.eating,
                 aPenguin.moving,
                 aPenguin.hasLoved,
-                aPenguin.partnerId
+                aPenguin.partnerId,
+                aPenguin.moveDirection,
+                aPenguin.strategyShort
               );
               penguins.push(penguin);
             });

@@ -56,7 +56,9 @@ class Penguin {
     eating = 0,
     moving = 0,
     hasLoved = 0,
-    partnerId = 0
+    partnerId = 0,
+    moveDirection = 0,
+    strategyShort = ""
   ) {
     this.id = id === 0 ? Math.floor(Math.random() * 999999) : id;
     this.islandId = islandId;
@@ -89,9 +91,10 @@ class Penguin {
     this.fatherId = fatherId;
     this.motherId = motherId;
     this.partnerId = partnerId;
+    this.moveDirection = moveDirection;
 
     this.strategicMap = null;
-    this.strategyShort = "";
+    this.strategyShort = strategyShort;
 
     if (this.name === "titi") {
       let aPenguinName =
@@ -504,6 +507,7 @@ class Penguin {
         cat: cat,
         state: state,
       });
+      this.moveDirection = 0;
     } else {
       // console.log("============= 2 ===");
       // console.dir(this.moveLog)
@@ -527,6 +531,7 @@ class Penguin {
         cat: cat,
         state: state,
       });
+      this.moveDirection = moveDir;
       //      }
     }
   }

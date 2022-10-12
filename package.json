@@ -7,6 +7,7 @@
   },
   "scripts": {
     "start": "node index.js local req",
+    "monitor": "node index.js local state=verbose",
     "server": "node stateserver.js local",
     "DB": "node acebaseserver.js"
   }

@@ -45,6 +45,10 @@ class Land {
     this.isTarget = false;
     this.islandSize = 0;
     this.islandPopulation = 0;
+
+    // if (hasSwim ) console.log("Youp");
+
+
   }
 
   setTarget(isTarget) {
@@ -74,9 +78,11 @@ class Land {
     }
     if (this.swimAge > 0) {
       this.swimAge -= 1;
-    } else {
-      this.hasSwim = false;
-    }
+    } 
+    // else {
+    //   console.log("Yoiiip")
+    //   this.hasSwim = false;
+    // }
   }
 
   setCross() {
@@ -131,6 +137,9 @@ class Land {
 
   // add a swimming fish
   addSwim() {
+
+    // console.log("addswim at " + this.hpos + " " + this.lpos)
+
     this.hasSwim = true;
     this.changed = true;
   }

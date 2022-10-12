@@ -30,7 +30,7 @@ let stateCounter = 0;
 let simulateRate = 2000; // 864; // 3428;
 
 // debug variables
-let deepdebug = false;
+let deepdebug = true;
 let counter = 0;
 
 // State engine = changes the state of all the running islands

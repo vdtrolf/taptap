@@ -651,9 +651,9 @@ class Island {
   // ramdomly add and remove some swimmig fishes
 
   addSwims() {
-    if (!this.running) {
-      return;
-    }
+    // if (!this.running) {
+    //   return;
+    // }
 
     let cntSwim = 0;
 
@@ -661,8 +661,8 @@ class Island {
       for (let j = 0; j < this.sizeL; j++) {
         let land = this.territory[i][j];
 
-        if (land.swim()) {
-          if (Math.floor(Math.random() * 60) === 0) {
+        if (land.hasSwim) {
+          if (Math.floor(Math.random() * 20) === 0) {
             land.removeSwim();
           } else {
             cntSwim += 1;
@@ -671,11 +671,15 @@ class Island {
       }
     }
 
+    // console.log("----> " + cntSwim)
+
     // randomly add some swimming getFishes
     if (cntSwim < 6) {
       let hpos = Math.floor(Math.random() * (this.sizeH - 2)) + 1;
       let lpos = Math.floor(Math.random() * (this.sizeL - 2)) + 1;
       let land = this.territory[hpos][lpos];
+
+      // console.log("----> " + hpos + "/" +lpos)
 
       if (land && land.getType() === 0) {
         // && this.penguins.length < 1) {
@@ -906,7 +910,7 @@ class Island {
 
     let top =
       "+" +
-      "-------------------------------------------------------------------------------".substring(
+      "--- " + this.name.toUpperCase() + " ----------------------------------------------------------------------------".substring(
         0,
         this.sizeH * 4
       ) +
