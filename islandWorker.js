@@ -17,6 +17,7 @@ const islandReq = require("./island.js");
 
 let Island = islandReq.Island;
 let getItem = dbhelperReq.getItem;
+let deleteItem = dbhelperReq.deleteItem;
 let getAsyncItems = dbhelperReq.getAsyncItems;
 let persistIslandData = islandDataReq.persistIslandData;
 
@@ -250,6 +251,32 @@ const getIslandsList = async () => {
   return islands;
 };
 
+// returns the list of islands
+
+const deleteIsland = async (islandId) => {
+  let islands = [];
+
+  deleteItem("island", islandId);
+  let fullIslands = [...(await getAsyncItems("island", "id", ">", 0))];
+
+  if (fullIslands && fullIslands.length > 0) {
+    fullIslands.forEach((island) => {
+      if( island.id !== islandId ) {
+        islands.push({
+          id: island.id,
+          name: island.name,
+          points: island.points,
+          running: island.running,
+        });
+      }  
+    });
+  }
+
+  return islands;
+};
+
+
+
 // returns an 'image' of the isalnd in the form of an array of objects
 const getImg = (territory, islandH, islandL) => {
   let result = [];
@@ -336,4 +363,5 @@ module.exports = {
   getInitData: getInitData,
   getMovesData: getMovesData,
   getIslandsList: getIslandsList,
+  deleteIsland: deleteIsland,
 };

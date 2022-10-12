@@ -23,8 +23,8 @@ class Land {
     crossAge = 0,
     hasFish = false,
     hasSwim = false,
-    hasIce = false,
-    swimAge = 0
+    swimAge = 0,
+    hasIce = false
   ) {
     this.id = id === 0 ? Math.floor(Math.random() * 999999) : id;
     this.islandId = islandId;
@@ -78,11 +78,8 @@ class Land {
     }
     if (this.swimAge > 0) {
       this.swimAge -= 1;
+      this.hasSwim = this.swimAge > 0;
     } 
-    // else {
-    //   console.log("Yoiiip")
-    //   this.hasSwim = false;
-    // }
   }
 
   setCross() {

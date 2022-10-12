@@ -59,6 +59,7 @@ const persistIsland = (island) => {
         hasFish: land.hasFish,
         hasSwim: land.hasSwim,
         swimAge: land.swimAge,
+        hasIce: land.hasIce
       });
     }
   }
@@ -223,7 +224,8 @@ const initiateIslands = async () => {
                 aLand.crossAge,
                 aLand.hasFish,
                 aLand.hasSwim,
-                aLand.swimAge
+                aLand.swimAge,
+                aLand.hasIce
               );
               island.territory[aLand.hpos][aLand.lpos] = land;
             });
