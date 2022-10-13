@@ -656,6 +656,7 @@ class Island {
     // }
 
     let cntSwim = 0;
+    let cntIce = 0;
 
     for (let i = 0; i < this.sizeH; i++) {
       for (let j = 0; j < this.sizeL; j++) {
@@ -668,6 +669,12 @@ class Island {
             cntSwim += 1;
           }
         }
+
+        if (land.hasIce) {
+          cntIce += 1;
+        }
+
+
       }
     }
 
@@ -681,9 +688,13 @@ class Island {
 
       // console.log("----> " + hpos + "/" +lpos)
 
-      if (land && land.getType() === 0) {
+      if (land) {
+        if ( land.getType() === 0) {
         // && this.penguins.length < 1) {
         land.addSwim();
+        } else if (cntIce < 6) {
+          land.addIce();
+        }
       }
     }
   }
@@ -910,7 +921,7 @@ class Island {
 
     let top =
       "+" +
-      "--- " + this.name.toUpperCase() + " ----------------------------------------------------------------------------".substring(
+      ("--- " + this.name.toUpperCase() + " ----------------------------------------------------------------------------").substring(
         0,
         this.sizeH * 4
       ) +
@@ -989,14 +1000,30 @@ class Island {
           if (land.hasSwim) {
             line1 += "><o>";
             line2 += "    ";
+          } else if (land.hasFish) {
+            if (land.type ==1) {
+              line1 += "=><>";
+              line2 += "====";    
+            } else {
+              line1 += "#><>";
+              line2 += "####";
+            }    
+          } else if (land.hasIce) {
+            if (land.type ==1) {
+              line1 += "=||=";
+              line2 += "=||=";    
+            } else {
+              line1 += "#||#";
+              line2 += "#||#";
+            }    
           } else if (land.hasCross) {
             line1 += "/++\\";
             line2 += "\\--/";
           } else {
             if (land.type === 1) {
               let ice = Math.floor(land.conf / 2);
-              line1 += ice1[ice];
-              line2 += ice2[ice];
+              line1 += ice1[0]; // ice1[ice];
+              line2 += ice2[0]; // ice2[ice];
             } else {
               line1 += lands1[land.type];
               line2 += lands2[land.type];

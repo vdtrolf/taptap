@@ -147,6 +147,21 @@ class Land {
     this.changed = true;
   }
 
+  // add a swimming fish
+  addIce() {
+
+    // console.log("addswim at " + this.hpos + " " + this.lpos)
+
+    this.hasIce = true;
+    this.changed = true;
+  }
+
+  // remove a swimming fish
+  removeIce() {
+    this.hasIce = false;
+    this.changed = true;
+  }
+
   // remove a swimming fish
   fishSwim() {
     this.hasSwim = true;
