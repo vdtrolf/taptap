@@ -64,7 +64,7 @@ class Land {
   }
 
   canMove() {
-    return this.type > 0 && !this.isTarget && !this.hasCross;
+    return this.type > 0 && !this.isTarget && !this.hasCross && !this.hasIce;
   }
 
   setType(newType) {
@@ -165,7 +165,7 @@ class Land {
   // remove a swimming fish
   fishSwim() {
     this.hasSwim = true;
-    this.swimAge = 12;
+    this.swimAge = 6;
     this.changed = true;
   }
 

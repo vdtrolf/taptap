@@ -25,6 +25,7 @@ let createDb = dbhelperReq.createDb;
 let cleanDb = dbhelperReq.cleanDb;
 
 let local = false;
+let iceTiles = false;
 let cleandb = false;
 
 // read the command-line arguments - is it local and which debug level ?
@@ -33,6 +34,9 @@ args.forEach((arg) => {
   switch (arg.toLowerCase()) {
     case "local":
       local = true;
+      break;
+    case "ice":
+      iceTiles = true;
       break;
     case "cleandb":
       cleandb = true;
@@ -71,7 +75,7 @@ createDb(local);
 if (cleandb) cleanDb();
 
 if (local) {
-  startLocalStateEngine(local);
+  startLocalStateEngine(local,iceTiles);
 }
 
 // Starting the express server for handling of local requests

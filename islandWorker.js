@@ -124,11 +124,17 @@ const getIslandData = async (
           land.changed = true;
           islandData.tiles -= islandData.tiles > 0 ? 1 : 0;
           changed = true;
-        } else if (land.type > 0 && islandData.fishes > 0) {
-          land.hasFish = true;
-          land.changed = true;
-          islandData.fishes -= islandData.fishes > 0 ? 1 : 0;
-          changed = true;
+        } else if (land.type > 0) {
+          if (land.hasIce) {
+            land.hasIce =false;
+            land.changed = true;
+            changed = true;
+          } else if (islandData.fishes > 0) {
+            land.hasFish = true;
+            land.changed = true;
+            islandData.fishes -= islandData.fishes > 0 ? 1 : 0;
+            changed = true;
+          }
         }
 
         if (changed) {
@@ -294,7 +300,7 @@ const getImg = (territory, islandH, islandL) => {
         } else if (land.hasFish) {
           artifact = 3;
         } else if (land.hasSwim) {
-          artifact = 4;
+          artifact = land.swimAge > 0?6:4;  
         } else if (land.hasIce) {
           artifact = 5;
         }

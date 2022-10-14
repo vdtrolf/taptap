@@ -650,7 +650,7 @@ class Island {
 
   // ramdomly add and remove some swimmig fishes
 
-  addSwims() {
+  addSwims(iceTiles) {
     // if (!this.running) {
     //   return;
     // }
@@ -692,7 +692,7 @@ class Island {
         if ( land.getType() === 0) {
         // && this.penguins.length < 1) {
         land.addSwim();
-        } else if (cntIce < 6) {
+        } else if (cntIce < 6 && iceTiles) {
           land.addIce();
         }
       }
