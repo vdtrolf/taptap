@@ -331,7 +331,7 @@ class Island {
             land.setType(0);
 
             let sinkingPenguins = this.penguins.filter(
-              (penguin) => penguin.hpos === hpos && penguin.lpos === lpos
+              (penguin) => penguin.hpos === hpos && penguin.lpos === lpos && penguin.alive
             );
             if (sinkingPenguins.length > 0) {
               sinkingPenguins.forEach((penguin) => {

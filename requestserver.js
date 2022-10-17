@@ -81,8 +81,8 @@ const createResponse = async (url, params, islandId = 0, local = true) => {
       }
 
       case "/deleteIsland": {
-        let trashIslandId = Number.parseInt(params.trashIslandId, 10);
-        let islands = await deleteIsland(trashIslandId);
+        let islandId = Number.parseInt(params.islandId, 10);
+        let islands = await deleteIsland(islandId);
         return { islands: islands };
       }
 

@@ -212,6 +212,9 @@ const getAsyncItems = async (
 // Delete an item based on an unique id
 
 const deleteItem = (tableName, uniqueId) => {
+
+  console.log("=========>" + uniqueId);
+
   const fval = `${uniqueId}`;
   var deleteparams = {
     Key: {
