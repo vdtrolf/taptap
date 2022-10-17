@@ -1,5 +1,6 @@
 // DB stuff
-const dbhelperReq = require("./dynamohelper.js"); // require("./acebasehelper.js");
+const dbhelperReq = require("./dynamohelper.js"); 
+// const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -23,7 +24,6 @@ let Land = landReq.Land;
 let Session = sessionReq.Session;
 let putItem = dbhelperReq.putItem;
 let deleteItem = dbhelperReq.deleteItem;
-let getItems = dbhelperReq.getItems;
 let getAsyncItems = dbhelperReq.getAsyncItems;
 let cleanIslands = islandReq.cleanIslands;
 let addIsland = islandReq.addIsland;
@@ -59,6 +59,7 @@ const persistIsland = (island) => {
         hasFish: land.hasFish,
         hasSwim: land.hasSwim,
         swimAge: land.swimAge,
+        hasIce: land.hasIce
       });
     }
   }
@@ -93,7 +94,15 @@ const persistIsland = (island) => {
       fatherId: penguin.fatherId,
       motherId: penguin.motherId,
       partnerId: penguin.partnerId,
+      moveDirection: penguin.moveDirection,
+      strategyShort: penguin.strategyShort,
       knownWorld: penguin.knownWorld,
+      hasIce: penguin.hasIce,
+      building: penguin.building,
+      buildingDirection: penguin.buildingDirection,
+      goalHPos: penguin.goalHPos,
+      goalLPOs: penguin.goalLPOs,
+      goalType: penguin.goalType
     });
   });
 
@@ -221,7 +230,8 @@ const initiateIslands = async () => {
                 aLand.crossAge,
                 aLand.hasFish,
                 aLand.hasSwim,
-                aLand.swimAge
+                aLand.swimAge,
+                aLand.hasIce
               );
               island.territory[aLand.hpos][aLand.lpos] = land;
             });
@@ -257,7 +267,15 @@ const initiateIslands = async () => {
                 aPenguin.eating,
                 aPenguin.moving,
                 aPenguin.hasLoved,
-                aPenguin.partnerId
+                aPenguin.partnerId,
+                aPenguin.moveDirection,
+                aPenguin.strategyShort,
+                aPenguin.hasIce,
+                aPenguin.building,
+                aPenguin.buildingDirection,
+                aPenguin.goalHPos,
+                aPenguin.goalLPOs,
+                aPenguin.goalType
               );
               penguins.push(penguin);
             });

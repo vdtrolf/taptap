@@ -169,32 +169,32 @@ class StrategicMap {
 
     if ((hungry > 60 && foundFish) || hungry > 80) {
       if (foundFish) {
-        this.strategyShort = " go to food";
+        this.strategyShort = " Go to food";
         this.hasTarget = true;
         this.targetH = foundFishH;
         this.targetL = foundFishL;
       } else if (hungry > 60) {
-        this.strategyShort = " search food";
+        this.strategyShort = " Search food";
         this.wantsSearch = true;
       }
     } else if ((curSmelt > 8 && foundStable) || curSmelt > 12) {
       if (foundStable) {
-        this.strategyShort = " go to stability";
+        this.strategyShort = " Go to stability";
         this.hasTarget = true;
         this.targetH = foundStableH;
         this.targetL = foundStableL;
       } else if (curSmelt > 12) {
-        this.strategyShort = " search stability";
+        this.strategyShort = " Search stability";
         this.wantsSearch = true;
       }
     } else if ((wealth < 90 && foundWarm > curWarm) || wealth < 60) {
       if (foundWarm) {
-        this.strategyShort = " go to warmth";
+        this.strategyShort = " Go to warmth";
         this.hasTarget = true;
         this.targetH = foundWarmH;
         this.targetL = foundWarmL;
       } else if (wealth > 70) {
-        this.strategyShort = " search warmth";
+        this.strategyShort = " Search warmth";
         this.wantsSearch = true;
       }
     }
@@ -418,6 +418,11 @@ class StrategicMap {
 
     return knownWorld;
   }
+
+  getStrategyShort() {
+    return this.strategyShort
+  }
+
 }
 
 //  setting directions

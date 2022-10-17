@@ -86,6 +86,27 @@ const islands = [
   "MariaIsland",
   "Sofsofland",
   "Terragusta",
+  "Islay",
+  "Romont",
+  "Vlieland",
+  "Fuerteventura",
+  "Menorca",
+  "Corse",
+  "Sicilia",
+  "Sardinia",
+  "Guernesey",
+  "Skagen",
+  "BehindLand",
+  "Mormora",
+  "St-Helen",
+  "Portobelle",
+  "Capri",
+  "Elba",
+  "Finca",
+  "Mann",
+  "Ibiza",
+  "Tenerife",
+  "Goa"
 ];
 
 let debug = false;
@@ -143,7 +164,7 @@ const getIslandName = () => {
   if (islandsNames.length > 0) {
     return islandsNames.shift();
   } else {
-    let isname = Math.floor(Math.random() * 30);
+    let isname = Math.floor(Math.random() * 50);
     log(
       realm,
       source,

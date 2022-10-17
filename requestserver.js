@@ -21,6 +21,7 @@ let getInitData = islandWorkerReq.getInitData;
 let getIslandData = islandWorkerReq.getIslandData;
 let getMovesData = islandWorkerReq.getMovesData;
 let getIslandsList = islandWorkerReq.getIslandsList;
+let deleteIsland = islandWorkerReq.deleteIsland;
 let startStateSteps = stephelperReq.startStateSteps;
 
 let NameServer = nameserverReq.NameServer;
@@ -76,6 +77,12 @@ const createResponse = async (url, params, islandId = 0, local = true) => {
 
       case "/islands": {
         let islands = await getIslandsList();
+        return { islands: islands };
+      }
+
+      case "/deleteIsland": {
+        let islandId = Number.parseInt(params.islandId, 10);
+        let islands = await deleteIsland(islandId);
         return { islands: islands };
       }
 

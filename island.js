@@ -331,7 +331,7 @@ class Island {
             land.setType(0);
 
             let sinkingPenguins = this.penguins.filter(
-              (penguin) => penguin.hpos === hpos && penguin.lpos === lpos
+              (penguin) => penguin.hpos === hpos && penguin.lpos === lpos && penguin.alive
             );
             if (sinkingPenguins.length > 0) {
               sinkingPenguins.forEach((penguin) => {
@@ -650,26 +650,35 @@ class Island {
 
   // ramdomly add and remove some swimmig fishes
 
-  addSwims() {
-    if (!this.running) {
-      return;
-    }
+  addSwims(iceTiles) {
+    // if (!this.running) {
+    //   return;
+    // }
 
     let cntSwim = 0;
+    let cntIce = 0;
 
     for (let i = 0; i < this.sizeH; i++) {
       for (let j = 0; j < this.sizeL; j++) {
         let land = this.territory[i][j];
 
-        if (land.swim()) {
-          if (Math.floor(Math.random() * 60) === 0) {
+        if (land.hasSwim) {
+          if (Math.floor(Math.random() * 20) === 0) {
             land.removeSwim();
           } else {
             cntSwim += 1;
           }
         }
+
+        if (land.hasIce) {
+          cntIce += 1;
+        }
+
+
       }
     }
+
+    // console.log("----> " + cntSwim)
 
     // randomly add some swimming getFishes
     if (cntSwim < 6) {
@@ -677,9 +686,15 @@ class Island {
       let lpos = Math.floor(Math.random() * (this.sizeL - 2)) + 1;
       let land = this.territory[hpos][lpos];
 
-      if (land && land.getType() === 0) {
+      // console.log("----> " + hpos + "/" +lpos)
+
+      if (land) {
+        if ( land.getType() === 0) {
         // && this.penguins.length < 1) {
         land.addSwim();
+        } else if (cntIce < 6 && iceTiles) {
+          land.addIce();
+        }
       }
     }
   }
@@ -906,7 +921,7 @@ class Island {
 
     let top =
       "+" +
-      "-------------------------------------------------------------------------------".substring(
+      ("--- " + this.name.toUpperCase() + " ----------------------------------------------------------------------------").substring(
         0,
         this.sizeH * 4
       ) +
@@ -985,14 +1000,30 @@ class Island {
           if (land.hasSwim) {
             line1 += "><o>";
             line2 += "    ";
+          } else if (land.hasFish) {
+            if (land.type ==1) {
+              line1 += "=><>";
+              line2 += "====";    
+            } else {
+              line1 += "#><>";
+              line2 += "####";
+            }    
+          } else if (land.hasIce) {
+            if (land.type ==1) {
+              line1 += "=||=";
+              line2 += "=||=";    
+            } else {
+              line1 += "#||#";
+              line2 += "#||#";
+            }    
           } else if (land.hasCross) {
             line1 += "/++\\";
             line2 += "\\--/";
           } else {
             if (land.type === 1) {
               let ice = Math.floor(land.conf / 2);
-              line1 += ice1[ice];
-              line2 += ice2[ice];
+              line1 += ice1[0]; // ice1[ice];
+              line2 += ice2[0]; // ice2[ice];
             } else {
               line1 += lands1[land.type];
               line2 += lands2[land.type];

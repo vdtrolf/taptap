@@ -23,8 +23,8 @@ class Land {
     crossAge = 0,
     hasFish = false,
     hasSwim = false,
-    hasIce = false,
-    swimAge = 0
+    swimAge = 0,
+    hasIce = false
   ) {
     this.id = id === 0 ? Math.floor(Math.random() * 999999) : id;
     this.islandId = islandId;
@@ -45,6 +45,10 @@ class Land {
     this.isTarget = false;
     this.islandSize = 0;
     this.islandPopulation = 0;
+
+    // if (hasSwim ) console.log("Youp");
+
+
   }
 
   setTarget(isTarget) {
@@ -60,7 +64,7 @@ class Land {
   }
 
   canMove() {
-    return this.type > 0 && !this.isTarget && !this.hasCross;
+    return this.type > 0 && !this.isTarget && !this.hasCross && !this.hasIce;
   }
 
   setType(newType) {
@@ -74,9 +78,8 @@ class Land {
     }
     if (this.swimAge > 0) {
       this.swimAge -= 1;
-    } else {
-      this.hasSwim = false;
-    }
+      this.hasSwim = this.swimAge > 0;
+    } 
   }
 
   setCross() {
@@ -131,6 +134,9 @@ class Land {
 
   // add a swimming fish
   addSwim() {
+
+    // console.log("addswim at " + this.hpos + " " + this.lpos)
+
     this.hasSwim = true;
     this.changed = true;
   }
@@ -141,10 +147,25 @@ class Land {
     this.changed = true;
   }
 
+  // add a swimming fish
+  addIce() {
+
+    // console.log("addswim at " + this.hpos + " " + this.lpos)
+
+    this.hasIce = true;
+    this.changed = true;
+  }
+
+  // remove a swimming fish
+  removeIce() {
+    this.hasIce = false;
+    this.changed = true;
+  }
+
   // remove a swimming fish
   fishSwim() {
     this.hasSwim = true;
-    this.swimAge = 12;
+    this.swimAge = 6;
     this.changed = true;
   }
 

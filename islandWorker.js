@@ -1,5 +1,6 @@
 // DB stuff
-const dbhelperReq = require("./dynamohelper.js"); // require("./acebasehelper.js");
+const dbhelperReq = require("./dynamohelper.js"); 
+// const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -16,6 +17,7 @@ const islandReq = require("./island.js");
 
 let Island = islandReq.Island;
 let getItem = dbhelperReq.getItem;
+let deleteItem = dbhelperReq.deleteItem;
 let getAsyncItems = dbhelperReq.getAsyncItems;
 let persistIslandData = islandDataReq.persistIslandData;
 
@@ -122,11 +124,17 @@ const getIslandData = async (
           land.changed = true;
           islandData.tiles -= islandData.tiles > 0 ? 1 : 0;
           changed = true;
-        } else if (land.type > 0 && islandData.fishes > 0) {
-          land.hasFish = true;
-          land.changed = true;
-          islandData.fishes -= islandData.fishes > 0 ? 1 : 0;
-          changed = true;
+        } else if (land.type > 0) {
+          if (land.hasIce) {
+            land.hasIce =false;
+            land.changed = true;
+            changed = true;
+          } else if (islandData.fishes > 0) {
+            land.hasFish = true;
+            land.changed = true;
+            islandData.fishes -= islandData.fishes > 0 ? 1 : 0;
+            changed = true;
+          }
         }
 
         if (changed) {
@@ -249,6 +257,32 @@ const getIslandsList = async () => {
   return islands;
 };
 
+// returns the list of islands
+
+const deleteIsland = async (islandId) => {
+  let islands = [];
+
+  deleteItem("island", islandId);
+  let fullIslands = [...(await getAsyncItems("island", "id", ">", 0))];
+
+  if (fullIslands && fullIslands.length > 0) {
+    fullIslands.forEach((island) => {
+      if( island.id !== islandId ) {
+        islands.push({
+          id: island.id,
+          name: island.name,
+          points: island.points,
+          running: island.running,
+        });
+      }  
+    });
+  }
+
+  return islands;
+};
+
+
+
 // returns an 'image' of the isalnd in the form of an array of objects
 const getImg = (territory, islandH, islandL) => {
   let result = [];
@@ -266,23 +300,35 @@ const getImg = (territory, islandH, islandL) => {
         } else if (land.hasFish) {
           artifact = 3;
         } else if (land.hasSwim) {
-          artifact = 4;
+          artifact = land.swimAge > 0?6:4;  
         } else if (land.hasIce) {
           artifact = 5;
         }
       }
       let tile =
-        territory[i][j].type +
-        "-" +
-        territory[i][j].conf +
-        "-" +
-        territory[i][j].var;
+         territory[i][j].type +
+         "-" +
+         territory[i][j].conf +
+         "-" +
+         territory[i][j].var;
+      // result.push({
+      //   li: i,
+      //   col: j,
+      //   ti: tile,
+      //   art: artifact,
+      // });
+
       result.push({
         li: i,
         col: j,
         ti: tile,
+        type: territory[i][j].type,
+        num: territory[i][j].conf,
+        var: territory[i][j].var,
         art: artifact,
       });
+
+
     }
   }
   return result;
@@ -323,4 +369,5 @@ module.exports = {
   getInitData: getInitData,
   getMovesData: getMovesData,
   getIslandsList: getIslandsList,
+  deleteIsland: deleteIsland,
 };

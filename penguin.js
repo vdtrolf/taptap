@@ -56,7 +56,16 @@ class Penguin {
     eating = 0,
     moving = 0,
     hasLoved = 0,
-    partnerId = 0
+    partnerId = 0,
+    moveDirection = 0,
+    strategyShort = "",
+    hasIce = false,
+    building = false,
+    buildingDirection = 0,
+    goalHPos = 0,
+    goalLPOs = 0,
+    goalType = 0
+
   ) {
     this.id = id === 0 ? Math.floor(Math.random() * 999999) : id;
     this.islandId = islandId;
@@ -89,9 +98,17 @@ class Penguin {
     this.fatherId = fatherId;
     this.motherId = motherId;
     this.partnerId = partnerId;
+    this.moveDirection = moveDirection;
 
     this.strategicMap = null;
-    this.strategyShort = "";
+    this.strategyShort = strategyShort;
+
+    this.hasIce = hasIce;
+    this.building = building;
+    this.buildingDirection = buildingDirection;
+    this.goalHPos = goalHPos;
+    this.goalLPOs = goalLPOs;
+    this.goalType = goalType;
 
     if (this.name === "titi") {
       let aPenguinName =
@@ -219,17 +236,6 @@ class Penguin {
       return false;
     }
 
-    // console.log(
-    //   "^^^^^ hasloved:" +
-    //     this.hasLoved +
-    //     " eating:" +
-    //     this.eating +
-    //     " fishing:" +
-    //     this.fishTime +
-    //     " age:" +
-    //     this.age
-    // );
-
     return this.hasLoved === 0 && this.eating === 0 && this.fishTime === 0;
   }
 
@@ -253,41 +259,7 @@ class Penguin {
     this.lpos = lpos;
     this.waiting = 0;
   }
-
-  // reset the penguin move log by adding an initial move record
-  // if the penguin is eating or loving it will also add the corresponding records to the penguins log
-
-  // resetPos(sessions) {
-  //   this.addMoveLog(
-  //     sessions,
-  //     1,
-  //     this.cat,
-  //     "move",
-  //     0,
-  //     0,
-  //     0,
-  //     this.hpos,
-  //     this.lpos
-  //   );
-  //   log(
-  //     realm,
-  //     source,
-  //     "resetPos",
-  //     "reset penguin " + this.id + " at " + this.hpos + "/" + this.lpos
-  //   );
-
-  //   if (this.loving > 0) {
-  //     this.addMoveLog( 4, this.cat, "love");
-  //   }
-  //   if (this.eating > 0) {
-  //     this.addMoveLog( 3, this.cat, "eat");
-  //   }
-  //   if (this.fishTime > 0) {
-  //     this.addMoveLog( 7, this.cat, "fish");
-  //   }
-  //   this.waiting = 0;
-  // }
-
+  
   // tells te peguin to make love with a partner
 
   love(partnerId) {
@@ -297,16 +269,6 @@ class Penguin {
     this.waiting = 0;
     this.addMoveLog(4, this.cat, "love");
 
-    // console.log(
-    //   "^^^^^ LOVING : " +
-    //     this.hasLoved +
-    //     " eating:" +
-    //     this.eating +
-    //     " fishing:" +
-    //     this.fishTime +
-    //     " age:" +
-    //     this.age
-    // );
   }
 
   // return true is the penguin is makning love
@@ -349,6 +311,7 @@ class Penguin {
 
   wait() {
     this.hungry += Math.floor((this.fat - 1) / 2) + 1;
+    this.moveDirection = 0;
   }
 
   // return true is the penguin is eating
@@ -504,6 +467,7 @@ class Penguin {
         cat: cat,
         state: state,
       });
+      this.moveDirection = 0;
     } else {
       // console.log("============= 2 ===");
       // console.dir(this.moveLog)
@@ -527,6 +491,7 @@ class Penguin {
         cat: cat,
         state: state,
       });
+      this.moveDirection = moveDir;
       //      }
     }
   }

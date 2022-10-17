@@ -1,5 +1,6 @@
 // DB stuff
-const dbhelperReq = require("./dynamohelper.js"); // require("./acebasehelper.js");
+const dbhelperReq = require("./dynamohelper.js"); 
+// const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -29,11 +30,11 @@ let stateCounter = 0;
 let simulateRate = 2000; // 864; // 3428;
 
 // debug variables
-let deepdebug = false;
+let deepdebug = true;
 let counter = 0;
 
 // State engine = changes the state of all the running islands
-const setState = async (local) => {
+const setState = async (local,iceTiles=false) => {
   createDb(local);
 
   let initiate = await initiateIslands(); // (getTheIslands);
@@ -54,7 +55,7 @@ const setState = async (local) => {
 
         island.calculateNeighbours();
         island.movePenguins();
-        island.addSwims();
+        island.addSwims(iceTiles);
         island.makePenguinsOlder();
         island.smelt();
         island.setWeather();
@@ -66,11 +67,11 @@ const setState = async (local) => {
 };
 
 // For test purpose - simulates a pulsar function if the state server is running locally
-const startLocalStateEngine = (local) => {
+const startLocalStateEngine = (local,iceTiles=false) => {
   setInterval(() => {
     log(realm, source, "", "simulates a state change request " + counter);
     counter += 1;
-    setState(local);
+    setState(local,iceTiles);
   }, simulateRate);
 };
 
