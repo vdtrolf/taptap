@@ -25,7 +25,7 @@ let createDb = dbhelperReq.createDb;
 let cleanDb = dbhelperReq.cleanDb;
 
 let local = false;
-let iceTiles = false;
+let iceTiles = true;
 let cleandb = false;
 
 // read the command-line arguments - is it local and which debug level ?
