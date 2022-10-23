@@ -1,6 +1,6 @@
 // DB stuff
-const dbhelperReq = require("./dynamohelper.js"); 
-// const dbhelperReq = require("./acebasehelper.js");
+// const dbhelperReq = require("./dynamohelper.js"); 
+const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -25,6 +25,7 @@ let Session = sessionReq.Session;
 let putItem = dbhelperReq.putItem;
 let deleteItem = dbhelperReq.deleteItem;
 let getAsyncItems = dbhelperReq.getAsyncItems;
+let getAllItems = dbhelperReq.getAllItems;
 let cleanIslands = islandReq.cleanIslands;
 let addIsland = islandReq.addIsland;
 
@@ -40,34 +41,36 @@ const persistIsland = (island) => {
     "persisting island " + island.id + " counter: " + island.counter
   );
 
-  let lands = [];
+  let lands = {};
 
   for (let i = 0; i < island.sizeH; i++) {
     for (let j = 0; j < island.sizeL; j++) {
       let land = island.territory[i][j];
 
-      lands.push({
-        id: land.id,
-        islandId: land.islandId,
-        hpos: land.hpos,
-        lpos: land.lpos,
-        type: land.type,
-        conf: land.conf,
-        var: land.var,
-        hasCross: land.hasCross,
-        crossAge: land.crossAge,
-        hasFish: land.hasFish,
-        hasSwim: land.hasSwim,
-        swimAge: land.swimAge,
-        hasIce: land.hasIce
-      });
+        const aLand={id: land.id,
+          islandId: land.islandId,
+          hpos: land.hpos,
+          lpos: land.lpos,
+          type: land.type,
+          conf: land.conf,
+          var: land.var,
+          hasCross: land.hasCross,
+          crossAge: land.crossAge,
+          hasFish: land.hasFish,
+          hasSwim: land.hasSwim,
+          swimAge: land.swimAge,
+          hasIce: land.hasIce};
+      lands = {...lands,...aLand};
+      //}};
+      // lands.push(aLand);
     }
   }
 
-  let penguins = [];
+  let penguins = {};
 
   island.penguins.forEach((penguin) => {
-    penguins.push({
+    
+    const aPenguin = {
       id: penguin.id,
       islandId: penguin.islandId,
       moveLog: penguin.moveLog,
@@ -103,7 +106,12 @@ const persistIsland = (island) => {
       goalHPos: penguin.goalHPos,
       goalLPOs: penguin.goalLPOs,
       goalType: penguin.goalType
-    });
+    };
+    
+    penguins += aPenguin;
+    //penguins.push(aPemguin);
+
+
   });
 
   putItem("island", {
@@ -124,7 +132,7 @@ const persistIsland = (island) => {
     lands: lands,
     penguins: penguins,
     counter: island.counter,
-  });
+  }, island.id);
 };
 
 const persistIslandData = async (island) => {
@@ -160,7 +168,7 @@ const persistIslandData = async (island) => {
     lands: island.lands,
     penguins: island.penguins,
     counter: island.counter,
-  });
+  },island.id);
 };
 
 const initiateIslands = async () => {
@@ -169,6 +177,7 @@ const initiateIslands = async () => {
   log(realm, source, "initiateIslands", "getting islands out of DB");
 
   let theIslands = await getAsyncItems("island", "id", ">", 0);
+  // let theIslands = await getAllItems("island");
 
   if (theIslands && theIslands.length > 0) {
     cleanIslands();
@@ -185,6 +194,7 @@ const initiateIslands = async () => {
 
     try {
       theIslands.forEach((anIsland) => {
+        
         let age = currentTime - Number.parseInt(anIsland.lastInvocation);
 
         if (anIsland.lastInvocation > 0 && (age < maxAge || anIsland.running)) {
@@ -217,7 +227,12 @@ const initiateIslands = async () => {
           }
 
           if (anIsland.lands) {
-            anIsland.lands.forEach((aLand) => {
+              console.dir(anIsland.lands[1]);
+
+
+            for (const aLand in anIsland.lands) {
+          //  anIsland.lands.forEach((aLand) => {
+              console.dir(aLand);
               let land = new Land(
                 aLand.hpos,
                 aLand.lpos,
@@ -234,13 +249,15 @@ const initiateIslands = async () => {
                 aLand.hasIce
               );
               island.territory[aLand.hpos][aLand.lpos] = land;
-            });
+            };
+            //});
           }
 
           let penguins = [];
 
           if (anIsland.penguins) {
-            anIsland.penguins.forEach((aPenguin) => {
+            for (aPenguin in anIsland.penguins) {
+            //anIsland.penguins.forEach((aPenguin) => {
               let penguin = new Penguin(
                 aPenguin.num,
                 aPenguin.hpos,
@@ -278,7 +295,8 @@ const initiateIslands = async () => {
                 aPenguin.goalType
               );
               penguins.push(penguin);
-            });
+            }  
+            // });
           }
           island.penguins = penguins;
 

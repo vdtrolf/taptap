@@ -1,11 +1,23 @@
 const { AceBase } = require("acebase");
 
+// logger stuff
+const loggerReq = require("./logger.js");
+let log = loggerReq.log;
+const LOGVERB = loggerReq.LOGVERB;
+const LOGINFO = loggerReq.LOGINFO;
+const LOGERR = loggerReq.LOGERR;
+const LOGDATA = loggerReq.LOGDATA;
+
+const realm = "db";
+const source = "acebasehelper.js";
+
+
 let db = null;
-const debug = true;
+const debug = false;
 
 const createDb = () => {
   if (db === null) {
-    const options = { logLevel: "err" }; //   'verbose'};
+    const options = { logLevel: "verbose" }; //   'err'};
     db = new AceBase("my_db", options);
   }
 };
@@ -17,12 +29,22 @@ const cleanDb = () => {
 };
 
 const putItem = (tableName, Item, uniqueId) => {
+  
+  
+  log(realm, source, "putItem", 
+          "table " +
+          tableName +
+          " id: " +
+          uniqueId,LOGINFO, LOGDATA);
+
+  
   if (db && db.ready()) {
     db.ref(`${tableName}/${uniqueId}`).set(Item);
+ 
     
-    console.log("================ put ======");
-    console.dir(Item);
-    console.log("================ land ======");
+    //console.log("================ put ======");
+    //console.dir(Item);
+    //console.log("================ land ======");
 
     return true;
   } else {
@@ -31,12 +53,16 @@ const putItem = (tableName, Item, uniqueId) => {
 };
 
 const getItem = (tableName, uniqueId) => {
-  if (debug)
-    console.log(
-      "acebasehelper.js - getItem: table " + tableName + " id " + uniqueId
-    );
 
-  if (db && db.ready()) {
+
+  log(realm, source, "getItem", 
+          "table " +
+          tableName +
+          " id: " +
+          uniqueId,LOGINFO, LOGDATA);
+
+
+ if (db && db.ready()) {
     db.ref(`${tableName}/${uniqueId}`).get((data) => {
       try {
         let id = data.val().id;
@@ -47,7 +73,7 @@ const getItem = (tableName, uniqueId) => {
             tableName +
             "/" +
             uniqueId,
-          err
+          error
         );
         return undefined;
       }
@@ -63,15 +89,14 @@ const getAsyncItems = async (
     filterComparator = ">",
     filterVal = 0
   ) => {
-    if (debug)
-      console.log(
-        "acebasehelper.js - getAsyncItems: table " +
+
+    log(realm, source, "getAsyncItems", 
+          "table " +
           tableName +
           " filter " +
           filterIdx +
           filterComparator +
-          filterVal
-      );
+          filterVal);
   
     if (db && db.ready()) {
       try {
@@ -80,9 +105,11 @@ const getAsyncItems = async (
           .filter(filterIdx, filterComparator, filterVal)
           .get()
           
-        console.log("-------------------");  
+        log(realm, source, "getAsyncItems", snapshots.getValues(), LOGVERB, LOGDATA);
+        
+        //console.log("-------------------");  
         console.dir(snapshots.getValues());
-        console.log("-------------------");  
+        //console.log("-------------------");  
         
         return snapshots.getValues();
 
@@ -91,6 +118,37 @@ const getAsyncItems = async (
       }
     }
   };
+  
+  
+const getAllItems = async (tableName) => {
+
+  log(realm, source, "getAllItems", 
+          "table " +
+          tableName,LOGINFO, LOGDATA);
+
+
+  if (db) {
+    // db.ref(`${tableName}`).get((data) => {
+    const count = await db.query('island')
+    .filter('id', '>', 0)
+    .count();
+    
+    
+    
+    
+    //.get(snapshot => {
+      // if (snapshot.exists()) {
+    console.log("===>>>" + count);
+      // } else {
+      //  console.log("no data")
+      // }
+    // });
+
+
+  } else {
+    return undefined;
+  }
+};  
 
 const deleteItem = (tableName, uniqueId) => {
   if (db && db.ready()) {
@@ -104,6 +162,7 @@ const deleteItem = (tableName, uniqueId) => {
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
   getAsyncItems,
+  getAllItems,
   putItem,
   getItem,
   deleteItem,
