@@ -1,6 +1,6 @@
 // DB stuff
-// const dbhelperReq = require("./dynamohelper.js"); 
-const dbhelperReq = require("./acebasehelper.js");
+const dbhelperReq = require("./dynamohelper.js"); 
+// const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -41,33 +41,32 @@ const persistIsland = (island) => {
     "persisting island " + island.id + " counter: " + island.counter
   );
 
-  let lands = {};
+  let lands = [];
 
   for (let i = 0; i < island.sizeH; i++) {
     for (let j = 0; j < island.sizeL; j++) {
       let land = island.territory[i][j];
 
-        const aLand={id: land.id,
-          islandId: land.islandId,
-          hpos: land.hpos,
-          lpos: land.lpos,
-          type: land.type,
-          conf: land.conf,
-          var: land.var,
-          hasCross: land.hasCross,
-          crossAge: land.crossAge,
-          hasFish: land.hasFish,
-          hasSwim: land.hasSwim,
-          swimAge: land.swimAge,
-          hasIce: land.hasIce};
-      lands = {...lands,...aLand};
-      //}};
-      // lands.push(aLand);
+      const aLand={id: land.id,
+        islandId: land.islandId,
+        hpos: land.hpos,
+        lpos: land.lpos,
+        type: land.type,
+        conf: land.conf,
+        var: land.var,
+        hasCross: land.hasCross,
+        crossAge: land.crossAge,
+        hasFish: land.hasFish,
+        hasSwim: land.hasSwim,
+        swimAge: land.swimAge,
+        hasIce: land.hasIce};
+      
+      lands.push(aLand);
     }
   }
-
-  let penguins = {};
-
+  
+  let penguins = [];
+  
   island.penguins.forEach((penguin) => {
     
     const aPenguin = {
@@ -107,13 +106,9 @@ const persistIsland = (island) => {
       goalLPOs: penguin.goalLPOs,
       goalType: penguin.goalType
     };
-    
-    penguins += aPenguin;
-    //penguins.push(aPemguin);
-
-
+    penguins.push(aPenguin);
   });
-
+  
   putItem("island", {
     id: island.id,
     name: island.name,
@@ -227,12 +222,7 @@ const initiateIslands = async () => {
           }
 
           if (anIsland.lands) {
-              console.dir(anIsland.lands[1]);
-
-
-            for (const aLand in anIsland.lands) {
-          //  anIsland.lands.forEach((aLand) => {
-              console.dir(aLand);
+            anIsland.lands.forEach((aLand) => {
               let land = new Land(
                 aLand.hpos,
                 aLand.lpos,
@@ -249,15 +239,13 @@ const initiateIslands = async () => {
                 aLand.hasIce
               );
               island.territory[aLand.hpos][aLand.lpos] = land;
-            };
-            //});
+            });
           }
 
           let penguins = [];
 
           if (anIsland.penguins) {
-            for (aPenguin in anIsland.penguins) {
-            //anIsland.penguins.forEach((aPenguin) => {
+            anIsland.penguins.forEach((aPenguin) => {
               let penguin = new Penguin(
                 aPenguin.num,
                 aPenguin.hpos,
@@ -295,8 +283,8 @@ const initiateIslands = async () => {
                 aPenguin.goalType
               );
               penguins.push(penguin);
-            }  
-            // });
+              
+            });
           }
           island.penguins = penguins;
 

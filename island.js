@@ -921,71 +921,72 @@ class Island {
 
     let top =
       "+" +
-      ("--- " + this.name.toUpperCase() + " ----------------------------------------------------------------------------").substring(
+      ("--- " + this.name.toUpperCase() + " (" + this.id + ") ----------------------------------------------------------------------------").substring(
         0,
         this.sizeH * 4
       ) +
       "+";
-    let results = [];
+    let mid =
+      "+" +
+      ("---------------------------------------------------------------------------------------").substring(0,this.sizeH * 4) + "+"; 
+    let results = [""];
     results.push(top);
 
     let cnt = 1;
     this.penguins.forEach((penguin) => {
       if (penguin.alive) {
         penguinpos[penguin.hpos][penguin.lpos] = cnt;
-        results.push(
-          `| ${cnt++} ${penguin.name} (${penguin.id}) a=${penguin.age} w=${
-            penguin.wealth
-          } h=${penguin.hungry}`
-        );
+        let line = `| ${cnt++} ${penguin.name} (${penguin.id}) a=${penguin.age} w=${penguin.wealth} h=${penguin.hungry}                                                      `
+        line = line.substring(0,this.sizeH * 4) + ' |';
+        results.push(line);
       }
     });
-    results.push(top);
+    results.push(mid);
 
     let lands1 = [
       "    ",
-      "....",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
+      "----",
+      "----",
+      "----",
+      "----",
+      "----",
+      "----",
+      "----",
+      "----",
     ];
     let lands2 = [
       "    ",
-      "....",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
+      "----",
+      "----",
+      "----",
+      "----",
+      "----",
+      "----",
+      "----",
+      "----",
     ];
 
     let ice1 = [
-      "====",
-      "=-=-",
-      "=-=-",
-      "--=-",
-      "----",
-      "- - ",
-      "- - ",
-      "- - ",
-      "- - ",
+      "....",
+      "....",
+      ". . ",
+      ". . ",
+      ". . ",
+      ". . ",
+      " .  ",
+      " .  ",
+      " .  ",
     ];
     let ice2 = [
-      "====",
-      "====",
-      "-=-=",
-      "-=--",
-      "----",
-      "----",
-      "-- -",
-      " - -",
-      " -  ",
+      "....",
+      "....",
+      "....",
+      "....",
+      " . .",
+      " . .",
+      " . .",
+      "  . ",
+      "  . ",
     ];
 
     for (let h = 0; h < this.sizeH; h++) {
@@ -993,8 +994,8 @@ class Island {
       let line2 = "|";
       for (let l = 0; l < this.sizeL; l++) {
         if (penguinpos[h][l] > 0) {
-          line1 += `/oo\\`;
-          line2 += `\\${penguinpos[h][l]} /`;
+          line1 += `(oo)`;
+          line2 += '|\\/|';     // `\\${penguinpos[h][l]} /`;
         } else {
           let land = this.territory[h][l];
           if (land.hasSwim) {
@@ -1002,28 +1003,28 @@ class Island {
             line2 += "    ";
           } else if (land.hasFish) {
             if (land.type ==1) {
-              line1 += "=><>";
-              line2 += "====";    
+              line1 += "><o>";
+              line2 += "....";    
             } else {
-              line1 += "#><>";
-              line2 += "####";
+              line1 += "><o>";
+              line2 += "----";
             }    
           } else if (land.hasIce) {
             if (land.type ==1) {
-              line1 += "=||=";
-              line2 += "=||=";    
+              line1 += "./\\.";
+              line2 += ".\\/.";    
             } else {
-              line1 += "#||#";
-              line2 += "#||#";
+              line1 += "-/\\-";
+              line2 += "-\\/-";
             }    
           } else if (land.hasCross) {
-            line1 += "/++\\";
-            line2 += "\\--/";
+            line1 += "(++)";
+            line2 += "|--|"   // "\\--/";
           } else {
             if (land.type === 1) {
               let ice = Math.floor(land.conf / 2);
-              line1 += ice1[0]; // ice1[ice];
-              line2 += ice2[0]; // ice2[ice];
+              line1 += ice1[ice];
+              line2 += ice2[ice];
             } else {
               line1 += lands1[land.type];
               line2 += lands2[land.type];
@@ -1036,7 +1037,7 @@ class Island {
       results.push(line1);
       results.push(line2);
     }
-    results.push(top);
+    results.push(mid);
     return results;
   }
 }

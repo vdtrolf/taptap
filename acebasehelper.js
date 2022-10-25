@@ -39,7 +39,7 @@ const putItem = (tableName, Item, uniqueId) => {
 
   
   if (db && db.ready()) {
-    db.ref(`${tableName}/${uniqueId}`).set(Item);
+    db.ref(`${tableName}/${uniqueId}`).set(JSON.stringify(Item));
  
     
     //console.log("================ put ======");
@@ -52,8 +52,7 @@ const putItem = (tableName, Item, uniqueId) => {
   }
 };
 
-const getItem = (tableName, uniqueId) => {
-
+const getItem = async (tableName, uniqueId) => {
 
   log(realm, source, "getItem", 
           "table " +
@@ -61,26 +60,20 @@ const getItem = (tableName, uniqueId) => {
           " id: " +
           uniqueId,LOGINFO, LOGDATA);
 
+  var returnValues = undefined; 
 
- if (db && db.ready()) {
-    db.ref(`${tableName}/${uniqueId}`).get((data) => {
-      try {
-        let id = data.val().id;
+  if (db && db.ready()) {
+    returnValues = await db.ref(`${tableName}/${uniqueId}`).get((data) => {
+      if (data.exists) {
         return data.val();
-      } catch (error) {
-        console.err(
-          "acebasehelper.js - getItem: problem setting data for " +
-            tableName +
-            "/" +
-            uniqueId,
-          error
-        );
+      } else {  
         return undefined;
       }
     });
-  } else {
-    return undefined;
-  }
+  } 
+
+  return returnValues;
+
 };
 
 const getAsyncItems = async (

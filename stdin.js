@@ -1,11 +1,15 @@
+// DB stuff
+const dbhelperReq = require("./dynamohelper.js"); 
+// const dbhelperReq = require("./acebasehelper.js");
+
 const readline = require('readline')
 const colors = require('colors/safe')
 
 const requestserverReq = require("./requestserver.js");
-const stateserverReq = require("./stateserver.js");
+
 
 let createResponse = requestserverReq.createResponse;
-let setState = stateserverReq.setState;
+let getItem = dbhelperReq.getItem;
 
 var islandId = 0;
 
@@ -22,6 +26,8 @@ const checkInput = (input) => {
     const inputargs = input.toLowerCase().split("=");
     if (inputargs[0] === "id") {
       islandId = inputargs[1];
+    } else if (inputargs[0] === "get") {
+      print(getItem("island",inputargs[1]));
     } 
   } else {
     createResponse(input, "", islandId, true).then(
@@ -44,6 +50,7 @@ const createTerminal =  async () => {
   rl.on('line', (line) => {
     var input = line.replace(/\0/g, '')
     if (input.length > 0) {
+      print('\r')
       checkInput(input)
     }
     print('')
