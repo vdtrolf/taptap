@@ -38,7 +38,7 @@ const checkInput = (input) => {
     createResponse(input, "", islandId, true).then(
       (responseBody) => {
           // console.dir(responseBody);
-        return responseBody;
+        print(responseBody);
       }
     );
   }
@@ -55,7 +55,7 @@ const createTerminal =  async () => {
   rl.on('line', (line) => {
     var input = line.replace(/\0/g, '')
     if (input.length > 0) {
-      print('\r')
+      // print('\r')
       checkInput(input)
     }
     print('')
