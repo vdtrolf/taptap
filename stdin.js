@@ -1,6 +1,6 @@
 // DB stuff
-const dbhelperReq = require("./dynamohelper.js"); 
-// const dbhelperReq = require("./acebasehelper.js");
+// const dbhelperReq = require("./dynamohelper.js"); 
+const dbhelperReq = require("./acebasehelper.js");
 
 const readline = require('readline')
 const colors = require('colors/safe')
@@ -10,6 +10,7 @@ const requestserverReq = require("./requestserver.js");
 
 let createResponse = requestserverReq.createResponse;
 let getItem = dbhelperReq.getItem;
+let getAsyncItems = dbhelperReq.getAsyncItems;
 
 var islandId = 0;
 
@@ -27,7 +28,11 @@ const checkInput = (input) => {
     if (inputargs[0] === "id") {
       islandId = inputargs[1];
     } else if (inputargs[0] === "get") {
-      print(getItem("island",inputargs[1]));
+      getItem("island",inputargs[1])
+      .then(value => print(value))
+    } else if (inputargs[0] === "list") {
+      getAsyncItems("island","id",">",0)
+      .then(value => print(value))
     } 
   } else {
     createResponse(input, "", islandId, true).then(

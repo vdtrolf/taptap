@@ -60,19 +60,16 @@ const getItem = async (tableName, uniqueId) => {
           " id: " +
           uniqueId,LOGINFO, LOGDATA);
 
-  var returnValues = undefined; 
-
   if (db && db.ready()) {
-    returnValues = await db.ref(`${tableName}/${uniqueId}`).get((data) => {
-      if (data.exists) {
-        return data.val();
-      } else {  
-        return undefined;
-      }
-    });
-  } 
-
-  return returnValues;
+    const data = await db.ref(`${tableName}/${uniqueId}`).get();
+    if (data.exists) {
+      return data.val();
+    } else {  
+      return "no data";
+    }
+  } else {
+    return "no db";
+  }
 
 };
 
@@ -92,23 +89,38 @@ const getAsyncItems = async (
           filterVal);
   
     if (db && db.ready()) {
-      try {
 
-        const snapshots = await db.query(tableName)
-          .filter(filterIdx, filterComparator, filterVal)
-          .get()
+        var results = "";
+
+        await db.query(`'${tableName}'`)
+          .take(10)  
+          // .filter(filterIdx, filterComparator, filterVal)
+          .get(snapshots => {
+            console.log("-------------------");  
+            console.dir(snapshots.getValues());
+            console.log("-------------------");  
+
+
+            results = snapshots.getValues();
+          });
+
+        
+          console.log("------+++-------------");  
+          console.dir(results);
+          console.log("------+++-------------");  
+          return results;
+
+
+
+        // } else {  
+        //   return "no data";
+        // }
           
-        log(realm, source, "getAsyncItems", snapshots.getValues(), LOGVERB, LOGDATA);
-        
-        //console.log("-------------------");  
-        console.dir(snapshots.getValues());
-        //console.log("-------------------");  
-        
-        return snapshots.getValues();
+        // log(realm, source, "getAsyncItems", snapshots.getValues(), LOGVERB, LOGDATA);
+        // return snapshots.getValues();
 
-      } catch (error) {
-        console.error("acebasehelpers.js - getAsyncItems: ", error);
-      }
+    } else {
+      return "no db"
     }
   };
   
@@ -163,9 +175,3 @@ module.exports = {
   cleanDb
 };
 
-// 
-//   putItem,
-//   getItem,
-//   deleteItem,
-//   createDb,
-//   cleanDb,

@@ -1,6 +1,6 @@
 // DB stuff
-const dbhelperReq = require("./dynamohelper.js"); 
-// const dbhelperReq = require("./acebasehelper.js");
+// const dbhelperReq = require("./dynamohelper.js"); 
+const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -124,8 +124,8 @@ const persistIsland = (island) => {
     running: island.running,
     lastInvocation: island.lastInvocation,
     followId: island.followId ? island.followId : 0,
-    lands: lands,
-    penguins: penguins,
+    // lands: lands,
+    // penguins: penguins,
     counter: island.counter,
   }, island.id);
 };
