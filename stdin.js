@@ -6,11 +6,14 @@ const readline = require('readline')
 const colors = require('colors/safe')
 
 const requestserverReq = require("./requestserver.js");
-
+const islandDataReq = require("./islandData.js");
+const islandReq = require("./island.js");
 
 let createResponse = requestserverReq.createResponse;
 let getItem = dbhelperReq.getItem;
 let getAsyncItems = dbhelperReq.getAsyncItems;
+let initiateIslands = islandDataReq.initiateIslands;
+let getIsland = islandReq.getIsland;
 
 var islandId = 0;
 
@@ -21,6 +24,28 @@ const print = (msg) => {
   console.log(msg)
 }
 
+const printList = (islands) => {
+
+  print('');
+  print("+---- ISLANDS ----------------------------------------------+");
+  islands.forEach(island => {
+    line = "| " + island.id + " " + island.name + " " + (island.running?"(running) ":"(stopped) ") + island.points + " points " + island.penguins.length + " penguins                                                             ";
+    print(line.substring(0,60) + "|");
+  });
+  print("+-----------------------------------------------------------+");
+}
+
+const printIsland = (island) => {
+
+  initiateIslands(island);
+  const islandObj = getIsland(island.id);
+
+  islandObj.getAsciiImg().forEach(line=>print(line));
+  print('');
+
+}
+
+
 const checkInput = (input) => {
 
   if (input.includes("=")) {
@@ -29,20 +54,24 @@ const checkInput = (input) => {
       islandId = inputargs[1];
     } else if (inputargs[0] === "get") {
       getItem("island",inputargs[1])
-      .then(value => print(value))
-    } else if (inputargs[0] === "list") {
-      getAsyncItems("island","id",">",0)
-      .then(value => print(value))
+      .then(value => printIsland(value))
     } 
   } else {
-    createResponse(input, "", islandId, true).then(
-      (responseBody) => {
+    if(input==="list") {
+      getAsyncItems("island","id",">",0)
+      .then(value => printList(value))
+    }  if(input==="get") {
+      getItem("island",islandId)
+      .then(value => printIsland(value))
+    } else {
+      createResponse(input, "", islandId, true).then(
+        (responseBody) => {
           // console.dir(responseBody);
-        print(responseBody);
-      }
-    );
+          print(responseBody);
+        }
+      );
+    }
   }
-  
 }
 
 let rl = readline.createInterface({
@@ -65,6 +94,11 @@ const createTerminal =  async () => {
   print('')
   process.stdout.write(">>")
 }
+
+
+
+
+
 
 module.exports = {
   createTerminal: createTerminal,

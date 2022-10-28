@@ -17,7 +17,7 @@ const debug = false;
 
 const createDb = () => {
   if (db === null) {
-    const options = { logLevel: "verbose" }; //   'err'};
+    const options = { logLevel: "err" }; //   'verbose'};
     db = new AceBase("my_db", options);
   }
 };
@@ -30,7 +30,6 @@ const cleanDb = () => {
 
 const putItem = (tableName, Item, uniqueId) => {
   
-  
   log(realm, source, "putItem", 
           "table " +
           tableName +
@@ -39,12 +38,12 @@ const putItem = (tableName, Item, uniqueId) => {
 
   
   if (db && db.ready()) {
-    db.ref(`${tableName}/${uniqueId}`).set(JSON.stringify(Item));
+    db.ref(`${tableName}/${uniqueId}`).set(Item);
  
     
     //console.log("================ put ======");
     //console.dir(Item);
-    //console.log("================ land ======");
+    //console.log("================ put ======");
 
     return true;
   } else {
@@ -80,80 +79,31 @@ const getAsyncItems = async (
     filterVal = 0
   ) => {
 
-    log(realm, source, "getAsyncItems", 
-          "table " +
-          tableName +
-          " filter " +
-          filterIdx +
-          filterComparator +
-          filterVal);
-  
-    if (db && db.ready()) {
+  log(realm, source, "getAsyncItems", 
+        "table " +
+        tableName +
+        " filter " +
+        filterIdx +
+        filterComparator +
+        filterVal);
 
-        var results = "";
+  if (db && db.ready()) {
 
-        await db.query(`'${tableName}'`)
-          .take(10)  
-          // .filter(filterIdx, filterComparator, filterVal)
-          .get(snapshots => {
-            console.log("-------------------");  
-            console.dir(snapshots.getValues());
-            console.log("-------------------");  
+    const snapshots = await db.query(tableName)
+      .filter(filterIdx, filterComparator, filterVal)
+      .get();
+      
+    // console.log("================ getAsyncItems ======");
+    // console.dir(snapshots.getValues());
+    // console.log("================ getAsyncItems ======");
 
-
-            results = snapshots.getValues();
-          });
-
-        
-          console.log("------+++-------------");  
-          console.dir(results);
-          console.log("------+++-------------");  
-          return results;
-
-
-
-        // } else {  
-        //   return "no data";
-        // }
-          
-        // log(realm, source, "getAsyncItems", snapshots.getValues(), LOGVERB, LOGDATA);
-        // return snapshots.getValues();
-
-    } else {
-      return "no db"
-    }
-  };
-  
-  
-const getAllItems = async (tableName) => {
-
-  log(realm, source, "getAllItems", 
-          "table " +
-          tableName,LOGINFO, LOGDATA);
-
-
-  if (db) {
-    // db.ref(`${tableName}`).get((data) => {
-    const count = await db.query('island')
-    .filter('id', '>', 0)
-    .count();
-    
-    
-    
-    
-    //.get(snapshot => {
-      // if (snapshot.exists()) {
-    console.log("===>>>" + count);
-      // } else {
-      //  console.log("no data")
-      // }
-    // });
-
+    return snapshots.getValues();
 
   } else {
-    return undefined;
+    return "no db"
   }
-};  
+};
+  
 
 const deleteItem = (tableName, uniqueId) => {
   if (db && db.ready()) {
@@ -167,7 +117,6 @@ const deleteItem = (tableName, uniqueId) => {
 // now we export the class, so other modules can create Penguin objects
 module.exports = {
   getAsyncItems,
-  getAllItems,
   putItem,
   getItem,
   deleteItem,

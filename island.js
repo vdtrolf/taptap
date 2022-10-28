@@ -921,7 +921,7 @@ class Island {
 
     let top =
       "+" +
-      ("--- " + this.name.toUpperCase() + " (" + this.id + ") ----------------------------------------------------------------------------").substring(
+      ("--- " + this.name.toUpperCase() + " (" + this.id + ") " + (this.running?"(runs) ":"(stop) ") + this.points + " points ----------------------------------------------------------------------------").substring(
         0,
         this.sizeH * 4
       ) +
@@ -931,6 +931,7 @@ class Island {
       ("---------------------------------------------------------------------------------------").substring(0,this.sizeH * 4) + "+"; 
     let results = [""];
     results.push(top);
+    results.push(mid);
 
     let cnt = 1;
     this.penguins.forEach((penguin) => {
@@ -1071,5 +1072,5 @@ module.exports = {
   addIsland: addIsland,
   getIsland: getIsland,
   getIslands: getIslands,
-  setIslands: setIslands,
+  setIslands: setIslands
 };

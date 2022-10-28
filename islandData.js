@@ -25,7 +25,6 @@ let Session = sessionReq.Session;
 let putItem = dbhelperReq.putItem;
 let deleteItem = dbhelperReq.deleteItem;
 let getAsyncItems = dbhelperReq.getAsyncItems;
-let getAllItems = dbhelperReq.getAllItems;
 let cleanIslands = islandReq.cleanIslands;
 let addIsland = islandReq.addIsland;
 
@@ -124,8 +123,8 @@ const persistIsland = (island) => {
     running: island.running,
     lastInvocation: island.lastInvocation,
     followId: island.followId ? island.followId : 0,
-    // lands: lands,
-    // penguins: penguins,
+    lands: lands,
+    penguins: penguins,
     counter: island.counter,
   }, island.id);
 };
@@ -166,13 +165,12 @@ const persistIslandData = async (island) => {
   },island.id);
 };
 
-const initiateIslands = async () => {
+const initiateIslands = async (islandParam=null) => {
   let running = false;
 
   log(realm, source, "initiateIslands", "getting islands out of DB");
 
-  let theIslands = await getAsyncItems("island", "id", ">", 0);
-  // let theIslands = await getAllItems("island");
+  let theIslands = islandParam?[islandParam]:await getAsyncItems("island", "id", ">", 0);
 
   if (theIslands && theIslands.length > 0) {
     cleanIslands();

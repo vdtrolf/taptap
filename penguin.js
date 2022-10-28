@@ -102,6 +102,7 @@ class Penguin {
 
     this.strategicMap = null;
     this.strategyShort = strategyShort;
+    this.knownWorld=null;
 
     this.hasIce = hasIce;
     this.building = building;
