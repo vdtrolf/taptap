@@ -46,8 +46,7 @@ const persistIsland = (island) => {
     for (let j = 0; j < island.sizeL; j++) {
       let land = island.territory[i][j];
 
-      lands.push({
-        id: land.id,
+      const aLand={id: land.id,
         islandId: land.islandId,
         hpos: land.hpos,
         lpos: land.lpos,
@@ -59,15 +58,17 @@ const persistIsland = (island) => {
         hasFish: land.hasFish,
         hasSwim: land.hasSwim,
         swimAge: land.swimAge,
-        hasIce: land.hasIce
-      });
+        hasIce: land.hasIce};
+      
+      lands.push(aLand);
     }
   }
-
+  
   let penguins = [];
-
+  
   island.penguins.forEach((penguin) => {
-    penguins.push({
+    
+    const aPenguin = {
       id: penguin.id,
       islandId: penguin.islandId,
       moveLog: penguin.moveLog,
@@ -103,9 +104,10 @@ const persistIsland = (island) => {
       goalHPos: penguin.goalHPos,
       goalLPOs: penguin.goalLPOs,
       goalType: penguin.goalType
-    });
+    };
+    penguins.push(aPenguin);
   });
-
+  
   putItem("island", {
     id: island.id,
     name: island.name,
@@ -124,7 +126,7 @@ const persistIsland = (island) => {
     lands: lands,
     penguins: penguins,
     counter: island.counter,
-  });
+  }, island.id);
 };
 
 const persistIslandData = async (island) => {
@@ -160,15 +162,15 @@ const persistIslandData = async (island) => {
     lands: island.lands,
     penguins: island.penguins,
     counter: island.counter,
-  });
+  },island.id);
 };
 
-const initiateIslands = async () => {
+const initiateIslands = async (islandParam=null) => {
   let running = false;
 
   log(realm, source, "initiateIslands", "getting islands out of DB");
 
-  let theIslands = await getAsyncItems("island", "id", ">", 0);
+  let theIslands = islandParam?[islandParam]:await getAsyncItems("island", "id", ">", 0);
 
   if (theIslands && theIslands.length > 0) {
     cleanIslands();
@@ -185,6 +187,7 @@ const initiateIslands = async () => {
 
     try {
       theIslands.forEach((anIsland) => {
+        
         let age = currentTime - Number.parseInt(anIsland.lastInvocation);
 
         if (anIsland.lastInvocation > 0 && (age < maxAge || anIsland.running)) {
@@ -278,6 +281,7 @@ const initiateIslands = async () => {
                 aPenguin.goalType
               );
               penguins.push(penguin);
+              
             });
           }
           island.penguins = penguins;

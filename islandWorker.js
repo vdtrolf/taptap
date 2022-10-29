@@ -84,10 +84,6 @@ const getIslandData = async (
       "found is=" + islandData.id + " fId=" + penguinFollowId
     );
 
-    // let session = islandData.sessions.find(
-    //   (session) => session.id === sessionId
-    // );
-
     let territory = [];
     for (let i = 0; i < islandData.sizeH; i++) {
       let line = [];
@@ -108,10 +104,6 @@ const getIslandData = async (
       tileLpos < islandData.sizeL - 1
     ) {
       let land = territory[tileHpos][tileLpos];
-
-      console.log("================ land ======");
-      console.dir(land);
-      console.log("================ land ======");
 
       if (land) {
         if (land.type === 0 && islandData.tiles > 0) {

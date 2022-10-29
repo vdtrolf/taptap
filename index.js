@@ -18,15 +18,19 @@ const source = "index.js";
 
 const requestserverReq = require("./requestserver.js");
 const stateserverReq = require("./stateserver.js");
+const stdinReq = require("./stdin.js")
+
 let setState = stateserverReq.setState;
 let startLocalStateEngine = stateserverReq.startLocalStateEngine;
 let createResponse = requestserverReq.createResponse;
 let createDb = dbhelperReq.createDb;
 let cleanDb = dbhelperReq.cleanDb;
+let createTerminal = stdinReq.createTerminal;
 
 let local = false;
 let iceTiles = true;
 let cleandb = false;
+let terminal = false;
 
 // read the command-line arguments - is it local and which debug level ?
 const args = process.argv.slice(2);
@@ -37,6 +41,9 @@ args.forEach((arg) => {
       break;
     case "ice":
       iceTiles = true;
+      break;
+    case "terminal":
+      terminal = true;
       break;
     case "cleandb":
       cleandb = true;
@@ -63,7 +70,7 @@ args.forEach((arg) => {
 });
 
 // setLogLevel("db", LOGINFO);
-setLogLevel("index", LOGINFO);
+// setLogLevel("index", LOGINFO);
 // setLogLevel("worker", LOGINFO);
 // setLogLevel("data", LOGINFO);
 
@@ -74,9 +81,13 @@ const debug = false;
 createDb(local);
 if (cleandb) cleanDb();
 
-if (local) {
-  startLocalStateEngine(local,iceTiles);
-}
+if (terminal) {
+  createTerminal();
+} else {
+  if (local) {
+    startLocalStateEngine(local,iceTiles);
+  }
+
 
 // Starting the express server for handling of local requests
 if (local) {
@@ -208,4 +219,6 @@ if (local) {
       return aresponse;
     }
   };
+  }
 }
+ 

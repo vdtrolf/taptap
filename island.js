@@ -911,6 +911,13 @@ class Island {
 
   getAsciiImg() {
     let penguinpos = [];
+    const shapes = ["","Fat","Fit","Slim","Lean"]
+    const activities = ["","Eating","Fishing","Loving"]
+    const hunger = ["#####", ".####", "..###", "...##","....#","....."]
+    const health = ["-----", "----+", "---++", "--+++","-++++","+++++" ]
+    const eyes = ["  ","oo","ôô","öö","@@","©©","°°","õõ","88","99","oo","oo"]
+    const actImg = ["|\\/|","|<>|","|__/","|()|"]
+    const acts = ["|\\/|","|\\/|","|\\/|","|\\/|","|\\/|","|\\/|","|\\/|","|\\/|","|\\/|","|\\/|","|\\/|",];
     for (let h = 0; h < this.sizeH; h++) {
       let line = [];
       for (let l = 0; l < this.sizeL; l++) {
@@ -921,71 +928,87 @@ class Island {
 
     let top =
       "+" +
-      ("--- " + this.name.toUpperCase() + " ----------------------------------------------------------------------------").substring(
+      (" " + this.name.toUpperCase() + " (" + this.id + ") " + (this.running?"(runs) ":"(stop) ") + this.points + " points                                                      ").substring(
         0,
         this.sizeH * 4
       ) +
       "+";
-    let results = [];
+    let mid =
+      "+" +
+      ("---------------------------------------------------------------------------------------").substring(0,this.sizeH * 4) + "+"; 
+    let results = [""];
+    results.push(mid);
     results.push(top);
+    results.push(mid);
 
-    let cnt = 1;
+    let cnt = 0;
     this.penguins.forEach((penguin) => {
       if (penguin.alive) {
+        cnt +=1;
+        var activity = 0;
+        if (penguin.eating > 0) {
+          activity = 1;
+        } else if (penguin.fishTime > 0) {
+          activity = 2;
+        } else if (penguin.loving > 0) {
+          activity = 3;
+        }
         penguinpos[penguin.hpos][penguin.lpos] = cnt;
-        results.push(
-          `| ${cnt++} ${penguin.name} (${penguin.id}) a=${penguin.age} w=${
-            penguin.wealth
-          } h=${penguin.hungry}`
-        );
+        var status = penguin.gender.substring(0,1) + "/" + Math.floor(penguin.age) + "/" + shapes[penguin.fat]
+        const hungryBar = hunger[Math.floor(penguin.hungry/20)]
+        const healthBar = health[Math.floor(penguin.wealth/20)]
+        let line = `| ${eyes[cnt]} ${penguin.name} ${status} ${hungryBar} ${healthBar} ${activity > 0? activities[activity]:penguin.strategyShort}                                `
+        line = line.substring(0,this.sizeH * 4) + ' |';
+        acts[cnt] = actImg[activity];
+        results.push(line);
       }
     });
-    results.push(top);
+    results.push(mid);
 
     let lands1 = [
       "    ",
-      "....",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
+      "----",
+      "----",
+      "----",
+      "----",
+      "----",
+      "----",
+      "----",
+      "----",
     ];
     let lands2 = [
       "    ",
-      "....",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
+      "----",
+      "----",
+      "----",
+      "----",
+      "----",
+      "----",
+      "----",
+      "----",
     ];
 
     let ice1 = [
-      "====",
-      "=-=-",
-      "=-=-",
-      "--=-",
-      "----",
-      "- - ",
-      "- - ",
-      "- - ",
-      "- - ",
+      "....",
+      "....",
+      ". . ",
+      ". . ",
+      ". . ",
+      ". . ",
+      " .  ",
+      " .  ",
+      " .  ",
     ];
     let ice2 = [
-      "====",
-      "====",
-      "-=-=",
-      "-=--",
-      "----",
-      "----",
-      "-- -",
-      " - -",
-      " -  ",
+      "....",
+      "....",
+      "....",
+      "....",
+      " . .",
+      " . .",
+      " . .",
+      "  . ",
+      "  . ",
     ];
 
     for (let h = 0; h < this.sizeH; h++) {
@@ -993,8 +1016,8 @@ class Island {
       let line2 = "|";
       for (let l = 0; l < this.sizeL; l++) {
         if (penguinpos[h][l] > 0) {
-          line1 += `/oo\\`;
-          line2 += `\\${penguinpos[h][l]} /`;
+          line1 += `(${eyes[penguinpos[h][l]]})`;
+          line2 += acts[penguinpos[h][l]];
         } else {
           let land = this.territory[h][l];
           if (land.hasSwim) {
@@ -1002,28 +1025,28 @@ class Island {
             line2 += "    ";
           } else if (land.hasFish) {
             if (land.type ==1) {
-              line1 += "=><>";
-              line2 += "====";    
+              line1 += "><o>";
+              line2 += "....";    
             } else {
-              line1 += "#><>";
-              line2 += "####";
+              line1 += "><o>";
+              line2 += "----";
             }    
           } else if (land.hasIce) {
             if (land.type ==1) {
-              line1 += "=||=";
-              line2 += "=||=";    
+              line1 += ".##.";
+              line2 += ".##.";    
             } else {
-              line1 += "#||#";
-              line2 += "#||#";
+              line1 += "-##-";
+              line2 += "-##-";
             }    
           } else if (land.hasCross) {
-            line1 += "/++\\";
-            line2 += "\\--/";
+            line1 += "(++)";
+            line2 += `|--|`;
           } else {
             if (land.type === 1) {
               let ice = Math.floor(land.conf / 2);
-              line1 += ice1[0]; // ice1[ice];
-              line2 += ice2[0]; // ice2[ice];
+              line1 += ice1[ice];
+              line2 += ice2[ice];
             } else {
               line1 += lands1[land.type];
               line2 += lands2[land.type];
@@ -1036,7 +1059,7 @@ class Island {
       results.push(line1);
       results.push(line2);
     }
-    results.push(top);
+    results.push(mid);
     return results;
   }
 }
@@ -1070,5 +1093,5 @@ module.exports = {
   addIsland: addIsland,
   getIsland: getIsland,
   getIslands: getIslands,
-  setIslands: setIslands,
+  setIslands: setIslands
 };
