@@ -62,11 +62,11 @@ const createResponse = async (url, params, islandId = 0, local = true) => {
 
       case "/state": {
         log(realm, source, "createResponse", "case state - event received ");
-        let isRunning = await setState(1);
+        let isRunning = await setState(1,true);
         return { running: isRunning };
       }
 
-      case "/moves": {
+      case "/moves": {       
         let followId = Number.parseInt(params.followId, 10);
         return await getMovesData(islandId, followId);
       }

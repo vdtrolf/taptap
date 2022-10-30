@@ -1,6 +1,6 @@
-// DB stuff
-const dbhelperReq = require("./dynamohelper.js"); 
-// const dbhelperReq = require("./acebasehelper.js");
+  // DB stuff
+// const dbhelperReq = require("./dynamohelper.js"); 
+const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -85,7 +85,7 @@ if (terminal) {
   createTerminal();
 } else {
   if (local) {
-    startLocalStateEngine(local,iceTiles);
+    // startLocalStateEngine(local,iceTiles);
   }
 
 

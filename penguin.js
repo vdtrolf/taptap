@@ -147,9 +147,9 @@ class Penguin {
       this.wealth,
       this.name,
       this.id,
+      this.fat,
       this.maxcnt,
       this.id === island.followId && this.alive,
-      this.maxcnt
     );
 
     this.knownWorld = this.strategicMap.getKnownWorld();

@@ -1,6 +1,6 @@
 // DB stuff
-const dbhelperReq = require("./dynamohelper.js"); 
-// const dbhelperReq = require("./acebasehelper.js");
+// const dbhelperReq = require("./dynamohelper.js"); 
+const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -212,8 +212,9 @@ const getMovesData = async (islandId, penguinFollowId) => {
     log(realm, source, "getMovesData", result, LOGVERB, LOGDATA);
 
     if (penguinFollowId && penguinFollowId > 0) {
-      islandData.penguinFollowId = penguinFollowId;
+      islandData.followId = penguinFollowId;
       await persistIslandData(islandData);
+      
     }
   } else {
     log(

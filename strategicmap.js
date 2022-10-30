@@ -16,6 +16,7 @@ class StrategicMap {
     this.targetDirections = [0, 0, 0, 0];
     this.wantsSearch = false;
   }
+  
 
   look(
     island,
@@ -26,9 +27,13 @@ class StrategicMap {
     wealth,
     name,
     id,
+    fat,
     maxcnt = 5,
     show = false
   ) {
+       
+    const debug=false;
+    
     this.strategy = "";
     this.strategyShort = " I am fine";
     this.hasTarget = false;
@@ -39,7 +44,7 @@ class StrategicMap {
     let curFish = island.territory[centerH][centerL].hasFish;
     let curStable = this.isLandStable(island, centerH, centerL);
     let curSwim = this.isLandSwim(island, centerH, centerL);
-    let curWarm = 0; // this.calculateWarm(island,centerH,centerL,id,show) + 1;
+    let curWarm = this.calculateWarm(island,centerH,centerL,id,show) + 1;
     let curSmelt =
       island.territory[centerH][centerL].getType() !== 1
         ? 1
@@ -59,6 +64,8 @@ class StrategicMap {
     let foundStableH = 0;
     let foundStableL = 0;
     let distStable = 99;
+    
+    let additionalText = "";
 
     this.knownWorld = [];
     for (
@@ -166,30 +173,32 @@ class StrategicMap {
     }
 
     // select a strategy
-
-    if ((hungry > 60 && foundFish) || hungry > 80) {
+    
+    var fatburnsteps = (100 - hungry) / (Math.floor(fat / 3) + 1) 
+    
+    if ((fatburnsteps < 30 && foundFish) || fatburnsteps < 20) {
       if (foundFish) {
-        this.strategyShort = " Go to food";
+        this.strategyShort = " To food:" + hungry + "/" +fatburnsteps;
         this.hasTarget = true;
         this.targetH = foundFishH;
         this.targetL = foundFishL;
       } else if (hungry > 60) {
-        this.strategyShort = " Search food";
+        this.strategyShort = " Search food:" +  + hungry + "/" +fatburnsteps;
         this.wantsSearch = true;
       }
-    } else if ((curSmelt > 8 && foundStable) || curSmelt > 12) {
+    } else if (island.weather < 2 && ((curSmelt > 8 && foundStable) || curSmelt > 12)) {
       if (foundStable) {
-        this.strategyShort = " Go to stability";
+        this.strategyShort = " To stable";
         this.hasTarget = true;
         this.targetH = foundStableH;
         this.targetL = foundStableL;
       } else if (curSmelt > 12) {
-        this.strategyShort = " Search stability";
+        this.strategyShort = " Search stable";
         this.wantsSearch = true;
       }
-    } else if ((wealth < 90 && foundWarm > curWarm) || wealth < 60) {
+    } else if (island.weather > 0 && ((wealth < 90 && foundWarm > curWarm) || wealth < 60)) {
       if (foundWarm) {
-        this.strategyShort = " Go to warmth";
+        this.strategyShort = " To warmth";
         this.hasTarget = true;
         this.targetH = foundWarmH;
         this.targetL = foundWarmL;
@@ -204,6 +213,7 @@ class StrategicMap {
     // l  r  u  d rd ru ld lu
 
     if (this.hasTarget) {
+      
       this.path = [];
       let hasPath = findPath(
         island,
@@ -212,11 +222,12 @@ class StrategicMap {
         this.targetH,
         this.targetL,
         this.path,
-        show,
+        show && debug,
         maxcnt
       );
 
-      if (show)
+  
+      if (show && debug) {
         this.path.forEach((step) =>
           console.log(
             hasPath +
@@ -228,7 +239,8 @@ class StrategicMap {
               step.posL
           )
         );
-
+      }
+     
       if (hasPath && this.path.length > 0) {
         switch (this.path[this.path.length - 1].dir) {
           case 1:
@@ -249,18 +261,23 @@ class StrategicMap {
         this.hasTarget = false;
       }
     }
-
+  
     if (show) {
       let cntline = 0;
+      let ruler = "---" + centerL + "---";
+      // for(let i=centerL-3;i<centerL+4;i++) ruler+=i>0&&i<11?i%10:"-";
+      
       console.log(
         "+" +
-          "--------".substring(0, viewLength * 2 + 1) +
+          ruler.substring(3-viewLength, viewLength * 2 + 1) +
           "+ +" +
-          "--------".substring(0, viewLength * 2 + 1) +
+          ruler.substring(3-viewLength, viewLength * 2 + 1) +
           "+"
       );
+      
       this.knownWorld.forEach((line) => {
-        let txt = "|";
+        
+        let txt = cntline===3?centerH%10:"|";
         line.forEach((cell) => {
           let celltxt = " ";
           if (cell.pos) celltxt = Math.floor(cell.smelt / 2);
@@ -304,7 +321,7 @@ class StrategicMap {
             break;
           case 3:
             txt += " Warm = " + curWarm;
-            if (foundWarm > 0)
+            if (foundWarmH > 0)
               txt +=
                 " Found warm " +
                 foundWarm +
@@ -322,7 +339,7 @@ class StrategicMap {
                 .reverse()
                 .forEach(
                   (step) =>
-                    (txt += +step.dir + "-" + step.posH + "/" + step.posL)
+                    (txt += +step.dir + ":" + step.posH + "/" + step.posL + " ")
                 );
             }
             break;
@@ -337,6 +354,7 @@ class StrategicMap {
           "+"
       );
     }
+    
     return this.strategyShort;
   }
 
