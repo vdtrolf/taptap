@@ -8,8 +8,8 @@
     "readline": "^1.3.0"
   },
   "scripts": {
-    "start": "node index.js local index req worker db",
-    "terminal": "node index.js local req terminal",
+    "start": "node index.js local",
+    "terminal": "node index.js local terminal",
     "curl": "curl http://localhost:3001/island"
   }
 }

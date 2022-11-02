@@ -85,7 +85,7 @@ if (terminal) {
   createTerminal();
 } else {
   if (local) {
-    // startLocalStateEngine(local,iceTiles);
+    startLocalStateEngine(local,iceTiles);
   }
 
 

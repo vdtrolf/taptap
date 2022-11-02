@@ -142,7 +142,8 @@ const getIslandData = async (
     }
 
     if (penguinFollowId && penguinFollowId > 0) {
-      islandData.penguinFollowId = penguinFollowId;
+      islandData.followId = penguinFollowId;
+      changed=true;
     }
 
     if (changed) {
