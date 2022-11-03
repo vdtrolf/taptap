@@ -16,6 +16,7 @@ class StrategicMap {
     this.targetDirections = [0, 0, 0, 0];
     this.wantsSearch = false;
   }
+  
 
   look(
     island,
@@ -26,9 +27,19 @@ class StrategicMap {
     wealth,
     name,
     id,
+    fat,
+    age,
+    alone,
+    gender,
+    hasIce,
     maxcnt = 5,
     show = false
   ) {
+       
+
+
+    const debug=false;
+    
     this.strategy = "";
     this.strategyShort = " I am fine";
     this.hasTarget = false;
@@ -39,7 +50,8 @@ class StrategicMap {
     let curFish = island.territory[centerH][centerL].hasFish;
     let curStable = this.isLandStable(island, centerH, centerL);
     let curSwim = this.isLandSwim(island, centerH, centerL);
-    let curWarm = 0; // this.calculateWarm(island,centerH,centerL,id,show) + 1;
+    let curWarm = this.calculateWarm(island,centerH,centerL,id,show) + 1;
+    
     let curSmelt =
       island.territory[centerH][centerL].getType() !== 1
         ? 1
@@ -59,6 +71,18 @@ class StrategicMap {
     let foundStableH = 0;
     let foundStableL = 0;
     let distStable = 99;
+
+    let foundIce = false;
+    let foundIceH = 0;
+    let foundIceL = 0;
+    let distIce = 99;
+    
+    let foundLove = false;
+    let foundLoveH = 0;
+    let foundLoveL = 0;
+    let distLove = 99;
+
+    let additionalText = "";
 
     this.knownWorld = [];
     for (
@@ -83,6 +107,8 @@ class StrategicMap {
                 fish: false,
                 stable: false,
                 swim: false,
+                ice: false,
+                love: false,
                 smelt: 0,
                 warm: 0,
               });
@@ -90,6 +116,8 @@ class StrategicMap {
               let stable = this.isLandStable(island, hpos, lpos);
               let swim = this.isLandSwim(island, hpos, lpos);
               let warm = this.calculateWarm(island, hpos, lpos, id, show) + 1;
+              let ice = this.hasLandIce(island, hpos, lpos,);
+              let love = this.hasLandLove(island, hpos, lpos, id, gender);
               hline.push({
                 hpos: hpos,
                 pos: lpos,
@@ -99,6 +127,8 @@ class StrategicMap {
                 swim: swim,
                 smelt: island.territory[hpos][lpos].getConf(),
                 warm: warm,
+                ice:ice,
+                love:love
               });
 
               // Is there a fish and is it closer than last foud fish ?
@@ -136,6 +166,28 @@ class StrategicMap {
                   distStable = dist;
                 }
               }
+
+              if (ice) {
+                foundIce = true;
+                let dist = Math.abs(centerH - hpos) + Math.abs(centerL - lpos);
+                if (dist < distIce) {
+                  foundIceH = hpos;
+                  foundIceL = lpos;
+                  distIce= dist;
+                }
+              }
+
+              if (love) {
+                foundLove = true;
+                let dist = Math.abs(centerH - hpos) + Math.abs(centerL - lpos);
+                if (dist < distLove) {
+                  foundLoveH = hpos;
+                  foundLoveL = lpos;
+                  distLove= dist;
+                }
+              }
+
+
             }
           } else {
             hline.push({
@@ -166,10 +218,12 @@ class StrategicMap {
     }
 
     // select a strategy
-
-    if ((hungry > 60 && foundFish) || hungry > 80) {
+    
+    var fatburnsteps = (100 - hungry) / (Math.floor(fat / 3) + 1) 
+    
+    if ((fatburnsteps < 30 && foundFish) || fatburnsteps < 20) {
       if (foundFish) {
-        this.strategyShort = " Go to food";
+        this.strategyShort = " To food";
         this.hasTarget = true;
         this.targetH = foundFishH;
         this.targetL = foundFishL;
@@ -177,26 +231,36 @@ class StrategicMap {
         this.strategyShort = " Search food";
         this.wantsSearch = true;
       }
-    } else if ((curSmelt > 8 && foundStable) || curSmelt > 12) {
+    } else if (island.weather < 2 && ((curSmelt > 8 && foundStable) || curSmelt > 12)) {
       if (foundStable) {
-        this.strategyShort = " Go to stability";
+        this.strategyShort = " To stable";
         this.hasTarget = true;
         this.targetH = foundStableH;
         this.targetL = foundStableL;
       } else if (curSmelt > 12) {
-        this.strategyShort = " Search stability";
+        this.strategyShort = " Search stable";
         this.wantsSearch = true;
       }
-    } else if ((wealth < 90 && foundWarm > curWarm) || wealth < 60) {
+    } else if (island.weather > 0 && ((wealth < 90 && foundWarm > curWarm) || wealth < 60)) {
       if (foundWarm) {
-        this.strategyShort = " Go to warmth";
+        this.strategyShort = " To warmth";
         this.hasTarget = true;
         this.targetH = foundWarmH;
         this.targetL = foundWarmL;
-      } else if (wealth > 70) {
+      } else if (wealth < 60) {
         this.strategyShort = " Search warmth";
         this.wantsSearch = true;
       }
+    } else if (age >5 && age <22 && foundLove) {
+      this.strategyShort = " To love";
+      this.hasTarget = true;
+      this.targetH = foundLoveH;
+      this.targetL = foundLoveL;
+    } else if (age >5 && age <22 &&  wealth > 50 && foundIce) {
+      this.strategyShort = " To ice";
+      this.hasTarget = true;
+      this.targetH = foundIceH;
+      this.targetL = foundIceL;
     }
 
     //  setting directions
@@ -204,6 +268,7 @@ class StrategicMap {
     // l  r  u  d rd ru ld lu
 
     if (this.hasTarget) {
+      
       this.path = [];
       let hasPath = findPath(
         island,
@@ -212,11 +277,12 @@ class StrategicMap {
         this.targetH,
         this.targetL,
         this.path,
-        show,
+        show && debug,
         maxcnt
       );
 
-      if (show)
+  
+      if (show && debug) {
         this.path.forEach((step) =>
           console.log(
             hasPath +
@@ -228,7 +294,8 @@ class StrategicMap {
               step.posL
           )
         );
-
+      }
+     
       if (hasPath && this.path.length > 0) {
         switch (this.path[this.path.length - 1].dir) {
           case 1:
@@ -249,72 +316,114 @@ class StrategicMap {
         this.hasTarget = false;
       }
     }
-
+  
     if (show) {
+
+      let iceblock = [
+        "▓",
+        "▓",
+        "▒",
+        "▒",
+        "░",
+        "░",
+        "-",
+        "-",
+        "."
+      ];
+
       let cntline = 0;
+      let ruler = "---" + centerL + "---";
+      // for(let i=centerL-3;i<centerL+4;i++) ruler+=i>0&&i<11?i%10:"-";
+      
       console.log(
         "+" +
-          "--------".substring(0, viewLength * 2 + 1) +
+          ruler.substring(3-viewLength, viewLength * 2 + (4 - viewLength)) +
           "+ +" +
-          "--------".substring(0, viewLength * 2 + 1) +
-          "+"
+          ruler.substring(3-viewLength, viewLength * 2 + (4 - viewLength)) +
+          "+ +" +
+          ruler.substring(3-viewLength, viewLength * 2 + (4 - viewLength)) +
+          "+ " +
+          name +
+          "(" +
+          id +
+          ") Pos: " +
+          centerH +
+          "/" +
+          centerL 
       );
+      
       this.knownWorld.forEach((line) => {
-        let txt = "|";
+        
+        let txt = cntline===viewLength?centerH%10:"|";
         line.forEach((cell) => {
           let celltxt = " ";
-          if (cell.pos) celltxt = Math.floor(cell.smelt / 2);
-          if (cell.stable) celltxt = "=";
-          if (cell.swim) celltxt = "~";
-          if (cell.fish) celltxt = "@";
+          if (cell.pos) celltxt = iceblock[Math.floor(cell.smelt / 2)];
+          if (cell.stable) celltxt = "▓";
+
           txt += celltxt;
         });
         txt += "| |";
         line.forEach((cell) => {
           let celltxt = " ";
-          if (cell.pos) celltxt = cell.warm;
+          if (cell.pos || cell.stable) celltxt = ".";
+          if (cell.swim) celltxt = "~";
+          if (cell.fish) celltxt = "@";
+          if (cell.ice) celltxt = "^";
+          if (cell.love) celltxt = "&";
+          txt += celltxt;
+        });
+        txt += "| |";
+        line.forEach((cell) => {
+          let celltxt = " ";
+          if (cell.pos) celltxt = cell.warm>0?cell.warm:".";
           txt += celltxt;
         });
         txt += "|";
 
         switch (cntline++) {
           case 0:
-            txt +=
-              " " +
-              name +
-              "(" +
-              id +
-              ") Pos: " +
-              centerH +
-              "/" +
-              centerL +
-              " wealth: " +
-              wealth;
+            txt += " Hungry: " + hungry;
+            if (foundFish)
+              txt += " - Found fish (~) at " + foundFishH + "/" + foundFishL ;
             break;
           case 1:
-            txt += " Hungry = " + hungry;
-            if (foundFish)
-              txt += " Found fish at (" + foundFishH + "/" + foundFishL + ")";
-            break;
-          case 2:
-            txt += " Stable = " + curSmelt;
+            txt += " Smelt : " + curSmelt;
             if (foundStable)
               txt +=
-                " Found stable at (" + foundStableH + "/" + foundStableL + ")";
+                " - More stable at " + foundStableH + "/" + foundStableL ;
             break;
-          case 3:
-            txt += " Warm = " + curWarm;
-            if (foundWarm > 0)
+          case 2:
+            txt += " Warmth: " + wealth + " (" + curWarm + ")";
+            if (foundWarmH > 0)
               txt +=
-                " Found warm " +
+                " - Warmer (" +
                 foundWarm +
-                " at (" +
+                ") at " +
                 foundWarmH +
                 "/" +
-                foundWarmL +
-                ")";
+                foundWarmL;
             break;
+          case 3:
+            txt += " HasIce: " + 
+                    (hasIce?"yes":"no");
+            if (!hasIce && foundIce)
+              txt +=
+                " - Found ice (^) at " +
+                foundIceH +
+                "/" +
+                foundIceL;
+            break;  
           case 4:
+            txt += " Alone : " + 
+                    (alone?"yes":"no");
+            if (alone && foundLove)
+              txt +=
+                " - Found love (&) at " +
+                foundLoveH +
+                "/" +
+                foundLoveL;
+            break;  
+          case 5:
             txt += this.strategyShort;
             if (this.hasTarget && this.path.length > 0) {
               txt += " path : ";
@@ -322,7 +431,7 @@ class StrategicMap {
                 .reverse()
                 .forEach(
                   (step) =>
-                    (txt += +step.dir + "-" + step.posH + "/" + step.posL)
+                    (txt += + step.posH + "/" + step.posL + " ")
                 );
             }
             break;
@@ -334,9 +443,12 @@ class StrategicMap {
           "--------".substring(0, viewLength * 2 + 1) +
           "+ +" +
           "--------".substring(0, viewLength * 2 + 1) +
+          "+ +" +
+          "--------".substring(0, viewLength * 2 + 1) +
           "+"
       );
     }
+    
     return this.strategyShort;
   }
 
@@ -361,6 +473,31 @@ class StrategicMap {
       island.territory[hpos][lpos - 1].hasSwim ||
       island.territory[hpos][lpos + 1].hasSwim
     );
+  }
+
+  // A land has a ice if there is ice in the neighbour tiles
+
+  hasLandIce(island, hpos, lpos) {
+    return (
+      island.territory[hpos][lpos].hasIce
+    );
+  }
+
+  // A land has love if there is a lovable in de vicinity 
+
+  hasLandLove(island, hpos, lpos, id, gender) {
+    let hasLove = false;
+    if (island && id) {
+      
+      island.penguins.forEach((penguin) => {
+        if (penguin.alive && penguin.id !== id && penguin.canLove(id,gender)) {
+          if (penguin.hpos === hpos && penguin.lpos === lpos) {
+            hasLove = true;
+          }
+        }
+      });
+    }
+    return hasLove;
   }
 
   // calculate the warmth of a given tile based on the proximity of other penguins

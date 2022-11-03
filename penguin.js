@@ -147,9 +147,13 @@ class Penguin {
       this.wealth,
       this.name,
       this.id,
+      this.fat,
+      this.age,
+      (!this.loving && this.age > 5 && this.age < 22),
+      this.gender,
+      this.hasIce,
       this.maxcnt,
       this.id === island.followId && this.alive,
-      this.maxcnt
     );
 
     this.knownWorld = this.strategicMap.getKnownWorld();
@@ -206,9 +210,18 @@ class Penguin {
 
   // Check if love is possible (not recently in love and age < 20)
 
-  canLove(partnerId) {
-    // console.log("^^^^^^^ Can love ? ");
+  canLove(partnerId,gender="") {
 
+    if (gender === this.gender) {
+      log(
+        realm,
+        source,
+        "canLove",
+        `${this.id}-${this.name} love not possible with ${this.partnerId} - same gender`
+      );
+      return false;
+    }
+    
     if (partnerId === this.fatherId) {
       log(
         realm,
