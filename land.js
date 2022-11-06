@@ -63,8 +63,8 @@ class Land {
     return this.type;
   }
 
-  canMove() {
-    return this.type > 0 && !this.isTarget && !this.hasCross && !this.hasIce;
+  canMove(toIce = false) {
+    return this.type > 0 && !this.isTarget && !this.hasCross && (!this.hasIce || toIce);
   }
 
   setType(newType) {

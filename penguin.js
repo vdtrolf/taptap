@@ -23,6 +23,8 @@ const moveTypes = [
   "die",
   "still",
   "fish",
+  "dig",
+  "fill"
 ];
 
 const debug = false;
@@ -55,6 +57,12 @@ class Penguin {
     fishDirection = 0,
     eating = 0,
     moving = 0,
+    diging = 0,
+    digTime = 0,
+    digDirection = 0,
+    filling = 0,
+    fillTime = 0,
+    fillDirection = 0,
     hasLoved = 0,
     partnerId = 0,
     moveDirection = 0,
@@ -94,6 +102,15 @@ class Penguin {
     this.fishDirection = fishDirection;
     this.eating = eating;
     this.moving = moving;
+    
+    this.diging = diging;
+    this.digTime = digTime;
+    this.digDirection = digDirection;
+    
+    this.filling = filling;
+    this.fillTime = fillTime;
+    this.fillDirection = fillDirection;
+
     this.hasLoved = hasLoved;
     this.fatherId = fatherId;
     this.motherId = motherId;
@@ -134,32 +151,33 @@ class Penguin {
 
   // Calculates the strategic map for the penguin
 
-  getStrategicMap(island) {
+  getStrategicMap(island, islandSize,islandPopulation) {
     if (this.strategicMap === null) {
       this.strategicMap = new StrategicMap(island.sizeH, island.sizeL);
     }
-    this.strategyShort = this.strategicMap.look(
+    
+    
+    let target = this.strategicMap.look(
       island,
       this.hpos,
       this.lpos,
-      this.vision,
-      this.hungry,
-      this.wealth,
-      this.name,
-      this.id,
-      this.fat,
-      this.age,
+      this,
       (!this.loving && this.age > 5 && this.age < 22),
-      this.gender,
-      this.hasIce,
       this.maxcnt,
+      islandSize,
+      islandPopulation,
       this.id === island.followId && this.alive,
     );
 
+    this.strategyShort = target.strategyShort;
     this.knownWorld = this.strategicMap.getKnownWorld();
-    // console.log("%%%%%%==================");
-    // console.dir(this.knownWorld);
-    // console.log("%%%%%%==================");
+    
+    //console.log("%%%%%%==================");
+    //console.dir(this.knownWorld);
+    //console.log("%%%%%%==================");
+    
+    return target;
+    
   }
 
   // Wealth will decrease if the penguin is not surrended by other penguins - unless the sun is shinning
@@ -321,6 +339,34 @@ class Penguin {
     return this.fishTime > 0;
   }
 
+  // makes the penguin dig
+
+  dig(direction) {
+    this.addMoveLog(8, this.cat, "dig", direction);
+    this.digDirection = direction;
+    this.digTime = 6;
+  }
+
+  // return true is the penguin is eating
+
+  isDiging() {
+    return this.digTime > 0;
+  }
+
+// makes the penguin dig
+
+  fill(direction) {
+    this.addMoveLog(9, this.cat, "fill", direction);
+    this.fillDirection = direction;
+    this.fillTime = 6;
+  }
+
+  // return true is the penguin is eating
+
+  isFilling() {
+    return this.fillTime > 0;
+  }
+
   // makes the penguin more hungry
 
   wait() {
@@ -354,6 +400,7 @@ class Penguin {
   // If the penguin gets old (above 20), it's max planfiable traject passes from 5 to 7
 
   makeOlder() {
+    
     let hasChild = false;
     let returncode = 0;
 
@@ -366,6 +413,14 @@ class Penguin {
       if (this.fishTime === 0) {
         this.fishDirection = 0;
         this.eat();
+      }
+    }
+
+    if (this.digTime > 0) {
+      this.digTime -= 1;
+      if (this.digTime === 0) {
+        this.digDirection = 0;
+        this.hasIce=true;
       }
     }
 
@@ -383,6 +438,7 @@ class Penguin {
     this.hungry += Math.floor(this.fat / 3) + 1;
 
     this.age += this.alive ? 0.25 : 0;
+    
     if (this.age > 5 && this.cat === "-y-") {
       this.cat = this.gender === "male" ? "-m-" : "-f-";
       this.vision = 3;

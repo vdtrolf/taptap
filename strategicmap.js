@@ -1,4 +1,18 @@
 const deco1 = [" ", ".", "^", "%", "#", "#", "#", "#"];
+const moveTypes = [
+  "init",
+  "move",
+  "grow",
+  "eat",
+  "love",
+  "die",
+  "still",
+  "fish",
+  "dig",
+  "fill"
+];
+
+
 
 class StrategicMap {
   constructor(sizeH, sizeL) {
@@ -13,7 +27,7 @@ class StrategicMap {
     this.path = [];
     this.targetH = 0;
     this.targetL = 0;
-    this.targetDirections = [0, 0, 0, 0];
+    this.targetDirections = [];
     this.wantsSearch = false;
   }
   
@@ -22,21 +36,16 @@ class StrategicMap {
     island,
     centerH,
     centerL,
-    viewLength,
-    hungry,
-    wealth,
-    name,
-    id,
-    fat,
-    age,
+    penguin,
     alone,
-    gender,
-    hasIce,
     maxcnt = 5,
+    islandSize,
+    islandPopulation,
     show = false
   ) {
        
 
+    // console.log("£££ " + show + " " + this.maxL + " " + centerL + " " + penguin.vision)
 
     const debug=false;
     
@@ -45,13 +54,15 @@ class StrategicMap {
     this.hasTarget = false;
     this.targetH = 0;
     this.targetL = 0;
+    this.target = 0;
+    this.action = 0;
+    this.actionDirection = 0;
     this.wantsSearch = false;
 
     let curFish = island.territory[centerH][centerL].hasFish;
     let curStable = this.isLandStable(island, centerH, centerL);
     let curSwim = this.isLandSwim(island, centerH, centerL);
-    let curWarm = this.calculateWarm(island,centerH,centerL,id,show) + 1;
-    
+    let curWarm = this.calculateWarm(island,centerH,centerL,penguin.id,show) + 1;
     let curSmelt =
       island.territory[centerH][centerL].getType() !== 1
         ? 1
@@ -85,20 +96,27 @@ class StrategicMap {
     let additionalText = "";
 
     this.knownWorld = [];
+    
     for (
-      let hpos = centerH - viewLength;
-      hpos <= centerH + viewLength;
+      let hpos = centerH - penguin.vision;
+      hpos <= centerH + penguin.vision;
       hpos++
     ) {
       let hline = [];
       for (
-        let lpos = centerL - viewLength;
-        lpos <= centerL + viewLength;
+        let lpos = centerL - penguin.vision;
+        lpos <= centerL + penguin.vision;
         lpos++
       ) {
         if (hpos > 0 && hpos < this.maxH) {
           if (lpos > 0 && lpos < this.maxL) {
+            
+            // console.log("££££££ " + penguin.name + " " + hpos + "/" + lpos)
+            
             let land = island.territory[hpos][lpos];
+            
+            // console.log("££££££ +++ " + land.getType() )
+            
             if (land.getType() === 0) {
               hline.push({
                 hpos: hpos,
@@ -112,12 +130,24 @@ class StrategicMap {
                 smelt: 0,
                 warm: 0,
               });
+              
+                              
+              
+              
             } else {
               let stable = this.isLandStable(island, hpos, lpos);
+              //console.log("££££££ -+- A")
               let swim = this.isLandSwim(island, hpos, lpos);
-              let warm = this.calculateWarm(island, hpos, lpos, id, show) + 1;
+              //console.log("££££££ -+- b")
+              let warm = this.calculateWarm(island, hpos, lpos, penguin.id, show) + 1;
+              //console.log("££££££ -+- C")
               let ice = this.hasLandIce(island, hpos, lpos,);
-              let love = this.hasLandLove(island, hpos, lpos, id, gender);
+              //console.log("££££££ -+- C")
+              let love = this.hasLandLove(island, hpos, lpos, penguin.id, penguin.gender);
+              //console.log("££££££ -+- D")
+              
+              //console.log("££££££ -+- " + land.getConf() )
+              
               hline.push({
                 hpos: hpos,
                 pos: lpos,
@@ -125,7 +155,7 @@ class StrategicMap {
                 fish: land.hasFish,
                 stable: stable,
                 swim: swim,
-                smelt: island.territory[hpos][lpos].getConf(),
+                smelt: land.getConf(),
                 warm: warm,
                 ice:ice,
                 love:love
@@ -166,7 +196,10 @@ class StrategicMap {
                   distStable = dist;
                 }
               }
-
+              
+              // Is there ice somewhere
+              
+              
               if (ice) {
                 foundIce = true;
                 let dist = Math.abs(centerH - hpos) + Math.abs(centerL - lpos);
@@ -176,7 +209,9 @@ class StrategicMap {
                   distIce= dist;
                 }
               }
-
+              
+              // is a loving in the vicinity ?
+              
               if (love) {
                 foundLove = true;
                 let dist = Math.abs(centerH - hpos) + Math.abs(centerL - lpos);
@@ -186,8 +221,10 @@ class StrategicMap {
                   distLove= dist;
                 }
               }
-
-
+              
+              // console.log("££££££ --- 2" )
+              
+              
             }
           } else {
             hline.push({
@@ -215,109 +252,198 @@ class StrategicMap {
         }
       }
       this.knownWorld.push(hline);
-    }
+    } // for hpos
+   
+    // console.dir(this.knownWorld)     
+   
+    // Define the short term strategy
+    
+    let fatburnsteps = (100 - penguin.hungry) / (Math.floor(penguin.fat / 3) + 1)
+    
+    let hasOther = island.penguins.some(
+              (other) =>
+                other.id !== penguin.id &&
+                other.hpos === penguin.hpos &&
+                other.lpos === penguin.lpos
+            );
+    
+    if (fatburnsteps < 30) { // hungry
+    
+      if (island.territory[penguin.hpos][penguin.lpos].hasFish) {
+        this.strategyShort = " Eating";
+        this.action = 3;
+      } else if (foundFish && distFish < 2){
+        let fishmoves = [];
 
-    // select a strategy
-    
-    var fatburnsteps = (100 - hungry) / (Math.floor(fat / 3) + 1) 
-    
-    if ((fatburnsteps < 30 && foundFish) || fatburnsteps < 20) {
-      if (foundFish) {
+         if (island.territory[penguin.hpos][penguin.lpos - 1].canFish()) fishmoves.push(1);
+         if (island.territory[penguin.hpos][penguin.lpos + 1].canFish()) fishmoves.push(2);
+         if (island.territory[penguin.hpos - 1][penguin.lpos].canFish()) fishmoves.push(3);
+         if (island.territory[penguin.hpos + 1][penguin.lpos].canFish()) fishmoves.push(4);
+
+         if (fishmoves.length > 0) {
+           let fishmove = fishmoves[Math.floor(Math.random() * fishmoves.length)];
+ 
+           let swimlpos = fishmove === 1 ? penguin.lpos - 1 : penguin.lpos;
+           swimlpos = fishmove === 2 ? penguin.lpos + 1 : swimlpos;
+           let swimhpos = fishmove === 3 ? penguin.hpos - 1 : penguin.hpos;
+           swimhpos = fishmove === 4 ? penguin.hpos + 1 : swimhpos;
+           island.territory[swimhpos][swimlpos].fishSwim();
+           this.strategyShort = " Fishing";
+           this.action = 7;
+         }
+      } else if (foundFish) {
         this.strategyShort = " To food";
         this.hasTarget = true;
         this.targetH = foundFishH;
         this.targetL = foundFishL;
-      } else if (hungry > 60) {
+      } else if (fatburnsteps < 20) {
         this.strategyShort = " Search food";
         this.wantsSearch = true;
-      }
-    } else if (island.weather < 2 && ((curSmelt > 8 && foundStable) || curSmelt > 12)) {
+      }    
+    }  // hungry 
+    
+    if (this.action===0 && island.weather < 2 && curSmelt > 8) { // unstable
       if (foundStable) {
         this.strategyShort = " To stable";
         this.hasTarget = true;
         this.targetH = foundStableH;
         this.targetL = foundStableL;
-      } else if (curSmelt > 12) {
+      } else if (curSmelt > 12 && ! this.wantSearch) {
         this.strategyShort = " Search stable";
         this.wantsSearch = true;
       }
-    } else if (island.weather > 0 && ((wealth < 90 && foundWarm > curWarm) || wealth < 60)) {
+    } // unstable
+    
+    if (this.action ===0 && island.weather > 0 && penguin.wealth < 90) { // cold
       if (foundWarm) {
         this.strategyShort = " To warmth";
         this.hasTarget = true;
         this.targetH = foundWarmH;
         this.targetL = foundWarmL;
-      } else if (wealth < 60) {
+      } else if (penguin.wealth < 60 && ! this.wantSearch) {
         this.strategyShort = " Search warmth";
         this.wantsSearch = true;
-      }
-    } else if (age >5 && age <22 && foundLove) {
-      this.strategyShort = " To love";
-      this.hasTarget = true;
-      this.targetH = foundLoveH;
-      this.targetL = foundLoveL;
-    } else if (age >5 && age <22 &&  wealth > 50 && foundIce) {
-      this.strategyShort = " To ice";
-      this.hasTarget = true;
-      this.targetH = foundIceH;
-      this.targetL = foundIceL;
-    }
-
-    //  setting directions
-    // 1  2  3  4  5  6  7  8
-    // l  r  u  d rd ru ld lu
-
-    if (this.hasTarget) {
+      }      
+    } // cold
+    
+    
+    if (this.action===0 && alone > 0 && foundLove) { // alone
       
-      this.path = [];
-      let hasPath = findPath(
-        island,
-        centerH,
-        centerL,
-        this.targetH,
-        this.targetL,
-        this.path,
-        show && debug,
-        maxcnt
-      );
+      let lover = island.getLover(penguin.gender, penguin.hpos, penguin.lpos);
+      
+      if (lover && penguin.canLove(lover.id)) {
+        //if (islandPopulation / islandSize > 0.5) {
+        //  log(realm,source, "movePenguins",
+        //    `can't love : sub-island population: ${islandPopulation} size: ${islandSize} = ${
+        //    islandPopulation / islandSize
+        //  }`);
+        //} else if (alivePenguins >= this.landSize / 5) {
+        //  log(realm,source,"movePenguins",
+        //      `can't love : population: ${alivePenguins} tiles : ${this.landSize}`);
+        //} else {
+          
+          lover.love(this.id);
 
-  
-      if (show && debug) {
-        this.path.forEach((step) =>
-          console.log(
-            hasPath +
-              " step to dir " +
-              step.dir +
-              " at " +
-              step.posH +
-              "/" +
-              step.posL
-          )
-        );
+          this.strategyShort = " Loving";
+          this.action = 4;
+        //} // pop/size > 0.5
+      } else if (foundLove) {
+        this.strategyShort = " To love";
+        this.hasTarget = true;
+        this.targetH = foundLoveH;
+        this.targetL = foundLoveL;          
+      } else if (! this.wantSearch){
+        this.strategyShort = " Search love";
+        this.wantsSearch = true; 
       }
-     
-      if (hasPath && this.path.length > 0) {
-        switch (this.path[this.path.length - 1].dir) {
-          case 1:
-            this.targetDirections = [1, 3, 4, 2];
-            break;
-          case 2:
-            this.targetDirections = [2, 4, 3, 1];
-            break;
-          case 3:
-            this.targetDirections = [3, 1, 2, 4];
-            break;
-          case 4:
-            this.targetDirections = [4, 2, 1, 3];
-            break;
-        }
+    } // alone
+    
+    if (this.action=== 0 && penguin.hasIce === 0 && foundIce) { // no Ice
+      if (island.territory[penguin.hpos][penguin.lpos].hasIce) {
+        this.strategyShort = " Diging";
+        this.action = 8;
+      } else if (foundIce) {
+        this.strategyShort = " To ice";
+        this.hasTarget = true;
+        this.targetH = foundIceH;
+        this.targetL = foundIceL;
+      } 
+    } // no Ice
+    
+    let hasPath = false;
+    
+    if (this.action === 0) {
+      
+      if (islandPopulation / islandSize > 0.79) {
+        log(realm, source, "movePenguins",
+              `on ${island.name} island for ${penguin.name} is too crowded (size: ${islandSize} and population: ${islandPopulation} = ${islandPopulation / islandSize})`);   
+      
       } else {
-        this.targetDirections.push(0, 0, 0, 0);
-        this.hasTarget = false;
+      
+        if (this.hasTarget) {
+          
+          hasPath = findPath(
+            island,
+            centerH,
+            centerL,
+            this.targetH,
+            this.targetL,
+            this.path,
+            show && debug,
+            maxcnt
+          );
+        
+          if (hasPath) {
+            this.action = 1;
+          }
+
+        } else if (this.wantsSearch) {
+          
+          let posmoves = [];
+          if (island.territory[penguin.hpos][penguin.lpos - 1].canMove()) posmoves.push({dir:1, posH: penguin.hpos, posL: penguin.lpos -1 });
+          if (island.territory[penguin.hpos][penguin.lpos + 1].canMove()) posmoves.push({dir:2, posH: penguin.hpos, posL: penguin.lpos +1 });
+          if (island.territory[penguin.hpos - 1][penguin.lpos].canMove()) posmoves.push({dir:3, posH: penguin.hpos -1, posL: penguin.lpos });
+          if (island.territory[penguin.hpos + 1][penguin.lpos].canMove()) posmoves.push({dir:4, posH: penguin.hpos +1, posL: penguin.lpos });
+
+          if (posmoves.length > 0) {
+            let aPosMove = Math.floor(Math.random() * posmoves.length);
+            this.path.push(posmoves[aPosMove]);
+            this.action = 1;
+            haspPath = true;
+          }
+          
+        }
       }
+    }
+    
+    // calculating the directions  
+     
+    if (hasPath && this.path.length > 0) {
+      switch (this.path[this.path.length - 1].dir) {
+        case 1:
+          this.targetDirections = [1, 3, 4, 2];
+          break;
+        case 2:
+          this.targetDirections = [2, 4, 3, 1];
+          break;
+        case 3:
+          this.targetDirections = [3, 1, 2, 4];
+          break;
+        case 4:
+          this.targetDirections = [4, 2, 1, 3];
+          break;
+      }
+    } else {
+      this.targetDirections.push(0, 0, 0, 0);
+      this.hasTarget = false;      
     }
   
     if (show) {
+      
+      if (true) { // ()debug) {
+        this.path.forEach((step) =>
+        console.log( hasPath + " step to dir " + step.dir + " at " + step.posH + "/" + step.posL ));
+      }
 
       let iceblock = [
         "▓",
@@ -337,15 +463,15 @@ class StrategicMap {
       
       console.log(
         "+" +
-          ruler.substring(3-viewLength, viewLength * 2 + (4 - viewLength)) +
+          ruler.substring(3-penguin.vision, penguin.vision * 2 + (4 - penguin.vision)) +
           "+ +" +
-          ruler.substring(3-viewLength, viewLength * 2 + (4 - viewLength)) +
+          ruler.substring(3-penguin.vision, penguin.vision * 2 + (4 - penguin.vision)) +
           "+ +" +
-          ruler.substring(3-viewLength, viewLength * 2 + (4 - viewLength)) +
+          ruler.substring(3-penguin.vision, penguin.vision * 2 + (4 - penguin.vision)) +
           "+ " +
-          name +
+          penguin.name +
           "(" +
-          id +
+          penguin.age +
           ") Pos: " +
           centerH +
           "/" +
@@ -354,12 +480,11 @@ class StrategicMap {
       
       this.knownWorld.forEach((line) => {
         
-        let txt = cntline===viewLength?centerH%10:"|";
+        let txt = cntline===penguin.vision?centerH%10:"|";
         line.forEach((cell) => {
           let celltxt = " ";
           if (cell.pos) celltxt = iceblock[Math.floor(cell.smelt / 2)];
           if (cell.stable) celltxt = "▓";
-
           txt += celltxt;
         });
         txt += "| |";
@@ -380,9 +505,10 @@ class StrategicMap {
         });
         txt += "|";
 
+
         switch (cntline++) {
           case 0:
-            txt += " Hungry: " + hungry;
+            txt += " Hungry: " + penguin.hungry;
             if (foundFish)
               txt += " - Found fish (~) at " + foundFishH + "/" + foundFishL ;
             break;
@@ -393,7 +519,7 @@ class StrategicMap {
                 " - More stable at " + foundStableH + "/" + foundStableL ;
             break;
           case 2:
-            txt += " Warmth: " + wealth + " (" + curWarm + ")";
+            txt += " Warmth: " + penguin.wealth + " (" + curWarm + ")";
             if (foundWarmH > 0)
               txt +=
                 " - Warmer (" +
@@ -404,9 +530,8 @@ class StrategicMap {
                 foundWarmL;
             break;
           case 3:
-            txt += " HasIce: " + 
-                    (hasIce?"yes":"no");
-            if (!hasIce && foundIce)
+            txt += " Has ice: " + (penguin.hasIce?"yes":"no");
+            if (!penguin.hasIce && foundIce)
               txt +=
                 " - Found ice (^) at " +
                 foundIceH +
@@ -440,16 +565,20 @@ class StrategicMap {
       });
       console.log(
         "+" +
-          "--------".substring(0, viewLength * 2 + 1) +
+          "--------".substring(0, penguin.vision * 2 + 1) +
           "+ +" +
-          "--------".substring(0, viewLength * 2 + 1) +
+          "--------".substring(0, penguin.vision * 2 + 1) +
           "+ +" +
-          "--------".substring(0, viewLength * 2 + 1) +
+          "--------".substring(  0, penguin.vision * 2 + 1) +
           "+"
       );
-    }
+    } // show
     
-    return this.strategyShort;
+    let resultTarget = {action: this.action, directions: this.targetDirections, strategyShort: this.strategyShort};
+    
+    // console.dir(resultTarget);
+    
+    return resultTarget;
   }
 
   // A land is stable if it's made from stone or if circled by ice

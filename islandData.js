@@ -1,6 +1,6 @@
 // DB stuff
-const dbhelperReq = require("./dynamohelper.js"); 
-// const dbhelperReq = require("./acebasehelper.js");
+// const dbhelperReq = require("./dynamohelper.js"); 
+const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -91,6 +91,12 @@ const persistIsland = (island) => {
       fishDirection: penguin.fishDirection,
       eating: penguin.eating,
       moving: penguin.moving,
+      diging: penguin.diging,
+      digTime: penguin.digTime,
+      digDirection: penguin.digDirection,
+      filling: penguin.filling,
+      fillTime: penguin.fillTime,
+      fillDirection: penguin.fillDirection,
       hasLoved: penguin.hasLoved,
       fatherId: penguin.fatherId,
       motherId: penguin.motherId,
@@ -127,6 +133,9 @@ const persistIsland = (island) => {
     penguins: penguins,
     counter: island.counter,
   }, island.id);
+  
+  //console.dir(penguins);
+  
 };
 
 const persistIslandData = async (island) => {
@@ -269,6 +278,12 @@ const initiateIslands = async (islandParam=null) => {
                 aPenguin.fishDirection,
                 aPenguin.eating,
                 aPenguin.moving,
+                aPenguin.diging,
+                aPenguin.digTime,
+                aPenguin.digDirection,
+                aPenguin.filling,
+                aPenguin.fillTime,
+                aPenguin.fillDirection,
                 aPenguin.hasLoved,
                 aPenguin.partnerId,
                 aPenguin.moveDirection,
