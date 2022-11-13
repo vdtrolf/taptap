@@ -151,7 +151,7 @@ class Penguin {
 
   // Calculates the strategic map for the penguin
 
-  getStrategicMap(island, islandSize,islandPopulation) {
+  getStrategicMap(island, islandSize,islandPopulation, alivePenguins) {
     if (this.strategicMap === null) {
       this.strategicMap = new StrategicMap(island.sizeH, island.sizeL);
     }
@@ -166,6 +166,7 @@ class Penguin {
       this.maxcnt,
       islandSize,
       islandPopulation,
+      alivePenguins,
       this.id === island.followId && this.alive,
     );
 
@@ -192,7 +193,7 @@ class Penguin {
         this.lpos,
         this.id
       );
-      this.wealth += warmth * weatherFactor;
+      this.wealth += warmth * weatherFactor * 0.25;
       if (this.wealth > 99) this.wealth = 100;
       if (this.wealth < 1) this.wealth = 0;
     }
@@ -295,6 +296,9 @@ class Penguin {
   // tells te peguin to make love with a partner
 
   love(partnerId) {
+
+    console.log("#### # " + partnerId)
+
     this.loving = 4;
     this.hasLoved = 15;
     this.partnerId = partnerId;
@@ -315,7 +319,7 @@ class Penguin {
     this.eating = 5;
     this.waiting = 0;
     this.hungry = this.hungry < 25 ? 0 : this.hungry - 25;
-    this.wealth = this.wealth > 90 ? 100 : this.wealth + 10;
+    this.wealth = this.wealth > 80 ? 100 : this.wealth + 20;
     this.addMoveLog(3, this.cat, "eat");
   }
 
@@ -358,7 +362,7 @@ class Penguin {
   fill(direction) {
     this.addMoveLog(9, this.cat, "fill", direction);
     this.fillDirection = direction;
-    this.fillTime = 6;
+    this.fillTime = 3;
   }
 
   // return true is the penguin is eating
@@ -403,6 +407,8 @@ class Penguin {
     
     let hasChild = false;
     let returncode = 0;
+    let fillHPos = 0;
+    let fillLPos = 0;
 
     if (this.eating > 0) {
       this.eating -= 1;
@@ -421,6 +427,18 @@ class Penguin {
       if (this.digTime === 0) {
         this.digDirection = 0;
         this.hasIce=true;
+      }
+    }
+
+    if (this.fillTime > 0) {
+      this.fillTime -= 1;
+      if (this.fillTime === 0) {
+        returncode = 3;
+        fillLPos = this.fillDirection === 1? this.lpos - 1: this.lpos;
+        fillLPos = this.fillDirection === 2? this.lpos + 1: this.lpos;
+        fillHPos = this.fillDirection === 3? this.hpos - 1: this.hpos;
+        fillHPos = this.fillDirection === 4? this.hpos + 1: this.hpos;
+        this.fillDirection = 0;
       }
     }
 
@@ -460,7 +478,7 @@ class Penguin {
       returncode = 2;
     }
 
-    return { returncode: returncode };
+    return { returncode: returncode, fillHPos: fillHPos, fillLPos: fillLPos};
   }
 
   setGender(gender) {

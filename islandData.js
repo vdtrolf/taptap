@@ -1,6 +1,6 @@
 // DB stuff
-// const dbhelperReq = require("./dynamohelper.js"); 
-const dbhelperReq = require("./acebasehelper.js");
+const dbhelperReq = require("./dynamohelper.js"); 
+// const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -58,7 +58,9 @@ const persistIsland = (island) => {
         hasFish: land.hasFish,
         hasSwim: land.hasSwim,
         swimAge: land.swimAge,
-        hasIce: land.hasIce};
+        hasIce: land.hasIce,
+        iceAge: land.iceAge
+      };
       
       lands.push(aLand);
     }
@@ -243,7 +245,8 @@ const initiateIslands = async (islandParam=null) => {
                 aLand.hasFish,
                 aLand.hasSwim,
                 aLand.swimAge,
-                aLand.hasIce
+                aLand.hasIce,
+                aLand.iceAge
               );
               island.territory[aLand.hpos][aLand.lpos] = land;
             });

@@ -24,7 +24,8 @@ class Land {
     hasFish = false,
     hasSwim = false,
     swimAge = 0,
-    hasIce = false
+    hasIce = false,
+    iceAge = 0
   ) {
     this.id = id === 0 ? Math.floor(Math.random() * 999999) : id;
     this.islandId = islandId;
@@ -39,6 +40,7 @@ class Land {
     this.hasFish = hasFish;
     this.hasSwim = hasSwim;
     this.hasIce = hasIce;
+    this.iceAge = iceAge;
     this.swimAge = swimAge;
 
     this.changed = true;
@@ -57,14 +59,15 @@ class Land {
 
   setLand(num) {
     this.type = num;
+    this.conf = 0;
   }
 
   getType() {
     return this.type;
   }
 
-  canMove(toIce = false) {
-    return this.type > 0 && !this.isTarget && !this.hasCross && (!this.hasIce || toIce);
+  canMove() {
+    return this.type > 0 && !this.isTarget && !this.hasCross && !this.hasIce ;
   }
 
   setType(newType) {
@@ -80,6 +83,11 @@ class Land {
       this.swimAge -= 1;
       this.hasSwim = this.swimAge > 0;
     } 
+    if (this.iceAge > 0) {
+      this.iceAge -= 1;
+      this.hasIce = this.iceAge > 0;
+    } 
+
   }
 
   setCross() {
@@ -93,12 +101,23 @@ class Land {
     this.crossAge = 10;
   }
 
+  digIce() {
+    log(
+      realm,
+      source,
+      "setCross",
+      "diging ices at " + this.hpos + "/" + this.lpos
+    );
+    this.iceAge = 6;
+  }
+
+
   removeFish() {
     this.hasFish = false;
   }
 
   canFish() {
-    return this.hasSwim;
+    return this.hasSwim && this.swimAge === 0;
   }
 
   setRandomSmeltLevel(waterBorders) {
@@ -156,13 +175,24 @@ class Land {
     this.changed = true;
   }
 
-  // remove a swimming fish
+  canDig() {
+    return this.hasIce && this.iceAge === 0;
+  }
+
+  // begin diging a piece of ice
+  iceDig() {
+    this.hasIce = true;
+    this.iceAge = 6;
+    this.changed = true;
+  }
+
+  // remove a piece of ice
   removeIce() {
     this.hasIce = false;
     this.changed = true;
   }
 
-  // remove a swimming fish
+  // begin fishing a swimming fish
   fishSwim() {
     this.hasSwim = true;
     this.swimAge = 6;

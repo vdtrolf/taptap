@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "acebase": "^1.25.2",
+    "aws-sdk": "^2.1249.0",
     "axios": "^0.27.2",
     "colors": "^1.4.0",
     "cors": "^2.8.5",

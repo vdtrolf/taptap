@@ -1,6 +1,6 @@
 // DB stuff
-// const dbhelperReq = require("./dynamohelper.js"); 
-const dbhelperReq = require("./acebasehelper.js");
+const dbhelperReq = require("./dynamohelper.js"); 
+// const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -317,6 +317,7 @@ const getImg = (territory, islandH, islandL) => {
         col: j,
         ti: tile,
         type: territory[i][j].type,
+        age: territory[i][j].iceAge,
         num: territory[i][j].conf,
         var: territory[i][j].var,
         art: artifact,
