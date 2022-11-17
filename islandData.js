@@ -109,9 +109,11 @@ const persistIsland = (island) => {
       hasIce: penguin.hasIce,
       building: penguin.building,
       buildingDirection: penguin.buildingDirection,
-      goalHPos: penguin.goalHPos,
-      goalLPOs: penguin.goalLPOs,
-      goalType: penguin.goalType
+      targetHPos: penguin.targetHPos,
+      targetLPos: penguin.targetLPos,
+      targetAction: penguin.targetAction,
+      knownWorld: penguin.knownWorld,
+      targetDirections: penguin.targetDirections,
     };
     penguins.push(aPenguin);
   });
@@ -294,9 +296,12 @@ const initiateIslands = async (islandParam=null) => {
                 aPenguin.hasIce,
                 aPenguin.building,
                 aPenguin.buildingDirection,
-                aPenguin.goalHPos,
-                aPenguin.goalLPOs,
-                aPenguin.goalType
+                aPenguin.targetHPos,
+                aPenguin.targetLPos,
+                aPenguin.targetAction,
+                aPenguin.knownWorld,
+                aPenguin.targetDirections
+
               );
               penguins.push(penguin);
               

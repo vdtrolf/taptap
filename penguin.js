@@ -70,10 +70,11 @@ class Penguin {
     hasIce = false,
     building = false,
     buildingDirection = 0,
-    goalHPos = 0,
-    goalLPOs = 0,
-    goalType = 0
-
+    targetHPos = 0,
+    targetLPos = 0,
+    targetAction = 0,
+    knownWorld = {},
+    targetDirections = []
   ) {
     this.id = id === 0 ? Math.floor(Math.random() * 999999) : id;
     this.islandId = islandId;
@@ -119,14 +120,16 @@ class Penguin {
 
     this.strategicMap = null;
     this.strategyShort = strategyShort;
-    this.knownWorld=null;
+    this.knownWorld=knownWorld;
+    this.targetHPos = targetHPos;
+    this.targetLPos = targetLPos;
+    this.targetAction = targetAction;
+    this.targetDirections = targetDirections;
 
     this.hasIce = hasIce;
     this.building = building;
     this.buildingDirection = buildingDirection;
-    this.goalHPos = goalHPos;
-    this.goalLPOs = goalLPOs;
-    this.goalType = goalType;
+    
 
     if (this.name === "titi") {
       let aPenguinName =
@@ -171,6 +174,10 @@ class Penguin {
     );
 
     this.strategyShort = target.strategyShort;
+    this.targetHPos = target.targetH;
+    this.targetLPos = target.targetL;
+    this.targetAction = target.action;
+    this.targetDirections = target.directions;
     this.knownWorld = this.strategicMap.getKnownWorld();
     
     //console.log("%%%%%%==================");

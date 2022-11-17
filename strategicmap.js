@@ -145,6 +145,7 @@ class StrategicMap {
                 love: false,
                 smelt: 0,
                 warm: 0,
+                art: land.hasSwim?3:0
               });
 
             } else {
@@ -171,7 +172,8 @@ class StrategicMap {
                 smelt: land.getConf(),
                 warm: warm,
                 ice:ice,
-                love:love
+                love:love,
+                art: land.hasFish?2:land.hasIce?4:0
               });
 
               // Is there a fish and is it closer than last foud fish ?
@@ -249,6 +251,7 @@ class StrategicMap {
               swim: false,
               smelt: 0,
               warm: 0,
+              art:0
             });
           }
         } else {
@@ -261,6 +264,7 @@ class StrategicMap {
             swim: false,
             smelt: 0,
             warm: 0,
+            art:0
           });
         }
       }
@@ -343,7 +347,7 @@ class StrategicMap {
           }
         } else if (foundFish) {
 
-          console.log(">>>>> To food")
+          if (show) console.log(">>>>> " + penguin.name +" To food")
 
           hasUrgentNeed = true;
           this.strategyShort = " To food";
@@ -356,7 +360,9 @@ class StrategicMap {
         }    
       }  // hungry 
       
-      if (this.action ===0 && island.weather > 0 && penguin.wealth < 90) { // cold
+      if (this.action ===0 && ! hasUrgentNeed && island.weather > 0 && penguin.wealth < 90) { // cold
+
+
 
         if (foundWarm) {
           hasUrgentNeed = true;
@@ -370,83 +376,88 @@ class StrategicMap {
         }      
       } // cold
       
-      if (this.action===0 && !hasUrgentNeed && island.weather < 2 && curSmelt > 10) { // unstable
-        if (foundStable) {
-          this.strategyShort = " To stable";
-          this.hasTarget = true;
-          this.targetH = foundStableH;
-          this.targetL = foundStableL;
-        } else if (curSmelt > 12 && ! this.wantSearch) {
-          this.strategyShort = " Search stable";
-          this.wantsSearch = true;
-        }
-      } // unstable
-      
-      
-      if (this.action===0 && alone > 0 && !hasUrgentNeed && foundLove) { // alone
-        
-        let lover = island.getLover(penguin.gender, penguin.hpos, penguin.lpos);
-        
-        if (lover && penguin.canLove(lover.id)) {
-          if (islandPopulation / islandSize > 0.5) {
-            log(realm,source, "look",
-              `can't love : sub-island population: ${islandPopulation} size: ${islandSize} = ${
-              islandPopulation / islandSize
-            }`);
-          } else if (alivePenguins >= this.landSize / 5) {
-            log(realm,source,"look",
-                `can't love : population: ${alivePenguins} tiles : ${this.landSize}`);
-          } else {      
-            lover.love(penguin.id);
-            this.loverId = lover.id;  
-            this.strategyShort = " Loving";
-            this.action = 4;
-          } // pop/size > 0.5
-        } else if (foundLove && penguin.gender==="male") {
-          this.strategyShort = " To love";
-          this.hasTarget = true;
-          this.targetH = foundLoveH;
-          this.targetL = foundLoveL;          
-        } else if (! this.wantSearch){
-          this.strategyShort = " Search love";
-          this.wantsSearch = true; 
-        }
-      } // alone
-      
-      if (this.action=== 0 && !hasUrgentNeed && penguin.age > 6 && ! penguin.hasIce && foundIce) { // no Ice
+      if (! hasUrgentNeed) {
 
-        if (foundIce && distIce < 2){
-        
-          let icemoves = [];
+        if (show) console.log(">>>>> " + penguin.name +" not urgent")
 
-          if (island.territory[penguin.hpos][penguin.lpos - 1].canDig()) icemoves.push(1);
-          if (island.territory[penguin.hpos][penguin.lpos + 1].canDig()) icemoves.push(2);
-          if (island.territory[penguin.hpos - 1][penguin.lpos].canDig()) icemoves.push(3);
-          if (island.territory[penguin.hpos + 1][penguin.lpos].canDig()) icemoves.push(4);
-
-          if (icemoves.length > 0) {
-            let icemove = icemoves[Math.floor(Math.random() * icemoves.length)];
-
-            let icelpos = icemove === 1 ? penguin.lpos - 1 : penguin.lpos;
-            icelpos = icemove === 2 ? penguin.lpos + 1 : icelpos;
-            let icehpos = icemove === 3 ? penguin.hpos - 1 : penguin.hpos;
-            icehpos = icemove === 4 ? penguin.hpos + 1 : icehpos;
-            island.territory[icehpos][icelpos].iceDig();
-            this.strategyShort = " Diging";
-            this.actionDirection = icemove;
-            this.action = 8;
+        if (this.action===0  && island.weather < 2 && curSmelt > 10) { // unstable
+          if (foundStable) {
+            this.strategyShort = " To stable";
+            this.hasTarget = true;
+            this.targetH = foundStableH;
+            this.targetL = foundStableL;
+          } else if (curSmelt > 12 && ! this.wantSearch) {
+            this.strategyShort = " Search stable";
+            this.wantsSearch = true;
           }
-        } else if (foundIce) {
-          this.strategyShort = " To ice";
-          this.hasTarget = true;
-          this.targetH = foundIceH;
-          this.targetL = foundIceL;
-        } 
-      } // no Ice
+        } // unstable
+        
+        
+        if (this.action===0 && alone > 0 && foundLove) { // alone
+          
+          let lover = island.getLover(penguin.gender, penguin.hpos, penguin.lpos);
+          
+          if (lover && penguin.canLove(lover.id)) {
+            if (islandPopulation / islandSize > 0.5) {
+              log(realm,source, "look",
+                `can't love : sub-island population: ${islandPopulation} size: ${islandSize} = ${
+                islandPopulation / islandSize
+              }`);
+            } else if (alivePenguins >= this.landSize / 5) {
+              log(realm,source,"look",
+                  `can't love : population: ${alivePenguins} tiles : ${this.landSize}`);
+            } else {      
+              lover.love(penguin.id);
+              this.loverId = lover.id;  
+              this.strategyShort = " Loving";
+              this.action = 4;
+            } // pop/size > 0.5
+          } else if (foundLove && penguin.gender==="male") {
+            this.strategyShort = " To love";
+            this.hasTarget = true;
+            this.targetH = foundLoveH;
+            this.targetL = foundLoveL;          
+          } else if (! this.wantSearch){
+            this.strategyShort = " Search love";
+            this.wantsSearch = true; 
+          }
+        } // alone
+        
+        if (this.action=== 0  && penguin.age > 6 && ! penguin.hasIce && foundIce) { // no Ice
+
+          if (foundIce && distIce < 2){
+          
+            let icemoves = [];
+
+            if (island.territory[penguin.hpos][penguin.lpos - 1].canDig()) icemoves.push(1);
+            if (island.territory[penguin.hpos][penguin.lpos + 1].canDig()) icemoves.push(2);
+            if (island.territory[penguin.hpos - 1][penguin.lpos].canDig()) icemoves.push(3);
+            if (island.territory[penguin.hpos + 1][penguin.lpos].canDig()) icemoves.push(4);
+
+            if (icemoves.length > 0) {
+              let icemove = icemoves[Math.floor(Math.random() * icemoves.length)];
+
+              let icelpos = icemove === 1 ? penguin.lpos - 1 : penguin.lpos;
+              icelpos = icemove === 2 ? penguin.lpos + 1 : icelpos;
+              let icehpos = icemove === 3 ? penguin.hpos - 1 : penguin.hpos;
+              icehpos = icemove === 4 ? penguin.hpos + 1 : icehpos;
+              island.territory[icehpos][icelpos].iceDig();
+              this.strategyShort = " Diging";
+              this.actionDirection = icemove;
+              this.action = 8;
+            }
+          } else if (foundIce) {
+            this.strategyShort = " To ice";
+            this.hasTarget = true;
+            this.targetH = foundIceH;
+            this.targetL = foundIceL;
+          } 
+        } // no Ice
       
+      }
       // let hasPath = false;
 
-      if (show) console.log(">> action: " + this.action + " hasTarget " + this.hasTarget + " " + this.strategyShort);
+      if (show) console.log(">> action: " + this.action + " hasTarget " + this.hasTarget + " urgent " +  hasUrgentNeed + " " + this.strategyShort);
 
       
       if (this.action === 0) {
@@ -712,7 +723,9 @@ class StrategicMap {
                         directions: this.targetDirections, 
                         loverId: this.loverId, 
                         strategyShort: this.strategyShort,
-                        followUp: this.followUp};
+                        followUp: this.followUp,
+                        targetH: this.targetH,
+                        targetL: this.targetL};
     
     if (show) console.dir(resultTarget);
     
@@ -808,9 +821,11 @@ class StrategicMap {
         colNum++;
         let soil = cell.pos ? Math.floor(cell.smelt / 2) : 0;
         let artifact = 0;
-        if (cell.stable) artifact = 1;
-        if (cell.swim) artifact = 2;
-        if (cell.fish) artifact = 3;
+        if (cell.stable && cell.art < 2) {
+          artifact = 1
+        } else {
+          artifact = cell.art;
+        }
         let warm = cell.pos ? cell.warm : 0;
 
         knownWorld.push({
