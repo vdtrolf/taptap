@@ -9,7 +9,6 @@ const source = "penguin.js";
 
 // imports
 const nameserverReq = require("./nameserver.js");
-const session = require("./session.js");
 const strategicMapReq = require("./strategicmap.js");
 
 let StrategicMap = strategicMapReq.StrategicMap;
@@ -37,7 +36,6 @@ class Penguin {
     h,
     l,
     islandId,
-    moveLog = [],
     fatherId = 0,
     motherId = 0,
     id = 0,
@@ -74,11 +72,12 @@ class Penguin {
     targetLPos = 0,
     targetAction = 0,
     knownWorld = {},
-    targetDirections = []
+    targetDirections = [],
+    path = []
   ) {
     this.id = id === 0 ? Math.floor(Math.random() * 999999) : id;
     this.islandId = islandId;
-    this.moveLog = moveLog;
+    // this.moveLog = moveLog;
     this.num = num;
     this.hpos = h;
     this.lpos = l;
@@ -125,6 +124,7 @@ class Penguin {
     this.targetLPos = targetLPos;
     this.targetAction = targetAction;
     this.targetDirections = targetDirections;
+    this.path = path;
 
     this.hasIce = hasIce;
     this.building = building;
@@ -178,6 +178,7 @@ class Penguin {
     this.targetLPos = target.targetL;
     this.targetAction = target.action;
     this.targetDirections = target.directions;
+    this.path = target.path;
     this.knownWorld = this.strategicMap.getKnownWorld();
     
     //console.log("%%%%%%==================");
@@ -248,6 +249,16 @@ class Penguin {
       return false;
     }
     
+    if (this.hasLoved > 0) {
+      log(
+        realm,
+        source,
+        "canLove",
+        `${this.id}-${this.name} love not possible since hasLoved =  ${this.hasLoved}`
+      );
+      return false;
+    }
+
     if (partnerId === this.fatherId) {
       log(
         realm,
@@ -276,25 +287,25 @@ class Penguin {
       return false;
     }
 
-    return this.hasLoved === 0 && this.eating === 0 && this.fishTime === 0;
+    return this.eating === 0 && this.fishTime === 0 && this.fillTime === 0;
   }
 
   // let moveType = moves[i].moveType, // 1=move,2=age,3=eat,4=love,5=die
   // let moveDir = moves[i].moveDir, // 1=left,2=right,3=up,4=down
 
   setPos(moveDir, hpos, lpos) {
-    if (this.hpos !== hpos || this.lpos !== lpos) {
-      this.addMoveLog(
-        1,
-        this.cat,
-        "move",
-        moveDir,
-        this.hpos,
-        this.lpos,
-        hpos,
-        lpos
-      );
-    }
+    // if (this.hpos !== hpos || this.lpos !== lpos) {
+    //   this.addMoveLog(
+    //     1,
+    //     this.cat,
+    //     "move",
+    //     moveDir,
+    //     this.hpos,
+    //     this.lpos,
+    //     hpos,
+    //     lpos
+    //   );
+    // }
     this.hpos = hpos;
     this.lpos = lpos;
     this.waiting = 0;
@@ -307,10 +318,10 @@ class Penguin {
     console.log("#### # " + partnerId)
 
     this.loving = 4;
-    this.hasLoved = 15;
+    this.hasLoved = 20;
     this.partnerId = partnerId;
     this.waiting = 0;
-    this.addMoveLog(4, this.cat, "love");
+    // this.addMoveLog(4, this.cat, "love");
 
   }
 
@@ -327,7 +338,7 @@ class Penguin {
     this.waiting = 0;
     this.hungry = this.hungry < 25 ? 0 : this.hungry - 25;
     this.wealth = this.wealth > 80 ? 100 : this.wealth + 20;
-    this.addMoveLog(3, this.cat, "eat");
+    // this.addMoveLog(3, this.cat, "eat");
   }
 
   // return true is the penguin is eating a lot
@@ -339,7 +350,7 @@ class Penguin {
   // makes the penguin fish
 
   fish(direction) {
-    this.addMoveLog(7, this.cat, "fish", direction);
+    // this.addMoveLog(7, this.cat, "fish", direction);
     this.fishDirection = direction;
     this.fishTime = 6;
   }
@@ -353,7 +364,7 @@ class Penguin {
   // makes the penguin dig
 
   dig(direction) {
-    this.addMoveLog(8, this.cat, "dig", direction);
+    // this.addMoveLog(8, this.cat, "dig", direction);
     this.digDirection = direction;
     this.digTime = 6;
   }
@@ -367,7 +378,7 @@ class Penguin {
 // makes the penguin dig
 
   fill(direction) {
-    this.addMoveLog(9, this.cat, "fill", direction);
+    // this.addMoveLog(9, this.cat, "fill", direction);
     this.fillDirection = direction;
     this.fillTime = 3;
   }
@@ -401,7 +412,7 @@ class Penguin {
     this.hasLoved = 0;
     this.hungry = 0;
 
-    this.addMoveLog(5, "", "dead");
+    // this.addMoveLog(5, "", "dead");
   }
 
   // Makes the penguin one year older and check status
@@ -467,7 +478,7 @@ class Penguin {
     if (this.age > 5 && this.cat === "-y-") {
       this.cat = this.gender === "male" ? "-m-" : "-f-";
       this.vision = 3;
-      this.addMoveLog(2, this.cat, "age");
+      // this.addMoveLog(2, this.cat, "age");
     }
 
     if (this.age > 20) {
@@ -479,7 +490,7 @@ class Penguin {
         log(realm, source, "makeOlder", this.name + " just died !");
       }
       this.alive = false;
-      this.addMoveLog(5, "", "dead");
+      // this.addMoveLog(5, "", "dead");
       returncode = 1;
     } else if (hasChild) {
       returncode = 2;
@@ -492,104 +503,6 @@ class Penguin {
     this.gender = gender;
   }
 
-  addMoveLog(
-    moveType,
-    cat,
-    state,
-    moveDir = 0,
-    origH = 0,
-    origL = 0,
-    newH = 0,
-    newL = 0
-  ) {
-    this.num = this.num + 1;
-
-    // sessions.forEach((session) => {
-    //   session.addMoveLog(
-    //     this.id,
-    //     this.num,
-    //     moveType,
-    //     cat,
-    //     state,
-    //     moveDir,
-    //     origH,
-    //     origL,
-    //     newH,
-    //     newL
-    //   );
-    // });
-
-    let baseDate = new Date("8/1/22");
-    let moveTimer = Math.floor((new Date().getTime() - baseDate) / 100);
-    if (moveType !== 6 || deepdebug) {
-      log(
-        realm,
-        source,
-        "addMoveLog",
-        moveTimer +
-          " : Penguin " +
-          this.id +
-          " " +
-          cat +
-          " " +
-          moveTypes[moveType] +
-          " (" +
-          moveType +
-          ":" +
-          moveDir +
-          ") " +
-          origH +
-          "/" +
-          origL +
-          " -> " +
-          newH +
-          "/" +
-          newL,
-        LOGINFO
-      );
-    }
-    if (moveType !== 1) {
-      // console.log("============= 1 ===");
-      // console.dir(this.moveLog)
-      // console.log("============ 1 ====");
-
-      this.moveLog.push({
-        moveid: moveTimer,
-        num: this.num,
-        moveType: moveType, // 1 = move
-        direction: moveDir, // necessary for fishing direction
-        movements: [],
-        cat: cat,
-        state: state,
-      });
-      this.moveDirection = 0;
-    } else {
-      // console.log("============= 2 ===");
-      // console.dir(this.moveLog)
-      // console.log("============ 2 ====");
-
-      this.moveLog.push({
-        moveid: moveTimer,
-        num: this.num,
-        moveType: moveType, // 1 = move
-        direction: moveDir, // necessary for fishing direction
-        movements: [
-          {
-            movmtid: moveTimer,
-            moveDir: moveDir,
-            origH: origH,
-            origL: origL,
-            newH: newH,
-            newL: newL,
-          },
-        ],
-        cat: cat,
-        state: state,
-      });
-      this.moveDirection = moveDir;
-      //      }
-    }
-  }
 }
 
 // now we export the class, so other modules can create Penguin objects

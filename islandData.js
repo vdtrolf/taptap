@@ -15,13 +15,12 @@ const source = "islandData.js";
 
 const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
-const sessionReq = require("./session.js");
 const islandReq = require("./island.js");
 
 let Island = islandReq.Island;
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
-let Session = sessionReq.Session;
+
 let putItem = dbhelperReq.putItem;
 let deleteItem = dbhelperReq.deleteItem;
 let getAsyncItems = dbhelperReq.getAsyncItems;
@@ -73,7 +72,7 @@ const persistIsland = (island) => {
     const aPenguin = {
       id: penguin.id,
       islandId: penguin.islandId,
-      moveLog: penguin.moveLog,
+      // moveLog: penguin.moveLog,
       num: penguin.num,
       hpos: penguin.hpos,
       lpos: penguin.lpos,
@@ -114,6 +113,7 @@ const persistIsland = (island) => {
       targetAction: penguin.targetAction,
       knownWorld: penguin.knownWorld,
       targetDirections: penguin.targetDirections,
+      path: penguin.path
     };
     penguins.push(aPenguin);
   });
@@ -131,6 +131,7 @@ const persistIsland = (island) => {
     fishes: island.fishes,
     points: island.points,
     running: island.running,
+    runonce: island.runonce,
     lastInvocation: island.lastInvocation,
     followId: island.followId ? island.followId : 0,
     lands: lands,
@@ -170,6 +171,7 @@ const persistIslandData = async (island) => {
     fishes: island.fishes,
     points: island.points,
     running: island.running,
+    runonce: island.runonce,
     lastInvocation: island.lastInvocation,
     followId: island.followId ? island.followId : 0,
     lands: island.lands,
@@ -219,6 +221,7 @@ const initiateIslands = async (islandParam=null) => {
             anIsland.fishes,
             anIsland.points,
             anIsland.running,
+            anIsland.runonce,
             anIsland.lastInvocation,
             anIsland.followId,
             anIsland.counter
@@ -263,7 +266,7 @@ const initiateIslands = async (islandParam=null) => {
                 aPenguin.hpos,
                 aPenguin.lpos,
                 island.id,
-                aPenguin.moveLog,
+                // aPenguin.moveLog,
                 aPenguin.fatherId,
                 aPenguin.motherId,
                 aPenguin.id,
@@ -300,8 +303,8 @@ const initiateIslands = async (islandParam=null) => {
                 aPenguin.targetLPos,
                 aPenguin.targetAction,
                 aPenguin.knownWorld,
-                aPenguin.targetDirections
-
+                aPenguin.targetDirections,
+                aPenguin.path
               );
               penguins.push(penguin);
               

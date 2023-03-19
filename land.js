@@ -45,6 +45,7 @@ class Land {
 
     this.changed = true;
     this.isTarget = false;
+    this.hasPenguin = false;
     this.islandSize = 0;
     this.islandPopulation = 0;
 
@@ -55,6 +56,10 @@ class Land {
 
   setTarget(isTarget) {
     this.isTarget = isTarget;
+  }
+
+  setPenguin(hasPenguin) {
+    this.hasPenguin = hasPenguin;
   }
 
   setLand(num) {

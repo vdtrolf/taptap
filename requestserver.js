@@ -22,6 +22,10 @@ let getIslandData = islandWorkerReq.getIslandData;
 let getMovesData = islandWorkerReq.getMovesData;
 let getIslandsList = islandWorkerReq.getIslandsList;
 let deleteIsland = islandWorkerReq.deleteIsland;
+let runonce = islandWorkerReq.runonce;
+let setRunningState = islandWorkerReq.setRunningState;
+
+
 let startStateSteps = stephelperReq.startStateSteps;
 
 let NameServer = nameserverReq.NameServer;
@@ -64,6 +68,22 @@ const createResponse = async (url, params, islandId = 0, local = true) => {
         log(realm, source, "createResponse", "case state - event received ");
         let isRunning = await setState(1,true);
         return { running: isRunning };
+      }
+
+      case "/runonce": {
+        log(realm, source, "createResponse", "case runonce - event received ");
+        let isRunning = await runonce(islandId);
+        return {};
+      }
+
+      case "/setrunning": {
+        let runningstate = params.runningstate;
+
+        console.log("@@@@@ >" + runningstate + "<")
+
+        log(realm, source, "createResponse", "case setrunning - event received ");
+        return await setRunningState(islandId, (runningstate === "true") );
+        
       }
 
       case "/moves": {       

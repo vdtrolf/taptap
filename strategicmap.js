@@ -106,7 +106,6 @@ class StrategicMap {
     let foundLoveL = 0;
     let distLove = 99;
 
-    let fatburnsteps = 0;
     let hasUrgentNeed = false;
 
     let additionalText = "";
@@ -274,6 +273,8 @@ class StrategicMap {
     // console.dir(this.knownWorld)     
 
     let hasPath = false;
+    let fatburnsteps = (100 - penguin.hungry) / (Math.floor(penguin.fat / 3) + 1)
+
 
     if (penguin.isLoving()) {
       this.action = 4;
@@ -309,8 +310,6 @@ class StrategicMap {
      
       // Define the short term strategy
       
-      fatburnsteps = (100 - penguin.hungry) / (Math.floor(penguin.fat / 3) + 1)
-      
       let hasOther = island.penguins.some(
                 (other) =>
                   other.id !== penguin.id &&
@@ -320,49 +319,54 @@ class StrategicMap {
 
       hasUrgentNeed = false;
       
-      if (fatburnsteps < 30) { // hungry
+      if (fatburnsteps < 40) { // hungry
       
         if (island.territory[penguin.hpos][penguin.lpos].hasFish) {
           this.strategyShort = " Eating";
           this.action = 3;
-        } else if (foundFish && distFish < 2){
-          let fishmoves = [];
-
-          if (island.territory[penguin.hpos][penguin.lpos - 1].canFish()) fishmoves.push(1);
-          if (island.territory[penguin.hpos][penguin.lpos + 1].canFish()) fishmoves.push(2);
-          if (island.territory[penguin.hpos - 1][penguin.lpos].canFish()) fishmoves.push(3);
-          if (island.territory[penguin.hpos + 1][penguin.lpos].canFish()) fishmoves.push(4);
-
-          if (fishmoves.length > 0) {
-            let fishmove = fishmoves[Math.floor(Math.random() * fishmoves.length)];
-  
-            let swimlpos = fishmove === 1 ? penguin.lpos - 1 : penguin.lpos;
-            swimlpos = fishmove === 2 ? penguin.lpos + 1 : swimlpos;
-            let swimhpos = fishmove === 3 ? penguin.hpos - 1 : penguin.hpos;
-            swimhpos = fishmove === 4 ? penguin.hpos + 1 : swimhpos;
-            island.territory[swimhpos][swimlpos].fishSwim();
-            this.strategyShort = " Fishing";
-            this.actionDirection = fishmove;
-            this.action = 7;
-          }
         } else if (foundFish) {
+        
+          if (distFish < 1) {
+            let fishmoves = [];
 
-          if (show) console.log(">>>>> " + penguin.name +" To food")
+            if (island.territory[penguin.hpos][penguin.lpos - 1].canFish()) fishmoves.push(1);
+            if (island.territory[penguin.hpos][penguin.lpos + 1].canFish()) fishmoves.push(2);
+            if (island.territory[penguin.hpos - 1][penguin.lpos].canFish()) fishmoves.push(3);
+            if (island.territory[penguin.hpos + 1][penguin.lpos].canFish()) fishmoves.push(4);
 
-          hasUrgentNeed = true;
-          this.strategyShort = " To food";
-          this.hasTarget = true;
-          this.targetH = foundFishH;
-          this.targetL = foundFishL;
-        } else if (fatburnsteps < 20) {
+            if (fishmoves.length > 0) {
+              let fishmove = fishmoves[Math.floor(Math.random() * fishmoves.length)];
+    
+              let swimlpos = fishmove === 1 ? penguin.lpos - 1 : penguin.lpos;
+              swimlpos = fishmove === 2 ? penguin.lpos + 1 : swimlpos;
+              let swimhpos = fishmove === 3 ? penguin.hpos - 1 : penguin.hpos;
+              swimhpos = fishmove === 4 ? penguin.hpos + 1 : swimhpos;
+              island.territory[swimhpos][swimlpos].fishSwim();
+              this.strategyShort = " Fishing";
+              this.actionDirection = fishmove;
+              this.action = 7;
+            }
+          } else {
+
+            // if (show) console.log(">>>>> " + penguin.name +" To food")
+
+            hasUrgentNeed = true;
+            this.strategyShort = " To food";
+            this.hasTarget = true;
+            this.targetH = foundFishH;
+            this.targetL = foundFishL;
+          }
+
+        } else if (fatburnsteps < 30) {
           this.strategyShort = " Search food";
           this.wantsSearch = true;
         }    
+
+        // if (show) console.log(">>>>> 000 action: " + this.action + " hasTarget: " + this.hasTarget + " hasUrgentNeed " + hasUrgentNeed)
+
       }  // hungry 
-      
-      if (this.action ===0 && ! hasUrgentNeed && island.weather > 0 && penguin.wealth < 90) { // cold
 
-
+      if (this.action === 0 && ! hasUrgentNeed && island.weather > 0 && penguin.wealth < 90) { // cold
 
         if (foundWarm) {
           hasUrgentNeed = true;
@@ -378,19 +382,19 @@ class StrategicMap {
       
       if (! hasUrgentNeed) {
 
-        if (show) console.log(">>>>> " + penguin.name +" not urgent")
+        // if (show) console.log(">>>>> " + penguin.name +" not urgent")
 
-        if (this.action===0  && island.weather < 2 && curSmelt > 10) { // unstable
-          if (foundStable) {
-            this.strategyShort = " To stable";
-            this.hasTarget = true;
-            this.targetH = foundStableH;
-            this.targetL = foundStableL;
-          } else if (curSmelt > 12 && ! this.wantSearch) {
-            this.strategyShort = " Search stable";
-            this.wantsSearch = true;
-          }
-        } // unstable
+        // if (this.action===0  && island.weather < 2 && curSmelt > 10) { // unstable
+        //   if (foundStable) {
+        //     this.strategyShort = " To stable";
+        //     this.hasTarget = true;
+        //     this.targetH = foundStableH;
+        //     this.targetL = foundStableL;
+        //   } else if (curSmelt > 12 && ! this.wantSearch) {
+        //     this.strategyShort = " Search stable";
+        //     this.wantsSearch = true;
+        //   }
+        // } // unstable
         
         
         if (this.action===0 && alone > 0 && foundLove) { // alone
@@ -425,7 +429,7 @@ class StrategicMap {
         
         if (this.action=== 0  && penguin.age > 6 && ! penguin.hasIce && foundIce) { // no Ice
 
-          if (foundIce && distIce < 2){
+          if (distIce < 2) {
           
             let icemoves = [];
 
@@ -446,7 +450,7 @@ class StrategicMap {
               this.actionDirection = icemove;
               this.action = 8;
             }
-          } else if (foundIce) {
+          } else  {
             this.strategyShort = " To ice";
             this.hasTarget = true;
             this.targetH = foundIceH;
@@ -457,7 +461,7 @@ class StrategicMap {
       }
       // let hasPath = false;
 
-      if (show) console.log(">> action: " + this.action + " hasTarget " + this.hasTarget + " urgent " +  hasUrgentNeed + " " + this.strategyShort);
+      // if (show) console.log(">> action: " + this.action + " hasTarget " + this.hasTarget + " urgent " +  hasUrgentNeed + " " + this.strategyShort);
 
       
       if (this.action === 0) {
@@ -487,7 +491,7 @@ class StrategicMap {
               this.action = 1;
             } else if (this.targetH && penguin.hasIce) {
 
-              if (show) console.log(penguin.name + " (" + this.strategyShort + ") Looking for filling at " + penguin.hpos + "/" + penguin.lpos + " to " + this.targetH + "/" + this.targetL   );
+              // if (show) console.log(penguin.name + " (" + this.strategyShort + ") Looking for filling at " + penguin.hpos + "/" + penguin.lpos + " to " + this.targetH + "/" + this.targetL   );
 
               let posmoves = [];
               if (this.targetL > penguin.lpos && island.territory[penguin.hpos][penguin.lpos + 1].getType() === 0) posmoves.push(2);
@@ -498,9 +502,9 @@ class StrategicMap {
               if (posmoves.length > 0) {
                 let aPosMove = Math.floor(Math.random() * posmoves.length);
 
-                if (show) console.log("Found filling to " + posmoves[aPosMove]) ;
+                // if (show) console.log("Found filling to " + posmoves[aPosMove]) ;
 
-                this.strategyShort = " Filling";
+                this.strategyShort = " Filling (for path)";
                 this.actionDirection = posmoves[aPosMove] ;
                 this.action = 9;
               } else {
@@ -513,7 +517,7 @@ class StrategicMap {
                 if (posmoves.length > 0) {
                   let aPosMove = Math.floor(Math.random() * posmoves.length);
 
-                  if (show) console.log( penguin.name + " Found pre-filling to " + posmoves[aPosMove].dir);
+                  // if (show) console.log( penguin.name + " Found pre-filling to " + posmoves[aPosMove].dir);
 
                   this.path.push(posmoves[aPosMove]);
                   this.action = 1;
@@ -565,14 +569,14 @@ class StrategicMap {
             break;
         }
 
-        if (targetLand.getType()=== 1 && targetLand.getConf() > 9) {
+        // if (targetLand.getType()=== 1 && targetLand.getConf() > 9 && penguin.hasIce) {
 
-          this.action = 9;
-          this.strategyShort = " Filling"
-          this.actionDirection = this.targetDirections[0];
-          console.log("Path unstable, filling to " + this.actionDirection)
+        //   this.action = 9;
+        //   this.strategyShort = " Filling (unstable)"
+        //   this.actionDirection = this.targetDirections[0];
+        //   // console.log("Path unstable, filling to " + this.actionDirection)
           
-        }
+        // }
       } else {
         this.targetDirections.push(0, 0, 0, 0);
         
@@ -581,7 +585,7 @@ class StrategicMap {
     }
     if (show) {
       
-      if (true) { // ()debug) {
+      if (debug) {
         this.path.forEach((step) =>
         console.log( hasPath + " step to dir " + step.dir + " at " + step.posH + "/" + step.posL ));
       }
@@ -616,9 +620,9 @@ class StrategicMap {
           ") Pos: " +
           centerH +
           "/" +
-          centerL +
-          " !:" +
-          hasUrgentNeed 
+          centerL + 
+          " ! : " +
+          hasUrgentNeed
 
       );
       
@@ -654,7 +658,7 @@ class StrategicMap {
           case 0:
             txt += " Hungry: " + penguin.hungry + " (" + fatburnsteps + ")";
             if (foundFish)
-              txt += " - Found fish (~) at " + foundFishH + "/" + foundFishL ;
+              txt += " - Found fish at " + foundFishH + "/" + foundFishL + " (" + distFish + ")";
             break;
           case 1:
             txt += " Smelt : " + curSmelt;
@@ -725,7 +729,8 @@ class StrategicMap {
                         strategyShort: this.strategyShort,
                         followUp: this.followUp,
                         targetH: this.targetH,
-                        targetL: this.targetL};
+                        targetL: this.targetL,
+                        path: this.path}
     
     if (show) console.dir(resultTarget);
     

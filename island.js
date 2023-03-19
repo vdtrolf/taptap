@@ -40,6 +40,7 @@ class Island {
     fishes = 5,
     points = 0,
     running = true,
+    runonce = false,
     lastInvocation = 0,
     followId = 0,
     counter = 0
@@ -58,6 +59,7 @@ class Island {
     this.fishes = fishes;
     this.points = points;
     this.running = running;
+    this.runonce = runonce;
     this.followId = followId;
     this.counter = counter;
 
@@ -65,7 +67,7 @@ class Island {
       lastInvocation === 0 ? new Date().getTime() : lastInvocation;
     this.territory = [];
     this.penguins = [];
-    // this.sessions = session;
+   
 
     let matrix = [];
 
@@ -194,7 +196,7 @@ class Island {
 
       // randomly add some penguins
 
-      let pengNum = Math.floor(Math.random() * 2) + 4;
+      let pengNum = 1; // Math.floor(Math.random() * 2) + 4;
       let pengCnt = 0;
 
       while (pengCnt < pengNum) {
@@ -301,8 +303,6 @@ class Island {
     this.tiles = 5;
     this.fishes = 5;
     this.points = 0;
-
-    log(realm, source, "reset", "Session reset with id " + this.id);
   }
 
   // Decrease or increase the amount of ice
@@ -408,6 +408,7 @@ class Island {
       for (let j = 0; j < this.sizeL; j++) {
         if (this.territory[i][j]) {
           this.territory[i][j].isTarget = false;
+          this.territory[i][j].hasPenguin = false;
         }
       }
     }
@@ -517,7 +518,7 @@ class Island {
               break;
             case 9:
 
-              console.log(`>>>> ${penguin.name} is going to fill at direction ${target.actionDirection}`)
+              // console.log(`>>>> ${penguin.name} is going to fill at direction ${target.actionDirection}`)
 
               log(realm, source, "movePenguins", `${penguin.name} is going to fill at direction ${target.actionDirection}`);
               penguin.fill(target.actionDirection);
@@ -527,6 +528,14 @@ class Island {
         } // ! FolloowUp
       } // is penguin alive
     }); // forEach
+
+    // tagging all the lands with a penguin, so they don't receive ice
+
+    this.penguins.forEach((penguin) => {
+      if (penguin.alive) {
+        this.territory[penguin.hpos][penguin.lpos].setPenguin(true);
+      }
+    });
 
     // for (let i = 0; i < this.sizeH; i++) {
     //   for (let j = 0; j < this.sizeL; j++) {
@@ -538,21 +547,10 @@ class Island {
 
 
     for (let penguin of this.penguins) {
-      penguin.calculateWealth(this, penguin.hpos, penguin.lpos);
+       penguin.calculateWealth(this, penguin.hpos, penguin.lpos);
     }
     
   } // movePenguins()
-
-  // Goes through all the alive penguins and ask them to generate an initial move + the eat or love move
-
-  resetPenguins(session) {
-    this.penguins.forEach((penguin) => {
-      // First check if the penguin is alive
-      if (penguin.alive) {
-        penguin.resetPos([session]);
-      }
-    });
-  }
 
   // ramdomly add and remove some swimmig fishes
 
@@ -598,7 +596,7 @@ class Island {
         if ( land.getType() === 0) {
         // && this.penguins.length < 1) {
         land.addSwim();
-        } else if (cntIce < 6 && iceTiles) {
+        } else if (cntIce < 6 && iceTiles && !land.hasPenguin && !land.hasCross && !land.hasFish) {
           land.addIce();
         }
       }
@@ -658,7 +656,7 @@ class Island {
             l = status.fillLPos;
             h = status.fillHPos;
 
-            console.log(">>> Going to fill " + h + "/" + l)
+            // console.log(">>> Going to fill " + h + "/" + l)
 
             this.territory[h][l].setLand(1);
             break;
@@ -669,7 +667,7 @@ class Island {
 
   // Changing the weather - this will happen any time between 4 and 12 cycles
 
-  setWeather(session) {
+  setWeather() {
     if (!this.running) {
       return;
     }
