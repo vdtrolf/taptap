@@ -83,6 +83,13 @@ const printPenguins = (island) => {
   
 }
 
+
+const createIsland =() => {
+  let island = new Island(islandH, islandL);
+  persistIsland(island, true);
+
+}
+
 const makeKnowWorld = (knownWorld) => {
   result = [];
   const world = [];
@@ -90,7 +97,12 @@ const makeKnowWorld = (knownWorld) => {
   
 }
 
-
+const printHelp = () => {
+  print('');
+  print("+---- HELP -------------------------------------------------+");
+  print("| l/list, p/penguin, g/get, r/refresh, a                    |")
+  print("+-----------------------------------------------------------+");
+}
 
 
 const checkInput = (input) => {
@@ -116,7 +128,9 @@ const checkInput = (input) => {
       .then(value => printIsland(value))
     } 
   } else {
-    if(input==="l" || input==="list") {
+    if (input==="h" || input==="help") {
+      printHelp();
+    } else if(input==="l" || input==="list") {
       context=1;
       getAsyncItems("island","id",">",0)
       .then(value => printList(value))
@@ -175,10 +189,6 @@ const createTerminal =  async () => {
   })
   process.stdout.write(">>")
 }
-
-
-
-
 
 
 module.exports = {
