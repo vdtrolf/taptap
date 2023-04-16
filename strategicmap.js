@@ -72,9 +72,6 @@ class StrategicMap {
     this.loverId = 0;
     this.wantsSearch = false;
 
-    let curFish = island.territory[centerH][centerL].hasFish;
-    let curStable = this.isLandStable(island, centerH, centerL);
-    let curSwim = this.isLandSwim(island, centerH, centerL);
     let curWarm = this.calculateWarm(island,centerH,centerL,penguin.id,show) + 1;
     let curSmelt =
       island.territory[centerH][centerL].getType() !== 1
@@ -139,18 +136,18 @@ class StrategicMap {
                 pos: false,
                 fish: false,
                 stable: false,
-                swim: false,
+                fish: false,
                 ice: false,
                 love: false,
                 smelt: 0,
                 warm: 0,
-                art: land.hasSwim?3:0
+                art: land.hasFish?3:0
               });
 
             } else {
               let stable = this.isLandStable(island, hpos, lpos);
               //console.log("££££££ -+- A")
-              let swim = this.isLandSwim(island, hpos, lpos);
+              let fish = this.isLandFish(island, hpos, lpos);
               //console.log("££££££ -+- b")
               let warm = this.calculateWarm(island, hpos, lpos, penguin.id, show) + 1;
               //console.log("££££££ -+- C")
@@ -165,19 +162,19 @@ class StrategicMap {
                 hpos: hpos,
                 pos: lpos,
                 pos: true,
-                fish: land.hasFish,
+                food: land.hasFood,
                 stable: stable,
-                swim: swim,
+                fish: fish,
                 smelt: land.getConf(),
                 warm: warm,
                 ice:ice,
                 love:love,
-                art: land.hasFish?2:land.hasIce?4:0
+                art: land.hasFood?2:land.hasIce?4:0
               });
 
               // Is there a fish and is it closer than last foud fish ?
 
-              if (land.hasFish || swim) {
+              if (land.hasFood || fish) {
                 foundFish = true;
                 let dist = Math.abs(centerH - hpos) + Math.abs(centerL - lpos);
                 if (dist < distFish) {
@@ -247,7 +244,7 @@ class StrategicMap {
               pos: false,
               fish: false,
               stable: false,
-              swim: false,
+              fish: false,
               smelt: 0,
               warm: 0,
               art:0
@@ -260,7 +257,7 @@ class StrategicMap {
             pos: false,
             fish: false,
             stable: false,
-            swim: false,
+            fish: false,
             smelt: 0,
             warm: 0,
             art:0
@@ -321,7 +318,7 @@ class StrategicMap {
       
       if (fatburnsteps < 40) { // hungry
       
-        if (island.territory[penguin.hpos][penguin.lpos].hasFish) {
+        if (island.territory[penguin.hpos][penguin.lpos].hasFood) {
           this.strategyShort = " Eating";
           this.action = 3;
         } else if (foundFish) {
@@ -337,11 +334,11 @@ class StrategicMap {
             if (fishmoves.length > 0) {
               let fishmove = fishmoves[Math.floor(Math.random() * fishmoves.length)];
     
-              let swimlpos = fishmove === 1 ? penguin.lpos - 1 : penguin.lpos;
-              swimlpos = fishmove === 2 ? penguin.lpos + 1 : swimlpos;
-              let swimhpos = fishmove === 3 ? penguin.hpos - 1 : penguin.hpos;
-              swimhpos = fishmove === 4 ? penguin.hpos + 1 : swimhpos;
-              island.territory[swimhpos][swimlpos].fishSwim();
+              let fishlpos = fishmove === 1 ? penguin.lpos - 1 : penguin.lpos;
+              fishlpos = fishmove === 2 ? penguin.lpos + 1 : fishlpos;
+              let fishhpos = fishmove === 3 ? penguin.hpos - 1 : penguin.hpos;
+              fishhpos = fishmove === 4 ? penguin.hpos + 1 : fishhpos;
+              island.territory[fishhpos][fishlpos].fishFish();
               this.strategyShort = " Fishing";
               this.actionDirection = fishmove;
               this.action = 7;
@@ -639,7 +636,7 @@ class StrategicMap {
         line.forEach((cell) => {
           let celltxt = " ";
           if (cell.pos || cell.stable) celltxt = ".";
-          if (cell.swim) celltxt = "~";
+          if (cell.fish) celltxt = "~";
           if (cell.fish) celltxt = "@";
           // if (cell.ice) celltxt = "^";
           if (cell.love) celltxt = "&";
@@ -749,14 +746,14 @@ class StrategicMap {
     );
   }
 
-  // A land has a swim if there is a fish in the neighbour tiles
+  // A land has a fish if there is a fish in the neighbour tiles
 
-  isLandSwim(island, hpos, lpos) {
+  isLandFish(island, hpos, lpos) {
     return (
-      island.territory[hpos - 1][lpos].hasSwim ||
-      island.territory[hpos + 1][lpos].hasSwim ||
-      island.territory[hpos][lpos - 1].hasSwim ||
-      island.territory[hpos][lpos + 1].hasSwim
+      island.territory[hpos - 1][lpos].hasFish ||
+      island.territory[hpos + 1][lpos].hasFish ||
+      island.territory[hpos][lpos - 1].hasFish ||
+      island.territory[hpos][lpos + 1].hasFish
     );
   }
 

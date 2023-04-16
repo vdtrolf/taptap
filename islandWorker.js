@@ -34,7 +34,7 @@ const getInitData = async (island) => {
     penguins: island.getPenguins(),
     weather: weathers[island.weather],
     tiles: island.tiles,
-    fishes: island.fishes,
+    foodes: island.foodes,
     points: island.points,
     islandName: island.name,
     islandId: island.id,
@@ -135,9 +135,9 @@ const getIslandData = async (
 
       if (land) {
         if (land.type === 0 && islandData.tiles > 0) {
-          if (land.hasSwim) {
-            land.hasSwim = false;
-            land.hasFish = true;
+          if (land.hasFish) {
+            land.hasFish = false;
+            land.hasFood = true;
           }
           land.type = 1;
           land.conf = 0;
@@ -149,10 +149,10 @@ const getIslandData = async (
             land.hasIce =false;
             land.changed = true;
             changed = true;
-          } else if (islandData.fishes > 0) {
-            land.hasFish = true;
+          } else if (islandData.foodes > 0) {
+            land.hasFood = true;
             land.changed = true;
-            islandData.fishes -= islandData.fishes > 0 ? 1 : 0;
+            islandData.foodes -= islandData.foodes > 0 ? 1 : 0;
             changed = true;
           }
         }
@@ -186,7 +186,7 @@ const getIslandData = async (
       penguins: penguins,
       weather: weathers[islandData.weather],
       tiles: islandData.tiles,
-      fishes: islandData.fishes,
+      foodes: islandData.foodes,
       points: islandData.points,
       islandName: islandData.name,
       islandId: islandData.id,
@@ -317,10 +317,10 @@ const getImg = (territory, islandH, islandL) => {
           } else {
             artifact = 2;
           }
-        } else if (land.hasFish) {
+        } else if (land.hasFood) {
           artifact = 3;
-        } else if (land.hasSwim) {
-          artifact = land.swimAge > 0?6:4;  
+        } else if (land.hasFish) {
+          artifact = land.fishAge > 0?6:4;  
         } else if (land.hasIce) {
           artifact = 5;
         }
@@ -370,11 +370,11 @@ const getImg = (territory, islandH, islandL) => {
 //           } else {
 //             result += `<img class="cross" src="./tiles/cross.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
 //           }
-//         } else if (land.hasFish) {
+//         } else if (land.hasFood) {
 //           result += `<img class="fish" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
-//         } else if (land.hasSwim) {
+//         } else if (land.hasFish) {
 //           let transp = 0.6; // ((Math.floor(Math.random() * 2) / 10))  + 0.3;
-//           result += `<img class="swim" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute; opacity:${transp}" width="48" height="48" >\n`;
+//           result += `<img class="fish" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute; opacity:${transp}" width="48" height="48" >\n`;
 //         } else if (land.hasIce) {
 //           result += `<img class="fish" src="./tiles/ice.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
 //         }

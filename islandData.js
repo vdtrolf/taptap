@@ -16,10 +16,12 @@ const source = "islandData.js";
 const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
 const islandReq = require("./island.js");
+const fishReq = require("./fish.js");
 
 let Island = islandReq.Island;
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
+let Fish = fishReq.Fish;
 
 let putItem = dbhelperReq.putItem;
 let deleteItem = dbhelperReq.deleteItem;
@@ -54,9 +56,9 @@ const persistIsland = (island) => {
         var: land.var,
         hasCross: land.hasCross,
         crossAge: land.crossAge,
+        hasFood: land.hasFood,
         hasFish: land.hasFish,
-        hasSwim: land.hasSwim,
-        swimAge: land.swimAge,
+        fishAge: land.fishAge,
         hasIce: land.hasIce,
         iceAge: land.iceAge
       };
@@ -118,6 +120,23 @@ const persistIsland = (island) => {
     penguins.push(aPenguin);
   });
   
+  let fishes = [];
+  
+  island.fishes.forEach((fish) => {
+    
+    const aFish = {
+      id: fish.id,
+      islandId: fish.islandId,
+      num: fish.num,
+      hpos: fish.hpos,
+      lpos: fish.lpos,
+      specie: fish.specie,
+      moving: fish.moving,
+      fishDirection: fish.fishDirection
+    };
+    fishes.push(aFish);
+  });
+
   putItem("island", {
     id: island.id,
     name: island.name,
@@ -128,7 +147,7 @@ const persistIsland = (island) => {
     numPeng: island.numPeng,
     tiles: island.tiles,
     landSize: island.landSize,
-    fishes: island.fishes,
+    foodes: island.foodes,
     points: island.points,
     running: island.running,
     runonce: island.runonce,
@@ -136,6 +155,7 @@ const persistIsland = (island) => {
     followId: island.followId ? island.followId : 0,
     lands: lands,
     penguins: penguins,
+    fishes: fishes,
     counter: island.counter,
   }, island.id);
   
@@ -168,7 +188,7 @@ const persistIslandData = async (island) => {
     numPeng: island.numPeng,
     tiles: island.tiles,
     landSize: island.landSize,
-    fishes: island.fishes,
+    foodes: island.foodes,
     points: island.points,
     running: island.running,
     runonce: island.runonce,
@@ -176,6 +196,7 @@ const persistIslandData = async (island) => {
     followId: island.followId ? island.followId : 0,
     lands: island.lands,
     penguins: island.penguins,
+    fishes: island.fishes,
     counter: island.counter,
   },island.id);
 };
@@ -218,7 +239,7 @@ const initiateIslands = async (islandParam=null) => {
             anIsland.numPeng,
             anIsland.tiles,
             anIsland.landSize,
-            anIsland.fishes,
+            anIsland.foodes,
             anIsland.points,
             anIsland.running,
             anIsland.runonce,
@@ -247,9 +268,9 @@ const initiateIslands = async (islandParam=null) => {
                 aLand.var,
                 aLand.hasCross,
                 aLand.crossAge,
+                aLand.hasFood,
                 aLand.hasFish,
-                aLand.hasSwim,
-                aLand.swimAge,
+                aLand.fishAge,
                 aLand.hasIce,
                 aLand.iceAge
               );
@@ -266,7 +287,6 @@ const initiateIslands = async (islandParam=null) => {
                 aPenguin.hpos,
                 aPenguin.lpos,
                 island.id,
-                // aPenguin.moveLog,
                 aPenguin.fatherId,
                 aPenguin.motherId,
                 aPenguin.id,
@@ -311,6 +331,26 @@ const initiateIslands = async (islandParam=null) => {
             });
           }
           island.penguins = penguins;
+
+          let fishes = [];
+
+          if (anIsland.fishes) {
+            anIsland.fishes.forEach((aFish) => {
+              let fish = new Fish(
+                aFish.num,
+                aFish.hpos,
+                aFish.lpos,
+                island.id,
+                aFish.specie,
+                aFish.moving,
+                aFish.fishDirection
+              );
+              fishes.push(fish);
+                
+            });
+          }
+          island.fishes = fishes;
+
 
           addIsland(island);
 

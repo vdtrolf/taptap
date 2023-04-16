@@ -17,10 +17,11 @@ const source = "island.js";
 const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
 const nameserverReq = require("./nameserver.js");
-const land = require("./land.js");
+const fishReq = require("./fish.js");
 
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
+let Fish = fishReq.Fish;
 
 let islands = [];
 
@@ -37,7 +38,7 @@ class Island {
     numPeng = 0,
     tiles = 5,
     landSize = 0,
-    fishes = 5,
+    foodes = 5,
     points = 0,
     running = true,
     runonce = false,
@@ -56,7 +57,7 @@ class Island {
     this.numPeng = numPeng;
     this.tiles = tiles;
     this.landSize = landSize;
-    this.fishes = fishes;
+    this.foodes = foodes;
     this.points = points;
     this.running = running;
     this.runonce = runonce;
@@ -67,6 +68,7 @@ class Island {
       lastInvocation === 0 ? new Date().getTime() : lastInvocation;
     this.territory = [];
     this.penguins = [];
+    this.fishes = [];
    
 
     let matrix = [];
@@ -196,7 +198,7 @@ class Island {
 
       // randomly add some penguins
 
-      let pengNum = 1; // Math.floor(Math.random() * 2) + 4;
+      let pengNum = Math.floor(Math.random() * 2) + 4;
       let pengCnt = 0;
 
       while (pengCnt < pengNum) {
@@ -219,7 +221,32 @@ class Island {
         }
       }
 
-      // addIsland(this);
+      // randomly add some fishes
+
+      let fishNum = Math.floor(Math.random() * 2) + 4;
+      let fishCnt = 0;
+
+      while (fishCnt < fishNum) {
+        let hpos = Math.floor(Math.random() * this.sizeH);
+        let lpos = Math.floor(Math.random() * this.sizeL);
+        let land = this.territory[hpos][lpos];
+
+        if (land && land.getType() === 0 && ! land.hasFish) {
+          // && this.penguins.length < 1) {
+          let fish = new Fish(
+            0, // this.numPeng++,
+            hpos,
+            lpos,
+            this.id,
+            []
+          );
+
+          land.addFish();
+
+          this.fishes.push(fish);
+          fishCnt++;
+        }
+      }
     }
   } // constructor ()
 
@@ -227,8 +254,8 @@ class Island {
     this.tiles += 1;
   }
 
-  addFish() {
-    this.fishes += 1;
+  addFood() {
+    this.foodes += 1;
   }
 
   addPoints(points) {
@@ -262,7 +289,7 @@ class Island {
 
   hasPenguin(x, y) {
     const land = this.territory[x][y];
-    if (land.checkPenguin()) {
+    if (land.hasPenguin()) {
       return true;
     }
     return false;
@@ -270,6 +297,18 @@ class Island {
 
   getPenguins() {
     return this.penguins;
+  }
+
+  hasFish(x, y) {
+    const land = this.territory[x][y];
+    if (land.hasFish()) {
+      return true;
+    }
+    return false;
+  }
+
+  getFishes() {
+    return this.fishes;
   }
 
   // elevate a plot os land - can be called recusrsively to elevate adjacent plots of land
@@ -301,7 +340,7 @@ class Island {
 
   reset() {
     this.tiles = 5;
-    this.fishes = 5;
+    this.foodes = 5;
     this.points = 0;
   }
 
@@ -537,6 +576,10 @@ class Island {
       }
     });
 
+    this.fishes.forEach((fish) => {
+        this.territory[fish.hpos][fish.lpos].setFish(true);
+    });
+
     // for (let i = 0; i < this.sizeH; i++) {
     //   for (let j = 0; j < this.sizeL; j++) {
     //     if (this.territory[i][j]) {
@@ -552,27 +595,27 @@ class Island {
     
   } // movePenguins()
 
-  // ramdomly add and remove some swimmig fishes
+  // ramdomly add and remove some fishmig fishes
 
-  addSwims(iceTiles) {
+  addStuff(iceTiles) {
     // if (!this.running) {
     //   return;
     // }
 
-    let cntSwim = 0;
+    let cntFish = 0;
     let cntIce = 0;
 
     for (let i = 0; i < this.sizeH; i++) {
       for (let j = 0; j < this.sizeL; j++) {
         let land = this.territory[i][j];
 
-        if (land.hasSwim) {
-          if (Math.floor(Math.random() * 20) === 0) {
-            land.removeSwim();
-          } else {
-            cntSwim += 1;
-          }
-        }
+        // if (land.hasFish) {
+        //   if (Math.floor(Math.random() * 20) === 0) {
+        //     land.removeFish();
+        //   } else {
+        //     cntFish += 1;
+        //   }
+        // }
 
         if (land.hasIce) {
           cntIce += 1;
@@ -582,10 +625,10 @@ class Island {
       }
     }
 
-    // console.log("----> " + cntSwim)
+    // console.log("----> " + cntFish)
 
-    // randomly add some swimming getFishes
-    if (cntSwim < 6) {
+    // randomly add some fishming getfoodes
+    if (cntIce < 6) {
       let hpos = Math.floor(Math.random() * (this.sizeH - 2)) + 1;
       let lpos = Math.floor(Math.random() * (this.sizeL - 2)) + 1;
       let land = this.territory[hpos][lpos];
@@ -593,13 +636,16 @@ class Island {
       // console.log("----> " + hpos + "/" +lpos)
 
       if (land) {
-        if ( land.getType() === 0) {
-        // && this.penguins.length < 1) {
-        land.addSwim();
-        } else if (cntIce < 6 && iceTiles && !land.hasPenguin && !land.hasCross && !land.hasFish) {
+        if ( land.getType() !== 0 && iceTiles && !land.hasPenguin && !land.hasCross && !land.hasFood) {
           land.addIce();
         }
       }
+    }
+  }
+
+  moveFishes() {
+    if (!this.running) {
+      return;
     }
   }
 
@@ -674,11 +720,11 @@ class Island {
 
     log(realm,source,"setWeather","island = " + this.id);
 
-    // add some random fishes or tiles
+    // add some random foodes or tiles
 
     switch (Math.floor(Math.random() * 40)) {
       case 0:
-        this.addFish();
+        this.addFood();
         break;
       case 1:
         this.addTile();
@@ -694,7 +740,7 @@ class Island {
       }
 
       if (newWeather === 0) {
-        this.addFish();
+        this.addFood();
       } else if (newWeather === 1) {
         this.addTile();
       }
@@ -955,10 +1001,10 @@ class Island {
           line2 += acts[penguinpos[h][l]];
         } else {
           let land = this.territory[h][l];
-          if (land.hasSwim) {
+          if (land.hasFish) {
             line1 += "><o>";
             line2 += "    ";
-          } else if (land.hasFish) {
+          } else if (land.hasFood) {
             if (land.type ==1) {
               let ice = Math.floor(land.conf / 2);
               line1 += "><o>";

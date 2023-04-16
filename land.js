@@ -21,9 +21,9 @@ class Land {
     avar = 0,
     hasCross = false,
     crossAge = 0,
+    hasFood = false,
     hasFish = false,
-    hasSwim = false,
-    swimAge = 0,
+    fishAge = 0,
     hasIce = false,
     iceAge = 0
   ) {
@@ -37,11 +37,11 @@ class Land {
       avar === 0 ? (Math.floor(Math.random() * 2) === 1 ? "a" : "b") : avar;
     this.hasCross = hasCross;
     this.crossAge = crossAge;
+    this.hasFood = hasFood;
     this.hasFish = hasFish;
-    this.hasSwim = hasSwim;
     this.hasIce = hasIce;
     this.iceAge = iceAge;
-    this.swimAge = swimAge;
+    this.fishAge = fishAge;
 
     this.changed = true;
     this.isTarget = false;
@@ -49,7 +49,7 @@ class Land {
     this.islandSize = 0;
     this.islandPopulation = 0;
 
-    // if (hasSwim ) console.log("Youp");
+    // if (hasFish ) console.log("Youp");
 
 
   }
@@ -60,6 +60,10 @@ class Land {
 
   setPenguin(hasPenguin) {
     this.hasPenguin = hasPenguin;
+  }
+
+  setFish(hasFish) {
+    this.hasFish = hasFish;
   }
 
   setLand(num) {
@@ -84,9 +88,9 @@ class Land {
       this.crossAge -= 1;
       this.hasCross = this.crossAge > 0;
     }
-    if (this.swimAge > 0) {
-      this.swimAge -= 1;
-      this.hasSwim = this.swimAge > 0;
+    if (this.fishAge > 0) {
+      this.fishAge -= 1;
+      this.hasFish = this.fishAge > 0;
     } 
     if (this.iceAge > 0) {
       this.iceAge -= 1;
@@ -118,11 +122,11 @@ class Land {
 
 
   removeFish() {
-    this.hasFish = false;
+    this.hasFood = false;
   }
 
   canFish() {
-    return this.hasSwim && this.swimAge === 0;
+    return this.hasFish && this.fishAge === 0;
   }
 
   setRandomSmeltLevel(waterBorders) {
@@ -151,30 +155,30 @@ class Land {
     return this.var;
   }
 
-  // return true if there is a swimming fish
-  swim() {
-    return this.hasSwim || this.swimAge > 0;
+  // return true if there is a fishming fish
+  fish() {
+    return this.hasFish || this.fishAge > 0;
   }
 
-  // add a swimming fish
-  addSwim() {
+  // add a fishming fish
+  addFish() {
 
-    // console.log("addswim at " + this.hpos + " " + this.lpos)
+    // console.log("addfish at " + this.hpos + " " + this.lpos)
 
-    this.hasSwim = true;
+    this.hasFish = true;
     this.changed = true;
   }
 
-  // remove a swimming fish
-  removeSwim() {
-    this.hasSwim = false;
+  // remove a fishming fish
+  removeFish() {
+    this.hasFish = false;
     this.changed = true;
   }
 
-  // add a swimming fish
+  // add ice
   addIce() {
 
-    // console.log("addswim at " + this.hpos + " " + this.lpos)
+    console.log("addice at " + this.hpos + " " + this.lpos)
 
     this.hasIce = true;
     this.changed = true;
@@ -197,10 +201,10 @@ class Land {
     this.changed = true;
   }
 
-  // begin fishing a swimming fish
-  fishSwim() {
-    this.hasSwim = true;
-    this.swimAge = 6;
+  // begin fishing a fishming fish
+  fishFish() {
+    this.hasFish = true;
+    this.fishAge = 6;
     this.changed = true;
   }
 
