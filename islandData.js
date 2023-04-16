@@ -1,6 +1,6 @@
 // DB stuff
-const dbhelperReq = require("./dynamohelper.js"); 
-// const dbhelperReq = require("./acebasehelper.js");
+// const dbhelperReq = require("./dynamohelper.js"); 
+const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -15,13 +15,12 @@ const source = "islandData.js";
 
 const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
-const sessionReq = require("./session.js");
 const islandReq = require("./island.js");
 
 let Island = islandReq.Island;
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
-let Session = sessionReq.Session;
+
 let putItem = dbhelperReq.putItem;
 let deleteItem = dbhelperReq.deleteItem;
 let getAsyncItems = dbhelperReq.getAsyncItems;
@@ -58,7 +57,9 @@ const persistIsland = (island) => {
         hasFish: land.hasFish,
         hasSwim: land.hasSwim,
         swimAge: land.swimAge,
-        hasIce: land.hasIce};
+        hasIce: land.hasIce,
+        iceAge: land.iceAge
+      };
       
       lands.push(aLand);
     }
@@ -71,7 +72,7 @@ const persistIsland = (island) => {
     const aPenguin = {
       id: penguin.id,
       islandId: penguin.islandId,
-      moveLog: penguin.moveLog,
+      // moveLog: penguin.moveLog,
       num: penguin.num,
       hpos: penguin.hpos,
       lpos: penguin.lpos,
@@ -91,6 +92,12 @@ const persistIsland = (island) => {
       fishDirection: penguin.fishDirection,
       eating: penguin.eating,
       moving: penguin.moving,
+      diging: penguin.diging,
+      digTime: penguin.digTime,
+      digDirection: penguin.digDirection,
+      filling: penguin.filling,
+      fillTime: penguin.fillTime,
+      fillDirection: penguin.fillDirection,
       hasLoved: penguin.hasLoved,
       fatherId: penguin.fatherId,
       motherId: penguin.motherId,
@@ -101,9 +108,12 @@ const persistIsland = (island) => {
       hasIce: penguin.hasIce,
       building: penguin.building,
       buildingDirection: penguin.buildingDirection,
-      goalHPos: penguin.goalHPos,
-      goalLPOs: penguin.goalLPOs,
-      goalType: penguin.goalType
+      targetHPos: penguin.targetHPos,
+      targetLPos: penguin.targetLPos,
+      targetAction: penguin.targetAction,
+      knownWorld: penguin.knownWorld,
+      targetDirections: penguin.targetDirections,
+      path: penguin.path
     };
     penguins.push(aPenguin);
   });
@@ -121,12 +131,16 @@ const persistIsland = (island) => {
     fishes: island.fishes,
     points: island.points,
     running: island.running,
+    runonce: island.runonce,
     lastInvocation: island.lastInvocation,
     followId: island.followId ? island.followId : 0,
     lands: lands,
     penguins: penguins,
     counter: island.counter,
   }, island.id);
+  
+  //console.dir(penguins);
+  
 };
 
 const persistIslandData = async (island) => {
@@ -157,6 +171,7 @@ const persistIslandData = async (island) => {
     fishes: island.fishes,
     points: island.points,
     running: island.running,
+    runonce: island.runonce,
     lastInvocation: island.lastInvocation,
     followId: island.followId ? island.followId : 0,
     lands: island.lands,
@@ -206,6 +221,7 @@ const initiateIslands = async (islandParam=null) => {
             anIsland.fishes,
             anIsland.points,
             anIsland.running,
+            anIsland.runonce,
             anIsland.lastInvocation,
             anIsland.followId,
             anIsland.counter
@@ -234,7 +250,8 @@ const initiateIslands = async (islandParam=null) => {
                 aLand.hasFish,
                 aLand.hasSwim,
                 aLand.swimAge,
-                aLand.hasIce
+                aLand.hasIce,
+                aLand.iceAge
               );
               island.territory[aLand.hpos][aLand.lpos] = land;
             });
@@ -249,7 +266,7 @@ const initiateIslands = async (islandParam=null) => {
                 aPenguin.hpos,
                 aPenguin.lpos,
                 island.id,
-                aPenguin.moveLog,
+                // aPenguin.moveLog,
                 aPenguin.fatherId,
                 aPenguin.motherId,
                 aPenguin.id,
@@ -269,6 +286,12 @@ const initiateIslands = async (islandParam=null) => {
                 aPenguin.fishDirection,
                 aPenguin.eating,
                 aPenguin.moving,
+                aPenguin.diging,
+                aPenguin.digTime,
+                aPenguin.digDirection,
+                aPenguin.filling,
+                aPenguin.fillTime,
+                aPenguin.fillDirection,
                 aPenguin.hasLoved,
                 aPenguin.partnerId,
                 aPenguin.moveDirection,
@@ -276,9 +299,12 @@ const initiateIslands = async (islandParam=null) => {
                 aPenguin.hasIce,
                 aPenguin.building,
                 aPenguin.buildingDirection,
-                aPenguin.goalHPos,
-                aPenguin.goalLPOs,
-                aPenguin.goalType
+                aPenguin.targetHPos,
+                aPenguin.targetLPos,
+                aPenguin.targetAction,
+                aPenguin.knownWorld,
+                aPenguin.targetDirections,
+                aPenguin.path
               );
               penguins.push(penguin);
               

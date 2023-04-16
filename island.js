@@ -1,4 +1,4 @@
-// const colors = require('colors/safe')
+  // const colors = require('colors/safe')
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -40,6 +40,7 @@ class Island {
     fishes = 5,
     points = 0,
     running = true,
+    runonce = false,
     lastInvocation = 0,
     followId = 0,
     counter = 0
@@ -58,6 +59,7 @@ class Island {
     this.fishes = fishes;
     this.points = points;
     this.running = running;
+    this.runonce = runonce;
     this.followId = followId;
     this.counter = counter;
 
@@ -65,7 +67,7 @@ class Island {
       lastInvocation === 0 ? new Date().getTime() : lastInvocation;
     this.territory = [];
     this.penguins = [];
-    // this.sessions = session;
+   
 
     let matrix = [];
 
@@ -194,7 +196,7 @@ class Island {
 
       // randomly add some penguins
 
-      let pengNum = Math.floor(Math.random() * 2) + 4;
+      let pengNum = 1; // Math.floor(Math.random() * 2) + 4;
       let pengCnt = 0;
 
       while (pengCnt < pengNum) {
@@ -301,8 +303,6 @@ class Island {
     this.tiles = 5;
     this.fishes = 5;
     this.points = 0;
-
-    log(realm, source, "reset", "Session reset with id " + this.id);
   }
 
   // Decrease or increase the amount of ice
@@ -311,6 +311,8 @@ class Island {
     if (!this.running) {
       return;
     }
+
+    log(realm,source,"smelt","island = " + this.id);
 
     // Randomly decrease some terrain parts
     for (let i = 0; i < this.sizeH * 2; i++) {
@@ -331,6 +333,14 @@ class Island {
             land.increaseConf();
           } else {
             land.setType(0);
+
+            // Ice sinks and dissapears
+            
+            if (land.hasIce) {
+              land.hasIce = false;
+            }  
+            
+            // If penguins are on the land, they sink
 
             let sinkingPenguins = this.penguins.filter(
               (penguin) => penguin.hpos === hpos && penguin.lpos === lpos && penguin.alive
@@ -374,21 +384,21 @@ class Island {
   // Move all the penguins of this island
 
   movePenguins() {
+    
+    //            0  1  2  3  4  5  6  7  8
+    //               l  r  u  d rd ru ld lu
+    let lmoves = [0, -1, 1, 0, 0, 1, 1, -1, -1];
+    let hmoves = [0, 0, 0, -1, 1, 1, -1, 1, -1];
+    
     // check if there are still alive penguins
 
-    log(
-      realm,
-      source,
-      "movePenguins",
-      "count for island " + this.id + " = " + this.counter
-    );
+    log(realm, source, "movePenguins", "count for island " + this.id + " = " + this.counter);
 
     let cntPenguins = this.penguins.filter((penguin) => penguin.alive).length;
 
     if (cntPenguins < 1) {
       this.running = false;
       this.weather = 4;
-
       log(realm, source, "movePenguins", "endgame");
     }
 
@@ -398,18 +408,19 @@ class Island {
       for (let j = 0; j < this.sizeL; j++) {
         if (this.territory[i][j]) {
           this.territory[i][j].isTarget = false;
+          this.territory[i][j].hasPenguin = false;
         }
       }
     }
 
-    // set the target flag if there are penguins erating, fishing or loving
+    // set the target flag if there are penguins eating, fishing or loving
 
     let alivePenguins = 0;
 
     this.penguins.forEach((penguin) => {
       if (penguin.alive) {
         alivePenguins++;
-        if (penguin.isEating() || penguin.isFishing() || penguin.isLoving()) {
+        if (penguin.isEating() || penguin.isFishing() || penguin.isLoving() || penguin.isDiging()) {
           this.territory[penguin.hpos][penguin.lpos].setTarget(true);
         }
       }
@@ -424,231 +435,122 @@ class Island {
         let pengL = penguin.lpos;
 
         let islandSize = this.territory[pengH][pengL].getIslandSize();
-        let islandPopulation =
-          this.territory[pengH][pengL].getIslandPopulation();
+        let islandPopulation = this.territory[pengH][pengL].getIslandPopulation();
+        
+        // calculating the target
 
-        if (
-          !penguin.isEating() &&
-          !penguin.isLoving() &&
-          !penguin.isFishing()
-        ) {
-          penguin.getStrategicMap(this);
-
-          // Is the penguin hungry ? Lets see if it can eat or fish
-
-          if (penguin.hungry >= 0) {
-            //  30) {
-            // Gonna Eat ?
-
-            if (this.territory[penguin.hpos][penguin.lpos].hasFish) {
-              this.territory[pengH][pengL].removeFish();
-              penguin.eat();
-              this.territory[pengH][pengL].setTarget(true);
-              this.addPoints(100);
-            }
-
-            // Fishing ?
-
-            let fishmoves = [];
-
-            if (this.territory[pengH][pengL - 1].canFish()) fishmoves.push(1);
-            if (this.territory[pengH][pengL + 1].canFish()) fishmoves.push(2);
-            if (this.territory[pengH - 1][pengL].canFish()) fishmoves.push(3);
-            if (this.territory[pengH + 1][pengL].canFish()) fishmoves.push(4);
-
-            // if (penguin.age > 6 && fishmoves.length > 0) {
-            if (fishmoves.length > 0) {
-              let fishmove =
-                fishmoves[Math.floor(Math.random() * fishmoves.length)];
-              log(
-                realm,
-                source,
-                "movePenguins",
-                `${penguin.name} is going to fish at direction ${fishmove}`
-              );
-
-              penguin.fish(fishmove);
-
-              this.territory[pengH][pengL].setTarget(true);
-
-              let swimlpos = fishmove === 1 ? pengL - 1 : pengL;
-              swimlpos = fishmove === 2 ? pengL + 1 : swimlpos;
-              let swimhpos = fishmove === 3 ? pengH - 1 : pengH;
-              swimhpos = fishmove === 4 ? pengH + 1 : swimhpos;
-              this.territory[swimhpos][swimlpos].fishSwim();
-            }
-          } // if hungry > 30
-        } // not eating, fishing or loving
-
-        // Gonna love ? Only is there is enough room
-        if (
-          !penguin.isEating() &&
-          !penguin.isLoving() &&
-          !penguin.isFishing()
-        ) {
-          let lover = this.getLover(penguin.gender, pengH, pengL);
-          if (lover && penguin.canLove(lover.id)) {
-            if (islandPopulation / islandSize > 0.5) {
-              log(
-                realm,
-                source,
-                "movePenguins",
-                `can't love : sub-island population: ${islandPopulation} size: ${islandSize} = ${
-                  islandPopulation / islandSize
-                }`
-              );
-            } else if (alivePenguins >= this.landSize / 5) {
-              log(
-                realm,
-                source,
-                "movePenguins",
-                `can't love : population: ${alivePenguins} tiles : ${this.landSize}`
-              );
-            } else {
-              penguin.love(lover.id);
-              lover.love(this.id);
-              this.territory[pengH][pengL].setTarget(true);
-              this.addPoints(200);
-            } // pop/size > 0.5
-          } // if canlove
-        } // not eating, fishing or loving
-
+        const target = penguin.getStrategicMap(this,islandSize,islandPopulation, alivePenguins);
+        
+        // console.dir(target)
         // No doing anything else - can the penguin move  ?
 
-        if (
-          !penguin.isEating() &&
-          !penguin.isLoving() &&
-          !penguin.isFishing()
-        ) {
-          if (islandPopulation / islandSize > 0.79) {
-            penguin.wait();
-            this.territory[pengH][pengL].setTarget(true);
-            log(
-              realm,
-              source,
-              "movePenguins",
-              `on ${this.name} island for ${
-                penguin.name
-              } is too crowded (size: ${islandSize} and population: ${islandPopulation} = ${
-                islandPopulation / islandSize
-              })`
-            );
-          } else {
-            let move = 0;
-
-            //            0  1  2  3  4  5  6  7  8
-            //               l  r  u  d rd ru ld lu
-            let lmoves = [0, -1, 1, 0, 0, 1, 1, -1, -1];
-            let hmoves = [0, 0, 0, -1, 1, 1, -1, 1, -1];
-            let movestxt = ["-", "l", "r", "u", "d", "rd", "ru", "ld", "lu"];
-
-            if (penguin.hasTarget()) {
-              let directions = penguin.getDirections();
-
-              log(
-                realm,
-                source,
-                "movePenguins",
-                "penguin " +
-                  penguin.id +
-                  " at  " +
-                  penguin.hpos +
-                  "/" +
-                  penguin.lpos +
-                  " hasTarget : " +
-                  directions[0] +
-                  "-" +
-                  directions[1]
-              );
-
-              for (
-                let curDir = 0;
-                curDir < penguin.getDirections().length && move === 0;
-                curDir++
-              ) {
-                let curmove = directions[curDir];
-                if (
-                  (curmove === 1 &&
-                    this.territory[pengH][pengL - 1].canMove()) ||
-                  (curmove === 2 &&
-                    this.territory[pengH][pengL + 1].canMove()) ||
-                  (curmove === 3 &&
-                    this.territory[pengH - 1][pengL].canMove()) ||
-                  (curmove === 4 && this.territory[pengH + 1][pengL].canMove())
-                )
-                  move = curmove;
-              }
-            }
-
-            let hasOther = this.penguins.some(
-              (other) =>
-                other.id !== penguin.id &&
-                other.hpos === penguin.hpos &&
-                other.lpos === penguin.lpos
-            );
-
-            if (penguin.wantsSearch() || hasOther) {
-              let posmoves = [];
-              if (this.territory[pengH][pengL - 1].canMove()) posmoves.push(1);
-              if (this.territory[pengH][pengL + 1].canMove()) posmoves.push(2);
-              if (this.territory[pengH - 1][pengL].canMove()) posmoves.push(3);
-              if (this.territory[pengH + 1][pengL].canMove()) posmoves.push(4);
-
-              // if (Math.floor(Math.random() * 10) === 0 || posmoves.length === 0 ){
-              if (posmoves.length === 0) {
-                move = 0;
-              } else {
-                let aPosMove = Math.floor(Math.random() * posmoves.length);
-                move = posmoves[aPosMove];
-              }
-            }
-
-            // No move => wait
-
-            if (move === 0) {
-              log(
-                realm,
-                source,
-                "movePenguin",
-                `${penguin.name} Staying still`
-              );
-
+        if (! target.followUp) {
+          switch(target.action) {
+            case 0: 
+              log(realm, source, "movePenguin",`${penguin.name} Staying still`);
               penguin.wait();
-              this.territory[pengH][pengL].setTarget(true);
-            } else {
-              this.addPoints(10);
+              this.territory[penguin.hpos][penguin.lpos].setTarget(true);
+              break;
+            case 1:
+              let move = 0;
+              log(realm,source,"movePenguins","penguin " +
+                    penguin.id +
+                    " at  " +
+                    penguin.hpos +
+                    "/" +
+                    penguin.lpos +
+                    " hasTarget : " +
+                    target.directions[0] +
+                    "-" +
+                    target.directions[1]
+                );
 
-              let l = penguin.lpos + lmoves[move];
-              let h = penguin.hpos + hmoves[move];
-
-              if (this.territory[h][l].getType() > 0) {
-                penguin.setPos(move, h, l);
-                this.territory[h][l].setTarget(true);
-              } else {
-                penguin.wait();
-                this.territory[h][l].setTarget(true);
+              for (let curDir = 0; curDir < target.directions.length && move === 0; curDir++) {
+                let curmove = target.directions[curDir];
+                if ((curmove === 1 && this.territory[penguin.hpos][penguin.lpos - 1].canMove()) ||
+                    (curmove === 2 && this.territory[penguin.hpos][penguin.lpos + 1].canMove()) ||
+                    (curmove === 3 && this.territory[penguin.hpos - 1][penguin.lpos].canMove()) ||
+                    (curmove === 4 && this.territory[penguin.hpos + 1][penguin.lpos].canMove()))
+                    move = curmove;
               }
-            } // is territory > 0
-          } // NOT TO CROWDED
-        } // not eating, fishing or loving
+
+              // No move => wait
+              if (move === 0) {
+                log(realm, source, "movePenguin",`${penguin.name} No possible move found`);
+                penguin.wait();
+                this.territory[penguin.hpos][penguin.lpos].setTarget(true);
+              } else {
+                this.addPoints(10);
+
+                let l = penguin.lpos + lmoves[move];
+                let h = penguin.hpos + hmoves[move];
+
+                if (this.territory[h][l].getType() > 0) {
+                  penguin.setPos(move, h, l);
+                  this.territory[h][l].setTarget(true);
+                } else {
+                  penguin.wait();
+                  this.territory[penguin.hpos][penguin.lpos].setTarget(true);
+                } 
+              } // move === 0
+              
+              break;
+            case 3:
+              this.territory[penguin.hpos][penguin.lpos].removeFish();
+              penguin.eat();
+              this.territory[penguin.hpos][penguin.lpos].setTarget(true);
+              this.addPoints(100);
+              break;
+            case 4:
+              penguin.love(target.loverId);
+              this.territory[penguin.hpos][penguin.lpos].setTarget(true);
+              this.addPoints(200);
+              break;
+            case 7:
+              log(realm, source, "movePenguins", `${penguin.name} is going to fish at direction ${target.actionDirection}`);
+              penguin.fish(target.actionDirection);
+              this.territory[penguin.hpos][penguin.lpos].setTarget(true);
+              break;
+            case 8:
+              log(realm, source, "movePenguins", `${penguin.name} is going to dig at direction ${target.actionDirection}`);
+              penguin.dig(target.actionDirection);
+              this.territory[penguin.hpos][penguin.lpos].setTarget(true);
+              break;
+            case 9:
+
+              // console.log(`>>>> ${penguin.name} is going to fill at direction ${target.actionDirection}`)
+
+              log(realm, source, "movePenguins", `${penguin.name} is going to fill at direction ${target.actionDirection}`);
+              penguin.fill(target.actionDirection);
+              this.territory[penguin.hpos][penguin.lpos].setTarget(true);
+              break;
+            } // switch on target
+        } // ! FolloowUp
       } // is penguin alive
     }); // forEach
 
-    for (let penguin of this.penguins) {
-      penguin.calculateWealth(this, penguin.hpos, penguin.lpos);
-    }
-  } // movePenguins()
+    // tagging all the lands with a penguin, so they don't receive ice
 
-  // Goes through all the alive penguins and ask them to generate an initial move + the eat or love move
-
-  resetPenguins(session) {
     this.penguins.forEach((penguin) => {
-      // First check if the penguin is alive
       if (penguin.alive) {
-        penguin.resetPos([session]);
+        this.territory[penguin.hpos][penguin.lpos].setPenguin(true);
       }
     });
-  }
+
+    // for (let i = 0; i < this.sizeH; i++) {
+    //   for (let j = 0; j < this.sizeL; j++) {
+    //     if (this.territory[i][j]) {
+    //       if (this.territory[i][j].isTarget) console.log("target " + i + "/" + j);
+    //     }
+    //   }
+    // }
+
+
+    for (let penguin of this.penguins) {
+       penguin.calculateWealth(this, penguin.hpos, penguin.lpos);
+    }
+    
+  } // movePenguins()
 
   // ramdomly add and remove some swimmig fishes
 
@@ -694,7 +596,7 @@ class Island {
         if ( land.getType() === 0) {
         // && this.penguins.length < 1) {
         land.addSwim();
-        } else if (cntIce < 6 && iceTiles) {
+        } else if (cntIce < 6 && iceTiles && !land.hasPenguin && !land.hasCross && !land.hasFish) {
           land.addIce();
         }
       }
@@ -721,7 +623,7 @@ class Island {
           realm,
           source,
           "makePenguinsOlder",
-          "is = " + this.id + " penguin=" + penguin.id
+          "island = " + this.id + " penguin=" + penguin.id
         );
 
         switch (status.returncode) {
@@ -749,6 +651,14 @@ class Island {
               );
               this.penguins.push(child);
             }
+            break;  
+          case 3: // filled
+            l = status.fillLPos;
+            h = status.fillHPos;
+
+            // console.log(">>> Going to fill " + h + "/" + l)
+
+            this.territory[h][l].setLand(1);
             break;
         } // switch
       } // alive
@@ -757,10 +667,12 @@ class Island {
 
   // Changing the weather - this will happen any time between 4 and 12 cycles
 
-  setWeather(session) {
+  setWeather() {
     if (!this.running) {
       return;
     }
+
+    log(realm,source,"setWeather","island = " + this.id);
 
     // add some random fishes or tiles
 
@@ -919,7 +831,7 @@ class Island {
     const hunger = ["#####", ".####", "..###", "...##","....#","....."]
     const health = ["-----", "----+", "---++", "--+++","-++++","+++++" ]
     const eyes = ["  ","oo","ôô","öö","@@","©©","°°","õõ","88","99","oo","oo"]
-    const actImg = ["(\\/)","(<>)"," ()/","(  )"]
+    const actImg = ["(\\/)","(<>)","()/|","(  )","()-■"]
     const acts = ["═╬╬═","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬"];
     for (let h = 0; h < this.sizeH; h++) {
       let line = [];
@@ -931,7 +843,7 @@ class Island {
 
     let top =
       "|" +
-      (" " + this.name.toUpperCase() + " (" + this.id + ") " + (this.running?"(run) ":"(end) ") + this.points + " pts " + weathers[this.weather] + "                                                     ").substring(
+      (" " + this.name.toUpperCase() + " (" + this.id + ") " + (this.running?this.counter:"end") + " " + this.points + " pts " + weathers[this.weather] + "                                                     ").substring(
         0,
         this.sizeH * 4
       ) +
@@ -955,6 +867,8 @@ class Island {
           activity = 2;
         } else if (penguin.loving > 0) {
           activity = 3;
+        } else if (penguin.diging > 0) {
+          activity = 4;
         }
         penguinpos[penguin.hpos][penguin.lpos] = cnt;
         var status = penguin.gender.substring(0,1) + "/" + Math.floor(penguin.age) + "/" + shapes[penguin.fat]
@@ -970,62 +884,64 @@ class Island {
     results.push(mid);
 
     let lands1 = [
-      ". . ",
-      "████",
-      "████",
-      "████",
-      "████",
-      "████",
-      "████",
-      "████",
-      "████",
-      "████",
+      "    ",
+      "####",
+      "####",
+      "####",
+      "####",
+      "####",
+      "####",
+      "####",
+      "####",
+      "####",
+      "####", 
     ];
     let lands2 = [
-      " . .",
-      "████",
-      "████",
-      "████",
-      "████",
-      "████",
-      "████",
-      "████",
-      "████",
-      "████",
+      "    ",
+      "####",
+      "####",
+      "####",
+      "####",
+      "####",
+      "####",
+      "####",
+      "####",
+      "####",
+      "####", 
     ];
 
     let ice1 = [
-      "▓▓▓▓",
-      "▓▓▓▓",
-      "▓▓▓▓",
-      "▒▒▒▒",
-      "▒▒▒▒",
-      "▒▒▒▒",
-      "░░░░",
-      "░░░░",
-      "░░░░",
+      "====",
+      "====",
+      "====",
+      "----",
+      "----",
+      "----",
+      "....",
+      "....",
+      "....",
     ];
     let ice2 = [
-      "▓▓▓▓",
-      "▓▓▓▓",
-      "▓▓▓▓",
-      "▒▒▒▒",
-      "▒▒▒▒",
-      "▒▒▒▒",
-      "░░░░",
-      "░░░░",
-      "░░░░"
+      "====",
+      "====",
+      "====",
+      "----",
+      "----",
+      "----",
+      "....",
+      "....",
+      "....",
     ];
     let iceblock = [
-      "▓",
-      "▓",
-      "▓",
-      "▒",
-      "▒",
-      "▒",
-      "░",
-      "░",
-      "░"
+      "=",
+      "=",
+      "=",
+      "-",
+      "-",
+      "-",
+      ".",
+      ".",
+      "."
     ];
 
 
@@ -1041,7 +957,7 @@ class Island {
           let land = this.territory[h][l];
           if (land.hasSwim) {
             line1 += "><o>";
-            line2 += " . .";
+            line2 += "    ";
           } else if (land.hasFish) {
             if (land.type ==1) {
               let ice = Math.floor(land.conf / 2);
@@ -1057,8 +973,8 @@ class Island {
               line1 += iceblock[ice] + "╔╗" + iceblock[ice];
               line2 += iceblock[ice] + "╚╝" + iceblock[ice];    
             } else {
-              line1 += "█╔╗█";
-              line2 += "█╚╝█";
+              line1 += "#╔╗#";
+              line2 += "#╚╝#";
             }    
           } else if (land.hasCross) {
             line1 += "(++)";

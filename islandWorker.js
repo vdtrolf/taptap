@@ -1,6 +1,6 @@
 // DB stuff
-const dbhelperReq = require("./dynamohelper.js"); 
-// const dbhelperReq = require("./acebasehelper.js");
+// const dbhelperReq = require("./dynamohelper.js"); 
+const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -41,12 +41,40 @@ const getInitData = async (island) => {
     islandSize: island.landSize,
   };
 
-  //let session = island.sessions.find((session) => session.id === sessionId);
-
   log(realm, source, "getInitData", result, LOGVERB, LOGDATA);
 
   return result;
 };
+
+
+// To switch the running state from the island on/off
+
+const setRunningState = async (islandId, runningState) => {
+
+  let islandData = await getItem("island", islandId);
+
+ // console.log(">>>>> set Running state for " + islandId + " to " + runningState + " was " + islandData.running)
+
+  islandData.running =  runningState;
+  await persistIslandData(islandData);
+
+  return true;
+}
+
+// To run the island state once
+
+const runonce = async (islandId) => {
+  let islandData = await getItem("island", islandId);
+
+  // console.log(">>>>> runOnce " + islandId + " was " + islandData.runonce);
+
+  if (! islandData.runonce) {
+    islandData.runonce = true;
+    await persistIslandData(islandData);
+  }
+
+  return true;
+}
 
 // To be used when the island has been persisted
 // Creates a result set based on the island data in the DB
@@ -164,6 +192,8 @@ const getIslandData = async (
       islandId: islandData.id,
       islandSize: islandData.landSize,
       counter: islandData.counter,
+      running: islandData.running,
+      runonce: islandData.runonce
     };
 
     log(realm, source, "getIslandData", result, LOGVERB, LOGDATA);
@@ -199,10 +229,6 @@ const getMovesData = async (islandId, penguinFollowId) => {
       "found is=" + islandData.id + " fId=" + islandData.penguinFollowId
     );
 
-    // console.log("========_____________");
-    // console.dir(islandData.sessions);
-    // console.log("========_____________");
-
     result = {
       points: islandData.points,
       islandSize: islandData.landSize,
@@ -222,7 +248,7 @@ const getMovesData = async (islandId, penguinFollowId) => {
       realm,
       source,
       "getMovesData",
-      "no island data found for " + sessionData.islandId,
+      "no island data found for " + islandId,
       LOGERR
     );
   }
@@ -317,6 +343,7 @@ const getImg = (territory, islandH, islandL) => {
         col: j,
         ti: tile,
         type: territory[i][j].type,
+        age: territory[i][j].iceAge,
         num: territory[i][j].conf,
         var: territory[i][j].var,
         art: artifact,
@@ -364,4 +391,6 @@ module.exports = {
   getMovesData: getMovesData,
   getIslandsList: getIslandsList,
   deleteIsland: deleteIsland,
+  setRunningState: setRunningState,
+  runonce: runonce
 };

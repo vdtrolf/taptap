@@ -1,6 +1,6 @@
 // DB stuff
-const dbhelperReq = require("./dynamohelper.js"); 
-// const dbhelperReq = require("./acebasehelper.js");
+// const dbhelperReq = require("./dynamohelper.js"); 
+const dbhelperReq = require("./acebasehelper.js");
 
 const readline = require('readline')
 const colors = require('colors/safe')
@@ -36,7 +36,7 @@ const printList = (islands) => {
   print('');
   print("+---- ISLANDS ----------------------------------------------+");
   islands.forEach(island => {
-    line = "| " + ++cnt + " " + island.id + " " + island.name + " " + (island.running?"(r) ":"(s) ") + island.points + " pts " + island.penguins.length + " penguins follow: " + island.followId + "                                                            ";
+    line = "| " + ++cnt + " " + island.id + " " + island.name + " " + (island.running?island.counter:"end") + " "+ island.points + " pts " + island.penguins.length + " penguins follow: " + island.followId + "                                                            ";
     print(line.substring(0,60) + "|");
     islandList[cnt] = island.id
   });

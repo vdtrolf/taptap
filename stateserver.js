@@ -1,6 +1,6 @@
 // DB stuff
-const dbhelperReq = require("./dynamohelper.js"); 
-// const dbhelperReq = require("./acebasehelper.js");
+// const dbhelperReq = require("./dynamohelper.js"); 
+const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -13,7 +13,6 @@ const source = "stateserver.js";
 
 const islandReq = require("./island.js");
 const islandDataReq = require("./islandData.js");
-const sessionReq = require("./session.js");
 
 let createDb = dbhelperReq.createDb;
 let getIslands = islandReq.getIslands;
@@ -45,8 +44,10 @@ const setState = async (local,iceTiles=false) => {
     // const getTheIslands = () => {
 
     getIslands().forEach((island) => {
-      if (island.running) {
+      if (island.running || island.runonce) {
         running = true;
+
+        // console.log(">>>> running " + island.id)
 
         if (deepdebug) {
           let img = island.getAsciiImg();
@@ -59,6 +60,9 @@ const setState = async (local,iceTiles=false) => {
         island.makePenguinsOlder();
         island.smelt();
         island.setWeather();
+
+        island.runonce = false;
+
         persistIsland(island, false);
       }
     });

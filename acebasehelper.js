@@ -17,7 +17,7 @@ const debug = false;
 
 const createDb = () => {
   if (db === null) {
-    const options = { logLevel: "err" }; //   'verbose'};
+    const options = { logLevel: "err" }; //   'err' 'verbose'};
     db = new AceBase("my_db", options);
   }
 };
