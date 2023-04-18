@@ -897,10 +897,16 @@ class Island {
     let mid =
       "+" +
       ("---------------------------------------------------------------------------------------").substring(0,this.sizeH * 4) + "+"; 
-    let results = [""];
-    results.push(mid);
-    results.push(top);
-    results.push(mid);
+    
+    let side = ("---------------------------------------------------------------------------------------").substring(0,this.sizeH * 4 + 9) + "+"; 
+
+      let results = [""];
+    results.push(mid + side );
+    results.push(top + " PENGUINS                                                             ".substring(0,this.sizeH * 4 + 9) + "|");
+    results.push(mid + side );
+
+    let penglist = [""];
+    let pengCnt = 0;
 
     let cnt = 0;
     this.penguins.forEach((penguin) => {
@@ -921,14 +927,14 @@ class Island {
         const hungryBar = hunger[Math.floor(penguin.hungry/20)]
         const healthBar = health[Math.floor(penguin.wealth/20)]
         // let line="                                                                 "
-        let line = `|${this.followId===penguin.id?'>':cnt} ${eyes[cnt]} ${penguin.name} ${status} ${hungryBar} ${healthBar} ${activity > 0? activities[activity]:penguin.strategyShort}                                `
-        line = line.substring(0,this.sizeH * 4) + ' |';
+        let line = ` ${this.followId===penguin.id?'>':cnt} ${eyes[cnt]} ${penguin.name} ${status} ${hungryBar} ${healthBar} ${activity > 0? activities[activity]:penguin.strategyShort}                                `
+        line = line.substring(0,this.sizeH * 4 + 8 ) + ' |';
         acts[cnt] = actImg[activity];
-        results.push(line);
+        penglist.push(line);
+        pengCnt++;
       }
     });
-    results.push(mid);
-
+   
     let lands1 = [
       "    ",
       "####",
@@ -991,7 +997,7 @@ class Island {
     ];
 
 
-
+    let curPeng = 1;
     for (let h = 0; h < this.sizeH; h++) {
       let line1 = "|";
       let line2 = "|";
@@ -1037,11 +1043,24 @@ class Island {
           }
         }
       }
-      line1 += "|";
-      line2 += "|";
-      results.push(line1);
-      results.push(line2);
+
+      if(curPeng <= pengCnt) { 
+        results.push(line1 + "|" + penglist[curPeng++]);
+      } else if (curPeng++ == pengCnt + 1){
+        results.push(line1 + "+" + side );
+      } else {  
+        results.push(line1 + "|" );
+      }
+
+      if(curPeng <= pengCnt) { 
+        results.push(line2 + "|" + penglist[curPeng++]);
+      } else if (curPeng++ == pengCnt + 1){
+        results.push(line2 + "+" + side );  
+      } else {
+        results.push(line2 + "|" );
+      }
     }
+
     results.push(mid);
     return results;
   }

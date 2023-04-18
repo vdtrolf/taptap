@@ -5,8 +5,12 @@ const dbhelperReq = require("./acebasehelper.js");
 const readline = require('readline')
 const colors = require('colors/safe')
 
+const islandH = 10;
+const islandL = 10; 
+
 const requestserverReq = require("./requestserver.js");
 const islandDataReq = require("./islandData.js");
+const islandWorkerReq = require("./islandWorker.js");
 const islandReq = require("./island.js");
 
 let createResponse = requestserverReq.createResponse;
@@ -14,6 +18,10 @@ let getItem = dbhelperReq.getItem;
 let getAsyncItems = dbhelperReq.getAsyncItems;
 let initiateIslands = islandDataReq.initiateIslands;
 let getIsland = islandReq.getIsland;
+let Island = islandReq.Island;
+let persistIsland = islandDataReq.persistIsland;
+let getInitData = islandWorkerReq.getInitData;
+let deleteIsland = islandWorkerReq.deleteIsland;
 
 var islandId = 0;
 var penguinId = 0;
@@ -21,7 +29,6 @@ var islandList = [0];
 var penguinList = [0];
 var knowWorldLines= [];
 var context = 0;
-
 
 colors.enable()
 
@@ -84,10 +91,22 @@ const printPenguins = (island) => {
 }
 
 
-const createIsland =() => {
+const createIsland = async () => {
   let island = new Island(islandH, islandL);
   persistIsland(island, true);
+  await getInitData(island);
+  getAsyncItems("island","id",">",0)
+      .then(value => printList(value));
+}
 
+const islandDetails = (island) => {
+  for (const [key, value] of Object.entries(island)) {
+    if (key==="fishes" || key==="lands" || key==="penguins") {
+      console.log(`${key}: ${value.length}`);
+    } else {
+      console.log(`${key}: ${value}`);
+    }
+  }
 }
 
 const makeKnowWorld = (knownWorld) => {
@@ -100,7 +119,7 @@ const makeKnowWorld = (knownWorld) => {
 const printHelp = () => {
   print('');
   print("+---- HELP -------------------------------------------------+");
-  print("| l/list, p/penguin, g/get, r/refresh, a                    |")
+  print("| l-ist p-enguin g-et r-efresh c-reate m-ore d-elete a      |")
   print("+-----------------------------------------------------------+");
 }
 
@@ -130,6 +149,21 @@ const checkInput = (input) => {
   } else {
     if (input==="h" || input==="help") {
       printHelp();
+    } else if (input==="c" || input==="create") {
+      createIsland();
+      context=1;
+    } else if (input==="m" || input==="more") {
+      if(islandId) { 
+        getItem("island",islandId).then(value => islandDetails(value));
+        context=1;  
+      }
+    } else if (input==="d" || input==="delete") {
+      if(islandId) { 
+        deleteIsland(islandId)
+        .then(getAsyncItems("island","id",">",0).then(value => printList(value)))
+        context= 2;
+        penguinId = 0;
+      } 
     } else if(input==="l" || input==="list") {
       context=1;
       getAsyncItems("island","id",">",0)
