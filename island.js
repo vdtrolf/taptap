@@ -38,7 +38,7 @@ class Island {
     numPeng = 0,
     tiles = 5,
     landSize = 0,
-    foodes = 5,
+    food = 5,
     points = 0,
     running = true,
     runonce = false,
@@ -57,7 +57,7 @@ class Island {
     this.numPeng = numPeng;
     this.tiles = tiles;
     this.landSize = landSize;
-    this.foodes = foodes;
+    this.food = food;
     this.points = points;
     this.running = running;
     this.runonce = runonce;
@@ -255,7 +255,7 @@ class Island {
   }
 
   addFood() {
-    this.foodes += 1;
+    this.food += 1;
   }
 
   addPoints(points) {
@@ -340,7 +340,7 @@ class Island {
 
   reset() {
     this.tiles = 5;
-    this.foodes = 5;
+    this.food = 5;
     this.points = 0;
   }
 
@@ -359,9 +359,11 @@ class Island {
       let lpos = Math.floor(Math.random() * (this.sizeL - 1)) + 1;
       let land = this.territory[hpos][lpos];
 
+      // console.log(">>>>" + hpos + " " + lpos);  
+
       let hasWaterBorders =
-        this.territory[hpos - 1][lpos].getType() === 0 ||
-        hpos === 11 ||
+        hpos === 11 || lpos === 11 ||
+        this.territory[hpos - 1][lpos].getType() === 0 || 
         this.territory[hpos + 1][lpos].getType() === 0 ||
         this.territory[hpos][lpos - 1].getType() === 0 ||
         this.territory[hpos][lpos + 1].getType() === 0;
@@ -595,6 +597,92 @@ class Island {
     
   } // movePenguins()
 
+
+  // Move all the penguins of this island
+
+  moveFishes() {
+    
+    //            0  1  2  3  4  5  6  7  8
+    //               l  r  u  d rd ru ld lu
+    let lmoves = [0, -1, 1, 0, 0, 1, 1, -1, -1];
+    let hmoves = [0, 0, 0, -1, 1, 1, -1, 1, -1];
+    
+    // check if there are still alive penguins
+
+    log(realm, source, "moveFishes", "count for island " + this.id + " = " + this.counter);
+
+    // Remove all istarget flags from the lands
+
+    for (let i = 0; i < this.sizeH; i++) {
+      for (let j = 0; j < this.sizeL; j++) {
+        if (this.territory[i][j]) {
+          this.territory[i][j].isTarget = false;
+          this.territory[i][j].hasFish = false;
+        }
+      }
+    }
+
+    // set the target flag if there are penguins eating, fishing or loving
+
+    let aliveFishes = 0;
+
+    this.fihes.forEach((fish) => {
+        aliveFishes++;
+        this.territory[fish.hpos][fish.lpos].setTarget(true);
+    });
+
+    // for (let penguin of this.penguins) {
+
+    this.fishes.forEach((fish) => {
+      // First check if the penguin is alive
+      let fishH = fish.hpos;
+      let fishL = fish.lpos;
+      
+      // console.dir(target)
+      // No doing anything else - can the penguin move  ?
+
+      if (! fish.onHook) {
+
+        let move =0;
+
+        if (fish.staying > 3 + Math.floor(Math.random() * 5)) {
+
+          for (let curDir = 0; curDir < 5 && move === 0; curDir++) {
+            let curmove = Math.floor(Math.random() * 4) + 1;
+            if ((curmove === 1 && this.territory[fish.hpos][fish.lpos - 1].canFishMove()) ||
+                (curmove === 2 && this.territory[fish.hpos][fish.lpos + 1].canFishMove()) ||
+                (curmove === 3 && this.territory[fish.hpos - 1][fish.lpos].canFishMove()) ||
+                (curmove === 4 && this.territory[fish.hpos + 1][fish.lpos].canFishMove()))
+                move = curmove;
+          }
+        }
+        // No move => wait
+        if (move === 0) {
+          log(realm, source, "moveFish",`${fish.num} No move`);
+          fish.setDirection(0);
+          this.territory[fish.hpos][fish.lpos].setTarget(true);
+        } else {
+          let l = fish.lpos + lmoves[move];
+          let h = fish.hpos + hmoves[move];
+          // if (this.territory[h][l].getType() === 0) {
+            fish.setPos(move, h, l);
+            this.territory[h][l].setTarget(true);
+          // } else {
+          //   this.territory[fish.hpos][fish.lpos].setTarget(true);
+          // } 
+        } // move === 0
+        fish.increaseStaying();
+      } // ! onHook
+    }); // forEach
+
+    this.fishes.forEach((fish) => {
+       this.territory[fish.hpos][fish.lpos].setFish(true);
+    });
+    
+  } // moveFishes()
+
+
+
   // ramdomly add and remove some fishmig fishes
 
   addStuff(iceTiles) {
@@ -627,7 +715,7 @@ class Island {
 
     // console.log("----> " + cntFish)
 
-    // randomly add some fishming getfoodes
+    // randomly add some fishming getfood
     if (cntIce < 6) {
       let hpos = Math.floor(Math.random() * (this.sizeH - 2)) + 1;
       let lpos = Math.floor(Math.random() * (this.sizeL - 2)) + 1;
@@ -720,7 +808,7 @@ class Island {
 
     log(realm,source,"setWeather","island = " + this.id);
 
-    // add some random foodes or tiles
+    // add some random food or tiles
 
     switch (Math.floor(Math.random() * 40)) {
       case 0:
@@ -898,11 +986,11 @@ class Island {
       "+" +
       ("---------------------------------------------------------------------------------------").substring(0,this.sizeH * 4) + "+"; 
     
-    let side = ("---------------------------------------------------------------------------------------").substring(0,this.sizeH * 4 + 9) + "+"; 
+    let side = ("---------------------------------------------------------------------------------------").substring(0,this.sizeH * 4 + 1) + "+"; 
 
       let results = [""];
     results.push(mid + side );
-    results.push(top + " PENGUINS                                                             ".substring(0,this.sizeH * 4 + 9) + "|");
+    results.push(top + " PENGUINS                                                             ".substring(0,this.sizeH * 4 + 1) + "|");
     results.push(mid + side );
 
     let penglist = [""];
@@ -928,7 +1016,7 @@ class Island {
         const healthBar = health[Math.floor(penguin.wealth/20)]
         // let line="                                                                 "
         let line = ` ${this.followId===penguin.id?'>':cnt} ${eyes[cnt]} ${penguin.name} ${status} ${hungryBar} ${healthBar} ${activity > 0? activities[activity]:penguin.strategyShort}                                `
-        line = line.substring(0,this.sizeH * 4 + 8 ) + ' |';
+        line = line.substring(0,this.sizeH * 4 ) + ' |';
         acts[cnt] = actImg[activity];
         penglist.push(line);
         pengCnt++;

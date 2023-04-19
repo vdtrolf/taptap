@@ -5,8 +5,8 @@ const dbhelperReq = require("./acebasehelper.js");
 const readline = require('readline')
 const colors = require('colors/safe')
 
-const islandH = 10;
-const islandL = 10; 
+const islandH = 12;
+const islandL = 12; 
 
 const requestserverReq = require("./requestserver.js");
 const islandDataReq = require("./islandData.js");
@@ -36,7 +36,7 @@ const print = (msg) => {
   console.log(msg)
 }
 
-const printList = (islands) => {
+const printList = async (islands) => {
 
   var cnt =0;
   islandList = [0]
@@ -119,10 +119,9 @@ const makeKnowWorld = (knownWorld) => {
 const printHelp = () => {
   print('');
   print("+---- HELP -------------------------------------------------+");
-  print("| l-ist p-enguin g-et r-efresh c-reate m-ore d-elete a      |")
+  print("| l-ist p-enguin g-et r-efresh c-reate m-ore d-elete q-uit  |")
   print("+-----------------------------------------------------------+");
 }
-
 
 const checkInput = (input) => {
   
@@ -176,34 +175,31 @@ const checkInput = (input) => {
       context=2;
       getItem("island",islandId)
       .then(value => printIsland(value))
-    } else if(input==="r" || input==="refresh" ) {
-      context=2;
-      createResponse("/state", "", islandId, true).then(
-        (responseBody) => {
-        }
-      );
-      getItem("island",islandId)
-      .then(value => printIsland(value))
-    } else if(input==="a" && islandId > 0 ) {
-      for(let cnt =0;cnt<5;cnt++) {
-        setTimeout(() => {
-          createResponse("/state", "", islandId, true)
-          .then((responseBody) => {});
-          getItem("island",islandId)
-          .then(value => printIsland(value))
-          process.stdout.write(">> " + islandId + " >>")
-        }, 2000);
+    } else if(input==="q" || input==="quit") {
+      return false;
+    } else if(input.length ===0 || input==="r" || input==="refresh" ) {
+      if (islandId > 0) {
+        context=2;
+        createResponse("/state", "", islandId, true).then(
+          (responseBody) => {
+          }
+        );
+        getItem("island",islandId)
+        .then(value => printIsland(value))
       }
-          
-    } else {
-      createResponse(input, "", islandId, true).then(
-        (responseBody) => {
-          // console.dir(responseBody);
-          print(responseBody);
-        }
-      );
     }
+    // } else if(input==="a" && islandId > 0 ) {
+    //   for(let cnt =0;cnt<5;cnt++) {
+    //     setTimeout(() => {
+    //       createResponse("/state", "", islandId, true)
+    //       .then((responseBody) => {});
+    //       getItem("island",islandId)
+    //       .then(value => printIsland(value))
+    //       process.stdout.write(">> " + islandId + " >>")
+    //     }, 2000);
+    //   }
   }
+  return true;
 }
 
 let rl = readline.createInterface({
@@ -212,14 +208,22 @@ let rl = readline.createInterface({
   terminal: false
 })
 
-const createTerminal =  async () => {
+const createTerminal =  () => {
   rl.on('line', (line) => {
     var input = line.replace(/\0/g, '')
-    if (input.length > 0) {
-      checkInput(input)
+    if  (! checkInput(input)) {
+      console.log("closing");
+      rl.close();
+      process.exit();
+    } else {
+      if (input.length > 0 ) {
+        if (islandId > 0 ) {
+          process.stdout.write(">> " + islandId + "-" + penguinId + " >>")
+        } else {
+          process.stdout.write(">>")
+        }
+      }
     }
-    print('')
-    process.stdout.write(">> " + islandId + "/" + penguinId + " >>")
   })
   process.stdout.write(">>")
 }

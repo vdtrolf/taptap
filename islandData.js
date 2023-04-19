@@ -132,6 +132,8 @@ const persistIsland = (island) => {
       lpos: fish.lpos,
       specie: fish.specie,
       moving: fish.moving,
+      staying: fish.staying,
+      onHook: fish.onHook,
       fishDirection: fish.fishDirection
     };
     fishes.push(aFish);
@@ -147,7 +149,7 @@ const persistIsland = (island) => {
     numPeng: island.numPeng,
     tiles: island.tiles,
     landSize: island.landSize,
-    foodes: island.foodes,
+    food: island.food,
     points: island.points,
     running: island.running,
     runonce: island.runonce,
@@ -188,7 +190,7 @@ const persistIslandData = async (island) => {
     numPeng: island.numPeng,
     tiles: island.tiles,
     landSize: island.landSize,
-    foodes: island.foodes,
+    food: island.food,
     points: island.points,
     running: island.running,
     runonce: island.runonce,
@@ -239,7 +241,7 @@ const initiateIslands = async (islandParam=null) => {
             anIsland.numPeng,
             anIsland.tiles,
             anIsland.landSize,
-            anIsland.foodes,
+            anIsland.food,
             anIsland.points,
             anIsland.running,
             anIsland.runonce,
@@ -343,6 +345,8 @@ const initiateIslands = async (islandParam=null) => {
                 island.id,
                 aFish.specie,
                 aFish.moving,
+                aFish.staying,
+                aFish.onHook, 
                 aFish.fishDirection
               );
               fishes.push(fish);

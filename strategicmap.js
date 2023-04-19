@@ -729,7 +729,7 @@ class StrategicMap {
                         targetL: this.targetL,
                         path: this.path}
     
-    if (show) console.dir(resultTarget);
+    // if (show) console.dir(resultTarget);
     
     return resultTarget;
   }

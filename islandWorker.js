@@ -34,7 +34,7 @@ const getInitData = async (island) => {
     penguins: island.getPenguins(),
     weather: weathers[island.weather],
     tiles: island.tiles,
-    foodes: island.foodes,
+    food: island.food,
     points: island.points,
     islandName: island.name,
     islandId: island.id,
@@ -149,10 +149,10 @@ const getIslandData = async (
             land.hasIce =false;
             land.changed = true;
             changed = true;
-          } else if (islandData.foodes > 0) {
+          } else if (islandData.food > 0) {
             land.hasFood = true;
             land.changed = true;
-            islandData.foodes -= islandData.foodes > 0 ? 1 : 0;
+            islandData.food -= islandData.food > 0 ? 1 : 0;
             changed = true;
           }
         }
@@ -186,7 +186,7 @@ const getIslandData = async (
       penguins: penguins,
       weather: weathers[islandData.weather],
       tiles: islandData.tiles,
-      foodes: islandData.foodes,
+      food: islandData.food,
       points: islandData.points,
       islandName: islandData.name,
       islandId: islandData.id,

@@ -79,6 +79,11 @@ class Land {
     return this.type > 0 && !this.isTarget && !this.hasCross && !this.hasIce ;
   }
 
+  canFishMove() {
+    return this.type === 0 && !this.isTarget ;
+  }
+
+
   setType(newType) {
     this.type = newType;
   }
@@ -178,7 +183,7 @@ class Land {
   // add ice
   addIce() {
 
-    console.log("addice at " + this.hpos + " " + this.lpos)
+    // console.log("addice at " + this.hpos + " " + this.lpos)
 
     this.hasIce = true;
     this.changed = true;

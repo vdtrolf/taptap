@@ -56,6 +56,7 @@ const setState = async (local,iceTiles=false) => {
 
         island.calculateNeighbours();
         island.movePenguins();
+        island.moveFishes();
         island.addStuff(iceTiles);
         island.makePenguinsOlder();
         island.smelt();

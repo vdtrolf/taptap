@@ -28,6 +28,8 @@ class Fish {
     id = 0,
     specie = 0,
     moving = 0,
+    staying = 0,
+    onHook = false,
     fishDirection = 0,
     
   ) {
@@ -36,10 +38,12 @@ class Fish {
     this.num = num;
     this.hpos = h;
     this.lpos = l;
+    this.onHook = onHook;
     this.specie = specie === 0 ? Math.floor(Math.random() * 4) : specie;
 
     this.fishDirection = fishDirection;
     this.moving = moving;
+    this.staying = staying;
 
     log(
       realm,
@@ -54,6 +58,25 @@ class Fish {
   setDirection(direction) {
     this.fishDirection = fishDirection;
   }
+
+  setPos(direction,h,l) {
+    this.fishDirection = fishDirection;
+    this.hpos = h;
+    this.lpos = l;
+    this.staying = 0;
+  }
+
+
+
+  setOnHook(isOnHook) {
+    this.onHook = isOnHook;
+  }
+
+  increaseStaying() {
+    this.staying = this.staying + 1;
+  }
+
+
 }
 
 
