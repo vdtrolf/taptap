@@ -134,6 +134,7 @@ const persistIsland = (island) => {
       moving: fish.moving,
       staying: fish.staying,
       onHook: fish.onHook,
+      hookAge: fish.hookAge,
       fishDirection: fish.fishDirection
     };
     fishes.push(aFish);
@@ -347,6 +348,7 @@ const initiateIslands = async (islandParam=null) => {
                 aFish.moving,
                 aFish.staying,
                 aFish.onHook, 
+                aFish.hookAge,
                 aFish.fishDirection
               );
               fishes.push(fish);
@@ -354,7 +356,6 @@ const initiateIslands = async (islandParam=null) => {
             });
           }
           island.fishes = fishes;
-
 
           addIsland(island);
 

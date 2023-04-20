@@ -338,10 +338,16 @@ class StrategicMap {
               fishlpos = fishmove === 2 ? penguin.lpos + 1 : fishlpos;
               let fishhpos = fishmove === 3 ? penguin.hpos - 1 : penguin.hpos;
               fishhpos = fishmove === 4 ? penguin.hpos + 1 : fishhpos;
-              island.territory[fishhpos][fishlpos].fishFish();
-              this.strategyShort = " Fishing";
-              this.actionDirection = fishmove;
-              this.action = 7;
+
+              island.fishes.forEach((fish) => {
+                if ( ! fish.onHook && fish.hpos === fishhpos && fish.lpos === fishlpos ){
+                  fish.setOnHook(true);
+                  this.strategyShort = " Fishing";
+                  this.actionDirection = fishmove;
+                  this.action = 7;
+                }
+              });
+              
             }
           } else {
 
@@ -749,12 +755,19 @@ class StrategicMap {
   // A land has a fish if there is a fish in the neighbour tiles
 
   isLandFish(island, hpos, lpos) {
-    return (
-      island.territory[hpos - 1][lpos].hasFish ||
-      island.territory[hpos + 1][lpos].hasFish ||
-      island.territory[hpos][lpos - 1].hasFish ||
-      island.territory[hpos][lpos + 1].hasFish
-    );
+    let hasFish = false;
+    if (island) {     
+      island.fishes.forEach((fish) => {
+        if ( ! fish.onHook && (
+          fish.hpos === hpos && fish.lpos === lpos - 1 ||
+          fish.hpos === hpos && fish.lpos === lpos + 1 ||
+          fish.hpos === hpos - 1 && fish.lpos === lpos ||
+          fish.hpos === hpos + 1 && fish.lpos === lpos )) {
+            hasFish = true;
+        }
+      });
+    }
+    return hasFish;
   }
 
   // A land has a ice if there is ice in the neighbour tiles

@@ -420,6 +420,16 @@ class Island {
         this.landSize += this.territory[hpos][lpos].getType() > 0 ? 1 : 0;
       }
     }
+
+    this.fishes.forEach((fish) => {
+      if (fish.onHook) {
+        if (! fish.makeHookOlder()) {
+          // remove fish
+        }
+      }
+    }
+
+
   }
 
   // Move all the penguins of this island
@@ -578,9 +588,9 @@ class Island {
       }
     });
 
-    this.fishes.forEach((fish) => {
-        this.territory[fish.hpos][fish.lpos].setFish(true);
-    });
+    //this.fishes.forEach((fish) => {
+    //    this.territory[fish.hpos][fish.lpos].setFish(true);
+    //});
 
     // for (let i = 0; i < this.sizeH; i++) {
     //   for (let j = 0; j < this.sizeL; j++) {

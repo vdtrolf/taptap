@@ -30,6 +30,7 @@ class Fish {
     moving = 0,
     staying = 0,
     onHook = false,
+    hookAge = 0,
     fishDirection = 0,
     
   ) {
@@ -39,6 +40,7 @@ class Fish {
     this.hpos = h;
     this.lpos = l;
     this.onHook = onHook;
+    this.hookAge = hookAge;
     this.specie = specie === 0 ? Math.floor(Math.random() * 4) : specie;
 
     this.fishDirection = fishDirection;
@@ -66,10 +68,17 @@ class Fish {
     this.staying = 0;
   }
 
-
-
   setOnHook(isOnHook) {
+
+    console.log("Fish ON HOOK ");
+
     this.onHook = isOnHook;
+    this.hookAge = 6;
+  }
+
+  makeHookOlder() {
+    this.hookAge = this.hookAge - 1;
+    return hookAge > 0;
   }
 
   increaseStaying() {
