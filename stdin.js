@@ -111,7 +111,6 @@ const printFishes = (island) => {
 }
 
 const convertPos = (val) => {
-  
   switch (val.toUpperCase()) {
     case "A" :
       return 9;
@@ -121,7 +120,6 @@ const convertPos = (val) => {
       return 11;
   }
   return val -1; 
-  
 }
 
 
