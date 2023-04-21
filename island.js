@@ -972,10 +972,11 @@ class Island {
     const activities = ["","Eating","Fishing","Loving"]
     const hunger = ["#####", ".####", "..###", "...##","....#","....."]
     const health = ["-----", "----+", "---++", "--+++","-++++","+++++" ]
-    const eyes = ["  ","oo","ôô","öö","@@","©©","°°","õõ","88","99","oo","oo"]
+    const eyes = ["   "," oo "," ôô "," öö "," @@ "," ©© "," °° "," õõ "," 88 "," 99 "," oo "," oo "]
     const fishEyes = ["    ","><o>","><ô>","><ö>","><@>","><©>","><°>","><õ>","><8>","><9>","><o>","><+>"]
-    const actImg = ["(\\/)","(<>)","()/|","(  )","()-■"]
+    const actImg = ["(\\/)","(<>)","()/: ","(<3)","()-■"]
     const acts = ["═╬╬═","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬"];
+    const lineNum = ["1","2","3","4","5","6","7","8","9","A","B","C"]
     for (let h = 0; h < this.sizeH; h++) {
       let linep = [];
       let linef = [];
@@ -994,6 +995,9 @@ class Island {
         this.sizeH * 4
       ) +
       "|";
+    let head =
+      "+" +
+      ("--1---2---3---4---5---6---7---8---9---A---B---C-------------------------------------------").substring(0,this.sizeH * 4) + "+"; 
     let mid =
       "+" +
       ("---------------------------------------------------------------------------------------").substring(0,this.sizeH * 4) + "+"; 
@@ -1003,7 +1007,7 @@ class Island {
       let results = [""];
     results.push(mid + side );
     results.push(top + " PENGUINS                                                             ".substring(0,this.sizeH * 4 + 1) + "|");
-    results.push(mid + side );
+    results.push(head + side );
 
     let penglist = [""];
     let pengCnt = 0;
@@ -1054,60 +1058,58 @@ class Island {
    
     let lands1 = [
       "    ",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####", 
+      "::::",
+      "::::",
+      "::::",
+      "::::",
+      "::::",
+      "::::",
+      "::::",
+      "::::",
+      "::::",
     ];
     let lands2 = [
       "    ",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####",
-      "####", 
+      "::::",
+      "::::",
+      "::::",
+      "::::",
+      "::::",
+      "::::",
+      "::::",
+      "::::",
+      "::::",
     ];
 
     let ice1 = [
-      "====",
-      "====",
-      "====",
-      "----",
-      "----",
-      "----",
+      "....",
+      "....",
+      "....",
+      "....",
+      "....",
+      "....",
       "....",
       "....",
       "....",
     ];
     let ice2 = [
-      "====",
-      "====",
-      "====",
-      "----",
-      "----",
-      "----",
+      "....",
+      "....",
+      "....",
+      "....",
+      "....",
+      "....",
       "....",
       "....",
       "....",
     ];
     let iceblock = [
-      "=",
-      "=",
-      "=",
-      "-",
-      "-",
-      "-",
+      ".",
+      ".",
+      ".",
+      ".",
+      ".",
+      ".",
       ".",
       ".",
       "."
@@ -1117,11 +1119,11 @@ class Island {
     let hasPenguins = true;
     let curFish = 1;
     for (let h = 0; h < this.sizeH; h++) {
-      let line1 = "|";
+      let line1 = lineNum[h];
       let line2 = "|";
       for (let l = 0; l < this.sizeL; l++) {
         if (penguinpos[h][l] > 0) {
-          line1 += ` ${eyes[penguinpos[h][l]]} `;
+          line1 += `${eyes[penguinpos[h][l]]}`;
           line2 += acts[penguinpos[h][l]];
         } else if (fishpos[h][l] > 0) {
           line1 += `${fishEyes[fishpos[h][l]]}`;
@@ -1143,12 +1145,12 @@ class Island {
               line1 += iceblock[ice] + "╔╗" + iceblock[ice];
               line2 += iceblock[ice] + "╚╝" + iceblock[ice];    
             } else {
-              line1 += "#╔╗#";
-              line2 += "#╚╝#";
+              line1 += ":╔╗:";
+              line2 += ":╚╝:";
             }    
           } else if (land.hasCross) {
-            line1 += "(++)";
-            line2 += "|--|";
+            line1 += " ++ ";
+            line2 += "(--)";
           } else {
             if (land.type === 1) {
               let ice = Math.floor(land.conf / 2);

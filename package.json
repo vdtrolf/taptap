@@ -9,7 +9,7 @@
   },
   "scripts": {
     "start": "node index.js local",
-    "terminal": "node index.js local terminal",
+    "terminal": "node index.js local worker terminal",
     "curl": "curl http://localhost:3001/island"
   }
 }

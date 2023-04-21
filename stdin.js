@@ -22,6 +22,7 @@ let Island = islandReq.Island;
 let persistIsland = islandDataReq.persistIsland;
 let getInitData = islandWorkerReq.getInitData;
 let deleteIsland = islandWorkerReq.deleteIsland;
+let getIslandData = islandWorkerReq.getIslandData;
 
 var islandId = 0;
 var penguinId = 0;
@@ -109,6 +110,21 @@ const printFishes = (island) => {
   
 }
 
+const convertPos = (val) => {
+  
+  switch (val.toUpperCase()) {
+    case "A" :
+      return 9;
+    case "B" :
+      return 10;
+    case "A" :
+      return 11;
+  }
+  return val -1; 
+  
+}
+
+
 
 const createIsland = async () => {
   let island = new Island(islandH, islandL);
@@ -147,15 +163,28 @@ const checkInput = (input) => {
   const number=parseInt(input.substring(0,2));
 
 
-  if (number>0 && context==1) {
+  if (input.length === 1 && number>0 && context==1) {
     islandId=islandList[number];
     penguinId=0;
     context =0;
-  }  else if (number>0 && context==2) {
+  }  else if (input.length === 1 && number>0 && context==2) {
     penguinId=penguinList[number];
     const params = {followId:penguinId}
     createResponse("/moves",params, islandId, true).then(responseBody => {});
     context = 0;
+  } else if (input.length === 2) {
+   
+     console.log("%%%% " + islandId + "..." + convertPos(input[0]) + "/" + convertPos(input[1])) 
+   
+    if (islandId > 0) {
+      console.log("%%%% 2") 
+      getIslandData(islandId, 0, convertPos(input[0]), convertPos(input[1]))
+      .then((island) => persistIsland(island, true))
+      .then(getItem("island",islandId)
+        .then(value => printIsland(value)))
+      
+    }
+      
   } else if (input.includes("=")) {
     const inputargs = input.toLowerCase().split("=");
     if (inputargs[0] === "id") {
@@ -239,6 +268,7 @@ const createTerminal =  () => {
       rl.close();
       process.exit();
     } else {
+      console.log("\033[2J\033[0f")
       if (input.length > 0 ) {
         if (islandId > 0 ) {
           process.stdout.write(">> " + islandId + "-" + penguinId + " >>")
