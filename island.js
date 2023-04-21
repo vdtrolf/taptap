@@ -295,9 +295,13 @@ class Island {
     return false;
   }
 
-  getPenguins() {
+ getPenguins() {
     return this.penguins;
-  }
+  } 
+
+  getFishes() {
+    return this.fishes;
+  } 
 
   hasFish(x, y) {
     const land = this.territory[x][y];
@@ -421,14 +425,7 @@ class Island {
       }
     }
 
-    this.fishes.forEach((fish) => {
-      if (fish.onHook) {
-        if (! fish.makeHookOlder()) {
-          // remove fish
-        }
-      }
-    }
-
+    this.fishes = this.fishes.filter((fish) => fish.makeHookOlder());
 
   }
 
@@ -970,19 +967,24 @@ class Island {
   getAsciiImg() {
     
     let penguinpos = [];
+    let fishpos = [];
     const shapes = ["","Fat","Fit","Slim","Lean"]
     const activities = ["","Eating","Fishing","Loving"]
     const hunger = ["#####", ".####", "..###", "...##","....#","....."]
     const health = ["-----", "----+", "---++", "--+++","-++++","+++++" ]
     const eyes = ["  ","oo","ôô","öö","@@","©©","°°","õõ","88","99","oo","oo"]
+    const fishEyes = ["    ","><o>","><ô>","><ö>","><@>","><©>","><°>","><õ>","><8>","><9>","><o>","><+>"]
     const actImg = ["(\\/)","(<>)","()/|","(  )","()-■"]
     const acts = ["═╬╬═","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬"];
     for (let h = 0; h < this.sizeH; h++) {
-      let line = [];
+      let linep = [];
+      let linef = [];
       for (let l = 0; l < this.sizeL; l++) {
-        line.push[0];
+        linep.push[0];
+        linef.push[0];
       }
-      penguinpos.push(line);
+      penguinpos.push(linep);
+      fishpos.push(linef);
     }
 
     let top =
@@ -1032,6 +1034,23 @@ class Island {
         pengCnt++;
       }
     });
+
+    let fishlist = [""];
+    let fishCnt = 1;
+
+    this.fishes.forEach((fish) => {
+
+      if (fish.onHook) {
+        fishpos[fish.hpos][fish.lpos] = 11;
+      } else {
+        fishpos[fish.hpos][fish.lpos] = fishCnt;;
+      }
+
+      let line = ` ${fishCnt} ${fish.onHook?'<>< ':fishEyes[fishCnt]} h=${fish.hpos} l=${fish.lpos} hookAge=${fish.hookAge}                                                  `
+      line = line.substring(0,this.sizeH * 4 ) + ' |';
+      fishlist.push(line);
+      fishCnt++;
+    })
    
     let lands1 = [
       "    ",
@@ -1094,8 +1113,9 @@ class Island {
       "."
     ];
 
-
     let curPeng = 1;
+    let hasPenguins = true;
+    let curFish = 1;
     for (let h = 0; h < this.sizeH; h++) {
       let line1 = "|";
       let line2 = "|";
@@ -1103,18 +1123,18 @@ class Island {
         if (penguinpos[h][l] > 0) {
           line1 += ` ${eyes[penguinpos[h][l]]} `;
           line2 += acts[penguinpos[h][l]];
+        } else if (fishpos[h][l] > 0) {
+          line1 += `${fishEyes[fishpos[h][l]]}`;
+          line2 += "    ";
         } else {
           let land = this.territory[h][l];
-          if (land.hasFish) {
-            line1 += "><o>";
-            line2 += "    ";
-          } else if (land.hasFood) {
+          if (land.hasFood) {
             if (land.type ==1) {
               let ice = Math.floor(land.conf / 2);
-              line1 += "><o>";
+              line1 += "><x>";
               line2 += ice2[ice];
             } else {
-              line1 += "><o>";
+              line1 += "><x>";
               line2 += lands2[land.type];
             }    
           } else if (land.hasIce) {
@@ -1142,21 +1162,43 @@ class Island {
         }
       }
 
-      if(curPeng <= pengCnt) { 
-        results.push(line1 + "|" + penglist[curPeng++]);
-      } else if (curPeng++ == pengCnt + 1){
-        results.push(line1 + "+" + side );
-      } else {  
-        results.push(line1 + "|" );
+      if(hasPenguins) {
+        if(curPeng <= pengCnt) { 
+          results.push(line1 + "|" + penglist[curPeng++]);
+        } else if (curPeng++ == pengCnt + 1){
+          results.push(line1 + "+" + side );
+          hasPenguins=false;
+        } else {  
+          results.push(line1 + "|" );
+        }
+
+        if(curPeng <= pengCnt) { 
+          results.push(line2 + "|" + penglist[curPeng++]);
+        } else if (curPeng++ == pengCnt + 1){
+          results.push(line2 + "+" + side );  
+          hasPenguins=false;
+        } else {
+          results.push(line2 + "|" );
+        } 
+      } else {
+        if(curFish < fishCnt) { 
+          results.push(line1 + "|" + fishlist[curFish++]);
+        } else if (curFish++ == fishCnt){
+          results.push(line1 + "+" + side );
+        } else {  
+          results.push(line1 + "|" );
+        }
+
+        if(curFish < fishCnt) { 
+          results.push(line2 + "|" + fishlist[curFish++]);
+        } else if (curFish++ == fishCnt){
+          results.push(line2 + "+" + side );  
+        } else {
+          results.push(line2 + "|" );
+        }        
       }
 
-      if(curPeng <= pengCnt) { 
-        results.push(line2 + "|" + penglist[curPeng++]);
-      } else if (curPeng++ == pengCnt + 1){
-        results.push(line2 + "+" + side );  
-      } else {
-        results.push(line2 + "|" );
-      }
+
     }
 
     results.push(mid);

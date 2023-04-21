@@ -27,6 +27,7 @@ var islandId = 0;
 var penguinId = 0;
 var islandList = [0];
 var penguinList = [0];
+var fishList = [0];
 var knowWorldLines= [];
 var context = 0;
 
@@ -85,6 +86,24 @@ const printPenguins = (island) => {
       print(line.substring(0,60) + "|");
       penguinList[cnt] = penguin.id;
     }
+  });
+  print("+-----------------------------------------------------------+");
+  
+}
+
+const printFishes = (island) => {
+  var cnt =0;
+  penguinList  = [0]
+  
+  initiateIslands(island);
+  const islandObj = getIsland(island.id);
+  
+  print('');
+  print("+---- PENGUINS ---------------------------------------------+");  
+  islandObj.getFishes().forEach(fish => { 
+    line = "| " + ++cnt + " " + fish.id + " " + fish.hpos + "/" + fish.lpos + " onHook: " + fish.onHook + "(" + fish.hookAge + ")                                                                        ";   
+    print(line.substring(0,60) + "|");
+    fishList[cnt] = fish.id;
   });
   print("+-----------------------------------------------------------+");
   
@@ -163,6 +182,10 @@ const checkInput = (input) => {
         context= 2;
         penguinId = 0;
       } 
+    } else if(input==="f" || input==="fish") {
+      context=3;
+      getItem("island",islandId)
+      .then(value => printFishes(value))
     } else if(input==="l" || input==="list") {
       context=1;
       getAsyncItems("island","id",">",0)

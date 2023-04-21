@@ -344,6 +344,7 @@ const initiateIslands = async (islandParam=null) => {
                 aFish.hpos,
                 aFish.lpos,
                 island.id,
+                aFish.id,
                 aFish.specie,
                 aFish.moving,
                 aFish.staying,

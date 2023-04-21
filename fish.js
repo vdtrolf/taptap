@@ -70,15 +70,22 @@ class Fish {
 
   setOnHook(isOnHook) {
 
-    console.log("Fish ON HOOK ");
+    console.log("Fish ON HOOK : " + isOnHook);
 
     this.onHook = isOnHook;
     this.hookAge = 6;
   }
 
   makeHookOlder() {
-    this.hookAge = this.hookAge - 1;
-    return hookAge > 0;
+    if (this.onHook) {
+
+      console.log("FISH ON HOOK AGE: " + this.hookAge)
+
+      this.hookAge = this.hookAge - 1;
+      return this.hookAge > 0;
+    } else {
+      return true;
+    }
   }
 
   increaseStaying() {
