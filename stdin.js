@@ -110,6 +110,9 @@ const printFishes = (island) => {
   
 }
 
+// Converts A,B,C to 9.10.11
+
+
 const convertPos = (val) => {
   switch (val.toUpperCase()) {
     case "A" :
