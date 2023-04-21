@@ -100,7 +100,7 @@ const printFishes = (island) => {
   const islandObj = getIsland(island.id);
   
   print('');
-  print("+---- PENGUINS ---------------------------------------------+");  
+  print("+---- FISHES -----------------------------------------------+");  
   islandObj.getFishes().forEach(fish => { 
     line = "| " + ++cnt + " " + fish.id + " " + fish.hpos + "/" + fish.lpos + " onHook: " + fish.onHook + "(" + fish.hookAge + ")                                                                        ";   
     print(line.substring(0,60) + "|");
