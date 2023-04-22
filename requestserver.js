@@ -112,6 +112,10 @@ const createResponse = async (url, params, islandId = 0, local = true) => {
         let lpos = Number.parseInt(params.lpos, 10);
         return await getIslandData(islandId, 0, hpos, lpos);
       }
+      
+     
+
+      
 
       default: {
         return {};
@@ -147,7 +151,7 @@ const createResponse = async (url, params, islandId = 0, local = true) => {
         startStateSteps();
         return { result: "state engine started" };
       }
-
+      
       default: {
         return {};
       }
