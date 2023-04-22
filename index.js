@@ -145,7 +145,7 @@ if (local) {
       log(realm, source, "Handler", "Message received from SNS:" + message);
       let running = await setState();
       callback(null, { running: running });
-    } else if (event.path === "/stateapi") {
+    } else if (event.path.endsWith("/stateapi")) {
       log(realm, source, "Handler", "/stateapi event received ");
       let isRunning = await setState();
       callback(null, { running: isRunning });
@@ -161,7 +161,7 @@ if (local) {
       };
 
       return aresponse;
-    } else if (event.path === "/state") {
+    } else if (event.path.endsWith("/state")) {
       log(realm, source, "Handler", "/state event received ");
       let isRunning = await setState();
 
@@ -193,7 +193,7 @@ if (local) {
       }
 
       const responseBody = await createResponse(
-        event.path,
+        event.path.substring(5),
         event.queryStringParameters,
         islandId,
         local
