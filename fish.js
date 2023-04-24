@@ -58,11 +58,11 @@ class Fish {
   // returns teh category of the penguin - y,m,f,o (old man), e (eldery woman)
 
   setDirection(direction) {
-    this.fishDirection = fishDirection;
+    this.fishDirection = direction;
   }
 
   setPos(direction,h,l) {
-    this.fishDirection = fishDirection;
+    this.fishDirection = direction;
     this.hpos = h;
     this.lpos = l;
     this.staying = 0;

@@ -1,6 +1,6 @@
    // DB stuff
-const dbhelperReq = require("./dynamohelper.js"); 
-// const dbhelperReq = require("./acebasehelper.js");
+// const dbhelperReq = require("./dynamohelper.js"); 
+const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -69,12 +69,15 @@ args.forEach((arg) => {
   }
 });
 
-setLogLevel("req", LOGINFO);
-setLogLevel("db", LOGINFO);
-setLogLevel("index", LOGINFO);
+// setLogLevel("req", LOGINFO);
+// setLogLevel("db", LOGINFO);
+// setLogLevel("index", LOGINFO);
 
 // setLogLevel("worker", LOGINFO);
 // setLogLevel("data", LOGINFO);
+// setLogLevel("island", LOGINFO);
+setLogLevel("fish", LOGINFO);
+// setLogLevel("penguin", LOGINFO);
 
 const debug = false;
 

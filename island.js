@@ -213,7 +213,6 @@ class Island {
             hpos,
             lpos,
             this.id,
-            []
           );
 
           this.penguins.push(penguin);
@@ -238,7 +237,7 @@ class Island {
             hpos,
             lpos,
             this.id,
-            []
+            0
           );
 
           land.addFish();
@@ -633,7 +632,7 @@ class Island {
 
     let aliveFishes = 0;
 
-    this.fihes.forEach((fish) => {
+    this.fishes.forEach((fish) => {
         aliveFishes++;
         this.territory[fish.hpos][fish.lpos].setTarget(true);
     });
@@ -656,10 +655,10 @@ class Island {
 
           for (let curDir = 0; curDir < 5 && move === 0; curDir++) {
             let curmove = Math.floor(Math.random() * 4) + 1;
-            if ((curmove === 1 && this.territory[fish.hpos][fish.lpos - 1].canFishMove()) ||
-                (curmove === 2 && this.territory[fish.hpos][fish.lpos + 1].canFishMove()) ||
-                (curmove === 3 && this.territory[fish.hpos - 1][fish.lpos].canFishMove()) ||
-                (curmove === 4 && this.territory[fish.hpos + 1][fish.lpos].canFishMove()))
+            if ((curmove === 1 && fish.lpos > 0 && this.territory[fish.hpos][fish.lpos - 1].canFishMove()) ||
+                (curmove === 2 && fish.lpos < 11 && this.territory[fish.hpos][fish.lpos + 1].canFishMove()) ||
+                (curmove === 3 && fish.hpos > 0 && this.territory[fish.hpos - 1][fish.lpos].canFishMove()) ||
+                (curmove === 4 && fish.hpos < 11 && this.territory[fish.hpos + 1][fish.lpos].canFishMove()))
                 move = curmove;
           }
         }
@@ -671,16 +670,40 @@ class Island {
         } else {
           let l = fish.lpos + lmoves[move];
           let h = fish.hpos + hmoves[move];
-          // if (this.territory[h][l].getType() === 0) {
             fish.setPos(move, h, l);
             this.territory[h][l].setTarget(true);
-          // } else {
-          //   this.territory[fish.hpos][fish.lpos].setTarget(true);
-          // } 
         } // move === 0
         fish.increaseStaying();
       } // ! onHook
     }); // forEach
+
+    // Add some fishes ?
+
+    let fishNum = Math.floor(Math.random() * 2) + 4;
+
+    while (aliveFishes < fishNum) {
+      let hpos = Math.floor(Math.random() * this.sizeH);
+      let lpos = Math.floor(Math.random() * this.sizeL);
+      let land = this.territory[hpos][lpos];
+
+      if (land && land.getType() === 0 && ! land.hasTarget) {
+        
+        let fish = new Fish(
+          0, 
+          hpos,
+          lpos,
+          this.id,
+          0
+        );
+
+        land.addFish();
+
+        this.fishes.push(fish);
+        aliveFishes++;
+      }
+    }
+
+
 
     this.fishes.forEach((fish) => {
        this.territory[fish.hpos][fish.lpos].setFish(true);
@@ -735,12 +758,6 @@ class Island {
           land.addIce();
         }
       }
-    }
-  }
-
-  moveFishes() {
-    if (!this.running) {
-      return;
     }
   }
 

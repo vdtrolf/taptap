@@ -1,6 +1,6 @@
 // DB stuff
-const dbhelperReq = require("./dynamohelper.js"); 
-// const dbhelperReq = require("./acebasehelper.js");
+// const dbhelperReq = require("./dynamohelper.js"); 
+const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -32,6 +32,7 @@ const getInitData = async (island) => {
   let result = {
     island: getImg(island.territory, island.sizeH, island.sizeL),
     penguins: island.getPenguins(),
+    fishes: island.getFishes(),
     weather: weathers[island.weather],
     tiles: island.tiles,
     food: island.food,
@@ -184,6 +185,7 @@ const getIslandData = async (
     result = {
       island: getImg(territory, islandData.sizeH, islandData.sizeL),
       penguins: penguins,
+      fishes: islandData.fishes,
       weather: weathers[islandData.weather],
       tiles: islandData.tiles,
       food: islandData.food,
@@ -233,6 +235,7 @@ const getMovesData = async (islandId, penguinFollowId) => {
       points: islandData.points,
       islandSize: islandData.landSize,
       penguins: islandData.penguins,
+      fishes: islandData.fishes,
       counter: islandData.counter,
     };
 
