@@ -69,14 +69,14 @@ args.forEach((arg) => {
   }
 });
 
-// setLogLevel("req", LOGINFO);
+setLogLevel("req", LOGINFO);
 // setLogLevel("db", LOGINFO);
 // setLogLevel("index", LOGINFO);
 
 // setLogLevel("worker", LOGINFO);
 // setLogLevel("data", LOGINFO);
 // setLogLevel("island", LOGINFO);
-setLogLevel("fish", LOGINFO);
+// setLogLevel("fish", LOGINFO);
 // setLogLevel("penguin", LOGINFO);
 
 const debug = false;
