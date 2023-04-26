@@ -69,8 +69,8 @@ args.forEach((arg) => {
   }
 });
 
-setLogLevel("req", LOGINFO);
-setLogLevel("db", LOGINFO);
+setLogLevel("index", LOGINFO);
+// setLogLevel("db", LOGINFO);
 // setLogLevel("index", LOGINFO);
 
 // setLogLevel("worker", LOGINFO);
@@ -83,7 +83,7 @@ const debug = false;
 
 // initiate the DB - local means a local DB for dynamo. Acebase is always local
 // if the argument 'cleandb' was given, then the island dataset will be (re)created
-createDb(local);
+createDb(false);
 if (cleandb) cleanDb();
 
 if (terminal) {

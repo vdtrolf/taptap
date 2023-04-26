@@ -16,6 +16,7 @@ const islandDataReq = require("./islandData.js");
 const islandReq = require("./island.js");
 
 let Island = islandReq.Island;
+let initiateDb = dbhelperReq.initiateDb;
 let getItem = dbhelperReq.getItem;
 let deleteItem = dbhelperReq.deleteItem;
 let getAsyncItems = dbhelperReq.getAsyncItems;
@@ -304,6 +305,13 @@ const deleteIsland = async (islandId) => {
   return islands;
 };
 
+const initiateData = async () => {
+  
+  await initiateDb();
+  return true;
+};
+
+
 
 
 // returns an 'image' of the isalnd in the form of an array of objects
@@ -395,5 +403,6 @@ module.exports = {
   getIslandsList: getIslandsList,
   deleteIsland: deleteIsland,
   setRunningState: setRunningState,
-  runonce: runonce
+  runonce: runonce,
+  initiateData: initiateData, 
 };

@@ -23,6 +23,7 @@ let persistIsland = islandDataReq.persistIsland;
 let getInitData = islandWorkerReq.getInitData;
 let deleteIsland = islandWorkerReq.deleteIsland;
 let getIslandData = islandWorkerReq.getIslandData;
+let initiateData = islandWorkerReq.initiateData;
 
 var islandId = 0;
 var penguinId = 0;
@@ -200,6 +201,9 @@ const checkInput = (input) => {
     } else if (input==="c" || input==="create") {
       createIsland();
       context=1;
+    } else if (input==="i" || input==="initiate") {
+      initiateData();
+      console.log("state: done");
     } else if (input==="m" || input==="more") {
       if(islandId) { 
         getItem("island",islandId).then(value => islandDetails(value));

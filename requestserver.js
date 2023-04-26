@@ -24,7 +24,7 @@ let getIslandsList = islandWorkerReq.getIslandsList;
 let deleteIsland = islandWorkerReq.deleteIsland;
 let runonce = islandWorkerReq.runonce;
 let setRunningState = islandWorkerReq.setRunningState;
-
+let initiateData = islandWorkerReq.initiateData;
 
 let startStateSteps = stephelperReq.startStateSteps;
 
@@ -62,6 +62,12 @@ const createResponse = async (url, params, islandId = 0, local = true) => {
         );
 
         return await getInitData(island);
+      }
+
+      case "/iniate": {
+        log(realm, source, "createResponse", "initiate Data ");
+        await initiateData();
+        return { state: done };
       }
 
       case "/state": {

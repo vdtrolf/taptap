@@ -114,6 +114,36 @@
    });
  };
 
+const initiateDb = () => {
+  let tableNames = [];
+
+  dynamodb.listTables({ Limit: 10 }, (err, data) => {
+    if (err) {
+      console.log("dynamohelper.js : Could not list tables", err);
+    } else {
+      console.log(data.TableNames);
+      
+      if (data?.TableNames.includes("island")) {
+        dynamodb.deleteTable(islanddefs, function (err, data) {
+          console.log("Table island deleting");
+          dynamodb.waitFor("tableNotExists", islanddefs, function (err, data) {
+            dynamodb.createTable(islanddefs, function (err, data) {});
+            console.log("Table island created");
+          });
+        });
+      } else {
+        dynamodb.createTable(islanddefs, function (err, data) {
+          if (err) {
+            console.log("Error in creating table island ", err);
+          } else {
+            console.log("Table island created");
+          }
+        });
+      }
+    }
+  });
+}
+
  // adds an item in the DB based on the table name and the unique id
 
  const putItem = (TableName, anItem, uniqueId) => {
@@ -239,4 +269,5 @@
    deleteItem,
    createDb,
    cleanDb,
+   initiateDb,
  };

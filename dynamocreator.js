@@ -1,10 +1,10 @@
 const AWS = require("aws-sdk");
 AWS.config.update({ region: "us-east-1" });
 
-//const dynamodb = new AWS.DynamoDB({
-//  endpoint: new AWS.Endpoint("http://localhost:8000"),
-// });
-const dynamodb = new AWS.DynamoDB();
+const dynamodb = new AWS.DynamoDB({
+  endpoint: new AWS.Endpoint("http://localhost:8000"),
+ });
+// const dynamodb = new AWS.DynamoDB();
 
 const islanddefs = {
   AttributeDefinitions: [{ AttributeName: "id", AttributeType: "N" }],
