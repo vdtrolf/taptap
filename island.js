@@ -38,9 +38,9 @@ class Island {
     year = 2000,
     weather = 0,
     weatherCount = 0,
-    temperature = 0,
+    temperature = 0.4,
     plasticControl = 0,
-    oceanTemperature = 0,
+    oceanTemperature = 20.3,
     numPeng = 0,
     tiles = 0,
     landSize = 0,
@@ -395,8 +395,8 @@ class Island {
     }
 
     this.year += 0.25;
-    this.temperature += 0.001;
-    this.oceanTemperature += 0.001;
+    this.temperature += 0.00625;
+    this.oceanTemperature += 0.01;
 
     log(realm,source,"smelt","island = " + this.id);
 
