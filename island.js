@@ -18,10 +18,12 @@ const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
 const nameserverReq = require("./nameserver.js");
 const fishReq = require("./fish.js");
+const garbageReq = require("./garbage.js");
 
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
 let Fish = fishReq.Fish;
+let Garbage = garbageReq.Garbage;
 
 let islands = [];
 
@@ -33,12 +35,16 @@ class Island {
     sizeL,
     id = 0,
     name = "",
+    year = 2000,
     weather = 0,
     weatherCount = 0,
+    temperature = 0,
+    plasticControl = 0,
+    oceanTemperature = 0,
     numPeng = 0,
-    tiles = 5,
+    tiles = 0,
     landSize = 0,
-    food = 5,
+    food = 0,
     points = 0,
     running = true,
     runonce = false,
@@ -48,12 +54,16 @@ class Island {
   ) {
     let newIsland = id === 0;
 
-    this.id = id === 0 ? Math.floor(Math.random() * 999999) : id;
+    this.id = id === 0 ? Math.floor(Math.random() * 999999999) : id;
     this.name = name === "" ? nameserverReq.getIslandName() : name;
     this.sizeH = sizeH;
     this.sizeL = sizeL;
+    this.year = year;
     this.weather = weather;
     this.weatherCount = weatherCount;
+    this.temperature = temperature;
+    this.plasticControl = plasticControl;
+    this.oceanTemperature = oceanTemperature; 
     this.numPeng = numPeng;
     this.tiles = tiles;
     this.landSize = landSize;
@@ -69,7 +79,7 @@ class Island {
     this.territory = [];
     this.penguins = [];
     this.fishes = [];
-   
+    this.garbages = [];
 
     let matrix = [];
 
@@ -220,6 +230,34 @@ class Island {
         }
       }
 
+      // randomly add some garbage
+
+      let garbageNum = Math.floor(Math.random() * 2) + 4;
+      let garbageCnt = 0;
+      let i=0;
+
+      while (i++ < 10 && garbageCnt < garbageNum) {
+        let hpos = Math.floor(Math.random() * this.sizeH);
+        let lpos = Math.floor(Math.random() * this.sizeL);
+        let land = this.territory[hpos][lpos];
+
+        if ((hpos === 0 || lpos=== 0 || hpos === 11 || lpos=== 11) && land && land.getType() === 0 && ! land.hasGarbage) {
+          // && this.penguins.length < 1) {
+          let garbage = new Garbage(
+            0, // this.numPeng++,
+            hpos,
+            lpos,
+            this.id,
+            0
+          );
+
+          land.addGarbage();
+
+          this.garbages.push(garbage);
+          garbageCnt++;
+        }
+      }
+ 
       // randomly add some fishes
 
       let fishNum = Math.floor(Math.random() * 2) + 4;
@@ -230,7 +268,7 @@ class Island {
         let lpos = Math.floor(Math.random() * this.sizeL);
         let land = this.territory[hpos][lpos];
 
-        if (land && land.getType() === 0 && ! land.hasFish) {
+        if (land && land.getType() === 0 && ! land.hasFish && ! land.hasGarbage) {
           // && this.penguins.length < 1) {
           let fish = new Fish(
             0, // this.numPeng++,
@@ -239,14 +277,12 @@ class Island {
             this.id,
             0
           );
-
           land.addFish();
-
           this.fishes.push(fish);
           fishCnt++;
         }
       }
-    }
+    } // new Island
   } // constructor ()
 
   addTile() {
@@ -314,6 +350,10 @@ class Island {
     return this.fishes;
   }
 
+  getGarbages() {
+    return this.garbages;
+  }
+
   // elevate a plot os land - can be called recusrsively to elevate adjacent plots of land
   elev(land, hpos, lpos) {
     const height = land.getType() + 1;
@@ -353,6 +393,10 @@ class Island {
     if (!this.running) {
       return;
     }
+
+    this.year += 0.25;
+    this.temperature += 0.001;
+    this.oceanTemperature += 0.001;
 
     log(realm,source,"smelt","island = " + this.id);
 
@@ -624,6 +668,7 @@ class Island {
         if (this.territory[i][j]) {
           this.territory[i][j].isTarget = false;
           this.territory[i][j].hasFish = false;
+          this.territory[i][j].hasGarbage = false;
         }
       }
     }
@@ -636,6 +681,48 @@ class Island {
         aliveFishes++;
         this.territory[fish.hpos][fish.lpos].setTarget(true);
     });
+
+    this.garbages.forEach((garbage) => {
+      this.territory[garbage.hpos][garbage.lpos].setTarget(true);
+      this.territory[garbage.hpos][garbage.lpos].setGarbage(true);
+    });
+
+   // randomly add some garbage
+
+   let i=0;
+
+   while (i++ < 3) {
+     let hpos = Math.floor(Math.random() * this.sizeH);
+     let lpos = Math.floor(Math.random() * this.sizeL);
+     let land = this.territory[hpos][lpos];
+
+     // console.log("$$$$$$$ " + hpos + "/" +lpos);
+
+     if ( land && land.getType() === 0 && ! land.isTarget && 
+          // (hpos === 0 || hpos === 11 ||
+          //  lpos=== 0 || lpos=== 11 ||
+           ((lpos > 0 && this.territory[hpos][lpos - 1].hasGarbage) ||
+           ( lpos < 11 && this.territory[hpos][lpos + 1].hasGarbage) ||
+           ( hpos > 0 && this.territory[hpos - 1][lpos].hasGarbage) ||
+           ( hpos < 11 && this.territory[hpos + 1][lpos].hasGarbage)
+           )) {
+
+            console.log("$$$$$$$ >>> " + hpos + "/" +lpos);
+
+       let garbage = new Garbage(
+         0, // this.numPeng++,
+         hpos,
+         lpos,
+         this.id,
+         0
+       );
+
+       this.garbages.push(garbage);
+
+       land.addGarbage();
+       land.setTarget(true);
+     }
+   }
 
     // for (let penguin of this.penguins) {
 
@@ -783,6 +870,14 @@ class Island {
           "makePenguinsOlder",
           "island = " + this.id + " penguin=" + penguin.id
         );
+
+        if (status.newTile && this.tiles < 6) {
+          this.tiles++;
+        }
+
+        if (status.newFood && this.food < 6) {
+          this.food++;
+        }
 
         switch (status.returncode) {
           case 1: // died

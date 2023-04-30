@@ -17,11 +17,13 @@ const penguinReq = require("./penguin.js");
 const landReq = require("./land.js");
 const islandReq = require("./island.js");
 const fishReq = require("./fish.js");
+const garbageReq = require("./garbage.js");
 
 let Island = islandReq.Island;
 let Penguin = penguinReq.Penguin;
 let Land = landReq.Land;
 let Fish = fishReq.Fish;
+let Garbage = garbageReq.Garbage;
 
 let putItem = dbhelperReq.putItem;
 let deleteItem = dbhelperReq.deleteItem;
@@ -59,6 +61,7 @@ const persistIsland = (island) => {
         hasFood: land.hasFood,
         hasFish: land.hasFish,
         fishAge: land.fishAge,
+        hasGarbage: land.hasGarbage,
         hasIce: land.hasIce,
         iceAge: land.iceAge
       };
@@ -140,13 +143,34 @@ const persistIsland = (island) => {
     fishes.push(aFish);
   });
 
+  let garbages = [];
+  
+  island.garbages.forEach((garbage) => {
+    
+    const aGarbage = {
+      id: garbage.id,
+      islandId: garbage.islandId,
+      num: garbage.num,
+      hpos: garbage.hpos,
+      lpos: garbage.lpos,
+      type: garbage.type,
+      age: garbage.age
+    };
+    garbages.push(aGarbage);
+  });
+
+
   putItem("island", {
     id: island.id,
     name: island.name,
     sizeH: island.sizeH,
     sizeL: island.sizeL,
+    year: island.year,
     weather: island.weather,
     weatherCount: island.weatherCount,
+    temperature: island.temperature,
+    plasticControl: island.plasticControl,
+    oceanTemperature: island.oceanTemperature,
     numPeng: island.numPeng,
     tiles: island.tiles,
     landSize: island.landSize,
@@ -159,6 +183,7 @@ const persistIsland = (island) => {
     lands: lands,
     penguins: penguins,
     fishes: fishes,
+    garbages: garbages,
     counter: island.counter,
   }, island.id);
   
@@ -186,8 +211,12 @@ const persistIslandData = async (island) => {
     name: island.name,
     sizeH: island.sizeH,
     sizeL: island.sizeL,
+    year: island.year,
     weather: island.weather,
     weatherCount: island.weatherCount,
+    temperature: island.temperature,
+    plasticControl: island.plasticControl,
+    oceanTemperature: island.oceanTemperature,
     numPeng: island.numPeng,
     tiles: island.tiles,
     landSize: island.landSize,
@@ -200,6 +229,7 @@ const persistIslandData = async (island) => {
     lands: island.lands,
     penguins: island.penguins,
     fishes: island.fishes,
+    garbages: island.garbages,
     counter: island.counter,
   },island.id);
 };
@@ -237,8 +267,12 @@ const initiateIslands = async (islandParam=null) => {
             anIsland.sizeL,
             anIsland.id,
             anIsland.name,
+            anIsland.year,
             anIsland.weather,
             anIsland.weatherCount,
+            anIsland.temperature,
+            anIsland.plasticControl,
+            anIsland.oceanTemperature,
             anIsland.numPeng,
             anIsland.tiles,
             anIsland.landSize,
@@ -274,6 +308,7 @@ const initiateIslands = async (islandParam=null) => {
                 aLand.hasFood,
                 aLand.hasFish,
                 aLand.fishAge,
+                aLand.hasGarbage,
                 aLand.hasIce,
                 aLand.iceAge
               );
@@ -357,6 +392,27 @@ const initiateIslands = async (islandParam=null) => {
             });
           }
           island.fishes = fishes;
+
+          let garbages = [];
+
+          if (anIsland.garbages) {
+            anIsland.garbages.forEach((aGarbage) => {
+              let garbage = new Garbage(
+                aGarbage.num,
+                aGarbage.hpos,
+                aGarbage.lpos,
+                island.id,
+                aGarbage.id,
+                aGarbage.type,
+                aGarbage.age
+              );
+              garbages.push(garbage);
+                
+            });
+          }
+          island.garbages = garbages;
+
+
 
           addIsland(island);
 

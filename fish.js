@@ -34,7 +34,7 @@ class Fish {
     fishDirection = 0,
     
   ) {
-    this.id = id === 0 ? Math.floor(Math.random() * 999999) : id;
+    this.id = id === 0 ? Math.floor(Math.random() * 999999999) : id;
     this.islandId = islandId;
     this.num = num;
     this.hpos = h;

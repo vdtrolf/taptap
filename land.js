@@ -24,10 +24,11 @@ class Land {
     hasFood = false,
     hasFish = false,
     fishAge = 0,
+    hasGarbage = false,
     hasIce = false,
     iceAge = 0
   ) {
-    this.id = id === 0 ? Math.floor(Math.random() * 999999) : id;
+    this.id = id === 0 ? Math.floor(Math.random() * 999999999) : id;
     this.islandId = islandId;
     this.hpos = h;
     this.lpos = l;
@@ -42,6 +43,7 @@ class Land {
     this.hasIce = hasIce;
     this.iceAge = iceAge;
     this.fishAge = fishAge;
+    this.hasGarbage = hasGarbage;
 
     this.changed = true;
     this.isTarget = false;
@@ -64,6 +66,10 @@ class Land {
 
   setFish(hasFish) {
     this.hasFish = hasFish;
+  }
+
+  setGarbage(hasGarbage) {
+    this.hasGarbage = hasGarbage;
   }
 
   setLand(num) {
@@ -177,6 +183,12 @@ class Land {
   // remove a fishming fish
   removeFish() {
     this.hasFish = false;
+    this.changed = true;
+  }
+
+  // add a fishming fish
+  addGarbage() {
+    this.hasGarbage = true;
     this.changed = true;
   }
 

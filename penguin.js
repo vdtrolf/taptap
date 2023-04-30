@@ -75,7 +75,7 @@ class Penguin {
     targetDirections = [],
     path = []
   ) {
-    this.id = id === 0 ? Math.floor(Math.random() * 999999) : id;
+    this.id = id === 0 ? Math.floor(Math.random() * 999999999) : id;
     this.islandId = islandId;
     // this.moveLog = moveLog;
     this.num = num;
@@ -309,6 +309,7 @@ class Penguin {
     this.hpos = hpos;
     this.lpos = lpos;
     this.waiting = 0;
+    this.moveDirection = moveDir;
   }
   
   // tells te peguin to make love with a partner
@@ -427,6 +428,8 @@ class Penguin {
     let returncode = 0;
     let fillHPos = 0;
     let fillLPos = 0;
+    let newTile = false;
+    let newFood = false;
 
     if (this.eating > 0) {
       this.eating -= 1;
@@ -436,7 +439,11 @@ class Penguin {
       this.fishTime -= 1;
       if (this.fishTime === 0) {
         this.fishDirection = 0;
-        this.eat();
+        if (this.hungry > 60 ) {
+          this.eat();
+        } else {
+          newFood= true;
+        }
       }
     }
 
@@ -445,6 +452,7 @@ class Penguin {
       if (this.digTime === 0) {
         this.digDirection = 0;
         this.hasIce=true;
+        newTile = true;
       }
     }
 
@@ -496,7 +504,7 @@ class Penguin {
       returncode = 2;
     }
 
-    return { returncode: returncode, fillHPos: fillHPos, fillLPos: fillLPos};
+    return { returncode: returncode, fillHPos: fillHPos, fillLPos: fillLPos, newTile: newTile, newFood: newFood};
   }
 
   setGender(gender) {
