@@ -27,7 +27,7 @@ class Garbage {
     this.num = num;
     this.hpos = h;
     this.lpos = l;
-    this.type = type === 0 ? Math.floor(Math.random() * 4) : type;
+    this.type = type === 0 ? Math.floor(Math.random() * 5) + 1 : type;
     this.age = age;
 
     log(

@@ -1,6 +1,6 @@
 // DB stuff
-const dbhelperReq = require("./dynamohelper.js"); 
-// const dbhelperReq = require("./acebasehelper.js");
+// const dbhelperReq = require("./dynamohelper.js"); 
+const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -349,6 +349,8 @@ const getImg = (territory, islandH, islandL) => {
           artifact = land.fishAge > 0?6:4;  
         } else if (land.hasIce) {
           artifact = 5;
+        } else if (land.isBuildTarget) {
+          artifact = 7;
         }
       }
       let tile =
