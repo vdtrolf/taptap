@@ -1,6 +1,6 @@
 // DB stuff
-// const dbhelperReq = require("./dynamohelper.js"); 
-const dbhelperReq = require("./acebasehelper.js");
+const dbhelperReq = require("./dynamohelper.js"); 
+// const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -141,15 +141,20 @@ const getIslandData = async (
       let land = territory[tileHpos][tileLpos];
 
       if (land) {
-        if (land.type === 0 && islandData.tiles > 0) {
-          if (land.hasFish) {
-            land.hasFish = false;
-            land.hasFood = true;
-          }
-          land.type = 1;
+        if (land.type === 0 && islandData.tiles > 0 && ! land.hasFish
+          // && (territory[tileHpos -1 ][tileLpos] > 0 || 
+          //     territory[tileHpos +1 ][tileLpos] > 0 ||
+          //     territory[tileHpos][tileLpos -1] > 0|| 
+          //     territory[tileHpos][tileLpos + 1] > 0)
+          ) {
+          land.type = 0;
           land.conf = 0;
+          land.isFillTarget = true;
           land.changed = true;
           islandData.tiles -= islandData.tiles > 0 ? 1 : 0;
+
+          console.log("&&&&& done " + tileHpos + "/" + tileLpos  )
+
           changed = true;
         } else if (land.type > 0) {
           if (land.hasIce) {
@@ -349,7 +354,7 @@ const getImg = (territory, islandH, islandL) => {
           artifact = land.fishAge > 0?6:4;  
         } else if (land.hasIce) {
           artifact = 5;
-        } else if (land.isBuildTarget) {
+        } else if (land.isFillTarget) {
           artifact = 7;
         }
       }

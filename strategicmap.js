@@ -103,6 +103,11 @@ class StrategicMap {
     let foundLoveL = 0;
     let distLove = 99;
 
+    let foundFill = false;
+    let foundFillH = 0;
+    let foundFillL = 0;
+    let distFill = 99;
+
     let hasUrgentNeed = false;
 
     let additionalText = "";
@@ -134,10 +139,11 @@ class StrategicMap {
                 hpos: hpos,
                 lpos: lpos,
                 pos: false,
-                fish: false,
+                food: false,
                 stable: false,
                 fish: false,
                 ice: false,
+                fill: false,
                 love: false,
                 smelt: 0,
                 warm: 0,
@@ -153,6 +159,8 @@ class StrategicMap {
               //console.log("££££££ -+- C")
               let ice = this.hasLandIce(island, hpos, lpos,);
               //console.log("££££££ -+- C")
+              let fill = this.hasLandFill(island, hpos, lpos,);
+              //console.log("££££££ -+- C")
               let love = this.hasLandLove(island, hpos, lpos, penguin.id, penguin.gender);
               //console.log("££££££ -+- D")
               
@@ -165,10 +173,11 @@ class StrategicMap {
                 food: land.hasFood,
                 stable: stable,
                 fish: fish,
-                smelt: land.getConf(),
-                warm: warm,
                 ice:ice,
                 love:love,
+                fill:fill,
+                smelt: land.getConf(),
+                warm: warm,
                 art: land.hasFood?2:land.hasIce?4:0
               });
 
@@ -210,7 +219,6 @@ class StrategicMap {
               
               // Is there ice somewhere
               
-              
               if (ice) {
                 foundIce = true;
                 let dist = Math.abs(centerH - hpos) + Math.abs(centerL - lpos);
@@ -218,6 +226,18 @@ class StrategicMap {
                   foundIceH = hpos;
                   foundIceL = lpos;
                   distIce= dist;
+                }
+              }
+
+              // Is there something to build somewhere
+              
+              if (fill) {
+                foundFill = true;
+                let dist = Math.abs(centerH - hpos) + Math.abs(centerL - lpos);
+                if (dist < distFill) {
+                  foundFillH = hpos;
+                  foundFillL = lpos;
+                  distFill= dist;
                 }
               }
               
@@ -233,18 +253,17 @@ class StrategicMap {
                 }
               }
               
-              // console.log("££££££ --- 2" )
-              
-              
             }
           } else {
             hline.push({
               hpos: hpos,
               lpos: lpos,
               pos: false,
-              fish: false,
+              food: false,
               stable: false,
               fish: false,
+              ice: false,
+              fill: false,
               smelt: 0,
               warm: 0,
               art:0
@@ -255,9 +274,11 @@ class StrategicMap {
             hpos: hpos,
             lpos: lpos,
             pos: false,
-            fish: false,
+            food: false,
             stable: false,
             fish: false,
+            ice: false,
+            fill: false,
             smelt: 0,
             warm: 0,
             art:0
@@ -271,7 +292,6 @@ class StrategicMap {
 
     let hasPath = false;
     let fatburnsteps = (100 - penguin.hungry) / (Math.floor(penguin.fat / 3) + 1)
-
 
     if (penguin.isLoving()) {
       this.action = 4;
@@ -368,6 +388,48 @@ class StrategicMap {
         // if (show) console.log(">>>>> 000 action: " + this.action + " hasTarget: " + this.hasTarget + " hasUrgentNeed " + hasUrgentNeed)
 
       }  // hungry 
+
+      // Lets see if there is a filling to be done
+
+      if (penguin.hasIce && this.action === 0 && ! hasUrgentNeed ) { // cold
+
+        if (foundFill) {
+
+          if (distFill < 1) {
+            let fillmoves = [];
+
+            if (island.territory[penguin.hpos][penguin.lpos - 1].canFill()) fillmoves.push(1);
+            if (island.territory[penguin.hpos][penguin.lpos + 1].canFill()) fillmoves.push(2);
+            if (island.territory[penguin.hpos - 1][penguin.lpos].canFill()) fillmoves.push(3);
+            if (island.territory[penguin.hpos + 1][penguin.lpos].canFill()) fillmoves.push(4);
+
+            if (fillmoves.length > 0) {
+              let fillmove = fillmoves[Math.floor(Math.random() * fillmoves.length)];
+    
+              let filllpos = fillmove === 1 ? penguin.lpos - 1 : penguin.lpos;
+              filllpos = fillmove === 2 ? penguin.lpos + 1 : filllpos;
+              let fillhpos = fillmove === 3 ? penguin.hpos - 1 : penguin.hpos;
+              fillhpos = fillmove === 4 ? penguin.hpos + 1 : fillhpos;
+
+              island.territory[fillhpos][filllpos].fill();
+
+              this.strategyShort = " Filling";
+              this.actionDirection = fillmove;
+              this.action = 9;
+                            
+            }
+          } else {
+
+            hasUrgentNeed = true;
+            this.strategyShort = " To fill";
+            this.hasTarget = true;
+            this.targetH = foundFillH;
+            this.targetL = foundFillL;
+          }
+        }      
+      } // looking for a fill
+
+      // Lets see if we can find any warmth
 
       if (this.action === 0 && ! hasUrgentNeed && island.weather > 0 && penguin.wealth < 90) { // cold
 
@@ -489,46 +551,46 @@ class StrategicMap {
             );
           
             if (hasPath) {
-
-
               this.action = 1;
-            } else if (this.targetH && penguin.hasIce) {
+            } 
 
-              // if (show) console.log(penguin.name + " (" + this.strategyShort + ") Looking for filling at " + penguin.hpos + "/" + penguin.lpos + " to " + this.targetH + "/" + this.targetL   );
+            // else if (this.targetH && penguin.hasIce) { // Filling for Path 
 
-              let posmoves = [];
-              if (this.targetL > penguin.lpos && island.territory[penguin.hpos][penguin.lpos + 1].getType() === 0) posmoves.push(2);
-              if (this.targetL < penguin.lpos && island.territory[penguin.hpos][penguin.lpos - 1].getType() === 0) posmoves.push(1);
-              if (this.targetH > penguin.hpos && island.territory[penguin.hpos + 1][penguin.lpos].getType() === 0) posmoves.push(4);
-              if (this.targetH < penguin.hpos && island.territory[penguin.hpos - 1][penguin.lpos].getType() === 0) posmoves.push(3);
+            //   // if (show) console.log(penguin.name + " (" + this.strategyShort + ") Looking for filling at " + penguin.hpos + "/" + penguin.lpos + " to " + this.targetH + "/" + this.targetL   );
+
+            //   let posmoves = [];
+            //   if (this.targetL > penguin.lpos && island.territory[penguin.hpos][penguin.lpos + 1].getType() === 0) posmoves.push(2);
+            //   if (this.targetL < penguin.lpos && island.territory[penguin.hpos][penguin.lpos - 1].getType() === 0) posmoves.push(1);
+            //   if (this.targetH > penguin.hpos && island.territory[penguin.hpos + 1][penguin.lpos].getType() === 0) posmoves.push(4);
+            //   if (this.targetH < penguin.hpos && island.territory[penguin.hpos - 1][penguin.lpos].getType() === 0) posmoves.push(3);
  
-              if (posmoves.length > 0) {
-                let aPosMove = Math.floor(Math.random() * posmoves.length);
+            //   if (posmoves.length > 0) {
+            //     let aPosMove = Math.floor(Math.random() * posmoves.length);
 
-                // if (show) console.log("Found filling to " + posmoves[aPosMove]) ;
+            //     // if (show) console.log("Found filling to " + posmoves[aPosMove]) ;
 
-                this.strategyShort = " Filling (for path)";
-                this.actionDirection = posmoves[aPosMove] ;
-                this.action = 9;
-              } else {
-                let posmoves = [];
-                if (this.targetL < penguin.lpos && island.territory[penguin.hpos][penguin.lpos - 1].canMove()) posmoves.push({dir:1, posH: penguin.hpos, posL: penguin.lpos -1 });
-                if (this.targetL > penguin.lpos && island.territory[penguin.hpos][penguin.lpos + 1].canMove()) posmoves.push({dir:2, posH: penguin.hpos, posL: penguin.lpos +1 });
-                if (this.targetH < penguin.hpos && island.territory[penguin.hpos - 1][penguin.lpos].canMove()) posmoves.push({dir:3, posH: penguin.hpos -1, posL: penguin.lpos });
-                if (this.targetH > penguin.hpos && island.territory[penguin.hpos + 1][penguin.lpos].canMove()) posmoves.push({dir:4, posH: penguin.hpos +1, posL: penguin.lpos });
+            //     this.strategyShort = " Filling (for path)";
+            //     this.actionDirection = posmoves[aPosMove] ;
+            //     this.action = 9;
+            //   } else {
+            //     let posmoves = [];
+            //     if (this.targetL < penguin.lpos && island.territory[penguin.hpos][penguin.lpos - 1].canMove()) posmoves.push({dir:1, posH: penguin.hpos, posL: penguin.lpos -1 });
+            //     if (this.targetL > penguin.lpos && island.territory[penguin.hpos][penguin.lpos + 1].canMove()) posmoves.push({dir:2, posH: penguin.hpos, posL: penguin.lpos +1 });
+            //     if (this.targetH < penguin.hpos && island.territory[penguin.hpos - 1][penguin.lpos].canMove()) posmoves.push({dir:3, posH: penguin.hpos -1, posL: penguin.lpos });
+            //     if (this.targetH > penguin.hpos && island.territory[penguin.hpos + 1][penguin.lpos].canMove()) posmoves.push({dir:4, posH: penguin.hpos +1, posL: penguin.lpos });
 
-                if (posmoves.length > 0) {
-                  let aPosMove = Math.floor(Math.random() * posmoves.length);
+            //     if (posmoves.length > 0) {
+            //       let aPosMove = Math.floor(Math.random() * posmoves.length);
 
-                  // if (show) console.log( penguin.name + " Found pre-filling to " + posmoves[aPosMove].dir);
+            //       // if (show) console.log( penguin.name + " Found pre-filling to " + posmoves[aPosMove].dir);
 
-                  this.path.push(posmoves[aPosMove]);
-                  this.action = 1;
-                  hasPath = true;
-                }
+            //       this.path.push(posmoves[aPosMove]);
+            //       this.action = 1;
+            //       hasPath = true;
+            //     }
 
-              }
-            }
+            //   }
+            // }
 
           } else if (this.wantsSearch || hasOther) {
             
@@ -572,14 +634,6 @@ class StrategicMap {
             break;
         }
 
-        // if (targetLand.getType()=== 1 && targetLand.getConf() > 9 && penguin.hasIce) {
-
-        //   this.action = 9;
-        //   this.strategyShort = " Filling (unstable)"
-        //   this.actionDirection = this.targetDirections[0];
-        //   // console.log("Path unstable, filling to " + this.actionDirection)
-          
-        // }
       } else {
         this.targetDirections.push(0, 0, 0, 0);
         
@@ -643,7 +697,8 @@ class StrategicMap {
           let celltxt = " ";
           if (cell.pos || cell.stable) celltxt = ".";
           if (cell.fish) celltxt = "~";
-          if (cell.fish) celltxt = "@";
+          if (cell.food) celltxt = "@";
+          if (cell.fill) celltxt = "#";
           // if (cell.ice) celltxt = "^";
           if (cell.love) celltxt = "&";
           txt += celltxt;
@@ -690,6 +745,14 @@ class StrategicMap {
                 foundIceL;
             break;  
           case 4:
+            if (penguin.hasIce && foundFill)
+              txt +=
+                " - Found fill (#) at " +
+                foundFillH +
+                "/" +
+                foundFillL;
+            break;  
+          case 5:
             txt += " Alone : " + 
                     (alone?"yes":"no");
             if (alone && foundLove)
@@ -699,7 +762,7 @@ class StrategicMap {
                 "/" +
                 foundLoveL;
             break;  
-          case 5:
+          case 6:
             txt += this.strategyShort;
             if (this.hasTarget && this.path.length > 0) {
               txt += " path : ";
@@ -780,6 +843,17 @@ class StrategicMap {
       island.territory[hpos][lpos + 1].hasIce
     );
   }
+
+  // A land has a built if there is a buildTarget in the neighbour tiles
+
+  hasLandFill(island, hpos, lpos) {
+    return (
+      island.territory[hpos - 1][lpos].isFillTarget ||
+      island.territory[hpos + 1][lpos].isFillTarget ||
+      island.territory[hpos][lpos - 1].isFillTarget ||
+      island.territory[hpos][lpos + 1].isFillTarget
+    );
+  }  
 
   // A land has love if there is a lovable in de vicinity 
 

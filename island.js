@@ -609,7 +609,7 @@ class Island {
               break;
             case 9:
 
-              // console.log(`>>>> ${penguin.name} is going to fill at direction ${target.actionDirection}`)
+              console.log(`>>>> ${penguin.name} is going to fill at direction ${target.actionDirection}`)
 
               log(realm, source, "movePenguins", `${penguin.name} is going to fill at direction ${target.actionDirection}`);
               penguin.fill(target.actionDirection);
@@ -696,8 +696,6 @@ class Island {
      let lpos = Math.floor(Math.random() * this.sizeL);
      let land = this.territory[hpos][lpos];
 
-     // console.log("$$$$$$$ " + hpos + "/" +lpos);
-
      if ( land && land.getType() === 0 && ! land.isTarget && 
           // (hpos === 0 || hpos === 11 ||
           //  lpos=== 0 || lpos=== 11 ||
@@ -706,8 +704,6 @@ class Island {
            ( hpos > 0 && this.territory[hpos - 1][lpos].hasGarbage) ||
            ( hpos < 11 && this.territory[hpos + 1][lpos].hasGarbage)
            )) {
-
-            console.log("$$$$$$$ >>> " + hpos + "/" +lpos);
 
        let garbage = new Garbage(
          0, // this.numPeng++,
@@ -724,8 +720,7 @@ class Island {
      }
    }
 
-    // for (let penguin of this.penguins) {
-
+   
     this.fishes.forEach((fish) => {
       // First check if the penguin is alive
       let fishH = fish.hpos;
@@ -814,25 +809,15 @@ class Island {
       for (let j = 0; j < this.sizeL; j++) {
         let land = this.territory[i][j];
 
-        // if (land.hasFish) {
-        //   if (Math.floor(Math.random() * 20) === 0) {
-        //     land.removeFish();
-        //   } else {
-        //     cntFish += 1;
-        //   }
-        // }
-
         if (land.hasIce) {
           cntIce += 1;
         }
-
-
       }
     }
 
     // console.log("----> " + cntFish)
 
-    // randomly add some fishming getfood
+    // randomly add some ice
     if (cntIce < 6) {
       let hpos = Math.floor(Math.random() * (this.sizeH - 2)) + 1;
       let lpos = Math.floor(Math.random() * (this.sizeL - 2)) + 1;

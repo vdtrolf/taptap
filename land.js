@@ -26,7 +26,9 @@ class Land {
     fishAge = 0,
     hasGarbage = false,
     hasIce = false,
-    iceAge = 0
+    iceAge = 0,
+    isFillTarget = false,
+    fillAge = 0
   ) {
     this.id = id === 0 ? Math.floor(Math.random() * 999999999) : id;
     this.islandId = islandId;
@@ -44,6 +46,8 @@ class Land {
     this.iceAge = iceAge;
     this.fishAge = fishAge;
     this.hasGarbage = hasGarbage;
+    this.isFillTarget = isFillTarget;
+    this.fillAge = fillAge;
 
     this.changed = true;
     this.isTarget = false;
@@ -73,6 +77,12 @@ class Land {
   }
 
   setLand(num) {
+
+    if (num ===1 && this.isFillTarget) {
+      this.isFillTarget = false;
+      this.fillAge = 0;
+    }
+
     this.type = num;
     this.conf = 0;
   }
@@ -125,12 +135,21 @@ class Land {
     log(
       realm,
       source,
-      "setCross",
+      "digIce",
       "diging ices at " + this.hpos + "/" + this.lpos
     );
     this.iceAge = 6;
   }
 
+  fill() {
+    log(
+      realm,
+      source,
+      "fill",
+      "filling ices at " + this.hpos + "/" + this.lpos
+    );
+    this.iceAge = 6;
+  }
 
   removeFish() {
     this.hasFood = false;
@@ -138,6 +157,14 @@ class Land {
 
   canFish() {
     return this.hasFish && this.fishAge === 0;
+  }
+
+  canFill() {
+    return this.isFillTarget && this.fillAge === 0;
+  }
+
+  removeFill() {
+    this.isFillTarget = false;
   }
 
   setRandomSmeltLevel(waterBorders) {

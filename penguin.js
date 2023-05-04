@@ -381,7 +381,7 @@ class Penguin {
   fill(direction) {
     // this.addMoveLog(9, this.cat, "fill", direction);
     this.fillDirection = direction;
-    this.fillTime = 3;
+    this.fillTime = 6;
   }
 
   // return true is the penguin is eating
@@ -409,6 +409,7 @@ class Penguin {
     this.alive = false;
     this.eating = 0;
     this.fishTime = 0;
+    this.fillTime = 0;
     this.loving = 0;
     this.hasLoved = 0;
     this.hungry = 0;
