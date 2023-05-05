@@ -1,6 +1,6 @@
 // DB stuff
-const dbhelperReq = require("./dynamohelper.js"); 
-// const dbhelperReq = require("./acebasehelper.js");
+// const dbhelperReq = require("./dynamohelper.js"); 
+const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -341,6 +341,7 @@ const getImg = (territory, islandH, islandL) => {
     for (let j = 1; j < islandL - 1; j++) {
       let land = territory[i][j];
       let artifact = 0;
+      let age = 0;
       if (land) {
         if (land.hasCross) {
           if (land.type === 0) {
@@ -354,8 +355,10 @@ const getImg = (territory, islandH, islandL) => {
           artifact = land.fishAge > 0?6:4;  
         } else if (land.hasIce) {
           artifact = 5;
+          age = land.iceAge;
         } else if (land.isFillTarget) {
           artifact = 7;
+          age = land.fillAge;
         }
       }
       let tile =
@@ -364,21 +367,15 @@ const getImg = (territory, islandH, islandL) => {
          territory[i][j].conf +
          "-" +
          territory[i][j].var;
-      // result.push({
-      //   li: i,
-      //   col: j,
-      //   ti: tile,
-      //   art: artifact,
-      // });
 
       result.push({
         li: i,
         col: j,
         ti: tile,
-        type: territory[i][j].type,
-        age: territory[i][j].iceAge,
-        num: territory[i][j].conf,
-        var: territory[i][j].var,
+        type: land.type,
+        age: age,
+        num: land.conf,
+        var: land.var,
         art: artifact,
       });
 

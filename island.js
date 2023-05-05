@@ -1066,12 +1066,12 @@ class Island {
     let penguinpos = [];
     let fishpos = [];
     const shapes = ["","Fat","Fit","Slim","Lean"]
-    const activities = ["","Eating","Fishing","Loving"]
+    const activities = ["","Eating","Fishing","Loving","Diging","Filling"]
     const hunger = ["#####", ".####", "..###", "...##","....#","....."]
     const health = ["-----", "----+", "---++", "--+++","-++++","+++++" ]
     const eyes = ["   "," oo "," ôô "," öö "," @@ "," ©© "," °° "," õõ "," 88 "," 99 "," oo "," oo "]
     const fishEyes = ["    ","><o>","><ô>","><ö>","><@>","><©>","><°>","><õ>","><8>","><9>","><o>","><+>"]
-    const actImg = ["(\\/)","(<>)","()/: ","(<3)","()-■"]
+    const actImg = ["(\\/)","(<>)","()/: ","(<3)","()-■","(##)"]
     const acts = ["═╬╬═","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬"];
     const lineNum = ["1","2","3","4","5","6","7","8","9","A","B","C"]
     for (let h = 0; h < this.sizeH; h++) {
@@ -1099,11 +1099,11 @@ class Island {
       "+" +
       ("---------------------------------------------------------------------------------------").substring(0,this.sizeH * 4) + "+"; 
     
-    let side = ("---------------------------------------------------------------------------------------").substring(0,this.sizeH * 4 + 1) + "+"; 
+    let side = ("---------------------------------------------------------------------------------------").substring(0,this.sizeH * 3 + 1) + "+"; 
 
       let results = [""];
     results.push(mid + side );
-    results.push(top + " PENGUINS                                                             ".substring(0,this.sizeH * 4 + 1) + "|");
+    results.push(top + " PENGUINS                                                             ".substring(0,this.sizeH * 3 + 1) + "|");
     results.push(head + side );
 
     let penglist = [""];
@@ -1120,16 +1120,18 @@ class Island {
           activity = 2;
         } else if (penguin.loving > 0) {
           activity = 3;
-        } else if (penguin.diging > 0) {
+        } else if (penguin.digTime > 0) {
           activity = 4;
-        }
+        } else if (penguin.fillTime > 0) {
+          activity = 5;
+        }        
         penguinpos[penguin.hpos][penguin.lpos] = cnt;
-        var status = penguin.gender.substring(0,1) + "/" + Math.floor(penguin.age) + "/" + shapes[penguin.fat]
+        var status = penguin.gender.substring(0,1) + "/" + Math.floor(penguin.age) 
         const hungryBar = hunger[Math.floor(penguin.hungry/20)]
         const healthBar = health[Math.floor(penguin.wealth/20)]
         // let line="                                                                 "
-        let line = ` ${this.followId===penguin.id?'>':cnt} ${eyes[cnt]} ${penguin.name} ${status} ${hungryBar} ${healthBar} ${activity > 0? activities[activity]:penguin.strategyShort}                                `
-        line = line.substring(0,this.sizeH * 4 ) + ' |';
+        let line = `${eyes[cnt]}${penguin.name} ${status} ${hungryBar} ${healthBar} ${activity > 0? activities[activity]:penguin.strategyShort}                                `
+        line = line.substring(0,this.sizeH * 3 ) + ' |';
         acts[cnt] = actImg[activity];
         penglist.push(line);
         pengCnt++;
@@ -1147,8 +1149,8 @@ class Island {
         fishpos[fish.hpos][fish.lpos] = fishCnt;;
       }
 
-      let line = ` ${fishCnt} ${fish.onHook?'<>< ':fishEyes[fishCnt]} h=${fish.hpos} l=${fish.lpos} hookAge=${fish.hookAge}                                                  `
-      line = line.substring(0,this.sizeH * 4 ) + ' |';
+      let line = ` ${fish.onHook?'<>< ':fishEyes[fishCnt]} h=${fish.hpos} l=${fish.lpos} hook=${fish.hookAge}                                                  `
+      line = line.substring(0,this.sizeH * 3 ) + ' |';
       fishlist.push(line);
       fishCnt++;
     })
@@ -1245,6 +1247,12 @@ class Island {
               line1 += ":╔╗:";
               line2 += ":╚╝:";
             }    
+          } else if (land.isFillTarget) {
+            line1 += " /\\ " ;
+            line2 += " \\/ " ;    
+          } else if (land.hasGarbage) {
+            line1 += " °° " ;
+            line2 += " °° " ;    
           } else if (land.hasCross) {
             line1 += " ++ ";
             line2 += "(--)";

@@ -117,6 +117,10 @@ class Land {
       this.iceAge -= 1;
       this.hasIce = this.iceAge > 0;
     } 
+    if (this.fillAge > 0) {
+      this.fillAge -= 1;
+      this.isFillTarget = this.fillAge > 0;
+    } 
 
   }
 
@@ -148,7 +152,7 @@ class Land {
       "fill",
       "filling ices at " + this.hpos + "/" + this.lpos
     );
-    this.iceAge = 6;
+    this.fillAge = 6;
   }
 
   removeFish() {

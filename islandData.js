@@ -1,6 +1,6 @@
 // DB stuff
-const dbhelperReq = require("./dynamohelper.js"); 
-// const dbhelperReq = require("./acebasehelper.js");
+// const dbhelperReq = require("./dynamohelper.js"); 
+const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -112,7 +112,6 @@ const persistIsland = (island) => {
       moveDirection: penguin.moveDirection,
       strategyShort: penguin.strategyShort,
       knownWorld: penguin.knownWorld,
-      hasIce: penguin.hasIce,
       building: penguin.building,
       buildingDirection: penguin.buildingDirection,
       targetHPos: penguin.targetHPos,
@@ -358,7 +357,6 @@ const initiateIslands = async (islandParam=null) => {
                 aPenguin.partnerId,
                 aPenguin.moveDirection,
                 aPenguin.strategyShort,
-                aPenguin.hasIce,
                 aPenguin.building,
                 aPenguin.buildingDirection,
                 aPenguin.targetHPos,

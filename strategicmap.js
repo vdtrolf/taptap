@@ -391,7 +391,7 @@ class StrategicMap {
 
       // Lets see if there is a filling to be done
 
-      if (penguin.hasIce && this.action === 0 && ! hasUrgentNeed ) { // cold
+      if (this.action === 0 && ! hasUrgentNeed ) { // cold
 
         if (foundFill) {
 
@@ -492,7 +492,7 @@ class StrategicMap {
           }
         } // alone
         
-        if (this.action=== 0  && penguin.age > 6 && ! penguin.hasIce && foundIce) { // no Ice
+        if (this.action=== 0  && penguin.age > 6 && foundIce) { // no Ice
 
           if (distIce < 2) {
           
@@ -736,8 +736,7 @@ class StrategicMap {
                 foundWarmL;
             break;
           case 3:
-            txt += " Has ice: " + (penguin.hasIce?"yes":"no");
-            if (!penguin.hasIce && foundIce)
+            if ( foundIce)
               txt +=
                 " - Found ice (^) at " +
                 foundIceH +

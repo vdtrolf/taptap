@@ -65,7 +65,6 @@ class Penguin {
     partnerId = 0,
     moveDirection = 0,
     strategyShort = "",
-    hasIce = false,
     building = false,
     buildingDirection = 0,
     targetHPos = 0,
@@ -126,7 +125,6 @@ class Penguin {
     this.targetDirections = targetDirections;
     this.path = path;
 
-    this.hasIce = hasIce;
     this.building = building;
     this.buildingDirection = buildingDirection;
     
@@ -452,7 +450,6 @@ class Penguin {
       this.digTime -= 1;
       if (this.digTime === 0) {
         this.digDirection = 0;
-        this.hasIce=true;
         newTile = true;
       }
     }
