@@ -141,7 +141,8 @@ const getIslandData = async (
       let land = territory[tileHpos][tileLpos];
 
       if (land) {
-        if (land.type === 0 && islandData.tiles > 0 && ! land.hasFish
+        if (land.type === 0 
+          // && islandData.tiles > 0 && ! land.hasFish
           // && (territory[tileHpos -1 ][tileLpos] > 0 || 
           //     territory[tileHpos +1 ][tileLpos] > 0 ||
           //     territory[tileHpos][tileLpos -1] > 0|| 
@@ -301,7 +302,7 @@ const getIslandsList = async () => {
   return islands;
 };
 
-// returns the list of islands
+// delete an island
 
 const deleteIsland = async (islandId) => {
   let islands = [];
@@ -330,9 +331,6 @@ const initiateData = async () => {
   await initiateDb();
   return true;
 };
-
-
-
 
 // returns an 'image' of the isalnd in the form of an array of objects
 const getImg = (territory, islandH, islandL) => {
@@ -384,35 +382,6 @@ const getImg = (territory, islandH, islandL) => {
   }
   return result;
 };
-
-// returns the list of artifacts
-// const getArtifacts = (territory, islandH, islandL) => {
-//   let result = ``;
-//   for (let i = 0; i < islandH; i++) {
-//     let h = i * 48 + 16; //  + 16;
-//     for (let j = 0; j < islandL; j++) {
-//       let l = j * 48 + 16; // + 16 ;
-//       let land = territory[i][j];
-//       if (land) {
-//         if (land.hasCross) {
-//           if (land.type === 0) {
-//             result += `<img class="cross" src="./tiles/wreath.gif" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
-//           } else {
-//             result += `<img class="cross" src="./tiles/cross.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
-//           }
-//         } else if (land.hasFood) {
-//           result += `<img class="fish" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
-//         } else if (land.hasFish) {
-//           let transp = 0.6; // ((Math.floor(Math.random() * 2) / 10))  + 0.3;
-//           result += `<img class="fish" src="./tiles/fish.png" style="left: ${l}px; top: ${h}px; position: absolute; opacity:${transp}" width="48" height="48" >\n`;
-//         } else if (land.hasIce) {
-//           result += `<img class="fish" src="./tiles/ice.png" style="left: ${l}px; top: ${h}px; position: absolute" width="48" height="48">\n`;
-//         }
-//       }
-//     }
-//   }
-//   return result + ``;
-// };
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {

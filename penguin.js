@@ -457,6 +457,9 @@ class Penguin {
     if (this.fillTime > 0) {
       this.fillTime -= 1;
       if (this.fillTime === 0) {
+
+        console.log("******** fillTime over")
+
         returncode = 3;
         fillLPos = this.fillDirection === 1? this.lpos - 1: this.lpos;
         fillLPos = this.fillDirection === 2? this.lpos + 1: this.lpos;

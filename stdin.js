@@ -12,6 +12,7 @@ const requestserverReq = require("./requestserver.js");
 const islandDataReq = require("./islandData.js");
 const islandWorkerReq = require("./islandWorker.js");
 const islandReq = require("./island.js");
+const islandasciiReq = require("./islandascii.js");
 
 let createResponse = requestserverReq.createResponse;
 let getItem = dbhelperReq.getItem;
@@ -24,6 +25,7 @@ let getInitData = islandWorkerReq.getInitData;
 let deleteIsland = islandWorkerReq.deleteIsland;
 let getIslandData = islandWorkerReq.getIslandData;
 let initiateData = islandWorkerReq.initiateData;
+let getAsciiImg  = islandasciiReq.getAsciiImg;
 
 var islandId = 0;
 var penguinId = 0;
@@ -32,6 +34,7 @@ var penguinList = [0];
 var fishList = [0];
 var knowWorldLines= [];
 var context = 0;
+var init = true;
 
 colors.enable()
 
@@ -58,13 +61,16 @@ const printIsland = (island) => {
   penguinList = [0]
   knowWorldLines= [];
 
+
+  // console.log("------- > " + island.id)
+
   initiateIslands(island);
   const islandObj = getIsland(island.id);  
   islandObj.getPenguins().forEach(penguin => {
     penguinList[++cnt] = penguin.id
     // if (penguin.id === penguinId) makeKnowWorld(penguin.knownWorld)
   })
-  islandObj.getAsciiImg().forEach(line=>print(line));
+  getAsciiImg(islandObj).forEach(line=>print(line));
   //for (let i=0; i<knowWorldLines.length; i++) {
   //  print(knowWorldLines[i])
   //}
@@ -179,12 +185,10 @@ const checkInput = (input) => {
      console.log("%%%% " + islandId + "..." + convertPos(input[0]) + "/" + convertPos(input[1])) 
    
     if (islandId > 0) {
-      console.log("%%%% 2") 
-      getIslandData(islandId, 0, convertPos(input[0]), convertPos(input[1]))
-      .then((island) => persistIsland(island, true))
-      .then(getItem("island",islandId)
-        .then(value => printIsland(value)))
-      
+       console.log("%%%% 2") 
+       getIslandData(islandId, 0, convertPos(input[0]), convertPos(input[1]))
+       .then(value => getItem("island",value.islandId))
+       .then(value => printIsland(value))
     }
       
   } else if (input.includes("=")) {
@@ -235,6 +239,10 @@ const checkInput = (input) => {
     } else if(input==="q" || input==="quit") {
       return false;
     } else if(input.length ===0 || input==="r" || input==="refresh" ) {
+
+
+      console.log("=================== RR =====================")
+
       if (islandId > 0) {
         context=2;
         createResponse("/state", "", islandId, true).then(
@@ -266,6 +274,15 @@ let rl = readline.createInterface({
 })
 
 const createTerminal =  () => {
+
+  if (init) {
+    context = 1;
+    console.log("\033[2J\033[0f")
+    getAsyncItems("island","id",">",0)
+    .then(value => printList(value))
+    init=false;
+  }
+
   rl.on('line', (line) => {
     var input = line.replace(/\0/g, '')
     if  (! checkInput(input)) {
@@ -278,6 +295,7 @@ const createTerminal =  () => {
         if (islandId > 0 ) {
           process.stdout.write(">> " + islandId + "-" + penguinId + " >>")
         } else {
+          
           process.stdout.write(">>")
         }
       }

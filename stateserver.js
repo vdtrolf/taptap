@@ -13,11 +13,13 @@ const source = "stateserver.js";
 
 const islandReq = require("./island.js");
 const islandDataReq = require("./islandData.js");
+const islandasciiReq = require("./islandascii.js");
 
 let createDb = dbhelperReq.createDb;
 let getIslands = islandReq.getIslands;
 let persistIsland = islandDataReq.persistIsland;
 let initiateIslands = islandDataReq.initiateIslands;
+let getAsciiImg  = islandasciiReq.getAsciiImg;
 
 // If it receives 'local' as argument, it runs in local mode
 // which means, then there will be an incode "pulser" that will regularly call the state engine
@@ -34,7 +36,7 @@ let counter = 0;
 
 // State engine = changes the state of all the running islands
 const setState = async (local,iceTiles=false) => {
-  createDb(local);
+  // createDb(local);
 
   let initiate = await initiateIslands(); // (getTheIslands);
   let running = false;
@@ -50,7 +52,7 @@ const setState = async (local,iceTiles=false) => {
         // console.log(">>>> running " + island.id)
 
         if (deepdebug) {
-          let img = island.getAsciiImg();
+          let img = getAsciiImg(island);
           img.forEach((line) => log(realm, source, "", line, LOGVERB, LOGDUMP));
         }
 

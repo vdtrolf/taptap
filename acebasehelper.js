@@ -17,7 +17,7 @@ const debug = false;
 
 const createDb = () => {
   if (db === null) {
-    const options = { logLevel: "err" }; //   'err' 'verbose'};
+    const options = { logLevel: "err" , sponsor: true}; //   'err' 'verbose'};
     db = new AceBase("my_db", options);
   }
 };
@@ -39,12 +39,6 @@ const putItem = (tableName, Item, uniqueId) => {
   
   if (db && db.ready()) {
     db.ref(`${tableName}/${uniqueId}`).set(Item);
- 
-    
-    //console.log("================ put ======");
-    //console.dir(Item);
-    //console.log("================ put ======");
-
     return true;
   } else {
     return false;

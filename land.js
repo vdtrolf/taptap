@@ -119,7 +119,8 @@ class Land {
     } 
     if (this.fillAge > 0) {
       this.fillAge -= 1;
-      this.isFillTarget = this.fillAge > 0;
+      // this.isFillTarget = this.fillAge > 0;
+      // if (! this.isFillTarget) {console.log("******** fillTarget over")}
     } 
 
   }
@@ -135,15 +136,6 @@ class Land {
     this.crossAge = 10;
   }
 
-  digIce() {
-    log(
-      realm,
-      source,
-      "digIce",
-      "diging ices at " + this.hpos + "/" + this.lpos
-    );
-    this.iceAge = 6;
-  }
 
   fill() {
     log(
