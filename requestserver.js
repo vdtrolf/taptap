@@ -9,7 +9,6 @@ const source = "requestserver.js";
 const islandReq = require("./island.js");
 const islandWorkerReq = require("./islandWorker.js");
 const islandDataReq = require("./islandData.js");
-const nameserverReq = require("./nameserver.js");
 const stephelperReq = require("./stephelper.js");
 const stateserverReq = require("./stateserver.js");
 
@@ -28,13 +27,8 @@ let initiateData = islandWorkerReq.initiateData;
 
 let startStateSteps = stephelperReq.startStateSteps;
 
-let NameServer = nameserverReq.NameServer;
-
 let islandH = 12;
 let islandL = 12;
-let counter = 0;
-
-let nameserver = new NameServer(30, 10, false);
 
 const createResponse = async (url, params, islandId = 0, local = true) => {
   
@@ -84,9 +78,6 @@ const createResponse = async (url, params, islandId = 0, local = true) => {
 
       case "/setrunning": {
         let runningstate = params.runningstate;
-
-        console.log("@@@@@ >" + runningstate + "<")
-
         log(realm, source, "createResponse", "case setrunning - event received ");
         return await setRunningState(islandId, (runningstate === "true") );
         
@@ -118,10 +109,6 @@ const createResponse = async (url, params, islandId = 0, local = true) => {
         let lpos = Number.parseInt(params.lpos, 10);
         return await getIslandData(islandId, 0, hpos, lpos);
       }
-      
-     
-
-      
 
       default: {
         return {};

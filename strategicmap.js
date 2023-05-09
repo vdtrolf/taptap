@@ -76,7 +76,7 @@ class StrategicMap {
     let curSmelt =
       island.territory[centerH][centerL].getType() !== 1
         ? 1
-        : island.territory[centerH][centerL].getConf();
+        : island.territory[centerH][centerL].getSmeltLevel();
 
     let foundFish = false;
     let foundFishH = 0;
@@ -164,7 +164,7 @@ class StrategicMap {
               let love = this.hasLandLove(island, hpos, lpos, penguin.id, penguin.gender);
               //console.log("££££££ -+- D")
               
-              //console.log("££££££ -+- " + land.getConf() )
+              //console.log("££££££ -+- " + land.getSmeltLevel() )
               
               hline.push({
                 hpos: hpos,
@@ -176,7 +176,7 @@ class StrategicMap {
                 ice:ice,
                 love:love,
                 fill:fill,
-                smelt: land.getConf(),
+                smelt: land.getSmeltLevel(),
                 warm: warm,
                 art: land.hasFood?2:land.hasIce?4:0
               });
@@ -554,7 +554,7 @@ class StrategicMap {
               this.action = 1;
             } 
 
-            // else if (this.targetH && penguin.hasIce) { // Filling for Path 
+            // else if (this.targetH ) { // Filling for Path 
 
             //   // if (show) console.log(penguin.name + " (" + this.strategyShort + ") Looking for filling at " + penguin.hpos + "/" + penguin.lpos + " to " + this.targetH + "/" + this.targetL   );
 
@@ -847,10 +847,10 @@ class StrategicMap {
 
   hasLandFill(island, hpos, lpos) {
     return (
-      island.territory[hpos - 1][lpos].isFillTarget ||
-      island.territory[hpos + 1][lpos].isFillTarget ||
-      island.territory[hpos][lpos - 1].isFillTarget ||
-      island.territory[hpos][lpos + 1].isFillTarget
+      island.territory[hpos - 1][lpos].hasFill ||
+      island.territory[hpos + 1][lpos].hasFill ||
+      island.territory[hpos][lpos - 1].hasFill ||
+      island.territory[hpos][lpos + 1].hasFill
     );
   }  
 

@@ -17,8 +17,8 @@ class Land {
     islandId,
     id = 0,
     atype = 0,
-    conf = 0,
-    avar = 0,
+    smeltLevel= 0,
+    tileAngle = 0,
     hasCross = false,
     crossAge = 0,
     hasFood = false,
@@ -27,7 +27,7 @@ class Land {
     hasGarbage = false,
     hasIce = false,
     iceAge = 0,
-    isFillTarget = false,
+    hasFill = false,
     fillAge = 0
   ) {
     this.id = id === 0 ? Math.floor(Math.random() * 999999999) : id;
@@ -35,9 +35,9 @@ class Land {
     this.hpos = h;
     this.lpos = l;
     this.type = atype;
-    this.conf = conf;
-    this.var =
-      avar === 0 ? (Math.floor(Math.random() * 2) === 1 ? "a" : "b") : avar;
+    this.smeltLevel= smeltLevel;
+    this.tileAngle =
+      tileAngle=== 0 ? (Math.floor(Math.random() * 2) === 1 ? "a" : "b") : tileAngle;
     this.hasCross = hasCross;
     this.crossAge = crossAge;
     this.hasFood = hasFood;
@@ -46,7 +46,7 @@ class Land {
     this.iceAge = iceAge;
     this.fishAge = fishAge;
     this.hasGarbage = hasGarbage;
-    this.isFillTarget = isFillTarget;
+    this.hasFill = hasFill;
     this.fillAge = fillAge;
 
     this.changed = true;
@@ -54,10 +54,6 @@ class Land {
     this.hasPenguin = false;
     this.islandSize = 0;
     this.islandPopulation = 0;
-
-    // if (hasFish ) console.log("Youp");
-
-
   }
 
   setTarget(isTarget) {
@@ -77,14 +73,8 @@ class Land {
   }
 
   setLand(num) {
-
-    if (num ===1 && this.isFillTarget) {
-      this.isFillTarget = false;
-      this.fillAge = 0;
-    }
-
     this.type = num;
-    this.conf = 0;
+    this.smeltLevel= 0;
   }
 
   getType() {
@@ -96,9 +86,8 @@ class Land {
   }
 
   canFishMove() {
-    return this.type === 0 && !this.isTarget ;
+    return this.type === 0 && !this.isTarget && !this.hasGarbage && !this.hasFill;
   }
-
 
   setType(newType) {
     this.type = newType;
@@ -119,8 +108,11 @@ class Land {
     } 
     if (this.fillAge > 0) {
       this.fillAge -= 1;
-      // this.isFillTarget = this.fillAge > 0;
-      // if (! this.isFillTarget) {console.log("******** fillTarget over")}
+      if (this.fillAge ===0) {
+        this.hasFill = false;
+        this.type = 1;
+      }
+      
     } 
 
   }
@@ -136,7 +128,6 @@ class Land {
     this.crossAge = 10;
   }
 
-
   fill() {
     log(
       realm,
@@ -144,10 +135,11 @@ class Land {
       "fill",
       "filling ices at " + this.hpos + "/" + this.lpos
     );
+    this.hasFill = true;
     this.fillAge = 6;
   }
 
-  removeFish() {
+  removeFood() {
     this.hasFood = false;
   }
 
@@ -156,42 +148,33 @@ class Land {
   }
 
   canFill() {
-    return this.isFillTarget && this.fillAge === 0;
+    return this.hasFill && this.fillAge === 0;
   }
 
   removeFill() {
-    this.isFillTarget = false;
+    this.hasFill = false;
   }
 
   setRandomSmeltLevel(waterBorders) {
-    this.conf = waterBorders * 2 + Math.floor(Math.random() * 7);
+    this.smeltLevel= waterBorders * 2 + Math.floor(Math.random() * 7);
   }
 
-  resetConf() {
-    this.conf = 0;
+  resetSmeltLevel() {
+    this.smeltLevel= 0;
   }
 
-  increaseConf() {
-    this.conf = this.conf + 1;
+  increaseSmeltLevel() {
+    this.smeltLevel= this.smeltLevel+ 1;
     this.changed = true;
   }
 
-  decreaseConf() {
-    this.conf = this.conf - 1;
+  decreaseSmeltLevel() {
+    this.smeltLevel= this.smeltLevel- 1;
     this.changed = true;
   }
 
-  getConf() {
-    return this.conf;
-  }
-
-  getVar() {
-    return this.var;
-  }
-
-  // return true if there is a fishming fish
-  fish() {
-    return this.hasFish || this.fishAge > 0;
+  getSmeltLevel() {
+    return this.smeltLevel;
   }
 
   // add a fishming fish
@@ -202,13 +185,7 @@ class Land {
     this.hasFish = true;
     this.changed = true;
   }
-
-  // remove a fishming fish
-  removeFish() {
-    this.hasFish = false;
-    this.changed = true;
-  }
-
+  
   // add a fishming fish
   addGarbage() {
     this.hasGarbage = true;

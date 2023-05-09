@@ -28,7 +28,7 @@ let Garbage = garbageReq.Garbage;
 let putItem = dbhelperReq.putItem;
 let deleteItem = dbhelperReq.deleteItem;
 let getAsyncItems = dbhelperReq.getAsyncItems;
-let cleanIslands = islandReq.cleanIslands;
+// let cleanIslands = islandReq.cleanIslands;
 let addIsland = islandReq.addIsland;
 
 const maxAge = 3600000; // one hour
@@ -54,8 +54,8 @@ const persistIsland = (island) => {
         hpos: land.hpos,
         lpos: land.lpos,
         type: land.type,
-        conf: land.conf,
-        var: land.var,
+        smeltLevel: land.smeltLevel,
+        tileAngle: land.tileAngle,
         hasCross: land.hasCross,
         crossAge: land.crossAge,
         hasFood: land.hasFood,
@@ -64,7 +64,7 @@ const persistIsland = (island) => {
         hasGarbage: land.hasGarbage,
         hasIce: land.hasIce,
         iceAge: land.iceAge,
-        isFillTarget: land.isFillTarget,
+        hasFill: land.hasFill,
         fillAge: land.fillAge
       };
       
@@ -154,8 +154,7 @@ const persistIsland = (island) => {
       num: garbage.num,
       hpos: garbage.hpos,
       lpos: garbage.lpos,
-      type: garbage.type,
-      age: garbage.age
+      kind: garbage.kind
     };
     garbages.push(aGarbage);
   });
@@ -243,7 +242,7 @@ const initiateIslands = async (islandParam=null) => {
   let theIslands = islandParam?[islandParam]:await getAsyncItems("island", "id", ">", 0);
 
   if (theIslands && theIslands.length > 0) {
-    cleanIslands();
+    // cleanIslands();
 
     log(
       realm,
@@ -302,8 +301,8 @@ const initiateIslands = async (islandParam=null) => {
                 island.id,
                 aLand.id,
                 aLand.type,
-                aLand.conf,
-                aLand.var,
+                aLand.smeltLevel,
+                aLand.tileAngle,
                 aLand.hasCross,
                 aLand.crossAge,
                 aLand.hasFood,
@@ -312,7 +311,7 @@ const initiateIslands = async (islandParam=null) => {
                 aLand.hasGarbage,
                 aLand.hasIce,
                 aLand.iceAge,
-                aLand.isFillTarget,
+                aLand.hasFill,
                 aLand.fillAge
               );
               island.territory[aLand.hpos][aLand.lpos] = land;
@@ -405,8 +404,7 @@ const initiateIslands = async (islandParam=null) => {
                 aGarbage.lpos,
                 island.id,
                 aGarbage.id,
-                aGarbage.type,
-                aGarbage.age
+                aGarbage.kind,
               );
               garbages.push(garbage);
                 

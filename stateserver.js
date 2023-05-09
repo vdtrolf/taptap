@@ -28,7 +28,7 @@ let cleandb = false;
 let stateCounter = 0;
 
 // simulateRate tells how often that must happen
-let simulateRate = 2000; // 864; // 3428;
+let simulateRate = 1500; // 864; // 3428;
 
 // debug variables
 let deepdebug = true;

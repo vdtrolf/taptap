@@ -18,17 +18,14 @@ class Garbage {
     l,
     islandId,
     id = 0,
-    type =0,
-    age = 0,
-        
+    kind =0
   ) {
     this.id = id === 0 ? Math.floor(Math.random() * 999999999) : id;
     this.islandId = islandId;
     this.num = num;
     this.hpos = h;
     this.lpos = l;
-    this.type = type === 0 ? Math.floor(Math.random() * 5) + 1 : type;
-    this.age = age;
+    this.kind = kind === 0 ? Math.floor(Math.random() * 5) + 1 : kind;
 
     log(
       realm,
@@ -44,10 +41,6 @@ class Garbage {
   setPos(direction,h,l) {
     this.hpos = h;
     this.lpos = l;
-  }
-
-  increaseAge() {
-    this.age = this.age + 1;
   }
 
 }

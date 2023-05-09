@@ -313,9 +313,6 @@ class Penguin {
   // tells te peguin to make love with a partner
 
   love(partnerId) {
-
-    console.log("#### # " + partnerId)
-
     this.loving = 4;
     this.hasLoved = 20;
     this.partnerId = partnerId;
@@ -391,7 +388,7 @@ class Penguin {
   // makes the penguin more hungry
 
   wait() {
-    this.hungry += Math.floor((this.fat - 1) / 2) + 1;
+    this.hungry += Math.floor((this.fat - 1) / 3) + 0.5;
     this.moveDirection = 0;
   }
 
@@ -429,6 +426,7 @@ class Penguin {
     let fillLPos = 0;
     let newTile = false;
     let newFood = false;
+    let newFill = false;
 
     if (this.eating > 0) {
       this.eating -= 1;
@@ -457,15 +455,8 @@ class Penguin {
     if (this.fillTime > 0) {
       this.fillTime -= 1;
       if (this.fillTime === 0) {
-
-        console.log("******** fillTime over")
-
-        returncode = 3;
-        fillLPos = this.fillDirection === 1? this.lpos - 1: this.lpos;
-        fillLPos = this.fillDirection === 2? this.lpos + 1: this.lpos;
-        fillHPos = this.fillDirection === 3? this.hpos - 1: this.hpos;
-        fillHPos = this.fillDirection === 4? this.hpos + 1: this.hpos;
         this.fillDirection = 0;
+        newFill = true 
       }
     }
 
@@ -501,11 +492,12 @@ class Penguin {
       this.alive = false;
       // this.addMoveLog(5, "", "dead");
       returncode = 1;
+      
     } else if (hasChild) {
       returncode = 2;
     }
 
-    return { returncode: returncode, fillHPos: fillHPos, fillLPos: fillLPos, newTile: newTile, newFood: newFood};
+    return { returncode: returncode, newFill: newFill, fillHPos: fillHPos, fillLPos: fillLPos, newTile: newTile, newFood: newFood};
   }
 
   setGender(gender) {

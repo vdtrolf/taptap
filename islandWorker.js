@@ -133,29 +133,28 @@ const getIslandData = async (
     });
 
     if (
-      tileHpos > 0 &&
-      tileLpos > 0 &&
-      tileHpos < islandData.sizeH - 1 &&
-      tileLpos < islandData.sizeL - 1
+      (tileHpos > 0 || tileLpos > 0 ) &&  
+      tileHpos < islandData.sizeH  &&
+      tileLpos < islandData.sizeL 
     ) {
       let land = territory[tileHpos][tileLpos];
 
+
+      // console.log("Land " + tileHpos + " " + tileLpos  + " " + land.h + "/" + land.l)
+
       if (land) {
         if (land.type === 0 
-          // && islandData.tiles > 0 && ! land.hasFish
+          && islandData.tiles > 0 && ! land.hasFish
           // && (territory[tileHpos -1 ][tileLpos] > 0 || 
           //     territory[tileHpos +1 ][tileLpos] > 0 ||
-          //     territory[tileHpos][tileLpos -1] > 0|| 
-          //     territory[tileHpos][tileLpos + 1] > 0)
+          //      territory[tileHpos][tileLpos -1] > 0|| 
+          //      territory[tileHpos][tileLpos + 1] > 0)
           ) {
           land.type = 0;
-          land.conf = 0;
-          land.isFillTarget = true;
+          land.smeltLevel= 0;
+          land.hasFill = true;
           land.changed = true;
           islandData.tiles -= islandData.tiles > 0 ? 1 : 0;
-
-          console.log("&&&&& done " + tileHpos + "/" + tileLpos  )
-
           changed = true;
         } else if (land.type > 0) {
           if (land.hasIce) {
@@ -335,8 +334,8 @@ const initiateData = async () => {
 // returns an 'image' of the isalnd in the form of an array of objects
 const getImg = (territory, islandH, islandL) => {
   let result = [];
-  for (let i = 1; i < islandH - 1; i++) {
-    for (let j = 1; j < islandL - 1; j++) {
+  for (let i = 0; i < islandH; i++) {
+    for (let j = 0; j < islandL; j++) {
       let land = territory[i][j];
       let artifact = 0;
       let age = 0;
@@ -354,7 +353,7 @@ const getImg = (territory, islandH, islandL) => {
         } else if (land.hasIce) {
           artifact = 5;
           age = land.iceAge;
-        } else if (land.isFillTarget) {
+        } else if (land.hasFill) {
           artifact = 7;
           age = land.fillAge;
         }
@@ -362,9 +361,9 @@ const getImg = (territory, islandH, islandL) => {
       let tile =
          territory[i][j].type +
          "-" +
-         territory[i][j].conf +
+         territory[i][j].smeltLevel+
          "-" +
-         territory[i][j].var;
+         territory[i][j].tileAngle;
 
       result.push({
         li: i,
@@ -372,8 +371,8 @@ const getImg = (territory, islandH, islandL) => {
         ti: tile,
         type: land.type,
         age: age,
-        num: land.conf,
-        var: land.var,
+        num: land.smeltLevel,
+        ta: land.tileAngle,
         art: artifact,
       });
 
