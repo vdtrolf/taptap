@@ -10,6 +10,27 @@ const LOGDUMP = loggerReq.LOGDUMP;
 
 const realm = "island";
 const source = "land.js";
+
+
+aLand.hpos,
+                aLand.lpos,
+                island.id,
+                aLand.id,
+                aLand.type,
+                aLand.smeltLevel,
+                aLand.tileAngle,
+                aLand.hasCross,
+                aLand.crossAge,
+                aLand.hasFood,
+                aLand.hasFish,
+                aLand.fishAge,
+                aLand.hasGarbage,
+                aLand.hasIce,
+                aLand.iceAge,
+                aLand.hasFill,
+                aLand.fillAge
+
+
 class Land {
   constructor(
     h,
@@ -149,10 +170,6 @@ class Land {
 
   canFill() {
     return this.hasFill && this.fillAge === 0;
-  }
-
-  removeFill() {
-    this.hasFill = false;
   }
 
   setRandomSmeltLevel(waterBorders) {
