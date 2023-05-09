@@ -7,8 +7,8 @@ const dynamodb = new AWS.DynamoDB({
 // const dynamodb = new AWS.DynamoDB();
 
 const islanddefs = {
-  AttributeDefinitions: [{ AttributeName: "id", AttributeType: "N" }],
-  KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
+  AttributeDefinitions: [{ AttributeName: "id", AttributeNature: "N" }],
+  KeySchema: [{ AttributeName: "id", KeyNature: "HASH" }],
   ProvisionedThroughput: {
     ReadCapacityUnits: 1,
     WriteCapacityUnits: 1,

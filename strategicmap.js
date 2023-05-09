@@ -10,7 +10,7 @@ const realm = "map";
 const source = "strategicmap.js";
 
 const deco1 = [" ", ".", "^", "%", "#", "#", "#", "#"];
-const moveTypes = [
+const moveNatures = [
   "init",
   "move",
   "grow",
@@ -74,7 +74,7 @@ class StrategicMap {
 
     let curWarm = this.calculateWarm(island,centerH,centerL,penguin.id,show) + 1;
     let curSmelt =
-      island.territory[centerH][centerL].getType() !== 1
+      island.territory[centerH][centerL].getNature() !== 1
         ? 1
         : island.territory[centerH][centerL].getSmeltLevel();
 
@@ -132,9 +132,9 @@ class StrategicMap {
             
             let land = island.territory[hpos][lpos];
             
-            // console.log("££££££ +++ " + land.getType() )
+            // console.log("££££££ +++ " + land.getNature() )
             
-            if (land.getType() === 0) {
+            if (land.getNature() === 0) {
               hline.push({
                 hpos: hpos,
                 lpos: lpos,
@@ -559,10 +559,10 @@ class StrategicMap {
             //   // if (show) console.log(penguin.name + " (" + this.strategyShort + ") Looking for filling at " + penguin.hpos + "/" + penguin.lpos + " to " + this.targetH + "/" + this.targetL   );
 
             //   let posmoves = [];
-            //   if (this.targetL > penguin.lpos && island.territory[penguin.hpos][penguin.lpos + 1].getType() === 0) posmoves.push(2);
-            //   if (this.targetL < penguin.lpos && island.territory[penguin.hpos][penguin.lpos - 1].getType() === 0) posmoves.push(1);
-            //   if (this.targetH > penguin.hpos && island.territory[penguin.hpos + 1][penguin.lpos].getType() === 0) posmoves.push(4);
-            //   if (this.targetH < penguin.hpos && island.territory[penguin.hpos - 1][penguin.lpos].getType() === 0) posmoves.push(3);
+            //   if (this.targetL > penguin.lpos && island.territory[penguin.hpos][penguin.lpos + 1].getNature() === 0) posmoves.push(2);
+            //   if (this.targetL < penguin.lpos && island.territory[penguin.hpos][penguin.lpos - 1].getNature() === 0) posmoves.push(1);
+            //   if (this.targetH > penguin.hpos && island.territory[penguin.hpos + 1][penguin.lpos].getNature() === 0) posmoves.push(4);
+            //   if (this.targetH < penguin.hpos && island.territory[penguin.hpos - 1][penguin.lpos].getNature() === 0) posmoves.push(3);
  
             //   if (posmoves.length > 0) {
             //     let aPosMove = Math.floor(Math.random() * posmoves.length);
@@ -806,11 +806,11 @@ class StrategicMap {
 
   isLandStable(island, hpos, lpos) {
     return (
-      island.territory[hpos][lpos].getType() > 1 ||
-      (island.territory[hpos - 1][lpos].getType() > 0 &&
-        island.territory[hpos + 1][lpos].getType() > 0 &&
-        island.territory[hpos][lpos - 1].getType() > 0 &&
-        island.territory[hpos][lpos + 1].getType() > 0)
+      island.territory[hpos][lpos].getNature() > 1 ||
+      (island.territory[hpos - 1][lpos].getNature() > 0 &&
+        island.territory[hpos + 1][lpos].getNature() > 0 &&
+        island.territory[hpos][lpos - 1].getNature() > 0 &&
+        island.territory[hpos][lpos + 1].getNature() > 0)
     );
   }
 
@@ -928,11 +928,6 @@ class StrategicMap {
 
     return knownWorld;
   }
-
-  getStrategyShort() {
-    return this.strategyShort
-  }
-
 }
 
 //  setting directions
@@ -980,7 +975,7 @@ const findPath = (
         let land = island.territory[movH][movL];
         if (show) {
           if (
-            land.getType() > 0 &&
+            land.getNature() > 0 &&
             !land.hasCross &&
             !land.hasIce &&
             !visited.some((vland) => vland.hpos === movH && vland.lpos === movL)
@@ -1005,13 +1000,13 @@ const findPath = (
                 " dir " +
                 dir +
                 " => " +
-                (land.getType() > 0 ? "~ " : "= ") +
+                (land.getNature() > 0 ? "~ " : "= ") +
                 (land.hasCross ? "+" : "_")
             );
           }
         }
         if (
-          land.getType() > 0 &&
+          land.getNature() > 0 &&
           !land.hasCross &&
           !visited.some(
             (vland) => vland.hpos === movH && vland.lpos === movL

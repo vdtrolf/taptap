@@ -10,12 +10,11 @@ const source = "garbage.js";
 const debug = false;
 
 // Class and constructor
-
 class Garbage {
   constructor(
     num,
-    h,
-    l,
+    hpos,
+    lpos,
     islandId,
     id = 0,
     kind =0
@@ -23,8 +22,8 @@ class Garbage {
     this.id = id === 0 ? Math.floor(Math.random() * 999999999) : id;
     this.islandId = islandId;
     this.num = num;
-    this.hpos = h;
-    this.lpos = l;
+    this.hpos = hpos;
+    this.lpos = lpos;
     this.kind = kind === 0 ? Math.floor(Math.random() * 5) + 1 : kind;
 
     log(
@@ -34,17 +33,7 @@ class Garbage {
       "new garbage " + this.id + " at " + this.hpos + "/" + this.lpos
     );
   }
-
-  // returns teh category of the penguin - y,m,f,o (old man), e (eldery woman)
-
-
-  setPos(direction,h,l) {
-    this.hpos = h;
-    this.lpos = l;
-  }
-
 }
-
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {

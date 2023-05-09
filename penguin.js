@@ -13,7 +13,7 @@ const strategicMapReq = require("./strategicmap.js");
 
 let StrategicMap = strategicMapReq.StrategicMap;
 
-const moveTypes = [
+const moveNatures = [
   "init",
   "move",
   "grow",
@@ -33,8 +33,8 @@ const debug = false;
 class Penguin {
   constructor(
     num,
-    h,
-    l,
+    hpos,
+    lpos,
     islandId,
     fatherId = 0,
     motherId = 0,
@@ -78,8 +78,8 @@ class Penguin {
     this.islandId = islandId;
     // this.moveLog = moveLog;
     this.num = num;
-    this.hpos = h;
-    this.lpos = l;
+    this.hpos = hpos;
+    this.lpos = lpos;
     this.age = age === 0 ? Math.floor(Math.random() * 5) + 1 : age;
     this.fat = fat === 0 ? Math.floor(Math.random() * 4) + 1 : fat;
 
@@ -157,7 +157,6 @@ class Penguin {
       this.strategicMap = new StrategicMap(island.sizeH, island.sizeL);
     }
     
-    
     let target = this.strategicMap.look(
       island,
       this.hpos,
@@ -178,10 +177,6 @@ class Penguin {
     this.targetDirections = target.directions;
     this.path = target.path;
     this.knownWorld = this.strategicMap.getKnownWorld();
-    
-    //console.log("%%%%%%==================");
-    //console.dir(this.knownWorld);
-    //console.log("%%%%%%==================");
     
     return target;
     
@@ -210,27 +205,6 @@ class Penguin {
       return this.strategicMap.hasTarget;
     }
     return false;
-  }
-
-  wantsSearch() {
-    if (this.strategicMap) {
-      return this.strategicMap.wantsSearch;
-    }
-    return false;
-  }
-
-  getDirections() {
-    if (this.strategicMap) {
-      return this.strategicMap.targetDirections;
-    }
-    return [0, 0, 0, 0];
-  }
-
-  getStrategy() {
-    if (this.strategicMap) {
-      return this.strategicMap.strategyShort;
-    }
-    return "";
   }
 
   // Check if love is possible (not recently in love and age < 20)
@@ -288,22 +262,7 @@ class Penguin {
     return this.eating === 0 && this.fishTime === 0 && this.fillTime === 0;
   }
 
-  // let moveType = moves[i].moveType, // 1=move,2=age,3=eat,4=love,5=die
-  // let moveDir = moves[i].moveDir, // 1=left,2=right,3=up,4=down
-
   setPos(moveDir, hpos, lpos) {
-    // if (this.hpos !== hpos || this.lpos !== lpos) {
-    //   this.addMoveLog(
-    //     1,
-    //     this.cat,
-    //     "move",
-    //     moveDir,
-    //     this.hpos,
-    //     this.lpos,
-    //     hpos,
-    //     lpos
-    //   );
-    // }
     this.hpos = hpos;
     this.lpos = lpos;
     this.waiting = 0;
@@ -311,95 +270,71 @@ class Penguin {
   }
   
   // tells te peguin to make love with a partner
-
   love(partnerId) {
     this.loving = 4;
     this.hasLoved = 20;
     this.partnerId = partnerId;
     this.waiting = 0;
-    // this.addMoveLog(4, this.cat, "love");
-
   }
 
   // return true is the penguin is makning love
-
   isLoving() {
     return this.loving > 0;
   }
 
   // tell the penhuin to eat
-
   eat() {
     this.eating = 5;
     this.waiting = 0;
     this.hungry = this.hungry < 25 ? 0 : this.hungry - 25;
     this.wealth = this.wealth > 80 ? 100 : this.wealth + 20;
-    // this.addMoveLog(3, this.cat, "eat");
   }
 
-  // return true is the penguin is eating a lot
-
+  // return true is the penguin is eating 
   isEating() {
     return this.eating > 0;
   }
 
   // makes the penguin fish
-
   fish(direction) {
-    // this.addMoveLog(7, this.cat, "fish", direction);
     this.fishDirection = direction;
     this.fishTime = 6;
   }
 
-  // return true is the penguin is eating
-
+  // return true is the penguin is fishing
   isFishing() {
     return this.fishTime > 0;
   }
 
   // makes the penguin dig
-
   dig(direction) {
-    // this.addMoveLog(8, this.cat, "dig", direction);
     this.digDirection = direction;
     this.digTime = 6;
   }
 
-  // return true is the penguin is eating
-
+  // return true is the penguin is diging
   isDiging() {
     return this.digTime > 0;
   }
 
-// makes the penguin dig
-
+  // makes the penguin fill
   fill(direction) {
-    // this.addMoveLog(9, this.cat, "fill", direction);
     this.fillDirection = direction;
     this.fillTime = 6;
   }
 
-  // return true is the penguin is eating
-
+  // return true is the penguin is filling
   isFilling() {
     return this.fillTime > 0;
   }
 
   // makes the penguin more hungry
-
   wait() {
     this.hungry += Math.floor((this.fat - 1) / 3) + 0.5;
     this.moveDirection = 0;
   }
 
-  // return true is the penguin is eating
-
-  isWaiting() {
-    return this.waiting > 0;
-  }
-
   // Penguins die - all counters are reset
-
   letDie() {
     this.alive = false;
     this.eating = 0;
@@ -408,8 +343,6 @@ class Penguin {
     this.loving = 0;
     this.hasLoved = 0;
     this.hungry = 0;
-
-    // this.addMoveLog(5, "", "dead");
   }
 
   // Makes the penguin one year older and check status
@@ -478,7 +411,6 @@ class Penguin {
     if (this.age > 5 && this.cat === "-y-") {
       this.cat = this.gender === "male" ? "-m-" : "-f-";
       this.vision = 3;
-      // this.addMoveLog(2, this.cat, "age");
     }
 
     if (this.age > 20) {
@@ -490,7 +422,6 @@ class Penguin {
         log(realm, source, "makeOlder", this.name + " just died !");
       }
       this.alive = false;
-      // this.addMoveLog(5, "", "dead");
       returncode = 1;
       
     } else if (hasChild) {

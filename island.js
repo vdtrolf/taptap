@@ -170,7 +170,7 @@ class Island {
       for (let h = 0; h < sizeH; h++) {
         for (let l = 0; l < sizeL; l++) {
           let land = this.territory[h][l];
-          if (land && land.getType() === 0 && matrix[h][l]) {
+          if (land && land.getNature() === 0 && matrix[h][l]) {
             this.elev(land, h, l);
           }
         }
@@ -182,7 +182,7 @@ class Island {
         let lpos = Math.floor(Math.random() * sizeL);
         let land = this.territory[hpos][lpos];
 
-        if (land && land.getType() !== 0) {
+        if (land && land.getNature() !== 0) {
           this.elev(land, hpos, lpos);
         }
       }
@@ -191,11 +191,11 @@ class Island {
       // Amount of borders with water will influence how much it is smelt
       for (let l = 1; l < sizeL - 1; l++) {
         for (let h = 1; h < sizeH - 1; h++) {
-          if (this.territory[h][l].getType() === 1) {
-            let waterBorders = this.territory[h - 1][l].getType() === 0 ? 1 : 0;
-            waterBorders += this.territory[h + 1][l].getType() === 0 ? 1 : 0;
-            waterBorders += this.territory[h][l - 1].getType() === 0 ? 1 : 0;
-            waterBorders += this.territory[h][l + 1].getType() === 0 ? 1 : 0;
+          if (this.territory[h][l].getNature() === 1) {
+            let waterBorders = this.territory[h - 1][l].getNature() === 0 ? 1 : 0;
+            waterBorders += this.territory[h + 1][l].getNature() === 0 ? 1 : 0;
+            waterBorders += this.territory[h][l - 1].getNature() === 0 ? 1 : 0;
+            waterBorders += this.territory[h][l + 1].getNature() === 0 ? 1 : 0;
             if (waterBorders > 0) {
               this.territory[h][l].setRandomSmeltLevel(waterBorders);
             }
@@ -207,7 +207,7 @@ class Island {
 
       for (let l = 0; l < sizeL; l++) {
         for (let h = 0; h < sizeH; h++) {
-          this.landSize += this.territory[h][l].getType() > 0 ? 1 : 0;
+          this.landSize += this.territory[h][l].getNature() > 0 ? 1 : 0;
         }
       }
 
@@ -221,7 +221,7 @@ class Island {
         let lpos = Math.floor(Math.random() * this.sizeL);
         let land = this.territory[hpos][lpos];
 
-        if (land && land.getType() !== 0) {
+        if (land && land.getNature() !== 0) {
           // && this.penguins.length < 1) {
           let penguin = new Penguin(
             0, // this.numPeng++,
@@ -246,7 +246,7 @@ class Island {
         let lpos = Math.floor(Math.random() * this.sizeL);
         let land = this.territory[hpos][lpos];
 
-        if ((hpos === 0 || lpos=== 0 || hpos === 11 || lpos=== 11) && land && land.getType() === 0 && ! land.hasGarbage) {
+        if ((hpos === 0 || lpos=== 0 || hpos === 11 || lpos=== 11) && land && land.getNature() === 0 && ! land.hasGarbage) {
           // && this.penguins.length < 1) {
           let garbage = new Garbage(
             0, // this.numPeng++,
@@ -273,7 +273,7 @@ class Island {
         let lpos = Math.floor(Math.random() * this.sizeL);
         let land = this.territory[hpos][lpos];
 
-        if (land && land.getType() === 0 && ! land.hasFish && ! land.hasGarbage) {
+        if (land && land.getNature() === 0 && ! land.hasFish && ! land.hasGarbage) {
           // && this.penguins.length < 1) {
           let fish = new Fish(
             0, // this.numPeng++,
@@ -306,9 +306,9 @@ class Island {
     return lover;
   }
 
-  getLandType(x, y) {
+  getLandNature(x, y) {
     const land = this.territory[x][y];
-    return land.getType();
+    return land.getNature();
   }
 
   hasPenguin(x, y) {
@@ -345,12 +345,12 @@ class Island {
 
   // elevate a plot os land - can be called recusrsively to elevate adjacent plots of land
   elev(land, hpos, lpos) {
-    const height = land.getType() + 1;
+    const height = land.getNature() + 1;
     for (let h = hpos - 1; h <= hpos + 1; h++) {
       for (let l = lpos - 1; l <= lpos + 1; l++) {
         if (h >= 0 && l >= 0 && h < this.sizeH && l < this.sizeL) {
           try {
-            let lheight = this.territory[h][l].getType();
+            let lheight = this.territory[h][l].getNature();
             if (lheight > 0 && height - lheight > 1) {
               this.elev(this.territory[h][l], h, l);
             }
@@ -393,17 +393,17 @@ class Island {
 
       let hasWaterBorders =
         hpos === 11 || lpos === 11 ||
-        this.territory[hpos - 1][lpos].getType() === 0 || 
-        this.territory[hpos + 1][lpos].getType() === 0 ||
-        this.territory[hpos][lpos - 1].getType() === 0 ||
-        this.territory[hpos][lpos + 1].getType() === 0;
+        this.territory[hpos - 1][lpos].getNature() === 0 || 
+        this.territory[hpos + 1][lpos].getNature() === 0 ||
+        this.territory[hpos][lpos - 1].getNature() === 0 ||
+        this.territory[hpos][lpos + 1].getNature() === 0;
 
       if (this.weather < 2) {
-        if (land && land.getType() == 1) {
+        if (land && land.getNature() == 1) {
           if (land.getSmeltLevel() < 15) {
             land.increaseSmeltLevel();
           } else {
-            land.setType(0);
+            land.setNature(0);
 
             // Ice sinks and dissapears
             
@@ -432,7 +432,7 @@ class Island {
           }
         }
       } else if (this.weather === 2) {
-        if (land && land.getType() == 1) {
+        if (land && land.getNature() == 1) {
           if (land.getSmeltLevel() > 0 && hasWaterBorders) {
             land.decreaseSmeltLevel();
           }
@@ -447,7 +447,7 @@ class Island {
       for (let lpos = 0; lpos < this.sizeL; lpos++) {
         let land = this.territory[hpos][lpos];
         land.makeOlder();
-        this.landSize += this.territory[hpos][lpos].getType() > 0 ? 1 : 0;
+        this.landSize += this.territory[hpos][lpos].getNature() > 0 ? 1 : 0;
       }
     }
 
@@ -559,7 +559,7 @@ class Island {
                 let l = penguin.lpos + lmoves[move];
                 let h = penguin.hpos + hmoves[move];
 
-                if (this.territory[h][l].getType() > 0) {
+                if (this.territory[h][l].getNature() > 0) {
                   penguin.setPos(move, h, l);
                   this.territory[h][l].setTarget(true);
                 } else {
@@ -663,7 +663,7 @@ class Island {
      let lpos = Math.floor(Math.random() * this.sizeL);
      let land = this.territory[hpos][lpos];
 
-     if ( land && land.getType() === 0 && ! land.isTarget && ! land.hasFill && ! land.hasFish &&  
+     if ( land && land.getNature() === 0 && ! land.isTarget && ! land.hasFill && ! land.hasFish &&  
           // (hpos === 0 || hpos === 11 ||
           //  lpos=== 0 || lpos=== 11 ||
            ((lpos > 0 && this.territory[hpos][lpos - 1].hasGarbage) ||
@@ -735,7 +735,7 @@ class Island {
       let lpos = Math.floor(Math.random() * this.sizeL);
       let land = this.territory[hpos][lpos];
 
-      if (land && land.getType() === 0 && ! land.hasTarget && ! land.hasGarbage && ! land.hasFill) {
+      if (land && land.getNature() === 0 && ! land.hasTarget && ! land.hasGarbage && ! land.hasFill) {
         
         let fish = new Fish(
           0, 
@@ -791,7 +791,7 @@ class Island {
       // console.log("----> " + hpos + "/" +lpos)
 
       if (land) {
-        if ( land.getType() !== 0 && iceTiles && !land.hasPenguin && !land.hasCross && !land.hasFood) {
+        if ( land.getNature() !== 0 && iceTiles && !land.hasPenguin && !land.hasCross && !land.hasFood) {
           land.addIce();
         }
       }
@@ -920,7 +920,7 @@ class Island {
       for (let lpos = 1; lpos < this.sizeL - 1; lpos++) {
         if (
           this.territory[hpos][lpos] &&
-          this.territory[hpos][lpos].type > 0 &&
+          this.territory[hpos][lpos].nature > 0 &&
           !allExplored.some((tile) => tile.hpos === hpos && tile.lpos === lpos)
         ) {
           let neighbours = this.getNeighbourTiles(0, hpos, lpos, [], []);
@@ -955,7 +955,7 @@ class Island {
     if (
       hpos > 0 && 
       this.territory[hpos - 1][lpos] &&
-      this.territory[hpos - 1][lpos].type > 0 &&
+      this.territory[hpos - 1][lpos].nature > 0 &&
       !exploredTiles.some(
         (tile) => tile.hpos === hpos - 1 && tile.lpos === lpos
       )
@@ -970,7 +970,7 @@ class Island {
     }
     if (
       hpos < 11 &&
-      this.territory[hpos + 1][lpos].getType() > 0 &&
+      this.territory[hpos + 1][lpos].getNature() > 0 &&
       !exploredTiles.some(
         (tile) => tile.hpos === hpos + 1 && tile.lpos === lpos
       )
@@ -985,7 +985,7 @@ class Island {
     }
     if (
       lpos > 0 &&
-      this.territory[hpos][lpos - 1].getType() > 0 &&
+      this.territory[hpos][lpos - 1].getNature() > 0 &&
       !exploredTiles.some(
         (tile) => tile.hpos === hpos && tile.lpos === lpos - 1
       )
@@ -1000,7 +1000,7 @@ class Island {
     }
     if (
       lpos < 11 &&
-      this.territory[hpos][lpos + 1].getType() > 0 &&
+      this.territory[hpos][lpos + 1].getNature() > 0 &&
       !exploredTiles.some(
         (tile) => tile.hpos === hpos && tile.lpos === lpos + 1
       )

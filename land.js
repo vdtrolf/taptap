@@ -11,33 +11,13 @@ const LOGDUMP = loggerReq.LOGDUMP;
 const realm = "island";
 const source = "land.js";
 
-
-aLand.hpos,
-                aLand.lpos,
-                island.id,
-                aLand.id,
-                aLand.type,
-                aLand.smeltLevel,
-                aLand.tileAngle,
-                aLand.hasCross,
-                aLand.crossAge,
-                aLand.hasFood,
-                aLand.hasFish,
-                aLand.fishAge,
-                aLand.hasGarbage,
-                aLand.hasIce,
-                aLand.iceAge,
-                aLand.hasFill,
-                aLand.fillAge
-
-
 class Land {
   constructor(
-    h,
-    l,
+    hpos,
+    lpos,
     islandId,
     id = 0,
-    atype = 0,
+    nature = 0,
     smeltLevel= 0,
     tileAngle = 0,
     hasCross = false,
@@ -53,9 +33,9 @@ class Land {
   ) {
     this.id = id === 0 ? Math.floor(Math.random() * 999999999) : id;
     this.islandId = islandId;
-    this.hpos = h;
-    this.lpos = l;
-    this.type = atype;
+    this.hpos = hpos;
+    this.lpos = lpos;
+    this.nature = nature;
     this.smeltLevel= smeltLevel;
     this.tileAngle =
       tileAngle=== 0 ? (Math.floor(Math.random() * 2) === 1 ? "a" : "b") : tileAngle;
@@ -94,24 +74,24 @@ class Land {
   }
 
   setLand(num) {
-    this.type = num;
+    this.nature = num;
     this.smeltLevel= 0;
   }
 
-  getType() {
-    return this.type;
+  getNature() {
+    return this.nature;
   }
 
   canMove() {
-    return this.type > 0 && !this.isTarget && !this.hasCross && !this.hasIce ;
+    return this.nature > 0 && !this.isTarget && !this.hasCross && !this.hasIce ;
   }
 
   canFishMove() {
-    return this.type === 0 && !this.isTarget && !this.hasGarbage && !this.hasFill;
+    return this.nature === 0 && !this.isTarget && !this.hasGarbage && !this.hasFill;
   }
 
-  setType(newType) {
-    this.type = newType;
+  setNature(newNature) {
+    this.nature = newNature;
   }
 
   makeOlder() {
@@ -131,11 +111,9 @@ class Land {
       this.fillAge -= 1;
       if (this.fillAge ===0) {
         this.hasFill = false;
-        this.type = 1;
+        this.nature = 1;
       }
-      
     } 
-
   }
 
   setCross() {
@@ -196,9 +174,6 @@ class Land {
 
   // add a fishming fish
   addFish() {
-
-    // console.log("addfish at " + this.hpos + " " + this.lpos)
-
     this.hasFish = true;
     this.changed = true;
   }

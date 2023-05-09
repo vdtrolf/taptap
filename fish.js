@@ -22,8 +22,8 @@ const debug = false;
 class Fish {
   constructor(
     num,
-    h,
-    l,
+    hpos,
+    lpos,
     islandId,
     id = 0,
     specie = 0,
@@ -37,8 +37,8 @@ class Fish {
     this.id = id === 0 ? Math.floor(Math.random() * 999999999) : id;
     this.islandId = islandId;
     this.num = num;
-    this.hpos = h;
-    this.lpos = l;
+    this.hpos = hpos;
+    this.lpos = lpos;
     this.onHook = onHook;
     this.hookAge = hookAge;
     this.specie = specie === 0 ? Math.floor(Math.random() * 4) : specie;
@@ -54,8 +54,6 @@ class Fish {
       "new fish " + this.id + " at " + this.hpos + "/" + this.lpos
     );
   }
-
-  // returns teh category of the penguin - y,m,f,o (old man), e (eldery woman)
 
   setDirection(direction) {
     this.fishDirection = direction;
@@ -85,10 +83,7 @@ class Fish {
   increaseStaying() {
     this.staying = this.staying + 1;
   }
-
-
 }
-
 
 // now we export the class, so other modules can create Penguin objects
 module.exports = {

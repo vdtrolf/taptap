@@ -143,20 +143,20 @@ const getIslandData = async (
       // console.log("Land " + tileHpos + " " + tileLpos  + " " + land.h + "/" + land.l)
 
       if (land) {
-        if (land.type === 0 
+        if (land.nature === 0 
           && islandData.tiles > 0 && ! land.hasFish
           // && (territory[tileHpos -1 ][tileLpos] > 0 || 
           //     territory[tileHpos +1 ][tileLpos] > 0 ||
           //      territory[tileHpos][tileLpos -1] > 0|| 
           //      territory[tileHpos][tileLpos + 1] > 0)
           ) {
-          land.type = 0;
+          land.nature = 0;
           land.smeltLevel= 0;
           land.hasFill = true;
           land.changed = true;
           islandData.tiles -= islandData.tiles > 0 ? 1 : 0;
           changed = true;
-        } else if (land.type > 0) {
+        } else if (land.nature > 0) {
           if (land.hasIce) {
             land.hasIce =false;
             land.changed = true;
@@ -341,7 +341,7 @@ const getImg = (territory, islandH, islandL) => {
       let age = 0;
       if (land) {
         if (land.hasCross) {
-          if (land.type === 0) {
+          if (land.nature === 0) {
             artifact = 1;
           } else {
             artifact = 2;
@@ -359,7 +359,7 @@ const getImg = (territory, islandH, islandL) => {
         }
       }
       let tile =
-         territory[i][j].type +
+         territory[i][j].nature +
          "-" +
          territory[i][j].smeltLevel+
          "-" +
@@ -369,9 +369,9 @@ const getImg = (territory, islandH, islandL) => {
         li: i,
         col: j,
         ti: tile,
-        type: land.type,
+        nat: land.nature,
         age: age,
-        num: land.smeltLevel,
+        sml: land.smeltLevel,
         ta: land.tileAngle,
         art: artifact,
       });

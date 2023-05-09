@@ -22,8 +22,8 @@
  let dynamodb = null;
 
  const islanddefs = {
-   AttributeDefinitions: [{ AttributeName: "id", AttributeType: "N" }],
-   KeySchema: [{ AttributeName: "id", KeyType: "HASH" }],
+   AttributeDefinitions: [{ AttributeName: "id", AttributeNature: "N" }],
+   KeySchema: [{ AttributeName: "id", KeyNature: "HASH" }],
    ProvisionedThroughput: {
      ReadCapacityUnits: 5,
      WriteCapacityUnits: 5,

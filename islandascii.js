@@ -171,16 +171,16 @@ function getAsciiImg(island) {
         } else {
             let land = island.territory[h][l];
             if (land.hasFood) {
-            if (land.type ==1) {
+            if (land.nature ==1) {
                 let ice = Math.floor(land.smeltLevel/ 2);
                 line1 += "><x>";
                 line2 += ice2[ice];
             } else {
                 line1 += "><x>";
-                line2 += lands2[land.type];
+                line2 += lands2[land.nature];
             }    
             } else if (land.hasIce) {
-            if (land.type ==1) {
+            if (land.nature ==1) {
                 let ice = Math.floor(land.smeltLevel/ 2);
                 line1 += iceblock[ice] + "╔╗" + iceblock[ice];
                 line2 += iceblock[ice] + "╚╝" + iceblock[ice];    
@@ -198,13 +198,13 @@ function getAsciiImg(island) {
             line1 += " ++ ";
             line2 += "(--)";
             } else {
-            if (land.type === 1) {
+            if (land.nature === 1) {
                 let ice = Math.floor(land.smeltLevel/ 2);
                 line1 += ice1[ice];
                 line2 += ice2[ice];
             } else {
-                line1 += lands1[land.type];
-                line2 += lands2[land.type];
+                line1 += lands1[land.nature];
+                line2 += lands2[land.nature];
             }
             }
         }
