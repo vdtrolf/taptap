@@ -239,10 +239,6 @@ const checkInput = (input) => {
     } else if(input==="q" || input==="quit") {
       return false;
     } else if(input.length ===0 || input==="r" || input==="refresh" ) {
-
-
-      console.log("=================== RR =====================")
-
       if (islandId > 0) {
         context=2;
         createResponse("/state", "", islandId, true).then(

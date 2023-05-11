@@ -190,6 +190,21 @@ const getIslandData = async (
       await persistIslandData(islandData);
     }
 
+    let islands = [];
+
+    let fullIslands = [...(await getAsyncItems("island", "id", ">", 0))];
+  
+    if (fullIslands && fullIslands.length > 0) {
+      fullIslands.forEach((island) => {
+        islands.push({
+          id: island.id,
+          name: island.name,
+          points: island.points,
+          running: island.running,
+        });
+      });
+    }
+
     let penguins = [];
     islandData.penguins.forEach((penguin) => penguins.push(penguin));
 
@@ -211,7 +226,8 @@ const getIslandData = async (
       islandSize: islandData.landSize,
       counter: islandData.counter,
       running: islandData.running,
-      runonce: islandData.runonce
+      runonce: islandData.runonce,
+      islands: islands
     };
 
     log(realm, source, "getIslandData", result, LOGVERB, LOGDATA);
@@ -375,7 +391,6 @@ const getImg = (territory, islandH, islandL) => {
         ta: land.tileAngle,
         art: artifact,
       });
-
 
     }
   }

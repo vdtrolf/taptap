@@ -71,6 +71,9 @@ const persistIsland = (island) => {
       lands.push(aLand);
     }
   }
+
+  lands.forEach((land) => { console.log("---" + land.hpos + "/" + land.lpos + ":" + land.hasFill) });
+
   
   let penguins = [];
   
@@ -205,6 +208,9 @@ const persistIslandData = async (island) => {
       " counter: " +
       island.counter
   );
+
+  console.dir(island.lands)
+
 
   await putItem("island", {
     id: island.id,
