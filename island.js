@@ -1,5 +1,3 @@
-  // const colors = require('colors/safe')
-
 // logger stuff
 const loggerReq = require("./logger.js");
 let log = loggerReq.log;

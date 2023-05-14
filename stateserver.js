@@ -17,6 +17,7 @@ const islandasciiReq = require("./islandascii.js");
 
 let createDb = dbhelperReq.createDb;
 let getIslands = islandReq.getIslands;
+let cleanIslands = islandReq.cleanIslands;
 let persistIsland = islandDataReq.persistIsland;
 let initiateIslands = islandDataReq.initiateIslands;
 let getAsciiImg  = islandasciiReq.getAsciiImg;
@@ -69,6 +70,9 @@ const setState = async (local,iceTiles=false) => {
         persistIsland(island, false);
       }
     });
+    
+    cleanIslands();
+    
   }
   return running;
 };

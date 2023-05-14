@@ -70,11 +70,11 @@ args.forEach((arg) => {
 });
 
 // setLogLevel("index", LOGINFO);
-setLogLevel("db", LOGINFO);
+// setLogLevel("db", LOGINFO);
 // setLogLevel("index", LOGINFO);
 
-setLogLevel("worker", LOGINFO);
-setLogLevel("data", LOGINFO);
+// setLogLevel("worker", LOGINFO);
+// setLogLevel("data", LOGINFO);
 // setLogLevel("island", LOGINFO);
 // setLogLevel("fish", LOGINFO);
 // setLogLevel("penguin", LOGINFO);

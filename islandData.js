@@ -72,7 +72,7 @@ const persistIsland = (island) => {
     }
   }
 
-  lands.forEach((land) => { console.log("---" + land.hpos + "/" + land.lpos + ":" + land.hasFill) });
+  // lands.forEach((land) => { console.log("---" + land.hpos + "/" + land.lpos + ":" + land.hasFill) });
 
   
   let penguins = [];
@@ -82,7 +82,6 @@ const persistIsland = (island) => {
     const aPenguin = {
       id: penguin.id,
       islandId: penguin.islandId,
-      // moveLog: penguin.moveLog,
       num: penguin.num,
       hpos: penguin.hpos,
       lpos: penguin.lpos,
@@ -190,8 +189,6 @@ const persistIsland = (island) => {
     counter: island.counter,
   }, island.id);
   
-  //console.dir(penguins);
-  
 };
 
 const persistIslandData = async (island) => {
@@ -209,8 +206,7 @@ const persistIslandData = async (island) => {
       island.counter
   );
 
-  console.dir(island.lands)
-
+  // console.dir(island.lands)
 
   await putItem("island", {
     id: island.id,

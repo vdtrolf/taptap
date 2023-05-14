@@ -1,3 +1,4 @@
+
 // DB stuff
 // const dbhelperReq = require("./dynamohelper.js"); 
 const dbhelperReq = require("./acebasehelper.js");
@@ -16,6 +17,7 @@ const islandDataReq = require("./islandData.js");
 const islandReq = require("./island.js");
 
 let Island = islandReq.Island;
+let getIslands = islandReq.getIslands;
 let initiateDb = dbhelperReq.initiateDb;
 let getItem = dbhelperReq.getItem;
 let deleteItem = dbhelperReq.deleteItem;
@@ -118,33 +120,22 @@ const getIslandData = async (
       "getIslandData",
       "found is=" + islandData.id + " fId=" + penguinFollowId
     );
-
-    let territory = [];
-    for (let i = 0; i < islandData.sizeH; i++) {
-      let line = [];
-      for (let j = 0; j < islandData.sizeL; j++) {
-        line.push([]);
-      }
-      territory.push(line);
-    }
-
-    islandData.lands.forEach((land) => {
-      territory[land.hpos][land.lpos] = land;
-    });
+    
+    // let theislands = getIslands();
+    // console.log("Islands " + theislands.length)
 
     if (
       (tileHpos > 0 || tileLpos > 0 ) &&  
       tileHpos < islandData.sizeH  &&
       tileLpos < islandData.sizeL 
     ) {
-      let land = territory[tileHpos][tileLpos];
-
-
-      // console.log("Land " + tileHpos + " " + tileLpos  + " " + land.h + "/" + land.l)
+     
+      let land = islandData.lands.find((aLand) => aLand.hpos === tileHpos && aLand.lpos === tileLpos);
+ 
+      // console.dir(land); 
 
       if (land) {
-        if (land.nature === 0 
-          && islandData.tiles > 0 && ! land.hasFish
+        if (land.nature === 0 && islandData.tiles > 0 && ! land.hasFish
           // && (territory[tileHpos -1 ][tileLpos] > 0 || 
           //     territory[tileHpos +1 ][tileLpos] > 0 ||
           //      territory[tileHpos][tileLpos -1] > 0|| 
@@ -152,31 +143,18 @@ const getIslandData = async (
           ) {
           land.nature = 0;
           land.smeltLevel= 0;
-          land.hasFill = true;
-          land.changed = true;
+          land.hasFill = true;          // land.changed = true;
           islandData.tiles -= islandData.tiles > 0 ? 1 : 0;
           changed = true;
         } else if (land.nature > 0) {
           if (land.hasIce) {
             land.hasIce =false;
-            land.changed = true;
             changed = true;
           } else if (islandData.food > 0) {
             land.hasFood = true;
-            land.changed = true;
             islandData.food -= islandData.food > 0 ? 1 : 0;
             changed = true;
           }
-        }
-
-        if (changed) {
-          let lands = [];
-          for (let i = 0; i < islandData.sizeH; i++) {
-            for (let j = 0; j < islandData.sizeL; j++) {
-              lands.push(territory[i][j]);
-            }
-          }
-          islandData.lands = lands;
         }
       }
     }

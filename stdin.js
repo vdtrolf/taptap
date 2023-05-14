@@ -182,10 +182,10 @@ const checkInput = (input) => {
     context = 0;
   } else if (input.length === 2) {
    
-     console.log("%%%% " + islandId + "..." + convertPos(input[0]) + "/" + convertPos(input[1])) 
+     // console.log("%%%% " + islandId + "..." + convertPos(input[0]) + "/" + convertPos(input[1])) 
    
     if (islandId > 0) {
-       console.log("%%%% 2") 
+       // console.log("%%%% 2") 
        getIslandData(islandId, 0, convertPos(input[0]), convertPos(input[1]))
        .then(value => getItem("island",value.islandId))
        .then(value => printIsland(value))
