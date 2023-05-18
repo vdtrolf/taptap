@@ -1,7 +1,7 @@
 
 // DB stuff
-// const dbhelperReq = require("./dynamohelper.js"); 
-const dbhelperReq = require("./acebasehelper.js");
+const dbhelperReq = require("./dynamohelper.js"); 
+// const dbhelperReq = require("./acebasehelper.js");
 
 // logger stuff
 const loggerReq = require("./logger.js");
@@ -121,8 +121,17 @@ const getIslandData = async (
       "found is=" + islandData.id + " fId=" + penguinFollowId
     );
     
-    // let theislands = getIslands();
-    // console.log("Islands " + theislands.length)
+    let territory = [];
+
+    for (let h = 0; h < islandData.sizeH; h++) {
+      let line = [];
+      for (let l = 0; l < islandData.sizeL; l++) {
+        line.push({});
+      }
+      territory.push(line);
+    }
+
+    islandData.lands.forEach((land) => {territory[land.hpos][land.lpos]=land});
 
     if (
       (tileHpos > 0 || tileLpos > 0 ) &&  
@@ -324,6 +333,8 @@ const initiateData = async () => {
   await initiateDb();
   return true;
 };
+
+
 
 // returns an 'image' of the isalnd in the form of an array of objects
 const getImg = (territory, islandH, islandL) => {

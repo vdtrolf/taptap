@@ -805,12 +805,15 @@ class StrategicMap {
   // A land is stable if it's made from stone or if circled by ice
 
   isLandStable(island, hpos, lpos) {
+
+    // console.log("---> " + hpos + "/" + lpos );
+
     return (
       island.territory[hpos][lpos].getNature() > 1 ||
-      (island.territory[hpos - 1][lpos].getNature() > 0 &&
-        island.territory[hpos + 1][lpos].getNature() > 0 &&
-        island.territory[hpos][lpos - 1].getNature() > 0 &&
-        island.territory[hpos][lpos + 1].getNature() > 0)
+      ((hpos < 1 || island.territory[hpos - 1][lpos].getNature() > 0) &&
+        (hpos > 10 || island.territory[hpos + 1][lpos].getNature() > 0) &&
+        (lpos < 1 ||  island.territory[hpos][lpos - 1].getNature() > 0) &&
+        (lpos > 10 || island.territory[hpos][lpos + 1].getNature() > 0))
     );
   }
 
@@ -836,10 +839,10 @@ class StrategicMap {
 
   hasLandIce(island, hpos, lpos) {
     return (
-      island.territory[hpos - 1][lpos].hasIce ||
-      island.territory[hpos + 1][lpos].hasIce ||
-      island.territory[hpos][lpos - 1].hasIce ||
-      island.territory[hpos][lpos + 1].hasIce
+      (hpos > 0 && island.territory[hpos - 1][lpos].hasIce) ||
+      (hpos < 11 && island.territory[hpos + 1][lpos].hasIce) ||
+      (lpos > 0 && island.territory[hpos][lpos - 1].hasIce) ||
+      (lpos < 11 && island.territory[hpos][lpos + 1].hasIce)
     );
   }
 
@@ -847,10 +850,10 @@ class StrategicMap {
 
   hasLandFill(island, hpos, lpos) {
     return (
-      island.territory[hpos - 1][lpos].hasFill ||
-      island.territory[hpos + 1][lpos].hasFill ||
-      island.territory[hpos][lpos - 1].hasFill ||
-      island.territory[hpos][lpos + 1].hasFill
+      (hpos > 0 && island.territory[hpos - 1][lpos].hasFill) ||
+      (hpos < 11 && island.territory[hpos + 1][lpos].hasFill) ||
+      (lpos > 0 && island.territory[hpos][lpos - 1].hasFill) ||
+      (lpos < 11 && island.territory[hpos][lpos + 1].hasFill)
     );
   }  
 
