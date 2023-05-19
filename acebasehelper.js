@@ -1,120 +1,120 @@
-const { AceBase } = require("acebase");
+// const { AceBase } = require("acebase");
 
-// logger stuff
-const loggerReq = require("./logger.js");
-let log = loggerReq.log;
-const LOGVERB = loggerReq.LOGVERB;
-const LOGINFO = loggerReq.LOGINFO;
-const LOGERR = loggerReq.LOGERR;
-const LOGDATA = loggerReq.LOGDATA;
+// // logger stuff
+// const loggerReq = require("./logger.js");
+// let log = loggerReq.log;
+// const LOGVERB = loggerReq.LOGVERB;
+// const LOGINFO = loggerReq.LOGINFO;
+// const LOGERR = loggerReq.LOGERR;
+// const LOGDATA = loggerReq.LOGDATA;
 
-const realm = "db";
-const source = "acebasehelper.js";
+// const realm = "db";
+// const source = "acebasehelper.js";
 
 
-let db = null;
-const debug = false;
+// let db = null;
+// const debug = false;
 
-const createDb = () => {
-  if (db === null) {
-    const options = { logLevel: "err" , sponsor: true}; //   'err' 'verbose'};
-    db = new AceBase("my_db", options);
-  }
-};
+// const createDb = () => {
+//   if (db === null) {
+//     const options = { logLevel: "err" , sponsor: true}; //   'err' 'verbose'};
+//     db = new AceBase("my_db", options);
+//   }
+// };
 
-const cleanDb = () => {
-  if (db && db.ready()) {
-    db.query("island").take(1000).remove();
-  }
-};
+// const cleanDb = () => {
+//   if (db && db.ready()) {
+//     db.query("island").take(1000).remove();
+//   }
+// };
 
-const putItem = (tableName, Item, uniqueId) => {
+// const putItem = (tableName, Item, uniqueId) => {
   
-  log(realm, source, "putItem", 
-          "table " +
-          tableName +
-          " id: " +
-          uniqueId,LOGINFO, LOGDATA);
+//   log(realm, source, "putItem", 
+//           "table " +
+//           tableName +
+//           " id: " +
+//           uniqueId,LOGINFO, LOGDATA);
 
   
-  if (db && db.ready()) {
-    db.ref(`${tableName}/${uniqueId}`).set(Item);
-    return true;
-  } else {
-    return false;
-  }
-};
+//   if (db && db.ready()) {
+//     db.ref(`${tableName}/${uniqueId}`).set(Item);
+//     return true;
+//   } else {
+//     return false;
+//   }
+// };
 
-const getItem = async (tableName, uniqueId) => {
+// const getItem = async (tableName, uniqueId) => {
 
-  log(realm, source, "getItem", 
-          "table " +
-          tableName +
-          " id: " +
-          uniqueId,LOGINFO, LOGDATA);
+//   log(realm, source, "getItem", 
+//           "table " +
+//           tableName +
+//           " id: " +
+//           uniqueId,LOGINFO, LOGDATA);
 
-  if (db && db.ready()) {
-    const data = await db.ref(`${tableName}/${uniqueId}`).get();
-    if (data.exists) {
-      return data.val();
-    } else {  
-      return "no data";
-    }
-  } else {
-    return "no db";
-  }
+//   if (db && db.ready()) {
+//     const data = await db.ref(`${tableName}/${uniqueId}`).get();
+//     if (data.exists) {
+//       return data.val();
+//     } else {  
+//       return "no data";
+//     }
+//   } else {
+//     return "no db";
+//   }
 
-};
+// };
 
-const getAsyncItems = async (
-    tableName,
-    filterIdx = "id",
-    filterComparator = ">",
-    filterVal = 0
-  ) => {
+// const getAsyncItems = async (
+//     tableName,
+//     filterIdx = "id",
+//     filterComparator = ">",
+//     filterVal = 0
+//   ) => {
 
-  log(realm, source, "getAsyncItems", 
-        "table " +
-        tableName +
-        " filter " +
-        filterIdx +
-        filterComparator +
-        filterVal);
+//   log(realm, source, "getAsyncItems", 
+//         "table " +
+//         tableName +
+//         " filter " +
+//         filterIdx +
+//         filterComparator +
+//         filterVal);
 
-  if (db && db.ready()) {
+//   if (db && db.ready()) {
 
-    const snapshots = await db.query(tableName)
-      .filter(filterIdx, filterComparator, filterVal)
-      .get();
+//     const snapshots = await db.query(tableName)
+//       .filter(filterIdx, filterComparator, filterVal)
+//       .get();
       
-    // console.log("================ getAsyncItems ======");
-    // console.dir(snapshots.getValues());
-    // console.log("================ getAsyncItems ======");
+//     // console.log("================ getAsyncItems ======");
+//     // console.dir(snapshots.getValues());
+//     // console.log("================ getAsyncItems ======");
 
-    return snapshots.getValues();
+//     return snapshots.getValues();
 
-  } else {
-    return "no db"
-  }
-};
+//   } else {
+//     return "no db"
+//   }
+// };
   
 
-const deleteItem = (tableName, uniqueId) => {
-  if (db && db.ready()) {
-    db.ref(`${tableName}/${uniqueId}`).remove();
-    return true;
-  } else {
-    return false;
-  }
-};
+// const deleteItem = (tableName, uniqueId) => {
+//   if (db && db.ready()) {
+//     db.ref(`${tableName}/${uniqueId}`).remove();
+//     return true;
+//   } else {
+//     return false;
+//   }
+// };
 
-// now we export the class, so other modules can create Penguin objects
-module.exports = {
-  getAsyncItems,
-  putItem,
-  getItem,
-  deleteItem,
-  createDb,
-  cleanDb
-};
+// // now we export the class, so other modules can create Penguin objects
+// module.exports = {
+//   getAsyncItems,
+//   putItem,
+//   getItem,
+//   deleteItem,
+//   createDb,
+//   cleanDb
+// };
 
