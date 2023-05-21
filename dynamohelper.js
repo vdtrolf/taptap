@@ -1,4 +1,9 @@
  const AWS = require("aws-sdk");
+
+ // const AWS =  require("aws-sdk/clients/dynamodb");
+ // const dynamoDocumentClient = new dynamoDB.DocumentClient();
+
+
  AWS.config.update({ region: "us-east-1" });
 
  // logger stuff
@@ -24,10 +29,10 @@
  const islanddefs = {
    AttributeDefinitions: [{ AttributeName: "id", AttributeNature: "N" }],
    KeySchema: [{ AttributeName: "id", KeyNature: "HASH" }],
-   ProvisionedThroughput: {
-     ReadCapacityUnits: 5,
-     WriteCapacityUnits: 5,
-   },
+   //ProvisionedThroughput: {
+   //  ReadCapacityUnits: 5,
+   //  WriteCapacityUnits: 5,
+   //},
    TableName: "island",
  };
 
@@ -54,6 +59,9 @@
          });
        }
      } else {
+
+       process.env.AWS_NODEJS_CONNECTION_REUSE_ENABLED = 1;
+
        dynamodb = new AWS.DynamoDB({
          httpOptions: {
            agent,
