@@ -29,7 +29,7 @@ let cleandb = false;
 let stateCounter = 0;
 
 // simulateRate tells how often that must happen
-let simulateRate = 1500; // 864; // 3428;
+let simulateRate = 5000; // 1500; // 864; // 3428;
 
 // debug variables
 let deepdebug = true;
@@ -46,11 +46,13 @@ const setState = async (local,iceTiles=false) => {
     // Call-back after the islands have been loaded
     // const getTheIslands = () => {
 
+   let lastInvocation = Math.floor(Date.now() / 1000) % 10000;
+
     getIslands().forEach((island) => {
-      if (island.running || island.runonce) {
+      if ((island.running && lastInvocation - island.lastInvocation < 20) || island.runonce) {
         running = true;
 
-        // console.log(">>>> running " + island.id)
+        // console.log(">>>> running " + island.id + "(" + lastInvocation + '/' + island.lastInvocation + ")" )
 
         if (deepdebug) {
           let img = getAsciiImg(island);

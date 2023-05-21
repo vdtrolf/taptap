@@ -28,7 +28,6 @@ let Garbage = garbageReq.Garbage;
 let putItem = dbhelperReq.putItem;
 let deleteItem = dbhelperReq.deleteItem;
 let getAsyncItems = dbhelperReq.getAsyncItems;
-// let cleanIslands = islandReq.cleanIslands;
 let addIsland = islandReq.addIsland;
 
 const maxAge = 3600000; // one hour
@@ -161,7 +160,6 @@ const persistIsland = (island) => {
     garbages.push(aGarbage);
   });
 
-
   putItem("island", {
     id: island.id,
     name: island.name,
@@ -205,9 +203,8 @@ const persistIslandData = async (island) => {
       " counter: " +
       island.counter
   );
-
-  // console.dir(island.lands)
-
+  let lastInvocation = Math.floor(Date.now() / 1000) % 10000;
+  
   await putItem("island", {
     id: island.id,
     name: island.name,
@@ -226,7 +223,7 @@ const persistIslandData = async (island) => {
     points: island.points,
     running: island.running,
     runonce: island.runonce,
-    lastInvocation: island.lastInvocation,
+    lastInvocation: lastInvocation,
     followId: island.followId ? island.followId : 0,
     lands: island.lands,
     penguins: island.penguins,

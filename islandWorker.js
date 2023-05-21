@@ -173,9 +173,9 @@ const getIslandData = async (
       changed=true;
     }
 
-    if (changed) {
+    // if (changed) {
       await persistIslandData(islandData);
-    }
+    // }
 
     let islands = [];
 
@@ -267,9 +267,10 @@ const getMovesData = async (islandId, penguinFollowId) => {
 
     if (penguinFollowId && penguinFollowId > 0) {
       islandData.followId = penguinFollowId;
-      await persistIslandData(islandData);
-      
     }
+      
+    await persistIslandData(islandData);
+
   } else {
     log(
       realm,
