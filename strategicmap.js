@@ -168,7 +168,7 @@ class StrategicMap {
               
               hline.push({
                 hpos: hpos,
-                pos: lpos,
+                lpos: lpos,
                 pos: true,
                 food: land.hasFood,
                 stable: stable,

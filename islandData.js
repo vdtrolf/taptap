@@ -112,7 +112,6 @@ const persistIsland = (island) => {
       partnerId: penguin.partnerId,
       moveDirection: penguin.moveDirection,
       strategyShort: penguin.strategyShort,
-      knownWorld: penguin.knownWorld,
       building: penguin.building,
       buildingDirection: penguin.buildingDirection,
       targetHPos: penguin.targetHPos,

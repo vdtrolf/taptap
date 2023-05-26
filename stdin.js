@@ -126,7 +126,7 @@ const convertPos = (val) => {
       return 9;
     case "B" :
       return 10;
-    case "A" :
+    case "C" :
       return 11;
   }
   return val -1; 

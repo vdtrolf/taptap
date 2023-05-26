@@ -82,6 +82,9 @@ const debug = false;
 
 // initiate the DB - local means a local DB for dynamo. Acebase is always local
 // if the argument 'cleandb' was given, then the island dataset will be (re)created
+
+process.env.AWS_NODEJS_CONNECTION_REUSE_ENABLED = 1;
+
 createDb(local);
 if (cleandb) cleanDb();
 

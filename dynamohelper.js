@@ -1,10 +1,5 @@
- const AWS = require("aws-sdk");
-
- // const AWS =  require("aws-sdk/clients/dynamodb");
- // const dynamoDocumentClient = new dynamoDB.DocumentClient();
-
-
- AWS.config.update({ region: "us-east-1" });
+const { DynamoDB } = require("@aws-sdk/client-dynamodb");
+const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
 
  // logger stuff
  const loggerReq = require("./logger.js");
@@ -24,7 +19,7 @@
 
  const debug = false;
  const deepdebug = true;
- let dynamodb = null;
+ let client = null;
 
  const islanddefs = {
    AttributeDefinitions: [{ AttributeName: "id", AttributeNature: "N" }],
@@ -37,14 +32,14 @@
  };
 
  const createDb = (local) => {
-   if (!dynamodb) {
+   if (!client) {
      if (local) {
-       dynamodb = new AWS.DynamoDB({
-         endpoint: new AWS.Endpoint("http://localhost:8000"),
+       client = new DynamoDB({
+        endpoint: 'http://localhost:8000'
        });
        log(realm, source, "createDb", "connected to local");
        if (deepdebug) {
-         dynamodb.listTables({ Limit: 10 }, (err, data) => {
+         client.listTables({ Limit: 10 }, (err, data) => {
            if (err) {
              log(
                realm,
@@ -62,14 +57,11 @@
 
        process.env.AWS_NODEJS_CONNECTION_REUSE_ENABLED = 1;
 
-       dynamodb = new AWS.DynamoDB({
-         httpOptions: {
-           agent,
-         },
-       });
+       client = new DynamoDB({  httpOptions: {agent,},region: "us-east-1" });
+
        log(realm, source, "createDb", "connected");
        if (deepdebug) {
-         dynamodb.listTables({ Limit: 10 }, (err, data) => {
+         client.listTables({ Limit: 10 }, (err, data) => {
            if (err) {
              log(
                realm,
@@ -90,21 +82,21 @@
  const cleanDb = () => {
    let tableNames = [];
 
-   dynamodb.listTables({ Limit: 10 }, (err, data) => {
+   client.listTables({ Limit: 10 }, (err, data) => {
      if (err) {
        log(realm, source, "cleanDb", "Could not list tables" + err, LOGERR);
      } else {
        log(realm, source, "cleanDb", data.TableNames);
        if (data?.TableNames.includes("island")) {
-         dynamodb.deleteTable(islanddefs, function (err, data) {
+         client.deleteTable(islanddefs, function (err, data) {
            log(realm, source, "cleanDb", "Table island deleting");
-           dynamodb.waitFor("tableNotExists", islanddefs, function (err, data) {
-             dynamodb.createTable(islanddefs, function (err, data) {});
+           client.waitFor("tableNotExists", islanddefs, function (err, data) {
+             client.createTable(islanddefs, function (err, data) {});
              log(realm, source, "cleanDb", "Table island created");
            });
          });
        } else {
-         dynamodb.createTable(islanddefs, function (err, data) {
+         client.createTable(islanddefs, function (err, data) {
            if (err) {
              log(
                realm,
@@ -125,22 +117,22 @@
 const initiateDb = () => {
   let tableNames = [];
 
-  dynamodb.listTables({ Limit: 10 }, (err, data) => {
+  client.listTables({ Limit: 10 }, (err, data) => {
     if (err) {
       console.log("dynamohelper.js : Could not list tables", err);
     } else {
       console.log(data.TableNames);
       
       if (data?.TableNames.includes("island")) {
-        dynamodb.deleteTable(islanddefs, function (err, data) {
+        client.deleteTable(islanddefs, function (err, data) {
           console.log("Table island deleting");
-          dynamodb.waitFor("tableNotExists", islanddefs, function (err, data) {
-            dynamodb.createTable(islanddefs, function (err, data) {});
+          client.waitFor("tableNotExists", islanddefs, function (err, data) {
+            client.createTable(islanddefs, function (err, data) {});
             console.log("Table island created");
           });
         });
       } else {
-        dynamodb.createTable(islanddefs, function (err, data) {
+        client.createTable(islanddefs, function (err, data) {
           if (err) {
             console.log("Error in creating table island ", err);
           } else {
@@ -155,7 +147,7 @@ const initiateDb = () => {
  // adds an item in the DB based on the table name and the unique id
 
  const putItem = (TableName, anItem, uniqueId) => {
-   let Item = AWS.DynamoDB.Converter.marshall(anItem);
+   let Item = marshall(anItem);
    let params = {
      Item,
      TableName,
@@ -163,7 +155,7 @@ const initiateDb = () => {
 
    log(realm, source, "putItem", params, LOGINFO, LOGDATA);
 
-   dynamodb.putItem(params, (err, data) => {
+   client.putItem(params, (err, data) => {
      if (err) {
        log(
          realm,
@@ -198,10 +190,10 @@ const initiateDb = () => {
 
    log(realm, source, "getItem params", queryparams, LOGINFO, LOGDATA);
 
-   const awsRequest = await dynamodb.query(queryparams);
-   const result = await awsRequest.promise();
+   const awsRequest = await client.query(queryparams);
+   // const result = await awsRequest.promise();
 
-   let cleanItem = AWS.DynamoDB.Converter.unmarshall(result.Items[0]);
+   let cleanItem = unmarshall(awsRequest.Items[0]);
 
    log(realm, source, "getItem result", cleanItem, LOGINFO, LOGDATA);
 
@@ -234,12 +226,12 @@ const initiateDb = () => {
 
    log(realm, source, "getAsyncItems params", scanparams, LOGINFO, LOGDATA);
 
-   const awsRequest = await dynamodb.scan(scanparams);
-   const result = await awsRequest.promise();
+   const awsRequest = await client.scan(scanparams);
+   // const result = await awsRequest.promise();
 
    let cleanItems = [];
-   for (let i = 0; i < result.Items.length; i++) {
-     cleanItems.push(AWS.DynamoDB.Converter.unmarshall(result.Items[i]));
+   for (let i = 0; i < awsRequest.Items.length; i++) {
+     cleanItems.push(unmarshall(awsRequest.Items[i]));
    }
 
    log(realm, source, "getAsyncItems results", cleanItems, LOGINFO, LOGDATA);
@@ -259,7 +251,7 @@ const initiateDb = () => {
      TableName: tableName,
    };
 
-   dynamodb.deleteItem(deleteparams, function (err, data) {
+   client.deleteItem(deleteparams, function (err, data) {
      if (err) {
        log(realm, source, "deleteItem", err, LOGERR);
        return null;
