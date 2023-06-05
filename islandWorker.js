@@ -60,6 +60,11 @@ const getInitData = async (island) => {
 
 const setRunningState = async (islandId, runningState) => {
 
+  // const islands = getIslands() ;
+
+  // if (islands.length === 0) {
+
+
   let islandData = await getItem("island", islandId);
 
  // console.log(">>>>> set Running state for " + islandId + " to " + runningState + " was " + islandData.running)

@@ -29,6 +29,7 @@ let putItem = dbhelperReq.putItem;
 let deleteItem = dbhelperReq.deleteItem;
 let getAsyncItems = dbhelperReq.getAsyncItems;
 let addIsland = islandReq.addIsland;
+let getIslands = islandReq.getIslands;
 
 const maxAge = 3600000; // one hour
 
@@ -233,219 +234,224 @@ const persistIslandData = async (island) => {
 };
 
 const initiateIslands = async (islandParam=null) => {
-  let running = false;
+  
+  let running = getIslands().length > 0 ;
 
-  log(realm, source, "initiateIslands", "getting islands out of DB");
+  if (! running) {
+    console.log("---------- GETTING ISLANDS --------------")
+    log(realm, source, "initiateIslands", "getting islands out of DB");
 
-  let theIslands = islandParam?[islandParam]:await getAsyncItems("island", "id", ">", 0);
+    let theIslands = islandParam?[islandParam]:await getAsyncItems("island", "id", ">", 0);
 
-  if (theIslands && theIslands.length > 0) {
-    // cleanIslands();
+    if (theIslands && theIslands.length > 0) {
+      // cleanIslands();
 
-    log(
-      realm,
-      source,
-      "initiatieIslands",
-      "found " + theIslands.length + " islands"
-    );
-    log(realm, source, "initiateIslands", theIslands, LOGVERB, LOGDATA);
+      log(
+        realm,
+        source,
+        "initiatieIslands",
+        "found " + theIslands.length + " islands"
+      );
+      log(realm, source, "initiateIslands", theIslands, LOGVERB, LOGDATA);
 
-    let currentTime = new Date().getTime();
+      let currentTime = new Date().getTime();
 
-    try {
-      theIslands.forEach((anIsland) => {
-        
-        let age = currentTime - Number.parseInt(anIsland.lastInvocation);
+      try {
+        theIslands.forEach((anIsland) => {
+          
+          let age = currentTime - Number.parseInt(anIsland.lastInvocation);
 
-        if (anIsland.lastInvocation > 0 && (age < maxAge || anIsland.running)) {
-          running = true;
+          if (anIsland.lastInvocation > 0 && (age < maxAge || anIsland.running)) {
+            running = true;
 
-          let island = new Island(
-            anIsland.sizeH,
-            anIsland.sizeL,
-            anIsland.id,
-            anIsland.name,
-            anIsland.year,
-            anIsland.weather,
-            anIsland.weatherCount,
-            anIsland.temperature,
-            anIsland.plasticControl,
-            anIsland.oceanTemperature,
-            anIsland.numPeng,
-            anIsland.tiles,
-            anIsland.landSize,
-            anIsland.food,
-            anIsland.points,
-            anIsland.running,
-            anIsland.runonce,
-            anIsland.lastInvocation,
-            anIsland.followId,
-            anIsland.counter
-          );
+            let island = new Island(
+              anIsland.sizeH,
+              anIsland.sizeL,
+              anIsland.id,
+              anIsland.name,
+              anIsland.year,
+              anIsland.weather,
+              anIsland.weatherCount,
+              anIsland.temperature,
+              anIsland.plasticControl,
+              anIsland.oceanTemperature,
+              anIsland.numPeng,
+              anIsland.tiles,
+              anIsland.landSize,
+              anIsland.food,
+              anIsland.points,
+              anIsland.running,
+              anIsland.runonce,
+              anIsland.lastInvocation,
+              anIsland.followId,
+              anIsland.counter
+            );
 
-          for (let i = 0; i < island.sizeH; i++) {
-            let line = [];
-            for (let j = 0; j < island.sizeL; j++) {
-              line.push([]);
+            for (let i = 0; i < island.sizeH; i++) {
+              let line = [];
+              for (let j = 0; j < island.sizeL; j++) {
+                line.push([]);
+              }
+              island.territory.push(line);
             }
-            island.territory.push(line);
-          }
 
-          if (anIsland.lands) {
-            anIsland.lands.forEach((aLand) => {
-              let land = new Land(
-                aLand.hpos,
-                aLand.lpos,
-                island.id,
-                aLand.id,
-                aLand.nature,
-                aLand.smeltLevel,
-                aLand.tileAngle,
-                aLand.hasCross,
-                aLand.crossAge,
-                aLand.hasFood,
-                aLand.hasFish,
-                aLand.fishAge,
-                aLand.hasGarbage,
-                aLand.hasIce,
-                aLand.iceAge,
-                aLand.hasFill,
-                aLand.fillAge
-              );
-              island.territory[aLand.hpos][aLand.lpos] = land;
-            });
-          }
+            if (anIsland.lands) {
+              anIsland.lands.forEach((aLand) => {
+                let land = new Land(
+                  aLand.hpos,
+                  aLand.lpos,
+                  island.id,
+                  aLand.id,
+                  aLand.nature,
+                  aLand.smeltLevel,
+                  aLand.tileAngle,
+                  aLand.hasCross,
+                  aLand.crossAge,
+                  aLand.hasFood,
+                  aLand.hasFish,
+                  aLand.fishAge,
+                  aLand.hasGarbage,
+                  aLand.hasIce,
+                  aLand.iceAge,
+                  aLand.hasFill,
+                  aLand.fillAge
+                );
+                island.territory[aLand.hpos][aLand.lpos] = land;
+              });
+            }
 
-          let penguins = [];
+            let penguins = [];
 
-          if (anIsland.penguins) {
-            anIsland.penguins.forEach((aPenguin) => {
-              let penguin = new Penguin(
-                aPenguin.num,
-                aPenguin.hpos,
-                aPenguin.lpos,
-                island.id,
-                aPenguin.fatherId,
-                aPenguin.motherId,
-                aPenguin.id,
-                aPenguin.age,
-                aPenguin.fat,
-                aPenguin.maxcnt,
-                aPenguin.vision,
-                aPenguin.wealth,
-                aPenguin.hungry,
-                aPenguin.alive,
-                aPenguin.gender,
-                aPenguin.cat,
-                aPenguin.name,
-                aPenguin.loving,
-                aPenguin.waiting,
-                aPenguin.fishTime,
-                aPenguin.fishDirection,
-                aPenguin.eating,
-                aPenguin.moving,
-                aPenguin.diging,
-                aPenguin.digTime,
-                aPenguin.digDirection,
-                aPenguin.filling,
-                aPenguin.fillTime,
-                aPenguin.fillDirection,
-                aPenguin.hasLoved,
-                aPenguin.partnerId,
-                aPenguin.moveDirection,
-                aPenguin.strategyShort,
-                aPenguin.building,
-                aPenguin.buildingDirection,
-                aPenguin.targetHPos,
-                aPenguin.targetLPos,
-                aPenguin.targetAction,
-                aPenguin.knownWorld,
-                aPenguin.targetDirections,
-                aPenguin.path
-              );
-              penguins.push(penguin);
-              
-            });
-          }
-          island.penguins = penguins;
-
-          let fishes = [];
-
-          if (anIsland.fishes) {
-            anIsland.fishes.forEach((aFish) => {
-              let fish = new Fish(
-                aFish.num,
-                aFish.hpos,
-                aFish.lpos,
-                island.id,
-                aFish.id,
-                aFish.specie,
-                aFish.moving,
-                aFish.staying,
-                aFish.onHook, 
-                aFish.hookAge,
-                aFish.fishDirection
-              );
-              fishes.push(fish);
+            if (anIsland.penguins) {
+              anIsland.penguins.forEach((aPenguin) => {
+                let penguin = new Penguin(
+                  aPenguin.num,
+                  aPenguin.hpos,
+                  aPenguin.lpos,
+                  island.id,
+                  aPenguin.fatherId,
+                  aPenguin.motherId,
+                  aPenguin.id,
+                  aPenguin.age,
+                  aPenguin.fat,
+                  aPenguin.maxcnt,
+                  aPenguin.vision,
+                  aPenguin.wealth,
+                  aPenguin.hungry,
+                  aPenguin.alive,
+                  aPenguin.gender,
+                  aPenguin.cat,
+                  aPenguin.name,
+                  aPenguin.loving,
+                  aPenguin.waiting,
+                  aPenguin.fishTime,
+                  aPenguin.fishDirection,
+                  aPenguin.eating,
+                  aPenguin.moving,
+                  aPenguin.diging,
+                  aPenguin.digTime,
+                  aPenguin.digDirection,
+                  aPenguin.filling,
+                  aPenguin.fillTime,
+                  aPenguin.fillDirection,
+                  aPenguin.hasLoved,
+                  aPenguin.partnerId,
+                  aPenguin.moveDirection,
+                  aPenguin.strategyShort,
+                  aPenguin.building,
+                  aPenguin.buildingDirection,
+                  aPenguin.targetHPos,
+                  aPenguin.targetLPos,
+                  aPenguin.targetAction,
+                  aPenguin.knownWorld,
+                  aPenguin.targetDirections,
+                  aPenguin.path
+                );
+                penguins.push(penguin);
                 
-            });
+              });
+            }
+            island.penguins = penguins;
+
+            let fishes = [];
+
+            if (anIsland.fishes) {
+              anIsland.fishes.forEach((aFish) => {
+                let fish = new Fish(
+                  aFish.num,
+                  aFish.hpos,
+                  aFish.lpos,
+                  island.id,
+                  aFish.id,
+                  aFish.specie,
+                  aFish.moving,
+                  aFish.staying,
+                  aFish.onHook, 
+                  aFish.hookAge,
+                  aFish.fishDirection
+                );
+                fishes.push(fish);
+                  
+              });
+            }
+            island.fishes = fishes;
+
+            let garbages = [];
+
+            if (anIsland.garbages) {
+              anIsland.garbages.forEach((aGarbage) => {
+                let garbage = new Garbage(
+                  aGarbage.num,
+                  aGarbage.hpos,
+                  aGarbage.lpos,
+                  island.id,
+                  aGarbage.id,
+                  aGarbage.kind,
+                );
+                garbages.push(garbage);
+                  
+              });
+            }
+            island.garbages = garbages;
+
+
+
+            addIsland(island);
+
+            log(
+              realm,
+              source,
+              "initiateIslands",
+              "Loaded island " +
+                anIsland.name +
+                "-" +
+                anIsland.id +
+                " age " +
+                age +
+                " runnning " +
+                anIsland.running
+            );
+          } else {
+            log(
+              realm,
+              source,
+              "initiateIslands",
+              "Could not load island " +
+                anIsland.id +
+                " age " +
+                age +
+                " runnning " +
+                anIsland.running
+            );
+
+            deleteItem("island", anIsland.id);
           }
-          island.fishes = fishes;
-
-          let garbages = [];
-
-          if (anIsland.garbages) {
-            anIsland.garbages.forEach((aGarbage) => {
-              let garbage = new Garbage(
-                aGarbage.num,
-                aGarbage.hpos,
-                aGarbage.lpos,
-                island.id,
-                aGarbage.id,
-                aGarbage.kind,
-              );
-              garbages.push(garbage);
-                
-            });
-          }
-          island.garbages = garbages;
-
-
-
-          addIsland(island);
-
-          log(
-            realm,
-            source,
-            "initiateIslands",
-            "Loaded island " +
-              anIsland.name +
-              "-" +
-              anIsland.id +
-              " age " +
-              age +
-              " runnning " +
-              anIsland.running
-          );
-        } else {
-          log(
-            realm,
-            source,
-            "initiateIslands",
-            "Could not load island " +
-              anIsland.id +
-              " age " +
-              age +
-              " runnning " +
-              anIsland.running
-          );
-
-          deleteItem("island", anIsland.id);
-        }
-      });
-    } catch (error) {
-      log(realm, source, "initiateIslands", error, LOGERR);
+        });
+      } catch (error) {
+        log(realm, source, "initiateIslands", error, LOGERR);
+      }
     }
+
   }
 
   return running;

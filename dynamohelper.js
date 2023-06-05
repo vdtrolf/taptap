@@ -37,6 +37,10 @@ const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
        client = new DynamoDB({
         endpoint: 'http://localhost:8000'
        });
+
+       console.log("---------- DB CLIENT CREATED --------------")
+
+
        log(realm, source, "createDb", "connected to local");
        if (deepdebug) {
          client.listTables({ Limit: 10 }, (err, data) => {
@@ -58,6 +62,8 @@ const { marshall, unmarshall } = require("@aws-sdk/util-dynamodb");
        process.env.AWS_NODEJS_CONNECTION_REUSE_ENABLED = 1;
 
        client = new DynamoDB({  httpOptions: {agent,},region: "us-east-1" });
+
+       console.log("---------- DB CLIENT CREATED --------------")
 
        log(realm, source, "createDb", "connected");
        if (deepdebug) {

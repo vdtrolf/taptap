@@ -36,7 +36,7 @@ let deepdebug = true;
 let counter = 0;
 
 // State engine = changes the state of all the running islands
-const setState = async (local,iceTiles=false) => {
+const setState = async (local,iceTiles=true) => {
   // createDb(local);
 
   let initiate = await initiateIslands(); // (getTheIslands);
@@ -73,7 +73,7 @@ const setState = async (local,iceTiles=false) => {
       }
     });
     
-    cleanIslands();
+    // cleanIslands();
     
   }
   return running;
