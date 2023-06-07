@@ -29,7 +29,7 @@ let cleandb = false;
 let stateCounter = 0;
 
 // simulateRate tells how often that must happen
-let simulateRate = 5000; // 1500; // 864; // 3428;
+let simulateRate = 2000; // 1500; // 864; // 3428;
 
 // debug variables
 let deepdebug = true;
@@ -40,6 +40,9 @@ const setState = async (local,iceTiles=true) => {
   // createDb(local);
 
   let initiate = await initiateIslands(); // (getTheIslands);
+
+  // console.log("-------- INITIATE ---- " + initiate);
+
   let running = false;
 
   if (initiate) {
@@ -49,6 +52,7 @@ const setState = async (local,iceTiles=true) => {
    let lastInvocation = Math.floor(Date.now() / 1000) % 10000;
 
     getIslands().forEach((island) => {
+      // console.log(">>>> found " + island.id + "(" + lastInvocation + '/' + island.lastInvocation + ")" )
       if ((island.running && lastInvocation - island.lastInvocation < 20) || island.runonce) {
         running = true;
 
@@ -73,7 +77,7 @@ const setState = async (local,iceTiles=true) => {
       }
     });
     
-    // cleanIslands();
+    cleanIslands();
     
   }
   return running;

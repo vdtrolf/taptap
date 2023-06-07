@@ -235,15 +235,17 @@ const persistIslandData = async (island) => {
 
 const initiateIslands = async (islandParam=null) => {
   
-  let running = getIslands().length > 0 ;
+  // let running = getIslands().length > 0 ;
 
-  if (! running) {
-    console.log("---------- GETTING ISLANDS --------------")
+  // if (! running) {
+    // console.log("---------- GETTING ISLANDS --------------")
     log(realm, source, "initiateIslands", "getting islands out of DB");
 
     let theIslands = islandParam?[islandParam]:await getAsyncItems("island", "id", ">", 0);
 
     if (theIslands && theIslands.length > 0) {
+      running = true;
+      
       // cleanIslands();
 
       log(
@@ -452,7 +454,7 @@ const initiateIslands = async (islandParam=null) => {
       }
     }
 
-  }
+  // }
 
   return running;
 };
