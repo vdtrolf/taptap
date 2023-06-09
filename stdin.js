@@ -136,7 +136,7 @@ const convertPos = (val) => {
 
 const createIsland = async () => {
   let island = new Island(islandH, islandL);
-  persistIsland(island, true);
+  await persistIsland(island, true);
   await getInitData(island);
   getAsyncItems("island","id",">",0)
       .then(value => printList(value));

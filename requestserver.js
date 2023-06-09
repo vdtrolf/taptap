@@ -43,7 +43,7 @@ const createResponse = async (url, params, islandId = 0, local = true) => {
     switch (url) {
       case "/new-island": {
         let island = new Island(islandH, islandL);
-        persistIsland(island, true);
+        await persistIsland(island, true);
 
         log(
           realm,
@@ -120,7 +120,7 @@ const createResponse = async (url, params, islandId = 0, local = true) => {
     switch (url) {
       case "/island": {
         let island = new Island(islandH, islandL);
-        persistIsland(island, true);
+        await persistIsland(island, true);
 
         log(
           realm,

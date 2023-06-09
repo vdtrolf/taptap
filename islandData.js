@@ -33,7 +33,7 @@ let getIslands = islandReq.getIslands;
 
 const maxAge = 3600000; // one hour
 
-const persistIsland = (island) => {
+const persistIsland = async (island) => {
   island.counter += 1;
 
   log(
