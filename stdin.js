@@ -1,6 +1,6 @@
 // DB stuff
-const dbhelperReq = require("./dynamohelper.js"); 
-// const dbhelperReq = require("./acebasehelper.js");
+// const dbhelperReq = require("./dynamohelper.js"); 
+const dbhelperReq = require("./acebasehelper.js");
 
 const readline = require('readline')
 const colors = require('colors/safe')
@@ -273,7 +273,7 @@ const createTerminal =  () => {
 
   if (init) {
     context = 1;
-    console.log("\033[2J\033[0f")
+    // console.log("\x033[2J\x033[0f")
     getAsyncItems("island","id",">",0)
     .then(value => printList(value))
     init=false;
@@ -286,7 +286,7 @@ const createTerminal =  () => {
       rl.close();
       process.exit();
     } else {
-      console.log("\033[2J\033[0f")
+      // console.log("\x033[2J\x033[0f")
       if (input.length > 0 ) {
         if (islandId > 0 ) {
           process.stdout.write(">> " + islandId + "-" + penguinId + " >>")

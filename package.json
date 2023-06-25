@@ -1,8 +1,6 @@
 {
   "dependencies": {
-    "@aws-sdk/client-dynamodb": "^3.338.0",
-    "@aws-sdk/util-dynamodb": "^3.338.0",
-    "aws-sdk": "^2.1381.0",
+    "acebase": "^1.29.0",
     "axios": "^0.27.2",
     "colors": "^1.4.0",
     "cors": "^2.8.5",
