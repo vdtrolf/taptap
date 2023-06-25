@@ -726,7 +726,7 @@ class Island {
 
     // Add some fishes ?
 
-    let fishNum = Math.floor(Math.random() * 2) + 4;
+    let fishNum = 1 // Math.floor(Math.random() * 2) + 4;
 
     while (aliveFishes < fishNum) {
       let hpos = Math.floor(Math.random() * this.sizeH);
@@ -846,7 +846,6 @@ class Island {
                 h,
                 l,
                 this.id,
-                [],
                 fatherId,
                 motherId
               );

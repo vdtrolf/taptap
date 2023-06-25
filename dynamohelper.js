@@ -199,7 +199,15 @@ const initiateDb = () => {
    const awsRequest = await client.query(queryparams);
    // const result = await awsRequest.promise();
 
-   let cleanItem = unmarshall(awsRequest.Items[0]);
+   let cleanItem  = {};
+
+   if ( awsRequest.Items  && awsRequest.Items[0] !== {} ) {
+      try {
+        cleanItem = unmarshall(awsRequest.Items[0]);
+      } catch {
+         console.log("==>>" + awsRequest.Items[0] + "<<")
+      }
+   }
 
    log(realm, source, "getItem result", cleanItem, LOGINFO, LOGDATA);
 

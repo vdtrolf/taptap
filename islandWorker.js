@@ -99,19 +99,8 @@ const getIslandData = async (
   tileHpos = 0,
   tileLpos = 0
 ) => {
-  log(
-    realm,
-    source,
-    "getIslandData",
-    "is=" +
-      islandId +
-      " fId=" +
-      penguinFollowId +
-      " ti=" +
-      tileHpos +
-      "/" +
-      tileLpos
-  );
+  
+  log( realm, source, "getIslandData","is=" + islandId + " fId=" + penguinFollowId + " ti=" + tileHpos + "/" + tileLpos);
 
   let result = {};
   let changed = false;
@@ -143,18 +132,11 @@ const getIslandData = async (
       tileHpos < islandData.sizeH  &&
       tileLpos < islandData.sizeL 
     ) {
-     
+    
       let land = islandData.lands.find((aLand) => aLand.hpos === tileHpos && aLand.lpos === tileLpos);
- 
-      // console.dir(land); 
 
       if (land) {
-        if (land.nature === 0 && islandData.tiles > 0 && ! land.hasFish
-          // && (territory[tileHpos -1 ][tileLpos] > 0 || 
-          //     territory[tileHpos +1 ][tileLpos] > 0 ||
-          //      territory[tileHpos][tileLpos -1] > 0|| 
-          //      territory[tileHpos][tileLpos + 1] > 0)
-          ) {
+        if (land.nature === 0 && islandData.tiles > 0 && ! land.hasFish ) {
           land.nature = 0;
           land.smeltLevel= 0;
           land.hasFill = true;          // land.changed = true;
@@ -195,7 +177,7 @@ const getIslandData = async (
           running: island.running,
         });
       });
-    }
+    } 
 
     let penguins = [];
     islandData.penguins.forEach((penguin) => penguins.push(penguin));
@@ -226,7 +208,7 @@ const getIslandData = async (
   } else {
     log(realm, source, "getIslandData", "no island data found  ", LOGERR);
   }
-
+  
   return result;
 };
 
