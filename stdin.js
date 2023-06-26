@@ -13,6 +13,7 @@ const islandDataReq = require("./islandData.js");
 const islandWorkerReq = require("./islandWorker.js");
 const islandReq = require("./island.js");
 const islandasciiReq = require("./islandascii.js");
+const islandasciismallReq = require("./islandasciismall.js");
 
 let createResponse = requestserverReq.createResponse;
 let getItem = dbhelperReq.getItem;
@@ -26,6 +27,7 @@ let deleteIsland = islandWorkerReq.deleteIsland;
 let getIslandData = islandWorkerReq.getIslandData;
 let initiateData = islandWorkerReq.initiateData;
 let getAsciiImg  = islandasciiReq.getAsciiImg;
+let getSmallAsciiImg  = islandasciismallReq.getSmallAsciiImg;
 
 var islandId = 0;
 var penguinId = 0;
@@ -70,7 +72,8 @@ const printIsland = (island) => {
     penguinList[++cnt] = penguin.id
     // if (penguin.id === penguinId) makeKnowWorld(penguin.knownWorld)
   })
-  getAsciiImg(islandObj).forEach(line=>print(line));
+  getSmallAsciiImg(islandObj).forEach(line=>print(line));
+  // getAsciiImg(islandObj).forEach(line=>print(line));
   //for (let i=0; i<knowWorldLines.length; i++) {
   //  print(knowWorldLines[i])
   //}
