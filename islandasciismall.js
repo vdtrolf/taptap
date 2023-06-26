@@ -15,7 +15,7 @@ function getSmallAsciiImg(island) {
     const health = ["-----", "----+", "---++", "--+++","-++++","+++++" ]
     const eyes = [" ","oo","ôô","öö","@@","©©","°°","õõ","ee","aa","oo","oo"]
     const fishEyes = ["  ",">o",">ô",">ö",">@",">©",">°",">õ",">e",">a",">o",">o"]
-    const actImg = ["",">","|","3","■","#"]
+    const actImg = ["","₪","|","♥","■","#"]
     const acts = ["═╬╬═","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬"];
     const lineNum = ["1","2","3","4","5","6","7","8","9","A","B","C"]
     const food = "©©©©©©©©";
@@ -31,15 +31,15 @@ function getSmallAsciiImg(island) {
         fishpos.push(linef);
     }
 
-    let top = " +" + ("---------------------------------------------------------------------------------------").substring(0,island.sizeH * 4 + 1) + "+"; 
-    let info = " |" + getEnd(island.id) + " " + island.name.toUpperCase() + (island.running?Math.floor(island.year):"end") + " " + weathers[island.weather] + " T:" + island.tiles + " F:" + island.food;
+    let top = " +" + ("---------------------------------------------------------------------------------------").substring(0,island.sizeH * 4 ) + "+"; 
+    let info = " |" + getEnd(island.id) + " " + island.name + " " + (island.running?Math.floor(island.year):"end") + " " + weathers[island.weather] + " T:" + island.tiles + " F:" + island.food;
     let head = " +" + ("1-2-3-4-5-6-7-8-9-A-B-C-------------------------------------------").substring(0,island.sizeH * 2) + "+"; 
     let end = " +" + ("---------------------------------------------------------------------------------------").substring(0,island.sizeH * 2 ) + "+"; 
-    let side = ("---------------------------------------------------------------------------------------").substring(0,island.sizeH * 2) + "+"; 
+    let side = ("---------------------------------------------------------------------------------------").substring(0,island.sizeH * 2 -1 ) + "+"; 
 
     let results = [""];
     results.push(top);
-    results.push((info + "                                   ").substring(0,(island.sizeH * 4)+ 3) + "|");
+    results.push((info + "                                   ").substring(0,(island.sizeH * 4)+ 2) + "|");
     results.push(head + side );
 
     let penglist = [""];
@@ -66,7 +66,7 @@ function getSmallAsciiImg(island) {
         const hungryBar = hunger[Math.floor(penguin.hungry/20)]
         const healthBar = health[Math.floor(penguin.wealth/20)]
         let line = `${eyes[cnt].substring(0,1)} ${penguin.name.substring(0,6)} ${status} ${activity > 0? activities[activity]: "2" + penguin.strategyShort.substring(4)}                            ` // ${hungryBar} ${healthBar} 
-        line = line.substring(0,island.sizeH * 2 ) + '|';
+        line = line.substring(0,island.sizeH * 2 - 1) + '|';
         acts[cnt] = actImg[activity];
         penglist.push(line);
         pengCnt++;
@@ -173,9 +173,9 @@ function getSmallAsciiImg(island) {
                     }    
                 } else if (land.hasIce) {
                     if (land.nature ==1) {
-                        line1 += "╔╗"
+                        line1 += "┌┐"
                     } else {
-                        line1 += "╔╗";
+                        line1 += "┌┐";
                     }    
                 } else if (land.hasFill) {
                     line1 += "--" ;
