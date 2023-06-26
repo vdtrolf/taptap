@@ -49,13 +49,13 @@ const printList = async (islands) => {
   var cnt =0;
   islandList = [0]
   print('');
-  print("+---- ISLANDS ----------------------------------------------+");
+  print("+---- ISLANDS ------------------------------------+");
   islands.forEach(island => {
-    line = "| " + ++cnt + " " + island.id + " " + island.name + " " + (island.running?island.counter:"end") + " "+ island.points + " pts " + island.penguins.length + " penguins follow: " + island.followId + "                                                            ";
-    print(line.substring(0,60) + "|");
+    line = "| " + ++cnt + " " + island.id + " " + island.name + " " + (island.running?island.counter:"end") + " "+ island.points + " pts " + island.penguins.length +  " 🐧                                                      ";
+    print(line.substring(0,50) + "|");
     islandList[cnt] = island.id
   });
-  print("+-----------------------------------------------------------+");
+  print("+-------------------------------------------------+");
 }
 
 const printIsland = (island) => {

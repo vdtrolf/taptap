@@ -13,9 +13,10 @@ function getSmallAsciiImg(island) {
     const activities = ["","Eat","Fish","Love","Dig","Fill"]
     const hunger = ["#####", ".####", "..###", "...##","....#","....."]
     const health = ["-----", "----+", "---++", "--+++","-++++","+++++" ]
-    const eyes = [" ","oo","ôô","öö","@@","©©","°°","õõ","ee","aa","oo","oo"]
+    const eyes = [" ","❶❶","➁➁","➂➂","➃➃","➄➄","➅➅","➆➆","➇➇","➈➈","➉➉","❶❶"]
+    const symbol = [" ","①","②","③","④","⑤","⑥","⑦","⑧","⑨","⑩","⑪"]
     const fishEyes = ["  ",">o",">ô",">ö",">@",">©",">°",">õ",">e",">a",">o",">o"]
-    const actImg = ["","₪","|","♥","■","#"]
+    const actImg = ["","₪","|","♥","⚒","#"]
     const acts = ["═╬╬═","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬","╬══╬"];
     const lineNum = ["1","2","3","4","5","6","7","8","9","A","B","C"]
     const food = "©©©©©©©©";
@@ -62,10 +63,10 @@ function getSmallAsciiImg(island) {
             activity = 5;
         }        
         penguinpos[penguin.hpos][penguin.lpos] = cnt;
-        var status = penguin.gender.substring(0,1) + Math.floor(penguin.age) + "-" + Math.floor(penguin.hungry -1) + "-" + Math.floor(penguin.wealth-1)
+        var status = (penguin.gender.substring(0,1).toUpperCase() === "M"?"♂":"♀") + Math.floor(penguin.age) + "-" + Math.floor(penguin.hungry -1) + "-" + Math.floor(penguin.wealth-1)
         const hungryBar = hunger[Math.floor(penguin.hungry/20)]
         const healthBar = health[Math.floor(penguin.wealth/20)]
-        let line = `${eyes[cnt].substring(0,1)} ${penguin.name.substring(0,6)} ${status} ${activity > 0? activities[activity]: "2" + penguin.strategyShort.substring(4)}                            ` // ${hungryBar} ${healthBar} 
+        let line = `${symbol[cnt]} ${penguin.name.substring(0,6)} ${status} ${activity > 0? activities[activity]: "2" + penguin.strategyShort.substring(4)}                            ` // ${hungryBar} ${healthBar} 
         line = line.substring(0,island.sizeH * 2 - 1) + '|';
         acts[cnt] = actImg[activity];
         penglist.push(line);
