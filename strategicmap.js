@@ -32,6 +32,7 @@ class StrategicMap {
 
     this.strategy = "";
     this.strategyShort = "";
+    this.strategyWord = "";
     this.hasTarget = false;
     this.path = [];
     this.targetH = 0;
@@ -63,6 +64,7 @@ class StrategicMap {
     
     this.strategy = "";
     this.strategyShort = " I am fine";
+    this.strategyWord = "Ok";
     this.hasTarget = false;
     this.targetH = 0;
     this.targetL = 0;
@@ -152,19 +154,11 @@ class StrategicMap {
 
             } else {
               let stable = this.isLandStable(island, hpos, lpos);
-              //console.log("££££££ -+- A")
               let fish = this.isLandFish(island, hpos, lpos);
-              //console.log("££££££ -+- b")
               let warm = this.calculateWarm(island, hpos, lpos, penguin.id, show) + 1;
-              //console.log("££££££ -+- C")
               let ice = this.hasLandIce(island, hpos, lpos,);
-              //console.log("££££££ -+- C")
               let fill = this.hasLandFill(island, hpos, lpos,);
-              //console.log("££££££ -+- C")
               let love = this.hasLandLove(island, hpos, lpos, penguin.id, penguin.gender);
-              //console.log("££££££ -+- D")
-              
-              //console.log("££££££ -+- " + land.getSmeltLevel() )
               
               hline.push({
                 hpos: hpos,
@@ -298,30 +292,35 @@ class StrategicMap {
       this.directions = [0,0,0,0];
       this.actionDirection = 0;
       this.strategyShort = " Loving";
+      this.strategyWord = "Love";
       this.followUp = true;
     } else if (penguin.isEating()) {
       this.action = 3;
       this.directions = [0,0,0,0];
       this.actionDirection = 0;
       this.strategyShort = " Eating";
+      this.strategyWord = "Eat";
       this.followUp = true;  
     } else if (penguin.isFishing()) {
       this.action = 7;
       this.directions = [0,0,0,0];
       this.actionDirection = 0;
       this.strategyShort = " Fishing";
+      this.strategyWord = "Fish";
       this.followUp = true;
     } else if (penguin.isDiging()) {
       this.action = 8;
       this.directions = [0,0,0,0];
       this.actionDirection = 0;
       this.strategyShort = " Diging";
+      this.strategyWord = "Dig";
       this.followUp = true;
     } else if (penguin.isFilling()) {
       this.action = 9;
       this.directions = [0,0,0,0];
       this.actionDirection = 0;
       this.strategyShort = " Filling";
+      this.strategyWord = "Fill";
       this.followUp = true;
     } else {
      
@@ -340,6 +339,7 @@ class StrategicMap {
       
         if (island.territory[penguin.hpos][penguin.lpos].hasFood) {
           this.strategyShort = " Eating";
+          this.strategyWord = "Eat";
           this.action = 3;
         } else if (foundFish) {
         
@@ -363,6 +363,7 @@ class StrategicMap {
                 if ( ! fish.onHook && fish.hpos === fishhpos && fish.lpos === fishlpos ){
                   fish.setOnHook(true);
                   this.strategyShort = " Fishing";
+                  this.strategyWord = "Fish";
                   this.actionDirection = fishmove;
                   this.action = 7;
                 }
@@ -374,7 +375,8 @@ class StrategicMap {
             // if (show) console.log(">>>>> " + penguin.name +" To food")
 
             hasUrgentNeed = true;
-            this.strategyShort = " To food";
+            this.strategyShort = " Fishing";
+            this.strategyWord = "2 fish";
             this.hasTarget = true;
             this.targetH = foundFishH;
             this.targetL = foundFishL;
@@ -382,6 +384,7 @@ class StrategicMap {
 
         } else if (fatburnsteps < 30) {
           this.strategyShort = " Search food";
+          this.strategyWord = "? food";
           this.wantsSearch = true;
         }    
 
@@ -414,6 +417,7 @@ class StrategicMap {
               island.territory[fillhpos][filllpos].fill();
 
               this.strategyShort = " Filling";
+              this.strategyWord = "Fill";
               this.actionDirection = fillmove;
               this.action = 9;
                             
@@ -422,6 +426,7 @@ class StrategicMap {
 
             hasUrgentNeed = true;
             this.strategyShort = " To fill";
+            this.strategyWord = "2 fill";
             this.hasTarget = true;
             this.targetH = foundFillH;
             this.targetL = foundFillL;
@@ -436,31 +441,18 @@ class StrategicMap {
         if (foundWarm) {
           hasUrgentNeed = true;
           this.strategyShort = " To warmth";
+          this.strategyWord = "2 warm";
           this.hasTarget = true;
           this.targetH = foundWarmH;
           this.targetL = foundWarmL;
         } else if (penguin.wealth < 60 && ! this.wantSearch) {
           this.strategyShort = " Search warmth";
+          this.strategyWord = "? warm";
           this.wantsSearch = true;
         }      
       } // cold
       
       if (! hasUrgentNeed) {
-
-        // if (show) console.log(">>>>> " + penguin.name +" not urgent")
-
-        // if (this.action===0  && island.weather < 2 && curSmelt > 10) { // unstable
-        //   if (foundStable) {
-        //     this.strategyShort = " To stable";
-        //     this.hasTarget = true;
-        //     this.targetH = foundStableH;
-        //     this.targetL = foundStableL;
-        //   } else if (curSmelt > 12 && ! this.wantSearch) {
-        //     this.strategyShort = " Search stable";
-        //     this.wantsSearch = true;
-        //   }
-        // } // unstable
-        
         
         if (this.action===0 && alone > 0 && foundLove) { // alone
           
@@ -479,15 +471,18 @@ class StrategicMap {
               lover.love(penguin.id);
               this.loverId = lover.id;  
               this.strategyShort = " Loving";
+              this.strategyWord = "Love";
               this.action = 4;
             } // pop/size > 0.5
           } else if (foundLove && penguin.gender==="male") {
             this.strategyShort = " To love";
+            this.strategyWord = "2 love";
             this.hasTarget = true;
             this.targetH = foundLoveH;
             this.targetL = foundLoveL;          
           } else if (! this.wantSearch){
             this.strategyShort = " Search love";
+            this.strategyWord = "? love";
             this.wantsSearch = true; 
           }
         } // alone
@@ -512,11 +507,13 @@ class StrategicMap {
               icehpos = icemove === 4 ? penguin.hpos + 1 : icehpos;
               island.territory[icehpos][icelpos].iceDig();
               this.strategyShort = " Diging";
+              this.strategyWord = "Dig";
               this.actionDirection = icemove;
               this.action = 8;
             }
           } else  {
             this.strategyShort = " To ice";
+            this.strategyWord = "2 ice";
             this.hasTarget = true;
             this.targetH = foundIceH;
             this.targetL = foundIceL;
@@ -524,10 +521,6 @@ class StrategicMap {
         } // no Ice
       
       }
-      // let hasPath = false;
-
-      // if (show) console.log(">> action: " + this.action + " hasTarget " + this.hasTarget + " urgent " +  hasUrgentNeed + " " + this.strategyShort);
-
       
       if (this.action === 0) {
         
@@ -553,44 +546,6 @@ class StrategicMap {
             if (hasPath) {
               this.action = 1;
             } 
-
-            // else if (this.targetH ) { // Filling for Path 
-
-            //   // if (show) console.log(penguin.name + " (" + this.strategyShort + ") Looking for filling at " + penguin.hpos + "/" + penguin.lpos + " to " + this.targetH + "/" + this.targetL   );
-
-            //   let posmoves = [];
-            //   if (this.targetL > penguin.lpos && island.territory[penguin.hpos][penguin.lpos + 1].getNature() === 0) posmoves.push(2);
-            //   if (this.targetL < penguin.lpos && island.territory[penguin.hpos][penguin.lpos - 1].getNature() === 0) posmoves.push(1);
-            //   if (this.targetH > penguin.hpos && island.territory[penguin.hpos + 1][penguin.lpos].getNature() === 0) posmoves.push(4);
-            //   if (this.targetH < penguin.hpos && island.territory[penguin.hpos - 1][penguin.lpos].getNature() === 0) posmoves.push(3);
- 
-            //   if (posmoves.length > 0) {
-            //     let aPosMove = Math.floor(Math.random() * posmoves.length);
-
-            //     // if (show) console.log("Found filling to " + posmoves[aPosMove]) ;
-
-            //     this.strategyShort = " Filling (for path)";
-            //     this.actionDirection = posmoves[aPosMove] ;
-            //     this.action = 9;
-            //   } else {
-            //     let posmoves = [];
-            //     if (this.targetL < penguin.lpos && island.territory[penguin.hpos][penguin.lpos - 1].canMove()) posmoves.push({dir:1, posH: penguin.hpos, posL: penguin.lpos -1 });
-            //     if (this.targetL > penguin.lpos && island.territory[penguin.hpos][penguin.lpos + 1].canMove()) posmoves.push({dir:2, posH: penguin.hpos, posL: penguin.lpos +1 });
-            //     if (this.targetH < penguin.hpos && island.territory[penguin.hpos - 1][penguin.lpos].canMove()) posmoves.push({dir:3, posH: penguin.hpos -1, posL: penguin.lpos });
-            //     if (this.targetH > penguin.hpos && island.territory[penguin.hpos + 1][penguin.lpos].canMove()) posmoves.push({dir:4, posH: penguin.hpos +1, posL: penguin.lpos });
-
-            //     if (posmoves.length > 0) {
-            //       let aPosMove = Math.floor(Math.random() * posmoves.length);
-
-            //       // if (show) console.log( penguin.name + " Found pre-filling to " + posmoves[aPosMove].dir);
-
-            //       this.path.push(posmoves[aPosMove]);
-            //       this.action = 1;
-            //       hasPath = true;
-            //     }
-
-            //   }
-            // }
 
           } else if (this.wantsSearch || hasOther) {
             
@@ -792,6 +747,7 @@ class StrategicMap {
                         directions: this.targetDirections, 
                         loverId: this.loverId, 
                         strategyShort: this.strategyShort,
+                        strategyWord: this.strategyWord,
                         followUp: this.followUp,
                         targetH: this.targetH,
                         targetL: this.targetL,

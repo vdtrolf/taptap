@@ -71,7 +71,7 @@ function getAsciiImg(island) {
         var status = penguin.gender.substring(0,1) + "/" + Math.floor(penguin.age) 
         const hungryBar = hunger[Math.floor(penguin.hungry/20)]
         const healthBar = health[Math.floor(penguin.wealth/20)]
-        let line = `${eyes[cnt]}${penguin.name} ${status} ${hungryBar} ${healthBar} ${activity > 0? activities[activity]:penguin.strategyShort}                                `
+        let line = `${eyes[cnt]}${penguin.name} ${status} ${hungryBar} ${healthBar} ${activity > 0? activities[activity]:penguin.strategyWord}                                `
         line = line.substring(0,island.sizeH * 3 ) + ' |';
         acts[cnt] = actImg[activity];
         penglist.push(line);

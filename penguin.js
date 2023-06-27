@@ -65,6 +65,7 @@ class Penguin {
     partnerId = 0,
     moveDirection = 0,
     strategyShort = "",
+    strategyWord = "",
     building = false,
     buildingDirection = 0,
     targetHPos = 0,
@@ -118,6 +119,7 @@ class Penguin {
 
     this.strategicMap = null;
     this.strategyShort = strategyShort;
+    this.strategyWord = strategyWord;
     this.knownWorld=knownWorld;
     this.targetHPos = targetHPos;
     this.targetLPos = targetLPos;
@@ -171,6 +173,7 @@ class Penguin {
     );
 
     this.strategyShort = target.strategyShort;
+    this.strategyWord = target.strategyWord;
     this.targetHPos = target.targetH;
     this.targetLPos = target.targetL;
     this.targetAction = target.action;
