@@ -376,7 +376,7 @@ class StrategicMap {
 
             hasUrgentNeed = true;
             this.strategyShort = " Fishing";
-            this.strategyWord = "2 fish";
+            this.strategyWord = "2fish";
             this.hasTarget = true;
             this.targetH = foundFishH;
             this.targetL = foundFishL;
@@ -384,7 +384,7 @@ class StrategicMap {
 
         } else if (fatburnsteps < 30) {
           this.strategyShort = " Search food";
-          this.strategyWord = "? food";
+          this.strategyWord = "?food";
           this.wantsSearch = true;
         }    
 
@@ -426,7 +426,7 @@ class StrategicMap {
 
             hasUrgentNeed = true;
             this.strategyShort = " To fill";
-            this.strategyWord = "2 fill";
+            this.strategyWord = "2fill";
             this.hasTarget = true;
             this.targetH = foundFillH;
             this.targetL = foundFillL;
@@ -441,13 +441,13 @@ class StrategicMap {
         if (foundWarm) {
           hasUrgentNeed = true;
           this.strategyShort = " To warmth";
-          this.strategyWord = "2 warm";
+          this.strategyWord = "2warm";
           this.hasTarget = true;
           this.targetH = foundWarmH;
           this.targetL = foundWarmL;
         } else if (penguin.wealth < 60 && ! this.wantSearch) {
           this.strategyShort = " Search warmth";
-          this.strategyWord = "? warm";
+          this.strategyWord = "?warm";
           this.wantsSearch = true;
         }      
       } // cold
@@ -476,13 +476,13 @@ class StrategicMap {
             } // pop/size > 0.5
           } else if (foundLove && penguin.gender==="male") {
             this.strategyShort = " To love";
-            this.strategyWord = "2 love";
+            this.strategyWord = "2love";
             this.hasTarget = true;
             this.targetH = foundLoveH;
             this.targetL = foundLoveL;          
           } else if (! this.wantSearch){
             this.strategyShort = " Search love";
-            this.strategyWord = "? love";
+            this.strategyWord = "?love";
             this.wantsSearch = true; 
           }
         } // alone

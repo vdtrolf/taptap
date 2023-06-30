@@ -181,7 +181,7 @@ function getSmallAsciiImg(island) {
                 } else if (land.hasFill) {
                     line1 += "--" ;
                 } else if (land.hasGarbage) {
-                    line1 += "°°" ;
+                    line1 += "%%" ;
                 } else if (land.hasCross) {
                     line1 += "++";
                 } else {
