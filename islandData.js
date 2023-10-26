@@ -236,7 +236,7 @@ const persistIslandData = async (island) => {
 
 const initiateIslands = async (islandParam=null) => {
   
-  // let running = getIslands().length > 0 ;
+  let running = false; //  getIslands().length > 0 ;
 
   // if (! running) {
     // console.log("---------- GETTING ISLANDS --------------")
