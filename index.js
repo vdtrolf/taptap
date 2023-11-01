@@ -69,7 +69,7 @@ args.forEach((arg) => {
   }
 });
 
-setLogLevel("index", LOGINFO);
+// setLogLevel("index", LOGINFO);
 // setLogLevel("db", LOGINFO);
 // setLogLevel("index", LOGINFO);
 // setLogLevel("worker", LOGINFO);
