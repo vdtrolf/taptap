@@ -57,7 +57,7 @@
     "@aws-sdk/util-utf8-browser" "^3.0.0"
     "tslib" "^1.11.1"
 
-"@aws-sdk/client-dynamodb@^3.441.0":
+"@aws-sdk/client-dynamodb@^3.0.0", "@aws-sdk/client-dynamodb@^3.441.0":
   "integrity" "sha512-glwb6qg+QCTPKIZu/F3cPJr24fAg6H6w5PWSfbl4IaephWiFEEbX4KXDeXzseBK7Ng/kohLbgPA0/YXckYK3zg=="
   "resolved" "https://registry.npmjs.org/@aws-sdk/client-dynamodb/-/client-dynamodb-3.441.0.tgz"
   "version" "3.441.0"
@@ -420,6 +420,13 @@
   "version" "3.433.0"
   dependencies:
     "@smithy/types" "^2.4.0"
+    "tslib" "^2.5.0"
+
+"@aws-sdk/util-dynamodb@^3.441.0":
+  "integrity" "sha512-v4KSeT2MyVYUuN1u+u9AVotuGj0vX8RNCBNntWu13NTpRF+NjnaiSUwtWAh0biEZGAtX9dKpV8o4NIGKSKN5lA=="
+  "resolved" "https://registry.npmjs.org/@aws-sdk/util-dynamodb/-/util-dynamodb-3.441.0.tgz"
+  "version" "3.441.0"
+  dependencies:
     "tslib" "^2.5.0"
 
 "@aws-sdk/util-endpoints@3.438.0":
